@@ -1,5 +1,5 @@
-# DnD 5e Utilities
-Little helpers for little tasks.
+# DnD5e Helpers
+Little helpers for little 5e tasks.
 
 ## Current Features
 
