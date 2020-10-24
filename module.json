@@ -1,0 +1,15 @@
+{
+    "name": "dnd5e-helpers",
+    "title": "DnD5e Helpers",
+    "description": "Little helpers for little tasks.",
+    "version": "1.0.0",
+    "author": "honeybadger#2614",
+    "scripts": [
+        "/scripts/dnd5e-helpers.js"
+    ],
+    "url": "https://github.com/trioderegion/dnd5e-helpers",
+    "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",
+    "download": "",
+    "minimumCoreVersion": "0.6.6",
+    "compatibleCoreVersion": "0.7.5"
+}
