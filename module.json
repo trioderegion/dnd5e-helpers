@@ -9,7 +9,7 @@
     ],
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",
-    "download": "",
+    "download": "https://github.com/trioderegion/dnd5e-helpers/raw/master/module.zip",
     "minimumCoreVersion": "0.6.6",
     "compatibleCoreVersion": "0.7.5"
 }
