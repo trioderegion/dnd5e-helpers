@@ -128,11 +128,28 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   }
 });
 
+/** sets current legendary actions to max (or current if higher) */
+function ResetLegAct(token) {
+  if(token.actor == null)
+  {
+    return;
+  }
+  let legact = token.actor.data.data.resources.legact;
+  if (legact && legact.value !== null){
+    /** only reset if needed */
+    if (legact.value < legact.max) {
+      legact.value = legact.max;
+      await token.actor.update({'resources.legact': legact});
+    }
+  }
+}
+
 /** auto reaction status remove at beginning of turn */
 Hooks.on("preUpdateCombat", async(combat, changed, options, userId) => {
 
   /** are we enabled for the current user? */
-  if (game.settings.get('dnd5e-helpers','cbtReactionEnable') == false){
+  if (game.settings.get('dnd5e-helpers','cbtReactionEnable') == false &&
+      game.settings.get('dnd5e-helpers','cbtLegactEnable') == false){
     return;
   }
 
@@ -162,30 +179,38 @@ Hooks.on("preUpdateCombat", async(combat, changed, options, userId) => {
     let currentToken = canvas.tokens.get(nextTokenId);
     if (currentToken)
     {
-      const reactionStatus = game.settings.get('dnd5e-helpers','cbtReactionStatus');
 
-      const isv6 = game.data.version.includes("0.6.");
-      const isv7 = game.data.version.includes("0.7.");
-      if (isv6) {
-        if (currentToken.data.effects.includes(reactionStatus)) {
-          await currentToken.toggleEffect(reactionStatus);
-        }
+      game.settings.get('dnd5e-helpers','cbtLegactEnable') == true){
+        ResetLegAct(currentToken);
       }
-      else if (isv7){
-        /** latest version, attempt to play nice with active effects */
-        const statusEffect = CONFIG.statusEffects.find(e=>e.id === reactionStatus)
-        if(!statusEffect)
-        {
-          console.log("dnd5e-helpers: could not located active effect named: "+reactionStatus);
-          return;
-        }
 
-        /** Remove an existing effect (stoken from foundy.js:44223 */
-        const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-        if ( existing ) {
-          await currentToken.toggleEffect(statusEffect);
+      if (game.settings.get('dnd5e-helpers','cbtReactionEnable') ){
+
+        const reactionStatus = game.settings.get('dnd5e-helpers','cbtReactionStatus');
+
+        const isv6 = game.data.version.includes("0.6.");
+        const isv7 = game.data.version.includes("0.7.");
+        if (isv6) {
+          if (currentToken.data.effects.includes(reactionStatus)) {
+            await currentToken.toggleEffect(reactionStatus);
+          }
         }
-        
+        else if (isv7){
+          /** latest version, attempt to play nice with active effects */
+          const statusEffect = CONFIG.statusEffects.find(e=>e.id === reactionStatus)
+          if(!statusEffect)
+          {
+            console.log("dnd5e-helpers: could not located active effect named: "+reactionStatus);
+            return;
+          }
+
+          /** Remove an existing effect (stoken from foundy.js:44223 */
+          const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+          if ( existing ) {
+            await currentToken.toggleEffect(statusEffect);
+          }
+          
+        }
       }
     }
     else
