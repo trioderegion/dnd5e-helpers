@@ -14,6 +14,9 @@ Little helpers for little 5e tasks.
 - GM only, global
 - status is configurable (note: for 0.6.x users, this should be the icon path; /icons/svg/hazard.svg)
 
+### Legendary Action Reset on Start of Turn
+- GM only, global
+
 ## Upcoming  Features
 - Tides of Chaos recharge
 - Elemental Adept
