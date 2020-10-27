@@ -66,6 +66,16 @@ Hooks.on('init', () => {
     default: "downgrade",
     type: String,
   });
+
+  /** enable auto legact reset */
+  game.settings.register("dnd5e-helpers", "cbtLegactEnable", {
+    name: "Start of turn legendary action reset.",
+    hint: "Enables or disables this feature (global)",
+    scope: "world",
+    config: true,
+    default: true,
+    type: Boolean,
+  }); 
 });
 
 function RollForSurge(spellLevel, moreSurges, rollType=null){
@@ -129,7 +139,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 });
 
 /** sets current legendary actions to max (or current if higher) */
-function ResetLegAct(token) {
+async function ResetLegAct(token) {
   if(token.actor == null)
   {
     return;
@@ -139,7 +149,8 @@ function ResetLegAct(token) {
     /** only reset if needed */
     if (legact.value < legact.max) {
       legact.value = legact.max;
-      await token.actor.update({'resources.legact': legact});
+      await token.actor.update({'data.resources.legact': legact});
+      token.actor.sheet.render(false);
     }
   }
 }
@@ -177,10 +188,8 @@ Hooks.on("preUpdateCombat", async(combat, changed, options, userId) => {
 
 
     let currentToken = canvas.tokens.get(nextTokenId);
-    if (currentToken)
-    {
-
-      game.settings.get('dnd5e-helpers','cbtLegactEnable') == true){
+    if (currentToken) {
+      if (game.settings.get('dnd5e-helpers','cbtLegactEnable') == true){
         ResetLegAct(currentToken);
       }
 
