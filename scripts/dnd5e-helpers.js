@@ -140,8 +140,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 
 /** sets current legendary actions to max (or current if higher) */
 async function ResetLegAct(token) {
-  if(token.actor == null)
-  {
+  if(token.actor == null){
     return;
   }
   let legact = token.actor.data.data.resources.legact;
