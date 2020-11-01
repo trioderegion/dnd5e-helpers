@@ -76,6 +76,16 @@ Hooks.on('init', () => {
     default: true,
     type: Boolean,
   }); 
+
+  /** enable auto ability charge roll */
+  game.settings.register("dnd5e-helpers", "cbtAbilityRecharge", {
+    name: "Automatically roll any uncharged abilities with a d6 recharge.",
+    hint: "Enables or disables this feature (global)",
+    scope: "world",
+    config: true,
+    default: true,
+    type: Boolean,
+  }); 
 });
 
 function RollForSurge(spellLevel, moreSurges, rollType=null){
@@ -101,6 +111,19 @@ function RollForSurge(spellLevel, moreSurges, rollType=null){
       content: "<i>remains calm as a level "+spellLevel+" spell is cast...</i> ([[/r "+d20result+" #1d20 result]])",
       speaker: ChatMessage.getSpeaker({alias: "The Weave"})
     });
+  }
+}
+
+function CollectRechargeAbilities(token){
+  const rechargeItems = _token.actor.items.filter(e => e.data.isOnCooldown === true);
+  return rechargeItems;
+}
+
+async function RechargeAbilities(token){
+  const rechargeItems = CollectRechargeAbilities(token);
+
+  for( item of rechargeItems ){
+    await item.rollRecharge();
   }
 }
 
@@ -193,6 +216,11 @@ Hooks.on("preUpdateCombat", async(combat, changed, options, userId) => {
         ResetLegAct(currentToken);
       }
 
+      if (game.settings.get('dnd5e-helpers','cbtAbilityRecharge') == true){
+        RechargeAbilities(currentToken);
+      }
+
+      /** hb@todo: functionalize this similar to the other cbt operations */
       if (game.settings.get('dnd5e-helpers','cbtReactionEnable') ){
 
         const reactionStatus = game.settings.get('dnd5e-helpers','cbtReactionStatus');
