@@ -17,6 +17,10 @@ Little helpers for little 5e tasks.
 ### Legendary Action Reset on Start of Turn
 - GM only, global
 
+### Recharge Abilities on Start of Turn
+- GM only, global
+- For abilities with a "d6 recharge" on every turn.
+
 ## Upcoming  Features
 - Tides of Chaos recharge
 - Elemental Adept

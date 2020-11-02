@@ -114,8 +114,15 @@ function RollForSurge(spellLevel, moreSurges, rollType=null){
   }
 }
 
+function NeedsRecharge(recharge = {value: 0, charged:false}){
+  return (recharge.value !== null && 
+         (recharge.value > 0) &&
+         recharge.charged !== null &&
+         recharge.charged == false);
+}
+
 function CollectRechargeAbilities(token){
-  const rechargeItems = _token.actor.items.filter(e => e.data.isOnCooldown === true);
+  const rechargeItems = token.actor.items.filter(e => NeedsRecharge(e.data.data.recharge));
   return rechargeItems;
 }
 
@@ -193,6 +200,11 @@ Hooks.on("preUpdateCombat", async(combat, changed, options, userId) => {
   }
 
   /** just want this to run for GMs */
+  /** features to be executed _only_ by the first gm:
+   *  Legenadry Action reset
+   *  d6 ability recharge
+   *  reaction status clear
+   */
   const firstGm = game.users.find((u) => u.isGM && u.active);
   if (firstGm && game.user === firstGm){
 
