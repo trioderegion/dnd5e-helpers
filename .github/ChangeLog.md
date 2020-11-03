@@ -9,4 +9,4 @@
 ##1.3
 - New co-author! Welcome, Kandashi!
 - Great Wound detection on 50% loss of max hp.
-- Automatic proficiency detection on new weapons.
+- Automatic proficiency detection on newly added weapons.
