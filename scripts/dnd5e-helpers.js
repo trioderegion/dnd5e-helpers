@@ -157,13 +157,15 @@ async function RechargeAbilities(token) {
   }
 }
 
-/** Wild Magic Surge Handling */
+/** Wild Magic Surge Handling 
+ * @todo functionalize this like the others */
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 
   /** are we enabled for the current user? */
   if (game.settings.get('dnd5e-helpers', 'wmEnabled') == false) {
     return;
   }
+
   const origSlots = actor.data.data.spells;
 
   /** find the spell level just cast */
@@ -208,12 +210,6 @@ async function ResetLegAct(token) {
 
 /** auto reaction status remove at beginning of turn */
 Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
-
-  /** are we enabled for the current user? */
-  if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') == false &&
-    game.settings.get('dnd5e-helpers', 'cbtLegactEnable') == false) {
-    return;
-  }
 
   /** only concerned with turn changes */
   if (!("turn" in changed)) {
@@ -288,61 +284,69 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 });
 
 /** checks for Unlinked Token Great Wounds */
-function GreatWoundToken() {
-  Hooks.on("preUpdateToken", (scene, tokenData, updateData) => {
-    //find update data and original data
-      let data = {
-          actorData: canvas.tokens.get(token._id).actor.data,
-          updateData: updateData,
-          actorHP: token.actorData.data.attributes.hp.value,
-          actorMax: token.actorData.data.attributes.hp.max,
-          updateHP: updateData.actorData.data.attributes.hp.value,
-          hpChange: (token.actorData.data.attributes.hp.value - updateData.actorData.data.attributes.hp.value)
-      }
-      // check if the change in hp would be over 50% max hp
-      if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
-          greatWound()
-      }
-  });
+function GreatWound_preUpdateToken(scene, tokenData, updateData) {
+  
+  //find update data and original data
+  let data = {
+    actorData: canvas.tokens.get(token._id).actor.data,
+    updateData: updateData,
+    actorHP: token.actorData.data.attributes.hp.value,
+    actorMax: token.actorData.data.attributes.hp.max,
+    updateHP: updateData.actorData.data.attributes.hp.value,
+    hpChange: (token.actorData.data.attributes.hp.value - updateData.actorData.data.attributes.hp.value)
+  }
+
+  // check if the change in hp would be over 50% max hp
+  if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
+    DrawGreatWound();
+  }
 }
-/** checks for Linked Token Great Wounds */
-function GreatWoundActor() {
-  Hooks.on('preUpdateActor', (actor, updateData) => {
-        //find update data and original data
-      let data = {
-          actorData: actor.data,
-          updateData: updateData,
-          actorHP: actor.data.data.attributes.hp.value,
-          actorMax: actor.data.data.attributes.hp.max,
-          updateHP: (hasProperty(updateData, "data.attributes.hp.value") ? updateData.data.attributes.hp.value : 0),
-          hpChange: (actor.data.data.attributes.hp.value - (hasProperty(updateData, "data.attributes.hp.value") ? updateData.data.attributes.hp.value : actor.data.data.attributes.hp.value))
-      };
-      // check if the change in hp would be over 50% max hp
-      if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
-          greatWound()
-      }
-  });
-}
+
+
+
 /** rolls on specified Great Wound Table */
-function greatWound() {
+function DrawGreatWound() {
+
   const greatWoundTable = game.settings.get('dnd5e-helpers', 'gwTableName')
   if (greatWoundTable !== "") {
       game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true});
   } else {
-      ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" })
+      ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
   }
 }
 
-/** turns on the Token/Actor checks */
-Hooks.on('ready', () => {
+/** checks for Linked Token Great Wounds */
+function GreatWound_preUpdateActor(actor, updateData) {
+  
+  //find update data and original data
+  let data = {
+    actorData: actor.data,
+    updateData: updateData,
+    actorHP: actor.data.data.attributes.hp.value,
+    actorMax: actor.data.data.attributes.hp.max,
+    updateHP: (hasProperty(updateData, "data.attributes.hp.value") ? updateData.data.attributes.hp.value : 0),
+    hpChange: (actor.data.data.attributes.hp.value - (hasProperty(updateData, "data.attributes.hp.value") ? updateData.data.attributes.hp.value : actor.data.data.attributes.hp.value))
+  };
+  
+  // check if the change in hp would be over 50% max hp
+  if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
+    DrawGreatWound();
+  }
+}
+
+Hooks.on('preUpdateActor', (actor, updateData) => {
+  /** are we enabled for the current user? */
+  if (game.settings.get('dnd5e-helpers', 'gwEnabled')) {
+    GreatWound_preUpdateActor(actor, updateData);
+  }
+
+});
+
+Hooks.on("preUpdateToken", (scene, tokenData, updateData) => {
   if(game.settings.get('dnd5e-helpers', 'gwEnable')){
-    GreatWoundActor();
-    GreatWoundToken();
+    GreatWound_preUpdateToken(scene, tokenData, updateData);
   }
-  if (game.settings.get('dnd5e-helpers', 'autoProf')) {
-    autoProf()
-  }
-})
+});
 
 /** Prof array check */
 function includes_array(arr, comp)
@@ -351,26 +355,36 @@ function includes_array(arr, comp)
 }
 
 /** auto prof */
-function autoProf() {
-  Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
-    //finds item data and actor proficiencies 
-    let { weaponType } = item.data;
-    let { name } = item;
-    let { weaponProf } = actor.data.data.traits;
-    let proficient = false;
+function AutoProf_createOwnedItem(actor, item, sheet, id) {
+ 
+  //finds item data and actor proficiencies 
+  let { weaponType } = item.data;
+  let { name } = item;
+  let { weaponProf } = actor.data.data.traits;
+  let proficient = false;
+ 
   // finds weapon simple/martial type
-    let pass_type = (weaponType === 'simpleM' || weaponType === 'simpleR') ? 'sim'
-      : (weaponType === 'martialM' || weaponType === 'martialR') ? 'mar' : null;
-      //if weapon type maches actor sim/mar prof then prof = true
-    if (weaponProf.value.includes(pass_type)) proficient = true;
-    //if item name matches custom prof lis then prof = true
-    if (includes_array(weaponProf.custom.split(" ").map(s => s.slice(0, -1)),name)) proficient = true;
-// update item to match prof
-    if (proficient) {
-      actor.updateOwnedItem({_id : item._id, "data.proficient" : true});
-      console.log(name + " is marked as proficient")
-    } else {
-      ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
-    }
-  });
+  let pass_type = (weaponType === 'simpleM' || weaponType === 'simpleR') ? 'sim'
+    : (weaponType === 'martialM' || weaponType === 'martialR') ? 'mar' : null;
+  
+  //if weapon type maches actor sim/mar prof then prof = true
+  if (weaponProf.value.includes(pass_type)) proficient = true;
+  
+  //if item name matches custom prof lis then prof = true
+  if (includes_array(weaponProf.custom.split(" ").map(s => s.slice(0, -1)),name)) proficient = true;
+  
+  // update item to match prof
+  if (proficient) {
+    actor.updateOwnedItem({_id : item._id, "data.proficient" : true});
+    console.log(name + " is marked as proficient")
+  } else {
+    ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
+  }
 }
+
+Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
+
+  if (game.settings.get('dnd5e-helpers', 'autoProf')) {
+    AutoProf_createOwnedItem(actor, item, sheet, id);
+  }
+});
