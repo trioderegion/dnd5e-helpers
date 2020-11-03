@@ -157,7 +157,7 @@ async function RechargeAbilities(token) {
   }
 }
 /** Wild Magic Surge Handling */
-function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
+function WildMagicSuge(actor, update, options, userId) {
   const origSlots = actor.data.data.spells;
 
   /** find the spell level just cast */
@@ -207,8 +207,8 @@ function GreatWound_preUpdateToken(scene, tokenData, update) {
   let data = {
     actorData: canvas.tokens.get(tokenData._id).actor.data,
     updateData: update,
-    actorHP: token.actorData.data.attributes.hp.value,
-    actorMax: token.actorData.data.attributes.hp.max,
+    actorHP: tokenData.actorData.data.attributes.hp.value,
+    actorMax: tokenData.actorData.data.attributes.hp.max,
     updateHP: update.actorData.data.attributes.hp.value,
     hpChange: (token.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
   }
@@ -231,6 +231,7 @@ function GreatWound_preUpdateActor(actor, update) {
     updateHP: (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : 0),
     hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
   };
+  console.log(data)
 
   // check if the change in hp would be over 50% max hp
   if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
@@ -286,12 +287,13 @@ function AutoProf_createOwnedItem(actor, item, sheet, id) {
 //collate all preUpdateActor hooked functions into a single hook call
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   //check what property is updated to prevent unnessesary function calls
-  let hp = getProperty(update, "data.attributes.hp.value");
-  let spells = getProperty(update, "data.spells");
+let hp = getProperty(update, "data.attributes.hp.value");
+let spells = getProperty(update, "data.spells");
+console.log(hp, spells)
 
   /** WM check, are we enabled for the current user? */
   if ((game.settings.get('dnd5e-helpers', 'wmEnabled') == true) && (spells !== undefined)) {
-    WildMagicSuge_preUpdateActor(actor, update, options, userId)
+    WildMagicSuge(actor, update, options, userId)
   }
   // GW check 
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined) ){
