@@ -2,8 +2,17 @@
     "name": "dnd5e-helpers",
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
-    "version": "1.2.0",
-    "author": "honeybadger#2614",
+    "version": "1.3.0",
+    "authors": [
+      {
+        "name": "honeybadger",
+        "url": "https://github.com/trioderegion"
+      },
+      {
+        "name": "Kandashi",
+        "url": "https://github.com/kandashi"
+      }
+    ],
     "scripts": [
         "/scripts/dnd5e-helpers.js"
     ],
