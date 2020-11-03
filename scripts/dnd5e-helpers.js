@@ -274,11 +274,12 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
           }
 
         }
+        else {
+          console.log("dnd5e-helpers: UNSUPPORTED VERSION FOR REACTION HANDLING");
+        }
       }
     }
-    else {
-      console.log("dnd5e-helpers: UNSUPPORTED VERSION FOR REACTION HANDLING");
-    }
+
   }
 
 });
