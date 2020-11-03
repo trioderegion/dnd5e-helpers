@@ -371,6 +371,7 @@ function AutoProf_createOwnedItem(actor, item, sheet, id) {
   if (weaponProf.value.includes(pass_type)) proficient = true;
   
   //if item name matches custom prof lis then prof = true
+  /** @todo consider making this more permissive ex. Dagger vs Daggers vs dagger vs daggers */
   if (includes_array(weaponProf.custom.split(" ").map(s => s.slice(0, -1)),name)) proficient = true;
   
   // update item to match prof
