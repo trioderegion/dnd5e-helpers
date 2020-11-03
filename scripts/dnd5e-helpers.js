@@ -336,7 +336,7 @@ function GreatWound_preUpdateActor(actor, updateData) {
 
 Hooks.on('preUpdateActor', (actor, updateData) => {
   /** are we enabled for the current user? */
-  if (game.settings.get('dnd5e-helpers', 'gwEnabled')) {
+  if (game.settings.get('dnd5e-helpers', 'gwEnable')) {
     GreatWound_preUpdateActor(actor, updateData);
   }
 
