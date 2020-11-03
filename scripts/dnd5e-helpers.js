@@ -157,7 +157,7 @@ async function RechargeAbilities(token) {
   }
 }
 /** Wild Magic Surge Handling */
-function WildMagicSuge(actor, update, options, userId) {
+function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
   const origSlots = actor.data.data.spells;
 
   /** find the spell level just cast */
@@ -287,13 +287,13 @@ function AutoProf_createOwnedItem(actor, item, sheet, id) {
 //collate all preUpdateActor hooked functions into a single hook call
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   //check what property is updated to prevent unnessesary function calls
-let hp = getProperty(update, "data.attributes.hp.value");
-let spells = getProperty(update, "data.spells");
-console.log(hp, spells)
+  let hp = getProperty(update, "data.attributes.hp.value");
+  let spells = getProperty(update, "data.spells");
+  console.log(hp, spells)
 
   /** WM check, are we enabled for the current user? */
   if ((game.settings.get('dnd5e-helpers', 'wmEnabled') == true) && (spells !== undefined)) {
-    WildMagicSuge(actor, update, options, userId)
+    WildMagicSuge_preUpdateActor(actor, update, options, userId)
   }
   // GW check 
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined) ){
