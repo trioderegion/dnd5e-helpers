@@ -231,7 +231,6 @@ function GreatWound_preUpdateActor(actor, update) {
     updateHP: (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : 0),
     hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
   };
-  console.log(data)
 
   // check if the change in hp would be over 50% max hp
   if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
@@ -289,7 +288,6 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   //check what property is updated to prevent unnessesary function calls
   let hp = getProperty(update, "data.attributes.hp.value");
   let spells = getProperty(update, "data.spells");
-  console.log(hp, spells)
 
   /** WM check, are we enabled for the current user? */
   if ((game.settings.get('dnd5e-helpers', 'wmEnabled') == true) && (spells !== undefined)) {
