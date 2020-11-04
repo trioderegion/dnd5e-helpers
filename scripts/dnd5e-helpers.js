@@ -392,3 +392,4 @@ let type = item.type
     AutoProf_createOwnedItem(actor, item, sheet, id);
   }
 });
+
