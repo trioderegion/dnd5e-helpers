@@ -207,10 +207,10 @@ function GreatWound_preUpdateToken(scene, tokenData, update) {
   let data = {
     actorData: canvas.tokens.get(tokenData._id).actor.data,
     updateData: update,
-    actorHP: token.actorData.data.attributes.hp.value,
-    actorMax: token.actorData.data.attributes.hp.max,
+    actorHP: tokenData.actorData.data.attributes.hp.value,
+    actorMax: tokenData.actorData.data.attributes.hp.max,
     updateHP: update.actorData.data.attributes.hp.value,
-    hpChange: (token.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
+    hpChange: (tokenData.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
   }
 
   // check if the change in hp would be over 50% max hp
