@@ -10,3 +10,6 @@
 - New co-author! Welcome, Kandashi!
 - Great Wound detection on 50% loss of max hp.
 - Automatic proficiency detection on newly added weapons.
+
+###1.3.1
+- Pushed fix for Great Wounds not reading token Hp correctly
