@@ -110,6 +110,24 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
+  game.settings.register("dnd5e-helpers", "autoRegen", {
+    name: 'Automatic regeneration ',
+    hint: 'Automaticly prompts for regeneration rolls for the GM',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+
+  game.settings.register("dnd5e-helpers", "undeadFort", {
+    name: 'Undead Fortitude',
+    hint: 'Automaticly prompts for Undead Fortitude Checks for the GM',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+
 });
 
 function RollForSurge(spellLevel, moreSurges, rollType = null) {
@@ -204,14 +222,18 @@ async function ResetLegAct(token) {
 function GreatWound_preUpdateToken(scene, tokenData, update) {
 
   //find update data and original data
+  let actor = game.actors.get(tokenData.actorId)
   let data = {
     actorData: canvas.tokens.get(tokenData._id).actor.data,
     updateData: update,
-    actorHP: tokenData.actorData.data.attributes.hp.value,
-    actorMax: tokenData.actorData.data.attributes.hp.max,
+    actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
+    actorMax: getProperty(tokenData, "actorData.data.attributes.hp.max"),
     updateHP: update.actorData.data.attributes.hp.value,
     hpChange: (tokenData.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
   }
+if(data.actorMax == undefined) {
+  data.actorMax = actor.data.data.attributes.hp.max;
+}
 
   // check if the change in hp would be over 50% max hp
   if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
@@ -283,6 +305,87 @@ function AutoProf_createOwnedItem(actor, item, sheet, id) {
   }
 }
 
+async function Regeneration(token) {
+  console.log(token)
+  if (token.actor == null) {
+    return;
+  }
+  let data = {
+    tokenHP: getProperty(token, "actorData.data.attributes.hp.value"),
+    actorMax: token.actor.data.data.attributes.hp.max,
+  }
+  if (data.tokenHP == undefined) {
+    data.tokenHP = data.actorMax
+  }
+  let regen = token.actor.items.find(i => i.name === "Regeneration")
+  const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
+  let match = regen.data.data.description.value.match(regenRegExp);
+  if (!match) return undefined
+  let regenAmout = match[1]
+
+  if (regenAmout !== null) {
+    new Dialog({
+      title: "Regeneration for " + token.name,
+      content: token.name + ` currently has ${data.tokenHP}/${data.actorMax} Hp`,
+      buttons: {
+        one: {
+          label: `Apply healing of ${regenAmout}`,
+          callback: () => {
+            let regenRoll = new Roll(regenAmout).roll().total
+            token.actor.applyDamage(- regenRoll)
+            ChatMessage.create({ content: token.name + ` was healed for ${regenRoll}`, whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) })
+          }
+        },
+        two: {
+          label: "Do not heal"
+        }
+      }
+    }).render(true)
+
+  }
+}
+
+function UndeadFortCheck(tokenData, update, options) {
+  let data = {
+    actorData: canvas.tokens.get(tokenData._id).actor.data,
+    updateData: update,
+    actorHP: tokenData.actorData.data.attributes.hp.value,
+    updateHP: update.actorData.data.attributes.hp.value,
+    hpChange: (tokenData.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
+  }
+  let token = canvas.tokens.get(tokenData._id)
+  if (!options.skipUndeadCheck) {
+    new Dialog({
+      title: "Undead Fortitude Save",
+      content: "<p>What was the damage source</p>",
+      buttons: {
+        one: {
+          label: "Radiant Damage or Critical Hit",
+          callback: () => {
+            token.update({ hp: 0 }, { skipUndeadCheck: true })
+            ui.notifications.notify("The target dies outright")
+            return;
+          },
+        },
+        two: {
+          label: "Normal Damage",
+          callback: async () => {
+            let { total } = await token.actor.rollAbilitySave("con")
+            if (total >= (5 + data.hpChange)) {
+              ui.notifications.notify(`${token.name} survives with a ${total}`)
+              token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
+            } else if (roll.total < (5 + data.hpChange)) {
+              ui.notifications.notify(`${token.name} dies as it rolls a ${total} `)
+              token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
+            }
+          },
+        },
+      },
+    }).render(true);
+    return false;
+  } else return true;
+}
+
 //collate all preUpdateActor hooked functions into a single hook call
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   //check what property is updated to prevent unnessesary function calls
@@ -294,7 +397,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
     WildMagicSuge_preUpdateActor(actor, update, options, userId)
   }
   // GW check 
-  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined) ){
+  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
     GreatWound_preUpdateActor(actor, update);
   }
 
@@ -340,6 +443,10 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
         RechargeAbilities(currentToken);
       }
 
+      if (game.settings.get('dnd5e-helpers', 'autoRegen') == true) {
+        Regeneration(currentToken)
+      }
+
       /** hb@todo: functionalize this similar to the other cbt operations */
       if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable')) {
 
@@ -378,17 +485,25 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 });
 
 
-Hooks.on("preUpdateToken", (scene, tokenData, update) => {
-let hp = getProperty("actorData.data.attributes.hp.value")
-  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) ){
+Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
+  let hp = getProperty(update, "actorData.data.attributes.hp.value")
+  if ((game.settings.get('dnd5e-helpers', 'gwEnable'))) {
     GreatWound_preUpdateToken(scene, tokenData, update);
+  }
+  let Actor = game.actors.get(tokenData.actorId)
+  let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude")
+
+  if (game.settings.get('dnd5e-helpers', 'undeadFort')) {
+    if (hp === 0 && fortitudeFeature !== null) {
+      UndeadFortCheck(tokenData, update, options)
+    }
   }
 });
 
 
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
-let type = item.type
-  if ((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "weapon")){
+  let type = item.type
+  if ((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "weapon")) {
     AutoProf_createOwnedItem(actor, item, sheet, id);
   }
 });
