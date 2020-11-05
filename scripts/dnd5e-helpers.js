@@ -123,11 +123,15 @@ Hooks.on('init', () => {
     name: 'Undead Fortitude',
     hint: 'Automaticly prompts for Undead Fortitude Checks for the GM',
     scope: 'world',
-    type: Boolean,
-    default: false,
+    type: String,
+        choices: {
+            "0": "No checks",
+            "1": "Quick Saves",
+            "2": "Advanced Saves",
+        },
+        default: "0",
     config: true,
   });
-
 });
 
 function RollForSurge(spellLevel, moreSurges, rollType = null) {
@@ -345,7 +349,7 @@ async function Regeneration(token) {
   }
 }
 
-function UndeadFortCheck(tokenData, update, options) {
+function UndeadFortCheckQuick(tokenData, update, options) {
   let data = {
     actorData: canvas.tokens.get(tokenData._id).actor.data,
     updateData: update,
@@ -374,7 +378,56 @@ function UndeadFortCheck(tokenData, update, options) {
             if (total >= (5 + data.hpChange)) {
               ui.notifications.notify(`${token.name} survives with a ${total}`)
               token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
-            } else if (roll.total < (5 + data.hpChange)) {
+            } else if (total < (5 + data.hpChange)) {
+              ui.notifications.notify(`${token.name} dies as it rolls a ${total} `)
+              token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
+            }
+          },
+        },
+      },
+    }).render(true);
+    return false;
+  } else return true;
+}
+
+function UndeadFortCheckSlow(tokenData, update, options) {
+  let data = {
+    actorData: canvas.tokens.get(tokenData._id).actor.data,
+    updateData: update,
+    actorHP: tokenData.actorData.data.attributes.hp.value,
+    updateHP: update.actorData.data.attributes.hp.value,
+    hpChange: (tokenData.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
+  }
+  let token = canvas.tokens.get(tokenData._id)
+  if (!options.skipUndeadCheck) {
+    let content = `
+    <form>
+            <div class="form-group">
+                <label for="num">Damage to target: </label>
+                <input id="num" name="num" type="number" min="0"></input>
+            </div>
+        </form>`;
+    new Dialog({
+      title: "Undead Fortitude Save",
+      content: content,
+      buttons: {
+        one: {
+          label: "Radiant Damage or Critical Hit",
+          callback: () => {
+            token.update({ hp: 0 }, { skipUndeadCheck: true })
+            ui.notifications.notify("The target dies outright")
+            return;
+          },
+        },
+        two: {
+          label: "Normal Damage",
+          callback: async (html) => {
+            let { total } = await token.actor.rollAbilitySave("con")
+            let number = Number(html.find("#num")[0].value);
+            if (total >= (5 + number)) {
+              ui.notifications.notify(`${token.name} survives with a ${total}`)
+              token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
+            } else if (total < (5 + number)) {
               ui.notifications.notify(`${token.name} dies as it rolls a ${total} `)
               token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
             }
@@ -493,9 +546,14 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   let Actor = game.actors.get(tokenData.actorId)
   let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude")
 
-  if (game.settings.get('dnd5e-helpers', 'undeadFort')) {
+  if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
     if (hp === 0 && fortitudeFeature !== null) {
-      UndeadFortCheck(tokenData, update, options)
+      UndeadFortCheckQuick(tokenData, update, options)
+    }
+  }
+  if (game.settings.get('dnd5e-helpers', 'undeadFort') === "2") {
+    if (hp === 0 && fortitudeFeature !== null) {
+      UndeadFortCheckSlow(tokenData, update, options)
     }
   }
 });

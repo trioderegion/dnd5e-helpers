@@ -31,6 +31,18 @@ Little helpers for little 5e tasks.
 - Will automatically mark a newly added weapon 'proficient' if it is part of the actor's listed proficiencies
 - Note: specific weapon proficiencies should match their intended weapon name (ex. "Dagger" proficiency for a weapon called"Dagger")
 
+### Auto Regeneration
+- Automaticly checks actors with the Regeneration feature
+- At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
+
+### Undead Fortitude
+- Automaticly checks actors with the Undead Fortitude feature
+- When they are reduced to 0hp it will prompt the GM to choose the type of damage that was applied
+- Then prompts the GM for a Con save for that actor, and will auto heal the NPC if the roll beats the save needed
+- There are two settings for levels of checks
+    - Quick saves will just measure the change in hp and will not measure "overkill"
+    - Advanced saves will query the GM for the amount of damage taken as a more complex system
+
 ## Authors:
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
