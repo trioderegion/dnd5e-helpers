@@ -43,6 +43,9 @@ Little helpers for little 5e tasks.
     - Quick saves will just measure the change in hp and will not measure "overkill"
     - Advanced saves will query the GM for the amount of damage taken as a more complex system
 
+## Debug Setting
+- Option to add debug logs for troubleshooting
+
 ## Authors:
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
