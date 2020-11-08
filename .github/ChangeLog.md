@@ -13,3 +13,7 @@
 
 ###1.3.1
 - Pushed fix for Great Wounds not reading token Hp correctly
+
+###1.3.2
+- Contributed by Szefo09#1005. Big thanks!
+- Auto proficiency detection has been expanded to include Armor and Tool proficiencies
