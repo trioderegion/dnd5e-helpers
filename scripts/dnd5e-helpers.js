@@ -107,7 +107,7 @@ Hooks.on('init', () => {
     hint: 'Checks newly added items and labels as proficient if needed',
     scope: 'world',
     type: Boolean,
-    default: false,
+    default: true,
     config: true,
   });
 });
@@ -288,7 +288,7 @@ function AutoProfWeapon_createOwnedItem(actor, item, sheet, id) {
       actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
       console.log(name + " is marked as not proficient")
     }else {
-    ui.notifications.notify(name + " could not be matched to proficiency, please adjust manually.");
+      ui.notifications.notify(name + " could not be matched to proficiency, please adjust manually.");
     }
   }
 }
@@ -330,6 +330,7 @@ function AutoProfArmor_createOwnedItem(actor, item, sheet, id) {
     }
   }
 }
+
 /**Auto Prof Tools*/
 function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
 
@@ -356,7 +357,7 @@ function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
   }
 }
 
-//collate all preUpdateActor hooked functions into a single hook call
+/** collate all preUpdateActor hooked functions into a single hook call */
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   //check what property is updated to prevent unnessesary function calls
   let hp = getProperty(update, "data.attributes.hp.value");
@@ -374,7 +375,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 });
 
 
-/** auto reaction status remove at beginning of turn */
+/** All preUpdateCombat hooks are managed here */
 Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
   /** only concerned with turn changes */
@@ -450,31 +451,31 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
 });
 
-
+/** all preUpdateToken hooks handeled here */
 Hooks.on("preUpdateToken", (scene, tokenData, update) => {
-let hp = getProperty("actorData.data.attributes.hp.value")
+  let hp = getProperty("actorData.data.attributes.hp.value")
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) ){
     GreatWound_preUpdateToken(scene, tokenData, update);
   }
 });
 
-
+/** all createOwnedItem hooks handeled here */
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
-let type = item.type
-if(game.settings.get('dnd5e-helpers', 'autoProf')){
-  switch(type){
-    case "weapon":
-      AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
-      break;
-    case "equipment":
-      AutoProfArmor_createOwnedItem(actor, item, sheet, id);
-      break;
-    case "tool":
-      AutoProfTool_createOwnedItem(actor, item, sheet, id);
-      break;
-    default:
-      break;
+  let type = item.type
+  if(game.settings.get('dnd5e-helpers', 'autoProf')){
+    switch(type){
+      case "weapon":
+        AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
+        break;
+      case "equipment":
+        AutoProfArmor_createOwnedItem(actor, item, sheet, id);
+        break;
+      case "tool":
+        AutoProfTool_createOwnedItem(actor, item, sheet, id);
+        break;
+      default:
+        break;
+    }
   }
-}
 });
 
