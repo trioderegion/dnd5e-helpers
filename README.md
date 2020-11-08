@@ -33,6 +33,7 @@ Little helpers for little 5e tasks.
 
 ### Auto Regeneration
 - Automaticly checks actors with the Regeneration feature
+- Searches the Regeneration Feature for the phrase "X hit points", where X can be a static value or a dice formula
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
 ### Undead Fortitude
