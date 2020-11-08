@@ -251,9 +251,25 @@ function GreatWound_preUpdateToken(scene, tokenData, update) {
   let hpChange = (data.actorHP - data.updateHP)
   // check if the change in hp would be over 50% max hp
   if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
-    DrawGreatWound(actor);
+    new Dialog({
+      title: `Great Wound roll for ${actor.name}`,
+      buttons: {
+        one: {
+          label: "Roll",
+          callback: () => {
+            (async () => {
+              let { total } = await actor.rollAbilitySave("con")
+              if (total < 15) {
+                DrawGreatWound(data.actor);
+              }
+            })()
+          }
+        }
+      }
+    }).render(true)
   }
 }
+
 
 /** checks for Linked Token Great Wounds */
 function GreatWound_preUpdateActor(actor, update) {
@@ -271,7 +287,22 @@ function GreatWound_preUpdateActor(actor, update) {
 
   // check if the change in hp would be over 50% max hp
   if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
-    DrawGreatWound(data.actor);
+    new Dialog({
+      title: `Great Wound roll for ${actor.name}`,
+      buttons: {
+        one: {
+          label: "Roll",
+          callback: () => {
+            (async () => {
+              let { total } = await actor.rollAbilitySave("con")
+              if (total < 15) {
+                DrawGreatWound(data.actor);
+              }
+            })()
+          }
+        }
+      }
+    }).render(true)
   }
 }
 
@@ -280,17 +311,7 @@ function DrawGreatWound(actor) {
 
   const greatWoundTable = game.settings.get('dnd5e-helpers', 'gwTableName')
   if (greatWoundTable !== "") {
-    new Dialog({
-      title: `Great Wound roll for ${actor.name}`,
-      buttons: {
-        one: {
-          label: "Roll",
-          callback: () => {
-            game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
-          }
-        }
-      }
-    }).render(true)
+    game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
   } else {
     ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
   }
@@ -381,10 +402,14 @@ function UndeadFortCheckQuick(tokenData, update, options) {
   let data = {
     actorData: canvas.tokens.get(tokenData._id).actor.data,
     updateData: update,
-    actorHP: tokenData.actorData.data.attributes.hp.value,
+    actorId: tokenData.actorId,
+    actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
     updateHP: update.actorData.data.attributes.hp.value,
-    hpChange: (tokenData.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
   }
+  if (data.actorHp == null) {
+    data.actorHp = game.actors.get(data.actorId).data.data.attributes.hp.max
+  }
+  let hpChange = (data.actorHp - data.updateHP)
   let token = canvas.tokens.get(tokenData._id)
   if (!options.skipUndeadCheck) {
     new Dialog({
@@ -403,10 +428,10 @@ function UndeadFortCheckQuick(tokenData, update, options) {
           label: "Normal Damage",
           callback: async () => {
             let { total } = await token.actor.rollAbilitySave("con")
-            if (total >= (5 + data.hpChange)) {
+            if (total >= (5 + hpChange)) {
               ui.notifications.notify(`${token.name} survives with a ${total}`)
               token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
-            } else if (total < (5 + data.hpChange)) {
+            } else if (total < (5 + hpChange)) {
               ui.notifications.notify(`${token.name} dies as it rolls a ${total} `)
               token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
             }
