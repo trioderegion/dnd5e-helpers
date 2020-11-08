@@ -349,7 +349,7 @@ function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
   // update item to match prof
   //For items that are not armors (trinkets, clothing) we assume prof = true 
   if (proficient) {
-    actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
+    actor.updateOwnedItem({ _id: item._id, "data.proficient": 1 });
     console.log(name + " is marked as proficient")
   } else {
     ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
