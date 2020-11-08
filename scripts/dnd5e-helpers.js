@@ -349,7 +349,7 @@ function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
   // update item to match prof
   //For items that are not armors (trinkets, clothing) we assume prof = true 
   if (proficient) {
-    actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
+    actor.updateOwnedItem({ _id: item._id, "data.proficient": 1 });
     console.log(name + " is marked as proficient")
   } else {
     ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
@@ -461,12 +461,20 @@ let hp = getProperty("actorData.data.attributes.hp.value")
 
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 let type = item.type
-  if ((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "weapon")){
-    AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
-  } else if((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "equipment")){
-    AutoProfArmor_createOwnedItem(actor, item, sheet, id);
-  } else if((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "tool")){
-    AutoProfTool_createOwnedItem(actor, item, sheet, id);
+if(game.settings.get('dnd5e-helpers', 'autoProf')){
+  switch(type){
+    case "weapon":
+      AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
+      break;
+    case "equipment":
+      AutoProfArmor_createOwnedItem(actor, item, sheet, id);
+      break;
+    case "tool":
+      AutoProfTool_createOwnedItem(actor, item, sheet, id);
+      break;
+    default:
+      break;
   }
+}
 });
 
