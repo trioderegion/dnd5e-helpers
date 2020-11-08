@@ -461,12 +461,20 @@ let hp = getProperty("actorData.data.attributes.hp.value")
 
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 let type = item.type
-  if ((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "weapon")){
-    AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
-  } else if((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "equipment")){
-    AutoProfArmor_createOwnedItem(actor, item, sheet, id);
-  } else if((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "tool")){
-    AutoProfTool_createOwnedItem(actor, item, sheet, id);
+if(game.settings.get('dnd5e-helpers', 'autoProf')){
+  switch(type){
+    case "weapon":
+      AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
+      break;
+    case "equipment":
+      AutoProfArmor_createOwnedItem(actor, item, sheet, id);
+      break;
+    case "tool":
+      AutoProfTool_createOwnedItem(actor, item, sheet, id);
+      break;
+    default:
+      break;
   }
+}
 });
 
