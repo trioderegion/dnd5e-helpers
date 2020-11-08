@@ -13,3 +13,7 @@
 
 ###1.3.1
 - Pushed fix for Great Wounds not reading token Hp correctly
+
+###1.4
+- Undead Fortitude detection and prompt on "death".
+- Automatically prompt for regeneration rolls by creatures with the "Regeneration" feature. (see readme for details)
