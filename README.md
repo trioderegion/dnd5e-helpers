@@ -12,8 +12,12 @@ Little helpers for little 5e tasks.
 ![WildSurge](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/surge-output.webp)
 
 ### Reaction Reset on Start of Turn
-- GM only
-- status is configurable (note: for 0.6.x users, this should be the icon path; /icons/svg/hazard.svg)
+- This can auto apply a status icon to tokens that either: 
+   - A) use a reaction ability
+   - B) use another action outside of their combat turn 
+- Then auto remove this icon when the tokens turn comes up again in the combat tracker
+- This status is configurable (note: for 0.6.x users, this should be the icon path; /icons/svg/hazard.svg)
+- The auto application will not currently work for 0.6.x users (sorry)
 
 ### Legendary Action Reset on Start of Turn
 - GM only
