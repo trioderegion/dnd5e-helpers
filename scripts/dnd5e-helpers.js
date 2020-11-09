@@ -649,8 +649,8 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
           }
         }
         else if (isv7) {
-          /** latest version, attempt to play nice with active effects */
-          const statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus)
+          /** latest version, attempt to play nice with active effects and CUB statuses */
+          let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.id === "combat-utility-belt."+reactionStatus)
           if (!statusEffect) {
             console.log("dnd5e-helpers: could not located active effect named: " + reactionStatus);
             return;
@@ -676,18 +676,20 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 /** all preUpdateToken hooks handeled here */
 Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
 
-  /** output debug information -- @todo scope by feature */
-  if (game.settings.get('dnd5e-helpers', 'debug')) {
-    let hp = getProperty(update, "actorData.data.attributes.hp.value")
-    let Actor = game.actors.get(tokenData.actorId)
-    let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude")
-    let fortSett = !!fortitudeFeature
-    console.log(`Dnd5e Helpers: ${Actor.name}'s update contains hp: ${hp}, and Fort: ${fortSett}`)
-  }
   if ((game.settings.get('dnd5e-helpers', 'gwEnable'))) {
     GreatWound_preUpdateToken(scene, tokenData, update);
   }
 
+  let hp = getProperty(update, "actorData.data.attributes.hp.value");
+  let Actor = game.actors.get(tokenData.actorId);
+  let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude");
+  let fortSett = !!fortitudeFeature;
+
+  /** output debug information -- @todo scope by feature */
+  if (game.settings.get('dnd5e-helpers', 'debug')) {
+    console.log(`Dnd5e Helpers: ${Actor.name}'s update contains hp: ${hp}, and Fort: ${fortSett}`)
+  }
+  
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
     if (hp === 0 && fortitudeFeature !== null) {
       UndeadFortCheckQuick(tokenData, update, options)
