@@ -730,7 +730,8 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 Hooks.on(`createChatMessage`, async (message, options, userId) => {
   if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-    let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.id === "combat-utility-belt." + reactionStatus)
+    let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus);
+    
     let currentCombatant = game.combats.active.current.tokenId
     let castingToken = hasProperty(message, "data.speaker.token") ? message.data.speaker.token : null
     let castingActor = message.data.speaker.actor
@@ -741,12 +742,16 @@ Hooks.on(`createChatMessage`, async (message, options, userId) => {
     let effectToken = canvas.tokens.get(castingToken)
     
     if (message.data.content.match(/Action/i)) {
-      if (currentCombatant !== castingToken) {
+      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+      if ((currentCombatant !== castingToken) && !existing) {
         effectToken.toggleEffect(statusEffect);
       }
     }
     if (message.data.content.match(/Reaction/i)) {
+      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+      if(!existing){
       effectToken.toggleEffect(statusEffect);
+      }
     }
   }
 })
