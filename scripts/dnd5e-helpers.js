@@ -50,12 +50,18 @@ Hooks.on('init', () => {
   });
   /** enable auto reaction reset */
   game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
-    name: "Start of turn reaction reset.",
-    hint: "Enables or disables this feature (global)",
+    name: "Reaction status automation.",
+    hint: "Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the sepcified status. Remove will automatic remove this effect at the start of an actors turn",
     scope: "world",
+    type: String,
+    choices: {
+      "0": "None",
+      "1": "Only Apply",
+      "2": "Only Remove",
+      "3": "Apply and Remove",
+    },
+    default: "0",
     config: true,
-    default: true,
-    type: Boolean,
   });
 
   game.settings.register("dnd5e-helpers", "cbtReactionStatus", {
@@ -320,7 +326,7 @@ function DrawGreatWound(actor) {
 /** Prof array check */
 function includes_array(arr, comp) {
   //Ignore empty array
-  if(arr.toString()==[""]){
+  if (arr.toString() == [""]) {
     return false;
   }
   return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
@@ -352,10 +358,10 @@ function AutoProfWeapon_createOwnedItem(actor, item, sheet, id) {
     console.log(name + " is marked as proficient")
   } else {
     //Remove proficiency if actor is not proficient and the weapon has proficiency set.
-    if (!proficient && item.data.proficient){
+    if (!proficient && item.data.proficient) {
       actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
       console.log(name + " is marked as not proficient")
-    }else {
+    } else {
       ui.notifications.notify(name + " could not be matched to proficiency, please adjust manually.");
     }
   }
@@ -372,10 +378,10 @@ function AutoProfArmor_createOwnedItem(actor, item, sheet, id) {
 
   // finds weapon simple/martial type
   let pass_type = type === 'light' ? 'lgt'
-    : type === 'medium' ? 'med' 
-    : type === 'heavy' ? 'hvy' 
-    : type === 'shield' ? 'shl'
-    : null;
+    : type === 'medium' ? 'med'
+      : type === 'heavy' ? 'hvy'
+        : type === 'shield' ? 'shl'
+          : null;
 
   //if armor type maches actor armor prof then prof = true
   if (armorProf.value.includes(pass_type)) proficient = true;
@@ -390,7 +396,7 @@ function AutoProfArmor_createOwnedItem(actor, item, sheet, id) {
     console.log(name + " is marked as proficient")
   } else {
     //remove armor proficiency if actor does not have it.
-    if (!proficient && item.data.proficient){
+    if (!proficient && item.data.proficient) {
       actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
       console.log(name + " is marked as not proficient")
     } else {
@@ -408,7 +414,7 @@ function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
   let proficient = false;
 
   //pass_name is here to match some of the toolProf strings
-  const pass_name = name.toLowerCase().replace("navi","navg").replace("thiev","thief");
+  const pass_name = name.toLowerCase().replace("navi", "navg").replace("thiev", "thief");
 
   if (includes_array(toolProf.value, pass_name)) proficient = true;
 
@@ -637,7 +643,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
       }
 
       /** hb@todo: functionalize this similar to the other cbt operations */
-      if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable')) {
+      if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 2 || 3) {
 
         const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
 
@@ -650,7 +656,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
         }
         else if (isv7) {
           /** latest version, attempt to play nice with active effects and CUB statuses */
-          let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.id === "combat-utility-belt."+reactionStatus)
+          let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.id === "combat-utility-belt." + reactionStatus)
           if (!statusEffect) {
             console.log("dnd5e-helpers: could not located active effect named: " + reactionStatus);
             return;
@@ -675,12 +681,11 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
 /** all preUpdateToken hooks handeled here */
 Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
-
-  if ((game.settings.get('dnd5e-helpers', 'gwEnable'))) {
+  let hp = getProperty(update, "actorData.data.attributes.hp.value");
+  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && hp !== (null || undefined )) {
     GreatWound_preUpdateToken(scene, tokenData, update);
   }
 
-  let hp = getProperty(update, "actorData.data.attributes.hp.value");
   let Actor = game.actors.get(tokenData.actorId);
   let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude");
   let fortSett = !!fortitudeFeature;
@@ -689,7 +694,7 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   if (game.settings.get('dnd5e-helpers', 'debug')) {
     console.log(`Dnd5e Helpers: ${Actor.name}'s update contains hp: ${hp}, and Fort: ${fortSett}`)
   }
-  
+
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
     if (hp === 0 && fortitudeFeature !== null) {
       UndeadFortCheckQuick(tokenData, update, options)
@@ -705,8 +710,8 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
 /** all createOwnedItem hooks handeled here */
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   let type = item.type
-  if(game.settings.get('dnd5e-helpers', 'autoProf')){
-    switch(type){
+  if (game.settings.get('dnd5e-helpers', 'autoProf')) {
+    switch (type) {
       case "weapon":
         AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
         break;
@@ -722,3 +727,26 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   }
 });
 
+Hooks.on(`createChatMessage`, (message, options, userId) => {
+  if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
+    const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
+    let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.id === "combat-utility-belt." + reactionStatus)
+    let currentCombatant = game.combats.active.current.tokenId
+    let castingToken = hasProperty(message, "data.speaker.token") ? message.data.speaker.token : null
+    let castingActor = message.data.speaker.actor
+    
+    if (castingToken === null && castingActor !== null) {
+      castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
+    }
+    let effectToken = canvas.tokens.get(castingToken)
+    
+    if (message.data.content.match(/Action/i)) {
+      if (currentCombatant !== castingToken) {
+        effectToken.toggleEffect(statusEffect);
+      }
+    }
+    if (message.data.content.match(/Reaction/i)) {
+      effectToken.toggleEffect(statusEffect);
+    }
+  }
+})
