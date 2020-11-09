@@ -682,7 +682,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 /** all preUpdateToken hooks handeled here */
 Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   let hp = getProperty(update, "actorData.data.attributes.hp.value");
-  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && hp !== (null || undefined )) {
+  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && hp !== (null || undefined)) {
     GreatWound_preUpdateToken(scene, tokenData, update);
   }
 
@@ -727,7 +727,7 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   }
 });
 
-Hooks.on(`createChatMessage`, (message, options, userId) => {
+Hooks.on(`createChatMessage`, async (message, options, userId) => {
   if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
     let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.id === "combat-utility-belt." + reactionStatus)
