@@ -107,7 +107,7 @@ Hooks.on('init', () => {
     hint: 'Checks newly added items and labels as proficient if needed',
     scope: 'world',
     type: Boolean,
-    default: false,
+    default: true,
     config: true,
   });
   game.settings.register("dnd5e-helpers", "autoRegen", {
@@ -319,11 +319,15 @@ function DrawGreatWound(actor) {
 
 /** Prof array check */
 function includes_array(arr, comp) {
-  return arr.reduce((acc, str) => comp.includes(str) || acc, false);
+  //Ignore empty array
+  if(arr.toString()==[""]){
+    return false;
+  }
+  return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
 }
 
-/** auto prof */
-function AutoProf_createOwnedItem(actor, item, sheet, id) {
+/** auto prof Weapon*/
+function AutoProfWeapon_createOwnedItem(actor, item, sheet, id) {
 
   //finds item data and actor proficiencies 
   let { weaponType } = item.data;
@@ -345,6 +349,76 @@ function AutoProf_createOwnedItem(actor, item, sheet, id) {
   // update item to match prof
   if (proficient) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
+    console.log(name + " is marked as proficient")
+  } else {
+    //Remove proficiency if actor is not proficient and the weapon has proficiency set.
+    if (!proficient && item.data.proficient){
+      actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
+      console.log(name + " is marked as not proficient")
+    }else {
+      ui.notifications.notify(name + " could not be matched to proficiency, please adjust manually.");
+    }
+  }
+}
+
+/** Auto prof Armor*/
+function AutoProfArmor_createOwnedItem(actor, item, sheet, id) {
+
+  //finds item data and actor proficiencies 
+  let { type } = item.data.armor;
+  let { name } = item;
+  let { armorProf } = actor.data.data.traits;
+  let proficient = false;
+
+  // finds weapon simple/martial type
+  let pass_type = type === 'light' ? 'lgt'
+    : type === 'medium' ? 'med' 
+    : type === 'heavy' ? 'hvy' 
+    : type === 'shield' ? 'shl'
+    : null;
+
+  //if armor type maches actor armor prof then prof = true
+  if (armorProf.value.includes(pass_type)) proficient = true;
+
+  //if item name matches custom prof lis then prof = true
+  if (includes_array(armorProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
+
+  // update item to match prof
+  //For items that are not armors (trinkets, clothing) we assume prof = true 
+  if (proficient || pass_type == null) {
+    actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
+    console.log(name + " is marked as proficient")
+  } else {
+    //remove armor proficiency if actor does not have it.
+    if (!proficient && item.data.proficient){
+      actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
+      console.log(name + " is marked as not proficient")
+    } else {
+      ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
+    }
+  }
+}
+
+/**Auto Prof Tools*/
+function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
+
+  //finds item data and actor proficiencies 
+  let { name } = item;
+  let { toolProf } = actor.data.data.traits;
+  let proficient = false;
+
+  //pass_name is here to match some of the toolProf strings
+  const pass_name = name.toLowerCase().replace("navi","navg").replace("thiev","thief");
+
+  if (includes_array(toolProf.value, pass_name)) proficient = true;
+
+  //if item name matches custom prof lis then prof = true
+  if (includes_array(toolProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
+
+  // update item to match prof
+  //For items that are not armors (trinkets, clothing) we assume prof = true 
+  if (proficient) {
+    actor.updateOwnedItem({ _id: item._id, "data.proficient": 1 });
     console.log(name + " is marked as proficient")
   } else {
     ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
@@ -512,7 +586,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 });
 
 
-/** auto reaction status remove at beginning of turn */
+/** All preUpdateCombat hooks are managed here */
 Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
   /** only concerned with turn changes */
@@ -599,13 +673,15 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
 });
 
-
+/** all preUpdateToken hooks handeled here */
 Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
-  let hp = getProperty(update, "actorData.data.attributes.hp.value")
-  let Actor = game.actors.get(tokenData.actorId)
-  let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude")
-  let fortSett = !!fortitudeFeature
+
+  /** output debug information -- @todo scope by feature */
   if (game.settings.get('dnd5e-helpers', 'debug')) {
+    let hp = getProperty(update, "actorData.data.attributes.hp.value")
+    let Actor = game.actors.get(tokenData.actorId)
+    let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude")
+    let fortSett = !!fortitudeFeature
     console.log(`Dnd5e Helpers: ${Actor.name}'s update contains hp: ${hp}, and Fort: ${fortSett}`)
   }
   if ((game.settings.get('dnd5e-helpers', 'gwEnable'))) {
@@ -624,11 +700,23 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   }
 });
 
-
+/** all createOwnedItem hooks handeled here */
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   let type = item.type
-  if ((game.settings.get('dnd5e-helpers', 'autoProf')) && (type === "weapon")) {
-    AutoProf_createOwnedItem(actor, item, sheet, id);
+  if(game.settings.get('dnd5e-helpers', 'autoProf')){
+    switch(type){
+      case "weapon":
+        AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
+        break;
+      case "equipment":
+        AutoProfArmor_createOwnedItem(actor, item, sheet, id);
+        break;
+      case "tool":
+        AutoProfTool_createOwnedItem(actor, item, sheet, id);
+        break;
+      default:
+        break;
+    }
   }
 });
 
