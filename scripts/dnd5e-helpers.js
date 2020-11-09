@@ -59,8 +59,8 @@ Hooks.on('init', () => {
   });
 
   game.settings.register("dnd5e-helpers", "cbtReactionStatus", {
-    name: "Reaction status icon path",
-    hint: "Icon path representing the used reaction status effect name (default: downgrade)",
+    name: "Reaction status name",
+    hint: "CUB conditions should be lowercase. 0.6.x should use icon path instead. (default: downgrade)",
     scope: "world",
     config: true,
     default: "downgrade",

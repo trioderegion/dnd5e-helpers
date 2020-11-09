@@ -19,5 +19,6 @@
 - Automatically prompt for regeneration rolls by creatures with the "Regeneration" feature. (see readme for details)
 
 ###1.4.1
+- Quick pass at supporting CUB conditions. Note: the status name should be lowercase in 5e helpers config.
 - Contributed by Szefo09#1005. Big thanks!
-- Auto proficiency detection has been expanded to include Armor and Tool proficiencies
+-- Auto proficiency detection has been expanded to include Armor and Tool proficiencies
