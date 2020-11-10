@@ -148,6 +148,30 @@ Hooks.on('init', () => {
   });
 });
 
+<<<<<<< Updated upstream
+=======
+/** helper functions */
+
+function GetStatusEffect(statusName) {
+  return CONFIG.statusEffects.find(e => e.id === statusName || e.id === "combat-utility-belt." + statusName);
+}
+
+async function ToggleStatus(token, status) {
+  await token.toggleEffect(status);
+}
+
+/** Prof array check */
+function includes_array(arr, comp) {
+  //Ignore empty array
+  if (arr.toString() == [""]) {
+    return false;
+  }
+  return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
+}
+
+/** \helper functions */
+
+>>>>>>> Stashed changes
 function RollForSurge(spellLevel, moreSurges, rollType = null) {
 
   const surgeThreshold = moreSurges ? spellLevel : 1;
@@ -650,9 +674,8 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
         const isv6 = game.data.version.includes("0.6.");
         const isv7 = game.data.version.includes("0.7.");
         if (isv6) {
-          if (currentToken.data.effects.includes(reactionStatus)) {
-            await currentToken.toggleEffect(reactionStatus);
-          }
+          if (currentToken.data.effects.includes(reactionStatus))
+            ToggleStatus(currentToken, reactionStatus);
         }
         else if (isv7) {
           /** latest version, attempt to play nice with active effects and CUB statuses */
@@ -665,7 +688,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
           /** Remove an existing effect (stoken from foundy.js:44223 */
           const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
           if (existing) {
-            await currentToken.toggleEffect(statusEffect);
+            ToggleStatus(currentToken, statusEffect);
           }
 
         }
@@ -730,16 +753,35 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 Hooks.on(`createChatMessage`, async (message, options, userId) => {
   if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
+<<<<<<< Updated upstream
     let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus);
     
+=======
+    let statusEffect = GetStatusEffect(reactionStatus);
+
+    /** bail out if we can't find the status. @todo good place for debug */
+    if (!statusEffect) {
+      return;
+    }
+
+    /** same if there is no combat */
+    if (!game.combats.active) {
+      return;
+
+    }
+>>>>>>> Stashed changes
     let currentCombatant = game.combats.active.current.tokenId
     let castingToken = hasProperty(message, "data.speaker.token") ? message.data.speaker.token : null
     let castingActor = message.data.speaker.actor
-    
+
+    const isv6 = game.data.version.includes("0.6.");
+    const isv7 = game.data.version.includes("0.7.");
+
     if (castingToken === null && castingActor !== null) {
       castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
     }
     let effectToken = canvas.tokens.get(castingToken)
+<<<<<<< Updated upstream
     
     if (message.data.content.match(/Action/i)) {
       let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
@@ -751,6 +793,35 @@ Hooks.on(`createChatMessage`, async (message, options, userId) => {
       let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
       if(!existing){
       effectToken.toggleEffect(statusEffect);
+=======
+
+
+    if (message.data.content.match(/Action/i)) {
+      if (isv6) {
+        if (!effectToken.data.effects.includes(statusEffect))
+          ToggleStatus(effectToken, statusEffect);
+      }
+      if (isv7) {
+        let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+        if ((currentCombatant !== castingToken) && !existing) {
+          ToggleStatus(effectToken, statusEffect);
+          return; //early exit once we trigger correctly
+        }
+      }
+    }
+
+    if (message.data.content.match(/Reaction/i)) {
+      if (isv6) {
+        if (!effectToken.data.effects.includes(statusEffect))
+          ToggleStatus(effectToken, statusEffect);
+      }
+      if (isv7) {
+        let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+        if (!existing) {
+          ToggleStatus(effectToken, statusEffect);
+          return; //early exit once we trigger correctly
+        }
+>>>>>>> Stashed changes
       }
     }
   }
