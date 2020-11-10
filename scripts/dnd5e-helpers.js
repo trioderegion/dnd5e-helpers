@@ -148,8 +148,6 @@ Hooks.on('init', () => {
   });
 });
 
-<<<<<<< Updated upstream
-=======
 /** helper functions */
 
 function GetStatusEffect(statusName) {
@@ -171,7 +169,6 @@ function includes_array(arr, comp) {
 
 /** \helper functions */
 
->>>>>>> Stashed changes
 function RollForSurge(spellLevel, moreSurges, rollType = null) {
 
   const surgeThreshold = moreSurges ? spellLevel : 1;
@@ -753,10 +750,6 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 Hooks.on(`createChatMessage`, async (message, options, userId) => {
   if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-<<<<<<< Updated upstream
-    let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus);
-    
-=======
     let statusEffect = GetStatusEffect(reactionStatus);
 
     /** bail out if we can't find the status. @todo good place for debug */
@@ -769,7 +762,6 @@ Hooks.on(`createChatMessage`, async (message, options, userId) => {
       return;
 
     }
->>>>>>> Stashed changes
     let currentCombatant = game.combats.active.current.tokenId
     let castingToken = hasProperty(message, "data.speaker.token") ? message.data.speaker.token : null
     let castingActor = message.data.speaker.actor
@@ -781,19 +773,6 @@ Hooks.on(`createChatMessage`, async (message, options, userId) => {
       castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
     }
     let effectToken = canvas.tokens.get(castingToken)
-<<<<<<< Updated upstream
-    
-    if (message.data.content.match(/Action/i)) {
-      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-      if ((currentCombatant !== castingToken) && !existing) {
-        effectToken.toggleEffect(statusEffect);
-      }
-    }
-    if (message.data.content.match(/Reaction/i)) {
-      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-      if(!existing){
-      effectToken.toggleEffect(statusEffect);
-=======
 
 
     if (message.data.content.match(/Action/i)) {
@@ -821,7 +800,6 @@ Hooks.on(`createChatMessage`, async (message, options, userId) => {
           ToggleStatus(effectToken, statusEffect);
           return; //early exit once we trigger correctly
         }
->>>>>>> Stashed changes
       }
     }
   }
