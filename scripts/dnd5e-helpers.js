@@ -767,12 +767,15 @@ Hooks.on(`createChatMessage`, async (message, options, userId) => {
       let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
       if ((currentCombatant !== castingToken) && !existing) {
         effectToken.toggleEffect(statusEffect);
+        return; //early exit once we trigger correctly
       }
     }
-    else if (message.data.content.match(/Reaction/i)) {
+    
+    if (message.data.content.match(/Reaction/i)) {
       let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
       if(!existing){
         effectToken.toggleEffect(statusEffect);
+        return; //early exit once we trigger correctly
       }
     }
   }

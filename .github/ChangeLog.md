@@ -25,3 +25,6 @@
 
 ###1.5.0
 - Big addition to the feature-previously-known-as auto reaction removal. Now includes options to not only remove, but apply as well depending on the item that is used.
+
+###1.5.1
+- Bugfix for using a reaction ability *on* your turn. You can blame badger.
