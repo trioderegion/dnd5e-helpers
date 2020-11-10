@@ -148,6 +148,23 @@ Hooks.on('init', () => {
   });
 });
 
+/** helper functions */
+
+function GetStatusEffect(statusName) {
+  return CONFIG.statusEffects.find(e => e.id === statusName || e.id === "combat-utility-belt." + statusName);
+}
+
+/** Prof array check */
+function includes_array(arr, comp) {
+  //Ignore empty array
+  if (arr.toString() == [""]) {
+    return false;
+  }
+  return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
+}
+
+/** \helper functions */
+
 function RollForSurge(spellLevel, moreSurges, rollType = null) {
 
   const surgeThreshold = moreSurges ? spellLevel : 1;
@@ -323,14 +340,7 @@ function DrawGreatWound(actor) {
   }
 }
 
-/** Prof array check */
-function includes_array(arr, comp) {
-  //Ignore empty array
-  if (arr.toString() == [""]) {
-    return false;
-  }
-  return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
-}
+
 
 /** auto prof Weapon*/
 function AutoProfWeapon_createOwnedItem(actor, item, sheet, id) {
@@ -656,7 +666,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
         }
         else if (isv7) {
           /** latest version, attempt to play nice with active effects and CUB statuses */
-          let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.id === "combat-utility-belt." + reactionStatus)
+          let statusEffect = GetStatusEffect(reactionStatus);
           if (!statusEffect) {
             console.log("dnd5e-helpers: could not located active effect named: " + reactionStatus);
             return;
@@ -729,9 +739,20 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 
 Hooks.on(`createChatMessage`, async (message, options, userId) => {
   if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
+
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-    let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus);
+    let statusEffect = GetStatusEffect(reactionStatus);
+
+    /** bail out if we can't find the status. @todo good place for debug */
+    if (!statusEffect) {
+      return;
+    }
     
+    /** same if there is no combat */
+    if (!game.combats.active) {
+      return;
+
+    }
     let currentCombatant = game.combats.active.current.tokenId
     let castingToken = hasProperty(message, "data.speaker.token") ? message.data.speaker.token : null
     let castingActor = message.data.speaker.actor
@@ -739,18 +760,19 @@ Hooks.on(`createChatMessage`, async (message, options, userId) => {
     if (castingToken === null && castingActor !== null) {
       castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
     }
+
+    /** if its an action or reaction decide if the action qualifies */
     let effectToken = canvas.tokens.get(castingToken)
-    
     if (message.data.content.match(/Action/i)) {
       let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
       if ((currentCombatant !== castingToken) && !existing) {
         effectToken.toggleEffect(statusEffect);
       }
     }
-    if (message.data.content.match(/Reaction/i)) {
+    else if (message.data.content.match(/Reaction/i)) {
       let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
       if(!existing){
-      effectToken.toggleEffect(statusEffect);
+        effectToken.toggleEffect(statusEffect);
       }
     }
   }
