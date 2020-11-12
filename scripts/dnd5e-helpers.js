@@ -148,6 +148,30 @@ Hooks.on('init', () => {
   });
 });
 
+Hooks.on('ready', () => {
+  game.socket.on(`module.dnd5e-helpers`, socketData => {
+
+    //GW for owned tokens 
+    if (socketData.rollType === "save") {
+      for (const [key, value] of Object.entries(socketData.users)) {
+        if ((value === 3) && game.users.get(`${key}`).data.role != 4) {
+          if (game.user.data._id === `${key}`) {
+            let actor = game.actors.get(socketData.actorId);
+            let ability = socketData.rollSkill
+              (async () => {
+                let { total } = await actor.rollAbilitySave(ability)
+                if (total < socketData.DC) {
+                  DrawGreatWound(data.actor);
+                }
+              })()
+          }
+        }
+      }
+    }
+
+  })
+})
+
 /** helper functions */
 
 function IsFirstGM() {
@@ -336,12 +360,14 @@ function GreatWound_preUpdateActor(actor, update) {
         one: {
           label: "Roll",
           callback: () => {
-            (async () => {
-              let { total } = await actor.rollAbilitySave("con")
-              if (total < 15) {
-                DrawGreatWound(data.actor);
-              }
-            })()
+            const socketData = {
+              users: actor._data.permission,
+              rollType: "save",
+              rollSkill: "con",
+              DC: 15,
+              actorId: actor._id
+            }
+            game.socket.emit(`module.dnd5e-helpers`, socketData)
           }
         }
       }
@@ -705,7 +731,7 @@ function ReactionRemove(currentToken,) {
   let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.label === reactionStatus)
 
   if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(`Dnd5e Helpers: game version is: ${isv6,isv7}, status effect is: ${statusEffect}`)
+    console.log(`Dnd5e Helpers: game version is: ${isv6, isv7}, status effect is: ${statusEffect}`)
   }
   if (isv6) {
     if (currentToken.data.effects.includes(reactionStatus))
