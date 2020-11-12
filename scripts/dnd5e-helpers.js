@@ -151,25 +151,18 @@ Hooks.on('init', () => {
 Hooks.on('ready', () => {
   console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
-    console.log("socked recived")
-    //GW for owned tokens 
-    if (socketData.rollType === "save") {
+    console.log("socket recived")
+    //Rolls Saves for owned tokens 
+    if (socketData.greatwound === true) {
       for (const [key, value] of Object.entries(socketData.users)) {
-        if ((value === 3) && game.users.get(`${key}`).data.role != 4) {
+        if ((value === 3) && game.users.get(`${key}`).data.role !== 4) {
           if (game.user.data._id === `${key}`) {
             let actor = game.actors.get(socketData.actorId);
-            let ability = socketData.rollSkill;
-            (async () => {
-              let { total } = await actor.rollAbilitySave(ability)
-              if (total < socketData.DC) {
-                DrawGreatWound(data.actor);
-              }
-            })()
+            DrawGreatWound(actor);
           }
         }
       }
     }
-
   })
 })
 
@@ -361,12 +354,15 @@ function GreatWound_preUpdateActor(actor, update) {
         one: {
           label: "Roll",
           callback: () => {
+            if (game.user.data.role !== 4) {
+              DrawGreatWound(actor)
+              return;
+            }
+
             const socketData = {
               users: actor._data.permission,
-              rollType: "save",
-              rollSkill: "con",
-              DC: 15,
-              actorId: actor._id
+              actorId: actor._id,
+              greatwound: true
             }
             console.log("socket send with " + socketData)
             game.socket.emit(`module.dnd5e-helpers`, socketData)
@@ -379,13 +375,17 @@ function GreatWound_preUpdateActor(actor, update) {
 
 /** rolls on specified Great Wound Table */
 function DrawGreatWound(actor) {
-
-  const greatWoundTable = game.settings.get('dnd5e-helpers', 'gwTableName')
-  if (greatWoundTable !== "") {
-    game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
-  } else {
-    ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
-  }
+  (async () => {
+    let { total } = await actor.rollAbilitySave("con")
+    if (total < 15) {
+      const greatWoundTable = game.settings.get('dnd5e-helpers', 'gwTableName')
+      if (greatWoundTable !== "") {
+        game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
+      } else {
+        ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
+      }
+    }
+  })();
 }
 
 /** Prof array check */
@@ -693,7 +693,6 @@ function ReactionApply(message) {
       }
       if (isv7) {
         if (game.modules.get("combat-utility-belt")?.active) {
-          debugger
           ApplyCUB(effectToken, reactionStatus)
           return;//early exit once we trigger correctly
         }
