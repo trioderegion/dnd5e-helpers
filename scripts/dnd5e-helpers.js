@@ -191,7 +191,8 @@ async function ApplyCUB(token, cubStatus) {
 //remove a CUB status effect
 async function RemoveCUB(token, cubStatus) {
   await game.cub.removeCondition(cubStatus, token)
-=======
+}
+
 /** helper functions */
 
 function GetStatusEffect(statusName) {
@@ -325,12 +326,7 @@ function GreatWound_preUpdateToken(scene, tokenData, update) {
         one: {
           label: "Roll",
           callback: () => {
-            (async () => {
-              let { total } = await actor.rollAbilitySave("con")
-              if (total < 15) {
-                DrawGreatWound(data.actor);
-              }
-            })()
+            DrawGreatWound(actor);
           }
         }
       }
