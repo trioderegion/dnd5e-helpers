@@ -148,6 +148,7 @@ Hooks.on('init', () => {
   });
 });
 
+
 Hooks.on('ready', () => {
   console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
@@ -190,6 +191,12 @@ async function ApplyCUB(token, cubStatus) {
 //remove a CUB status effect
 async function RemoveCUB(token, cubStatus) {
   await game.cub.removeCondition(cubStatus, token)
+=======
+/** helper functions */
+
+function GetStatusEffect(statusName) {
+  return CONFIG.statusEffects.find(e => e.id === statusName || e.id === "combat-utility-belt." + statusName);
+
 }
 
 /** Prof array check */
@@ -388,14 +395,7 @@ function DrawGreatWound(actor) {
   })();
 }
 
-/** Prof array check */
-function includes_array(arr, comp) {
-  //Ignore empty array
-  if (arr.toString() == [""]) {
-    return false;
-  }
-  return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
-}
+
 
 /** auto prof Weapon*/
 function AutoProfWeapon_createOwnedItem(actor, item, sheet, id) {

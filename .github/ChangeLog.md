@@ -22,3 +22,9 @@
 - Quick pass at supporting CUB conditions. Note: the status name should be lowercase in 5e helpers config.
 - Contributed by Szefo09#1005. Big thanks!
 -- Auto proficiency detection has been expanded to include Armor and Tool proficiencies
+
+###1.5.0
+- Big addition to the feature-previously-known-as auto reaction removal. Now includes options to not only remove, but apply as well depending on the item that is used.
+
+###1.5.1
+- Bugfix for using a reaction ability *on* your turn. You can blame badger.
