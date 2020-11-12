@@ -32,7 +32,7 @@ Little helpers for little 5e tasks.
 - GM only
 - Triggers on a reduction of 50% of a token/actor's health.
 - Configurable Great Wound table to draw from.
-- This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save or roll on the table
+- This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save then roll on the table
 
 ### Auto Proficiency Detection
 - GM Only
