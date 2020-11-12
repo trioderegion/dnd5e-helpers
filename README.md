@@ -17,7 +17,7 @@ Little helpers for little 5e tasks.
    - B) use another action outside of their combat turn 
 - Then auto remove this icon when the tokens turn comes up again in the combat tracker
 - This status is configurable (note: for 0.6.x users, this should be the icon path; /icons/svg/hazard.svg)
-- The auto application will not currently work for 0.6.x users (sorry)
+- FOr CUB users, just state the name of your reaction-style Condition
 
 ### Legendary Action Reset on Start of Turn
 - GM only
@@ -30,6 +30,7 @@ Little helpers for little 5e tasks.
 - GM only
 - Triggers on a reduction of 50% of a token/actor's health.
 - Configurable Great Wound table to draw from.
+- This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save or roll on the table
 
 ### Auto Proficiency Detection
 - Will automatically mark a newly added weapon, armor or tool 'proficient' if it is part of the actor's listed proficiencies

@@ -66,7 +66,7 @@ Hooks.on('init', () => {
 
   game.settings.register("dnd5e-helpers", "cbtReactionStatus", {
     name: "Reaction status name",
-    hint: "CUB conditions should be lowercase. 0.6.x should use icon path instead. (default: downgrade)",
+    hint: "CUB conditions should list the Condtion Lab name as seen. 0.6.x should use icon path instead. (default: downgrade)",
     scope: "world",
     config: true,
     default: "downgrade",
