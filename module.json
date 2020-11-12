@@ -16,6 +16,7 @@
     "scripts": [
         "/scripts/dnd5e-helpers.js"
     ],
+    "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",
     "download": "https://github.com/trioderegion/dnd5e-helpers/raw/master/module.zip",

@@ -16,9 +16,10 @@ Little helpers for little 5e tasks.
 - This can auto apply a status effect to tokens that either: 
    - A) use a reaction ability
    - B) use another action outside of their combat turn 
-- The status effect will be removed on the token's next turn in combat.
-- This status effect name is configurable as well as applying or removing the status.
-- note for 0.6.x users: the effect name should be the icon path, e.g., /icons/svg/hazard.svg and automatic application will not function.
+- Then auto remove this icon when the tokens turn comes up again in the combat tracker
+- This status is configurable (note: for 0.6.x users, this should be the icon path; /icons/svg/hazard.svg)
+- FOr CUB users, just state the name of your reaction-style Condition
+
 
 ### Legendary Action Reset on Start of Turn
 - GM only
@@ -31,6 +32,7 @@ Little helpers for little 5e tasks.
 - GM only
 - Triggers on a reduction of 50% of a token/actor's health.
 - Configurable Great Wound table to draw from.
+- This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save or roll on the table
 
 ### Auto Proficiency Detection
 - GM Only
