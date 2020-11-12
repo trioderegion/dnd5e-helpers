@@ -149,21 +149,22 @@ Hooks.on('init', () => {
 });
 
 Hooks.on('ready', () => {
+  console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
-
+    console.log("socked recived")
     //GW for owned tokens 
     if (socketData.rollType === "save") {
       for (const [key, value] of Object.entries(socketData.users)) {
         if ((value === 3) && game.users.get(`${key}`).data.role != 4) {
           if (game.user.data._id === `${key}`) {
             let actor = game.actors.get(socketData.actorId);
-            let ability = socketData.rollSkill
-              (async () => {
-                let { total } = await actor.rollAbilitySave(ability)
-                if (total < socketData.DC) {
-                  DrawGreatWound(data.actor);
-                }
-              })()
+            let ability = socketData.rollSkill;
+            (async () => {
+              let { total } = await actor.rollAbilitySave(ability)
+              if (total < socketData.DC) {
+                DrawGreatWound(data.actor);
+              }
+            })()
           }
         }
       }
@@ -367,6 +368,7 @@ function GreatWound_preUpdateActor(actor, update) {
               DC: 15,
               actorId: actor._id
             }
+            console.log("socket send with " + socketData)
             game.socket.emit(`module.dnd5e-helpers`, socketData)
           }
         }
