@@ -3,7 +3,7 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "wmEnabled", {
     name: "Wild Magic Auto-Detect",
     hint: "Enables or disables this feature for the current user.",
-    scope: "client",
+    scope: "world",
     config: true,
     default: false,
     type: Boolean,
@@ -13,7 +13,7 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "wmMoreSurges", {
     name: "MORE Surges (homebrew)",
     hint: "A surge will occur on a d20 roll <= the spell level just cast, rather than only on a 1.",
-    scope: "client",
+    scope: "world",
     config: true,
     default: false,
     type: Boolean,
@@ -23,7 +23,7 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "wmFeatureName", {
     name: "Wild Magic Feature Name",
     hint: "Name of feature that represents the Sorcerer's Wild Magic Surge (default: Wild Magic Surge)",
-    scope: "client",
+    scope: "world",
     config: true,
     default: "Wild Magic Surge",
     type: String,
@@ -33,7 +33,7 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "wmTableName", {
     name: "Wild Magic Surge Table Name",
     hint: "Name of table that should be rolled on if a surge occurs (default: Wild-Magic-Surge-Table). Leave empty to skip this step.",
-    scope: "client",
+    scope: "world",
     config: true,
     default: "Wild-Magic-Surge-Table",
     type: String,
@@ -885,6 +885,7 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   }
 });
 
+/** createChatMessage hooks here */
 Hooks.on(`createChatMessage`, async (message, options, userId) => {
   if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
     ReactionApply(message)
