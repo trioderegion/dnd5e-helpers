@@ -35,3 +35,6 @@
 - Bug fixes for the Reaction Application to prevent multiple applications of the same status
 - Cleared up Hooks to make the execution a bit easier 
 - @todo Automaticly remove all reaction status' at the end of a combat
+
+###1.5.3
+- Fixed string === integer comparison bug. Whoops.

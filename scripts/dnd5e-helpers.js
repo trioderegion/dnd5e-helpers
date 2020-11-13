@@ -53,12 +53,12 @@ Hooks.on('init', () => {
     name: "Reaction status automation.",
     hint: "Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the sepcified status. Remove will automatic remove this effect at the start of an actors turn",
     scope: "world",
-    type: String,
+    type: Number,
     choices: {
-      "0": "None",
-      "1": "Only Apply",
-      "2": "Only Remove",
-      "3": "Apply and Remove",
+      0: "None",
+      1: "Only Apply",
+      2: "Only Remove",
+      3: "Apply and Remove",
     },
     default: "0",
     config: true,
@@ -821,7 +821,8 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
       }
 
       /** hb@todo: functionalize this similar to the other cbt operations */
-      if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 2 || 3) {
+      const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
+      if ( reactMode == 2 || reactMode == 3) {
         ReactionRemove(currentToken)
       }
     }
@@ -880,7 +881,8 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 
 /** createChatMessage hooks here */
 Hooks.on(`createChatMessage`, async (message, options, userId) => {
-  if (game.settings.get('dnd5e-helpers', 'cbtReactionEnable') === 1 || 3) {
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if ( reactMode === 1 || reactMode === 3) {
     ReactionApply(message)
   }
 })
