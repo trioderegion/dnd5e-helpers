@@ -30,3 +30,8 @@
 - Bugfix for using a reaction ability *on* your turn. You can blame badger.
 
 ###1.5.2
+- Bug fixes for Great Wound not correctly showing the con saving throw on the players screen. This will now automaticly occur. The "Roll for Great Wound" will happen on the users screen that edited the HP value.
+- Configured the Reaction setting to play nicely with CUB Conditions, no more work-arounds
+- Bug fixes for the Reaction Application to prevent multiple applications of the same status
+- Cleared up Hooks to make the execution a bit easier 
+- @todo Automaticly remove all reaction status' at the end of a combat
