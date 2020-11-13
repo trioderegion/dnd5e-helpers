@@ -28,3 +28,5 @@
 
 ###1.5.1
 - Bugfix for using a reaction ability *on* your turn. You can blame badger.
+
+###1.5.2

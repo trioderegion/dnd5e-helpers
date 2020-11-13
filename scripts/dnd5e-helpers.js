@@ -193,13 +193,6 @@ async function RemoveCUB(token, cubStatus) {
   await game.cub.removeCondition(cubStatus, token)
 }
 
-/** helper functions */
-
-function GetStatusEffect(statusName) {
-  return CONFIG.statusEffects.find(e => e.id === statusName || e.id === "combat-utility-belt." + statusName);
-
-}
-
 /** Prof array check */
 function includes_array(arr, comp) {
   //Ignore empty array
