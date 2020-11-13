@@ -822,7 +822,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
       /** hb@todo: functionalize this similar to the other cbt operations */
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
-      if ( reactMode == 2 || reactMode == 3) {
+      if (reactMode == 2 || reactMode == 3) {
         ReactionRemove(currentToken)
       }
     }
@@ -882,7 +882,17 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 /** createChatMessage hooks here */
 Hooks.on(`createChatMessage`, async (message, options, userId) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if ( reactMode === 1 || reactMode === 3) {
+  if (reactMode === 1 || reactMode === 3) {
     ReactionApply(message)
+  }
+})
+
+Hooks.on(`preDeleteCombat`, async (combat, data, combatId) => {
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
+  if (reactMode == 2 || reactMode == 3) {
+    let combatants = canvas.tokens.placeables
+    for (token of combatants) {
+      ReactionRemove(token)
+    }
   }
 })
