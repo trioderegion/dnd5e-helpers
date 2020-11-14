@@ -854,10 +854,85 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   }
 });
 
-/** createChatMessage hooks here */
-Hooks.on(`createChatMessage`, async (message, options, userId) => {
-  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if ( reactMode === 1 || reactMode === 3) {
-    ReactionApply(message)
+//apply a reaction status to the token specified in message contents
+function ReactionApply_New(castingActor, castingToken, itemId) {
+  //only trigger for GM account and if an item is present, prevents multiple effects being added
+  if (IsFirstGM() && itemId !== undefined) {
+    const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
+    let statusEffect = GetStatusEffect(reactionStatus);
+
+    /** bail out if we can't find the status. */
+    if (!statusEffect) {
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log("Dnd5e helpers: Could not find staus: " + statusEffect)
+      }
+      return;
+    }
+
+    /** same if there is no combat */
+    if (!game.combats.active) {
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log("Dnd5e helpers: Could not find an active combat")
+      }
+      return;
+    }
+
+    //find the current token instance that called the roll card
+    let currentCombatant = game.combats.active.current.tokenId
+
+    if (castingToken === null && castingActor === null) {
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log("Dnd5e helpers: Not an actors item roll")
+      }
+      return; // not a item roll message, prevents unneeded errors in console
+    }
+
+    //find token for linked actor 
+    if (castingToken === null && castingActor !== null) {
+      castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
+    }
+    let effectToken = canvas.tokens.get(castingToken)
+
+    let ownedItem = effectToken.actor.getOwnedItem(itemId);
+    const {activation} = ownedItem.data.labels;
+
+    /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
+    if (activation === "1 Action" || activation === "1 Reaction"){
+      // if Action ability not in combat turn, apply effect
+      if (game.modules.get("combat-utility-belt")?.active) {
+        ApplyCUB(effectToken, reactionStatus)
+        return;//early exit once we trigger correctly
+      }
+      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+      if ((currentCombatant !== castingToken) && !existing) {
+        ToggleStatus(effectToken, statusEffect);
+        return; //early exit once we trigger correctly
+      }
+    }
   }
-})
+}
+
+function ReactionDetect_preCreateChatMessage(msg){
+  const itemId = $(msg.content).attr("data-item-id");
+
+  console.log(itemId);
+
+  /** could not find the item id, must not have been an item */
+  if (itemId == undefined){
+    return;
+  }
+
+  const speaker = getProperty(msg, "speaker");
+
+  if (speaker){
+    /** hand over to reaction apply logic (checks combat state, etc) */
+    ReactionApply_New(speaker.actor, speaker.token, itemId);
+  }
+}
+
+Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
+ const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if ( reactMode === 1 || reactMode === 3) {
+    ReactionDetect_preCreateChatMessage(msg);
+  }
+});
