@@ -173,9 +173,40 @@ function IsFirstGM() {
   return game.user === game.users.find((u) => u.isGM && u.active);
 }
 
+function GetKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
+
 //find status effect based on passed name
 function GetStatusEffect(statusName) {
-  return CONFIG.statusEffects.find(e => e.id === statusName || e.label === statusName)
+  /** Core Status Effects -- pass displayed name backwards through localization to match to status.label */
+  const {EFFECT} = game.i18n.translations;
+
+  /** find the key (will be label) from the value */
+  let statusLabel = GetKeyByValue(EFFECT, statusName);
+  let statusEffect = CONFIG.statusEffects.find(st => st.label === `EFFECT.${statusLabel}`);
+
+  if (statusEffect){
+    /** first match is core, always prefer core */
+    return statusEffect;
+  }
+  else
+  {
+    /** cant find it, it still may be available via other modules/methods */
+
+    /** CUB Compatibility -- statusName matches displayed CUB name (status.label) */
+    if (!statusEffect && game.modules.get("combat-utility-belt")?.active) {
+
+      /** if we find it, pick it */
+      statusEffect = CONFIG.statusEffects.find(st => st.label === statusName);
+    }
+
+    //note: other module compatibilities should check for a null statusEffect before
+    //      changing the current statusEffect. Priority based on evaluation order.
+  }
+
+  /** return the best label we found */
+  return statusEffect;
 }
 
 //toggle core status effects
@@ -628,17 +659,17 @@ function UndeadFortCheckSlow(tokenData, update, options) {
   } else return true;
 }
 
-//apply a reaction status to the token specified in message contents
-function ReactionApply(message) {
-  //only trigger for GM account, prevents multiple effects being added
-  if (IsFirstGM()) {
+//apply a reaction status to the token if the item looks like it should use a reaction
+function ReactionApply(castingActor, castingToken, itemId) {
+  //only trigger for GM account and if an item is present, prevents multiple effects being added
+  if (IsFirstGM() && itemId !== undefined) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
     let statusEffect = GetStatusEffect(reactionStatus);
 
     /** bail out if we can't find the status. */
     if (!statusEffect) {
       if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log("Dnd5e helpers: Could not find staus: " + statusEffect)
+        console.log("Dnd5e helpers: Could not find staus: " + reactionStatus)
       }
       return;
     }
@@ -649,13 +680,10 @@ function ReactionApply(message) {
         console.log("Dnd5e helpers: Could not find an active combat")
       }
       return;
-
     }
+
     //find the current token instance that called the roll card
     let currentCombatant = game.combats.active.current.tokenId
-    let castingToken = hasProperty(message, "data.speaker.token") ? message.data.speaker.token : null
-    let castingActor = message.data.speaker.actor
-
 
     if (castingToken === null && castingActor === null) {
       if (game.settings.get('dnd5e-helpers', 'debug')) {
@@ -668,40 +696,38 @@ function ReactionApply(message) {
     if (castingToken === null && castingActor !== null) {
       castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
     }
+
     let effectToken = canvas.tokens.get(castingToken)
 
-    // if Action ability not in combat turn, apply effect
-    if (message.data.content.match(/Action/)) {
-      console.log("action")
-      if (game.modules.get("combat-utility-belt")?.active) {
-        ApplyCUB(effectToken, reactionStatus)
-        return;//early exit once we trigger correctly
-      }
-      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-      if ((currentCombatant !== castingToken) && !existing) {
-        ToggleStatus(effectToken, statusEffect);
-        return; //early exit once we trigger correctly
-      }
-    }
+    let ownedItem = effectToken.actor.getOwnedItem(itemId);
+    const {activation} = ownedItem.data.labels;
 
-    //if Reaction ability at any point, apply effect
-    if (message.data.content.match(/Reaction/)) {
+    /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
+    const isAction = activation === "1 Action";
+    const isReaction = activation === "1 Reaction";
+
+    let shouldApply = isReaction || (isAction && (currentCombatant !== castingToken));
+    
+    if (shouldApply) {
       if (game.modules.get("combat-utility-belt")?.active) {
-        ApplyCUB(effectToken, reactionStatus)
-        return;//early exit once we trigger correctly
+
+        /** first, test if this is a cub condition */
+        if (game.cub.getCondition(reactionStatus)){
+          ApplyCUB(effectToken, reactionStatus)
+          return; //early exit once we trigger correctly
+        }
       }
-      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-      if (!existing) {
-        ToggleStatus(effectToken, statusEffect);
-        return; //early exit once we trigger correctly
-      }
+
+      /** if nothing else , it should be core */
+      ToggleStatus(effectToken, statusEffect);
+      return; //early exit once we trigger correctly
     }
   }
 }
 
-function ReactionRemove(currentToken,) {
+function ReactionRemove(currentToken) {
   const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-  let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.label === reactionStatus)
+  let statusEffect = GetStatusEffect(reactionStatus);
 
   if (game.settings.get('dnd5e-helpers', 'debug')) {
     console.log(`Dnd5e Helpers: status effect is: ${statusEffect}`)
@@ -717,10 +743,17 @@ function ReactionRemove(currentToken,) {
   const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
   if (existing) {
     if (game.modules.get("combat-utility-belt")?.active) {
-      RemoveCUB(currentToken, reactionStatus)
-      return;
+
+      /** first, test if this is a cub condition */
+      if (game.cub.getCondition(reactionStatus)){
+        RemoveCUB(currentToken, reactionStatus)
+        return; //early exit once we trigger correctly
+      }
     }
+
+    /** if nothing else , it should be core */
     ToggleStatus(currentToken, statusEffect);
+    return; //early exit once we trigger correctly
   }
 
 }
@@ -854,68 +887,10 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   }
 });
 
-//apply a reaction status to the token specified in message contents
-function ReactionApply_New(castingActor, castingToken, itemId) {
-  //only trigger for GM account and if an item is present, prevents multiple effects being added
-  if (IsFirstGM() && itemId !== undefined) {
-    const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-    let statusEffect = GetStatusEffect(reactionStatus);
 
-    /** bail out if we can't find the status. */
-    if (!statusEffect) {
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log("Dnd5e helpers: Could not find staus: " + statusEffect)
-      }
-      return;
-    }
-
-    /** same if there is no combat */
-    if (!game.combats.active) {
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log("Dnd5e helpers: Could not find an active combat")
-      }
-      return;
-    }
-
-    //find the current token instance that called the roll card
-    let currentCombatant = game.combats.active.current.tokenId
-
-    if (castingToken === null && castingActor === null) {
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log("Dnd5e helpers: Not an actors item roll")
-      }
-      return; // not a item roll message, prevents unneeded errors in console
-    }
-
-    //find token for linked actor 
-    if (castingToken === null && castingActor !== null) {
-      castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
-    }
-    let effectToken = canvas.tokens.get(castingToken)
-
-    let ownedItem = effectToken.actor.getOwnedItem(itemId);
-    const {activation} = ownedItem.data.labels;
-
-    /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
-    if (activation === "1 Action" || activation === "1 Reaction"){
-      // if Action ability not in combat turn, apply effect
-      if (game.modules.get("combat-utility-belt")?.active) {
-        ApplyCUB(effectToken, reactionStatus)
-        return;//early exit once we trigger correctly
-      }
-      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-      if ((currentCombatant !== castingToken) && !existing) {
-        ToggleStatus(effectToken, statusEffect);
-        return; //early exit once we trigger correctly
-      }
-    }
-  }
-}
 
 function ReactionDetect_preCreateChatMessage(msg){
   const itemId = $(msg.content).attr("data-item-id");
-
-  console.log(itemId);
 
   /** could not find the item id, must not have been an item */
   if (itemId == undefined){
@@ -923,10 +898,9 @@ function ReactionDetect_preCreateChatMessage(msg){
   }
 
   const speaker = getProperty(msg, "speaker");
-
   if (speaker){
     /** hand over to reaction apply logic (checks combat state, etc) */
-    ReactionApply_New(speaker.actor, speaker.token, itemId);
+    ReactionApply(speaker.actor, speaker.token, itemId);
   }
 }
 
