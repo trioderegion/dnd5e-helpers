@@ -664,9 +664,6 @@ function ReactionApply(message) {
       return; // not a item roll message, prevents unneeded errors in console
     }
 
-    const isv6 = game.data.version.includes("0.6.");
-    const isv7 = game.data.version.includes("0.7.");
-
     //find token for linked actor 
     if (castingToken === null && castingActor !== null) {
       castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
@@ -676,39 +673,27 @@ function ReactionApply(message) {
     // if Action ability not in combat turn, apply effect
     if (message.data.content.match(/Action/)) {
       console.log("action")
-      if (isv6) {
-        if (!effectToken.data.effects.includes(statusEffect))
-          ToggleStatus(effectToken, statusEffect);
+      if (game.modules.get("combat-utility-belt")?.active) {
+        ApplyCUB(effectToken, reactionStatus)
+        return;//early exit once we trigger correctly
       }
-      if (isv7) {
-        if (game.modules.get("combat-utility-belt")?.active) {
-          ApplyCUB(effectToken, reactionStatus)
-          return;//early exit once we trigger correctly
-        }
-        let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-        if ((currentCombatant !== castingToken) && !existing) {
-          ToggleStatus(effectToken, statusEffect);
-          return; //early exit once we trigger correctly
-        }
+      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+      if ((currentCombatant !== castingToken) && !existing) {
+        ToggleStatus(effectToken, statusEffect);
+        return; //early exit once we trigger correctly
       }
     }
+
     //if Reaction ability at any point, apply effect
     if (message.data.content.match(/Reaction/)) {
-      console.log("reaction")
-      if (isv6) {
-        if (!effectToken.data.effects.includes(statusEffect))
-          ToggleStatus(effectToken, statusEffect);
+      if (game.modules.get("combat-utility-belt")?.active) {
+        ApplyCUB(effectToken, reactionStatus)
+        return;//early exit once we trigger correctly
       }
-      if (isv7) {
-        if (game.modules.get("combat-utility-belt")?.active) {
-          ApplyCUB(effectToken, reactionStatus)
-          return;//early exit once we trigger correctly
-        }
-        let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-        if (!existing) {
-          ToggleStatus(effectToken, statusEffect);
-          return; //early exit once we trigger correctly
-        }
+      let existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+      if (!existing) {
+        ToggleStatus(effectToken, statusEffect);
+        return; //early exit once we trigger correctly
       }
     }
   }
@@ -716,38 +701,28 @@ function ReactionApply(message) {
 
 function ReactionRemove(currentToken,) {
   const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-  const isv6 = game.data.version.includes("0.6.");
-  const isv7 = game.data.version.includes("0.7.");
   let statusEffect = CONFIG.statusEffects.find(e => e.id === reactionStatus || e.label === reactionStatus)
 
   if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(`Dnd5e Helpers: game version is: ${isv6, isv7}, status effect is: ${statusEffect}`)
+    console.log(`Dnd5e Helpers: status effect is: ${statusEffect}`)
   }
-  if (isv6) {
-    if (currentToken.data.effects.includes(reactionStatus))
-      ToggleStatus(currentToken, reactionStatus);
+
+  /** latest version, attempt to play nice with active effects and CUB statuses */
+  if (!statusEffect) {
+    console.log("dnd5e-helpers: could not located active effect named: " + reactionStatus);
+    return;
   }
-  else if (isv7) {
-    /** latest version, attempt to play nice with active effects and CUB statuses */
-    if (!statusEffect) {
-      console.log("dnd5e-helpers: could not located active effect named: " + reactionStatus);
+
+  /** Remove an existing effect (stoken from foundy.js:44223) */
+  const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+  if (existing) {
+    if (game.modules.get("combat-utility-belt")?.active) {
+      RemoveCUB(currentToken, reactionStatus)
       return;
     }
-
-    /** Remove an existing effect (stoken from foundy.js:44223 */
-    const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-    if (existing) {
-      if (game.modules.get("combat-utility-belt")?.active) {
-        RemoveCUB(currentToken, reactionStatus)
-        return;
-      }
-      ToggleStatus(currentToken, statusEffect);
-    }
-
+    ToggleStatus(currentToken, statusEffect);
   }
-  else {
-    console.log("dnd5e-helpers: UNSUPPORTED VERSION FOR REACTION HANDLING");
-  }
+
 }
 
 //collate all preUpdateActor hooked functions into a single hook call
