@@ -51,7 +51,7 @@ Hooks.on('init', () => {
   /** enable auto reaction reset */
   game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
     name: "Reaction status automation.",
-    hint: "Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the sepcified status. Remove will automatic remove this effect at the start of an actors turn",
+    hint: "Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the specified status. Remove will automatically remove this effect at the start of an actor's turn",
     scope: "world",
     type: Number,
     choices: {
@@ -60,16 +60,16 @@ Hooks.on('init', () => {
       2: "Only Remove",
       3: "Apply and Remove",
     },
-    default: "0",
+    default: 0,
     config: true,
   });
 
   game.settings.register("dnd5e-helpers", "cbtReactionStatus", {
     name: "Reaction status name",
-    hint: "CUB conditions should list the Condtion Lab name as seen. 0.6.x should use icon path instead. (default: downgrade)",
+    hint: "As seen when hovering over the status in the token HUD (default: Weakened).",
     scope: "world",
     config: true,
-    default: "downgrade",
+    default: "Weakened",
     type: String,
   });
 

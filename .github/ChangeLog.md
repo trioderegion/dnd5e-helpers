@@ -38,3 +38,10 @@
 
 ###1.5.3
 - Fixed string === integer comparison bug. Whoops.
+
+###1.5.4
+- Officially dropping support for versions <0.7.5. Unofficially, only the Reaction management system is unsupported by 0.6.x.
+- Major rework to reaction management internally:
+  - Moved hook to preCreateMessage for direct access to the item being used (if any).
+  - Now triggers when an item has a usage of "1 Action" or "1 Reaction". All others are ignored (e.g. 0 Action, 1 Bonus Action).
+  - Plays nicely with Combat Utility Belt with either custom or core conditions.  - Put in considerations for localization. The status effect name you see when hovering over the icon should be the string you enter in configuration.
