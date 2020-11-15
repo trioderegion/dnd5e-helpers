@@ -13,16 +13,18 @@ Little helpers for little 5e tasks.
 
 ### Reaction Status Management
 - GM only
-- This can auto apply a status effect to tokens that either: 
-   - A) use a reaction ability
-   - B) use another action outside of their combat turn 
-- Then auto remove this icon when the tokens turn comes up again in the combat tracker
-- This status is configurable (note: for 0.6.x users, this should be the icon path; /icons/svg/hazard.svg)
-- FOr CUB users, just state the name of your reaction-style Condition
+- Detects when an action is taken outside of a token's turn and applies a configurable status as a visual reminder. The following details when this will be detected during combat:
+   - 1) Whenever a token uses an item with activation of "1 Reaction".
+   - 2) Whenever a token uses an item with activation of "1 Action" outside of their turn.
+   - 3) Any other item activation will be ignored. For example "0 Action" or "1 Bonus Action"
+- Will remove the configured status at the beginning of the token's turn.
+- This status used is configurable and should match the name when hovered over in the token hud.
+- Supports Combat Utility Belt's custom statuses.
 
 
 ### Legendary Action Reset on Start of Turn
 - GM only
+- All legendary action uses of a creature will reset to their max on the start of their turn in combat.
 
 ### Recharge Abilities on Start of Turn
 - GM only
