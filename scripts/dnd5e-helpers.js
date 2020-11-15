@@ -700,7 +700,7 @@ function ReactionApply(castingActor, castingToken, itemId) {
     let effectToken = canvas.tokens.get(castingToken)
 
     let ownedItem = effectToken.actor.getOwnedItem(itemId);
-    const {activation} = ownedItem.data.labels;
+    const {activation} = ownedItem.labels;
 
     /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
     const isAction = activation === "1 Action";
@@ -718,9 +718,13 @@ function ReactionApply(castingActor, castingToken, itemId) {
         }
       }
 
-      /** if nothing else , it should be core */
-      ToggleStatus(effectToken, statusEffect);
-      return; //early exit once we trigger correctly
+      /** if nothing else , it should be core -- if the effect is already present, dont toggle
+       * @todo maybe put out a nice reminder that you have used your action in chat? */
+      const existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+      if (!existing){ 
+        ToggleStatus(effectToken, statusEffect);
+        return; //early exit once we trigger correctly
+      }
     }
   }
 }
