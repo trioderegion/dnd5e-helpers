@@ -21,8 +21,6 @@ Little helpers for little 5e tasks.
 - This status used is configurable and should match the name when hovered over in the token hud.
 - Supports Combat Utility Belt's custom statuses.
 
-![Reaction Management Example](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/reaction-demo.webm)
-
 ### Legendary Action Reset on Start of Turn
 - GM only
 - All legendary action uses of a creature will reset to their max on the start of their turn in combat.
