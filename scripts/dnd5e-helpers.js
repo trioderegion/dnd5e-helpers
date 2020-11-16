@@ -906,7 +906,7 @@ function ReactionDetect_preCreateChatMessage(msg){
     /** hand over to reaction apply logic (checks combat state, etc) */
     ReactionApply(speaker.actor, speaker.token, itemId);
   }
-}
+};
 
 Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
@@ -914,3 +914,16 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
     ReactionDetect_preCreateChatMessage(msg);
   }
 });
+
+Hooks.on("deleteCombat", async (combat, settings, id) => {
+  let tokens = canvas.tokens.placeables;
+  debugger
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if (reactMode == 2 || reactMode == 3) {
+    debugger
+    for (token of tokens) {
+      ReactionRemove(token)
+    }
+  }
+});
+
