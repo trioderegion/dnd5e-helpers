@@ -146,6 +146,38 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
+  game.settings.register('dnd5e-helpers', 'owDeathSave', {
+    name: 'Open Wound - Death Saves',
+    hint: 'Open Wounds triggered on death saves failed by 5 or more',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+  game.settings.register('dnd5e-helpers', 'owCrit', {
+    name: 'Open Wound - Crits',
+    hint: 'Open Wounds triggered on critical hits',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+  game.settings.register('dnd5e-helpers', 'owHp0', {
+    name: 'Open Wound - HP at 0',
+    hint: 'Open Wounds triggered on dropping to 0 HP',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+  game.settings.register("dnd5e-helpers", "owTable", {
+    name: "Open Wound Table",
+    hint: "Name of table that should be rolled on if a Open Wound occurs.",
+    scope: "world",
+    config: true,
+    default: "",
+    type: String,
+  });
 });
 
 
@@ -403,15 +435,12 @@ function GreatWound_preUpdateActor(actor, update) {
 /** rolls on specified Great Wound Table */
 function DrawGreatWound(actor) {
   (async () => {
-    let { total } = await actor.rollAbilitySave("con")
-    if (total < 15) {
-      const greatWoundTable = game.settings.get('dnd5e-helpers', 'gwTableName')
       if (greatWoundTable !== "") {
-        game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
+        ChatMessage.create(`${actor.name} has suffered an Open Wound`)
+        game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });        
       } else {
         ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
       }
-    }
   })();
 }
 
@@ -762,6 +791,15 @@ function ReactionRemove(currentToken) {
 
 }
 
+function OpenWounds() {
+  const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
+      if (openWoundTable !== "") {
+        game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
+      } else {
+        ChatMessage.create({ content: "Looks like you havnt setup a table to use for Open Wounds yet" });
+      }
+}
+
 //collate all preUpdateActor hooked functions into a single hook call
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   //check what property is updated to prevent unnessesary function calls
@@ -778,7 +816,9 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
     GreatWound_preUpdateActor(actor, update);
   }
-
+if((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)){
+  OpenWounds(actor)
+}
 });
 
 
@@ -913,6 +953,20 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   if ( reactMode === 1 || reactMode === 3) {
     ReactionDetect_preCreateChatMessage(msg);
   }
+
+  let deathSaveRoll = msg.flavour.match(/Death Saving Throw/)
+  let rollTotal = parseInt(msg.content)
+if(rollTotal <= 5 && deathSaveRoll && (game.settings.get('dnd5e-helpers', 'owDeathSave'))){
+  let actor = game.actors.get(msg.speaker.actor)
+  OpenWounds(actor)
+}
+
+let rollResult = msg.roll.match(/"result":[0-9]{1,2}/)
+const itemId = $(msg.content).attr("data-item-id");
+if(rollResult[2] === 20 && itemId !== null && (game.settings.get('dnd5e-helpers', 'owCrit'))){
+  let targetArray = game.user.get(msg.user).targets
+  OpenWounds(targetArray.value.actor)
+}
 });
 
 Hooks.on("deleteCombat", async (combat, settings, id) => {
