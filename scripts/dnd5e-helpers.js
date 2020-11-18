@@ -212,18 +212,17 @@ function GetKeyByValue(object, value) {
 //find status effect based on passed name
 function GetStatusEffect(statusName) {
   /** Core Status Effects -- pass displayed name backwards through localization to match to status.label */
-  const {EFFECT} = game.i18n.translations;
+  const { EFFECT } = game.i18n.translations;
 
   /** find the key (will be label) from the value */
   let statusLabel = GetKeyByValue(EFFECT, statusName);
   let statusEffect = CONFIG.statusEffects.find(st => st.label === `EFFECT.${statusLabel}`);
 
-  if (statusEffect){
+  if (statusEffect) {
     /** first match is core, always prefer core */
     return statusEffect;
   }
-  else
-  {
+  else {
     /** cant find it, it still may be available via other modules/methods */
 
     /** CUB Compatibility -- statusName matches displayed CUB name (status.label) */
@@ -435,12 +434,12 @@ function GreatWound_preUpdateActor(actor, update) {
 /** rolls on specified Great Wound Table */
 function DrawGreatWound(actor) {
   (async () => {
-      if (greatWoundTable !== "") {
-        ChatMessage.create(`${actor.name} has suffered an Open Wound`)
-        game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });        
-      } else {
-        ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
-      }
+    if (greatWoundTable !== "") {
+      ChatMessage.create(`${actor.name} has suffered an Open Wound`)
+      game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
+    } else {
+      ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
+    }
   })();
 }
 
@@ -729,19 +728,19 @@ function ReactionApply(castingActor, castingToken, itemId) {
     let effectToken = canvas.tokens.get(castingToken)
 
     let ownedItem = effectToken.actor.getOwnedItem(itemId);
-    const {activation} = ownedItem.labels;
+    const { activation } = ownedItem.labels;
 
     /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
     const isAction = activation === "1 Action";
     const isReaction = activation === "1 Reaction";
 
     let shouldApply = isReaction || (isAction && (currentCombatant !== castingToken));
-    
+
     if (shouldApply) {
       if (game.modules.get("combat-utility-belt")?.active) {
 
         /** first, test if this is a cub condition */
-        if (game.cub.getCondition(reactionStatus)){
+        if (game.cub.getCondition(reactionStatus)) {
           ApplyCUB(effectToken, reactionStatus)
           return; //early exit once we trigger correctly
         }
@@ -750,7 +749,7 @@ function ReactionApply(castingActor, castingToken, itemId) {
       /** if nothing else , it should be core -- if the effect is already present, dont toggle
        * @todo maybe put out a nice reminder that you have used your action in chat? */
       const existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-      if (!existing){ 
+      if (!existing) {
         ToggleStatus(effectToken, statusEffect);
         return; //early exit once we trigger correctly
       }
@@ -778,7 +777,7 @@ function ReactionRemove(currentToken) {
     if (game.modules.get("combat-utility-belt")?.active) {
 
       /** first, test if this is a cub condition */
-      if (game.cub.getCondition(reactionStatus)){
+      if (game.cub.getCondition(reactionStatus)) {
         RemoveCUB(currentToken, reactionStatus)
         return; //early exit once we trigger correctly
       }
@@ -791,13 +790,14 @@ function ReactionRemove(currentToken) {
 
 }
 
-function OpenWounds() {
+function OpenWounds(actor, woundType) {
   const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
-      if (openWoundTable !== "") {
-        game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
-      } else {
-        ChatMessage.create({ content: "Looks like you havnt setup a table to use for Open Wounds yet" });
-      }
+  if (openWoundTable !== "") {
+    ChatMessage.create({ content: `${actor.data.name} has suffered an Open Wound ${woundType}` })
+    game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
+  } else {
+    ChatMessage.create({ content: "Looks like you havnt setup a table to use for Open Wounds yet" });
+  }
 }
 
 //collate all preUpdateActor hooked functions into a single hook call
@@ -816,9 +816,9 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
     GreatWound_preUpdateActor(actor, update);
   }
-if((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)){
-  OpenWounds(actor)
-}
+  if ((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)) {
+    OpenWounds(actor, "from falling to 0hp")
+  }
 });
 
 
@@ -874,7 +874,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
       /** hb@todo: functionalize this similar to the other cbt operations */
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
-      if ( reactMode == 2 || reactMode == 3) {
+      if (reactMode == 2 || reactMode == 3) {
         ReactionRemove(currentToken)
       }
     }
@@ -933,48 +933,53 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 
 
 
-function ReactionDetect_preCreateChatMessage(msg){
+function ReactionDetect_preCreateChatMessage(msg) {
   const itemId = $(msg.content).attr("data-item-id");
 
   /** could not find the item id, must not have been an item */
-  if (itemId == undefined){
+  if (itemId == undefined) {
     return;
   }
 
   const speaker = getProperty(msg, "speaker");
-  if (speaker){
+  if (speaker) {
     /** hand over to reaction apply logic (checks combat state, etc) */
     ReactionApply(speaker.actor, speaker.token, itemId);
   }
 };
 
 Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
- const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if ( reactMode === 1 || reactMode === 3) {
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if (reactMode === 1 || reactMode === 3) {
     ReactionDetect_preCreateChatMessage(msg);
   }
 
-  let deathSaveRoll = msg.flavour.match(/Death Saving Throw/)
-  let rollTotal = parseInt(msg.content)
-if(rollTotal <= 5 && deathSaveRoll && (game.settings.get('dnd5e-helpers', 'owDeathSave'))){
-  let actor = game.actors.get(msg.speaker.actor)
-  OpenWounds(actor)
-}
+  let rollType = getProperty(msg, "flags.dnd5e.roll.type");
+  let itemRoll = getProperty(msg, "flags.dnd5e.itemId");
+  if (rollType === "death" && (game.settings.get('dnd5e-helpers', 'owDeathSave'))) {
+    if (parseInt(msg.content) < 6) {
+      let actor = game.actors.get(msg.speaker.actor);
+      OpenWounds(actor, "from a failed death saving throw");
+    }
+  }
 
-let rollResult = msg.roll.match(/"result":[0-9]{1,2}/)
-const itemId = $(msg.content).attr("data-item-id");
-if(rollResult[2] === 20 && itemId !== null && (game.settings.get('dnd5e-helpers', 'owCrit'))){
-  let targetArray = game.user.get(msg.user).targets
-  OpenWounds(targetArray.value.actor)
-}
+
+  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit'))) {
+    let rollResult = msg.roll.match(/"result":[0-9]{1,2}/);
+    if (rollResult[2] === "20") {
+      let targetArray = game.user.get(msg.user).targets;
+      for (let targets of targetArray) {
+        OpenWounds(targets.actor, "from a critical hit")
+      }
+    }
+  }
 });
 
 Hooks.on("deleteCombat", async (combat, settings, id) => {
   let tokens = canvas.tokens.placeables;
-  debugger
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode == 2 || reactMode == 3) {
-    debugger
+
     for (token of tokens) {
       ReactionRemove(token)
     }
