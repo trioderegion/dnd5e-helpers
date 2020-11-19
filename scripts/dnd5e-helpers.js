@@ -435,7 +435,7 @@ function GreatWound_preUpdateActor(actor, update) {
 function DrawGreatWound(actor) {
   (async () => {
     if (greatWoundTable !== "") {
-      ChatMessage.create(`${actor.name} has suffered an Open Wound`)
+      ChatMessage.create({ content: `${actor.name} has suffered an Open Wound` })
       game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
     } else {
       ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
@@ -687,7 +687,7 @@ function UndeadFortCheckSlow(tokenData, update, options) {
   } else return true;
 }
 
-//apply a reaction status to the token if the item looks like it should use a reaction
+/** apply a reaction status to the token if the item looks like it should use a reaction (requires active combat) */
 function ReactionApply(castingActor, castingToken, itemId) {
   //only trigger for GM account and if an item is present, prevents multiple effects being added
   if (IsFirstGM() && itemId !== undefined) {
@@ -702,16 +702,11 @@ function ReactionApply(castingActor, castingToken, itemId) {
       return;
     }
 
-    /** same if there is no combat */
-    if (!game.combats.active) {
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log("Dnd5e helpers: Could not find an active combat")
-      }
+    //find the current token instance that called the roll card
+    let currentCombatant = getProperty(game.combats, "active.current.tokenId");
+    if(!currentCombatant){
       return;
     }
-
-    //find the current token instance that called the roll card
-    let currentCombatant = game.combats.active.current.tokenId
 
     if (castingToken === null && castingActor === null) {
       if (game.settings.get('dnd5e-helpers', 'debug')) {
@@ -934,6 +929,19 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 
 
 function ReactionDetect_preCreateChatMessage(msg) {
+
+  /** Reactions are only important IF a combat is active. Bail early */
+  if (!game.combats.active) {
+    if (game.settings.get('dnd5e-helpers', 'debug')) {
+      console.log("Dnd5e helpers: Could not find an active combat")
+    }
+    return;
+  }
+
+  if(msg.type == null){
+    /** some weird, freeform chat message...mainly our own */
+    return;
+  }
   const itemId = $(msg.content).attr("data-item-id");
 
   /** could not find the item id, must not have been an item */
