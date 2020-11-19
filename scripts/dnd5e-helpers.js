@@ -790,9 +790,10 @@ function ReactionRemove(currentToken) {
 
 }
 
-function OpenWounds(actor, woundType) {
+// roll on specified open wounds tabel if triggered
+function OpenWounds(actorName, woundType) {
   const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
-  ChatMessage.create({ content: `${actor.data.name} has suffered an Open Wound ${woundType}` })
+  ChatMessage.create({ content: `${actorName} has suffered an Open Wound ${woundType}` })
   if (openWoundTable !== "") {
     game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
   } else {
@@ -816,8 +817,9 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
     GreatWound_preUpdateActor(actor, update);
   }
+  //OW check
   if ((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)) {
-    OpenWounds(actor, "from falling to 0hp")
+    OpenWounds(actor.data.name, "from falling to 0hp")
   }
 });
 
@@ -959,22 +961,22 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   }
 
   let rollType = getProperty(msg, "flags.dnd5e.roll.type");
-  let itemRoll = getProperty(msg, "flags.dnd5e.itemId");
+  let itemRoll = getProperty(msg, "flags.dnd5e.roll.itemId");
   if (rollType === "death" && (game.settings.get('dnd5e-helpers', 'owDeathSave'))) {
     if (parseInt(msg.content) < 6) {
       let actor = game.actors.get(msg.speaker.actor);
-      OpenWounds(actor, "from a failed death saving throw");
+      OpenWounds(actor.data.name, "from a failed death saving throw");
     }
   }
 
 
-  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit') !== undefined)) {
-    let critRange = game.settings.get('dnd5e-helpers', 'owCrit')
-    let rollResult = msg.roll.match(/"result":[0-9]{1,2}/);
-    if (rollResult[2] >= critRange) {
-      let targetArray = game.user.get(msg.user).targets;
+  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit') !== "0")) {
+    let critRange = parseInt(game.settings.get('dnd5e-helpers', 'owCrit'));
+    let rollResult = msg.roll.match(/("result"):([0-9]{1,2})/); 
+    if (parseInt(rollResult[2]) >= critRange) {
+      let targetArray = game.users.get(msg.user).targets;
       for (let targets of targetArray) {
-        OpenWounds(targets.actor, "from a critical hit")
+        OpenWounds(targets.actor.data.name, "from a critical hit")
       }
     }
   }
