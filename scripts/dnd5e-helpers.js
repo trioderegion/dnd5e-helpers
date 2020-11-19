@@ -156,11 +156,11 @@ Hooks.on('init', () => {
   });
   game.settings.register('dnd5e-helpers', 'owCrit', {
     name: 'Open Wound - Crits',
-    hint: 'Open Wounds triggered on critical hits',
+    hint: 'Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank',
     scope: 'world',
-    type: Boolean,
-    default: false,
     config: true,
+    default: "",
+    type: String,
   });
   game.settings.register('dnd5e-helpers', 'owHp0', {
     name: 'Open Wound - HP at 0',
@@ -434,8 +434,8 @@ function GreatWound_preUpdateActor(actor, update) {
 /** rolls on specified Great Wound Table */
 function DrawGreatWound(actor) {
   (async () => {
+    ChatMessage.create(`${actor.name} has suffered an Open Wound`)
     if (greatWoundTable !== "") {
-      ChatMessage.create({ content: `${actor.name} has suffered an Open Wound` })
       game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
     } else {
       ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
@@ -785,10 +785,11 @@ function ReactionRemove(currentToken) {
 
 }
 
-function OpenWounds(actor, woundType) {
+// roll on specified open wounds tabel if triggered
+function OpenWounds(actorName, woundType) {
   const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
+  ChatMessage.create({ content: `${actorName} has suffered an Open Wound ${woundType}` })
   if (openWoundTable !== "") {
-    ChatMessage.create({ content: `${actor.data.name} has suffered an Open Wound ${woundType}` })
     game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
   } else {
     ChatMessage.create({ content: "Looks like you havnt setup a table to use for Open Wounds yet" });
@@ -811,8 +812,9 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
     GreatWound_preUpdateActor(actor, update);
   }
+  //OW check
   if ((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)) {
-    OpenWounds(actor, "from falling to 0hp")
+    OpenWounds(actor.data.name, "from falling to 0hp")
   }
 });
 
@@ -834,6 +836,10 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
   const firstGm = game.users.find((u) => u.isGM && u.active);
   if (firstGm && game.user === firstGm) {
 
+    // early return if no combatants active 
+    if (game.combats.active.data.combatants.length === 0) return;
+
+
     /** begin removal logic for the _next_ token */
     const nextTurn = combat.turns[changed.turn];
     /** data structure for 0.6 */
@@ -842,7 +848,7 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
       nextTokenId = nextTurn.tokenId;
     }
     else {
-      nextTokenId = nextTurn.token._id;
+      nextTokenId = getProperty(nextTurn, token._id);
     }
 
 
@@ -942,6 +948,7 @@ function ReactionDetect_preCreateChatMessage(msg) {
     /** some weird, freeform chat message...mainly our own */
     return;
   }
+
   const itemId = $(msg.content).attr("data-item-id");
 
   /** could not find the item id, must not have been an item */
@@ -963,32 +970,32 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   }
 
   let rollType = getProperty(msg, "flags.dnd5e.roll.type");
-  let itemRoll = getProperty(msg, "flags.dnd5e.itemId");
+  let itemRoll = getProperty(msg, "flags.dnd5e.roll.itemId");
   if (rollType === "death" && (game.settings.get('dnd5e-helpers', 'owDeathSave'))) {
     if (parseInt(msg.content) < 6) {
       let actor = game.actors.get(msg.speaker.actor);
-      OpenWounds(actor, "from a failed death saving throw");
+      OpenWounds(actor.data.name, "from a failed death saving throw");
     }
   }
 
 
-  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit'))) {
-    let rollResult = msg.roll.match(/"result":[0-9]{1,2}/);
-    if (rollResult[2] === "20") {
-      let targetArray = game.user.get(msg.user).targets;
+  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit') !== "0")) {
+    let critRange = parseInt(game.settings.get('dnd5e-helpers', 'owCrit'));
+    let rollResult = msg.roll.match(/("result"):([0-9]{1,2})/); 
+    if (parseInt(rollResult[2]) >= critRange) {
+      let targetArray = game.users.get(msg.user).targets;
       for (let targets of targetArray) {
-        OpenWounds(targets.actor, "from a critical hit")
+        OpenWounds(targets.actor.data.name, "from a critical hit")
       }
     }
   }
 });
 
 Hooks.on("deleteCombat", async (combat, settings, id) => {
-  let tokens = canvas.tokens.placeables;
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode == 2 || reactMode == 3) {
 
-    for (token of tokens) {
+    for (let token of canvas.tokens.placeables) {
       ReactionRemove(token)
     }
   }
