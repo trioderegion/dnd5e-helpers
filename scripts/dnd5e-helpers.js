@@ -434,7 +434,7 @@ function GreatWound_preUpdateActor(actor, update) {
 /** rolls on specified Great Wound Table */
 function DrawGreatWound(actor) {
   (async () => {
-    ChatMessage.create(`${actor.name} has suffered an Open Wound`)
+    ChatMessage.create({ content: `${actor.name} has suffered an Open Wound` })
     if (greatWoundTable !== "") {
       game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
     } else {
@@ -704,7 +704,7 @@ function ReactionApply(castingActor, castingToken, itemId) {
 
     //find the current token instance that called the roll card
     let currentCombatant = getProperty(game.combats, "active.current.tokenId");
-    if(!currentCombatant){
+    if (!currentCombatant) {
       return;
     }
 
@@ -944,7 +944,7 @@ function ReactionDetect_preCreateChatMessage(msg) {
     return;
   }
 
-  if(msg.type == null){
+  if (msg.type == null) {
     /** some weird, freeform chat message...mainly our own */
     return;
   }
@@ -981,7 +981,7 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
 
   if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit') !== "0")) {
     let critRange = parseInt(game.settings.get('dnd5e-helpers', 'owCrit'));
-    let rollResult = msg.roll.match(/("result"):([0-9]{1,2})/); 
+    let rollResult = msg.roll.match(/("result"):([0-9]{1,2})/);
     if (parseInt(rollResult[2]) >= critRange) {
       let targetArray = game.users.get(msg.user).targets;
       for (let targets of targetArray) {
