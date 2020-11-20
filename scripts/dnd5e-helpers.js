@@ -159,8 +159,8 @@ Hooks.on('init', () => {
     hint: 'Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank',
     scope: 'world',
     config: true,
-    default: "",
-    type: String,
+    default: 0,
+    type: Number,
   });
   game.settings.register('dnd5e-helpers', 'owHp0', {
     name: 'Open Wound - HP at 0',
@@ -979,8 +979,8 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   }
 
 
-  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit') !== "0")) {
-    let critRange = parseInt(game.settings.get('dnd5e-helpers', 'owCrit'));
+  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit') > 0)) {
+    let critRange = game.settings.get('dnd5e-helpers', 'owCrit');
     let rollResult = msg.roll.match(/("result"):([0-9]{1,2})/);
     if (parseInt(rollResult[2]) >= critRange) {
       let targetArray = game.users.get(msg.user).targets;
