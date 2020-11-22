@@ -53,3 +53,4 @@
   - Getting critically hit (customisable value)
   - Falling to 0hp
 - Fixed some of the previous errors with non-assigned values and actorless tokens.
+- Reaction Management is feature complete with the addition of clearing reaction statuses when combat is ended.
