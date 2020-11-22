@@ -717,7 +717,7 @@ function ReactionApply(castingActor, castingToken, itemId) {
 
     //find token for linked actor 
     if (castingToken === null && castingActor !== null) {
-      castingToken = canvas.tokens.placeables.find(i => i.actor._data._id.includes(castingActor)).data._id
+      castingToken = canvas.tokens.placeables.find(i => i.actor?.data._id.includes(castingActor)).data._id
     }
 
     let effectToken = canvas.tokens.get(castingToken)
@@ -767,6 +767,10 @@ function ReactionRemove(currentToken) {
   }
 
   /** Remove an existing effect (stoken from foundy.js:44223) */
+  if(!currentToken.actor){
+    /** actorless tokens cannot receive effects */
+    return;
+  }
   const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
   if (existing) {
     if (game.modules.get("combat-utility-belt")?.active) {
@@ -853,6 +857,12 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
 
 
     let currentToken = canvas.tokens.get(nextTokenId);
+
+    /** we dont care about tokens without actors */
+    if(!currentToken.actor){
+      return;
+    }
+
     let regen = currentToken.actor.items.find(i => i.name === "Regeneration")
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
@@ -892,7 +902,7 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   }
 
   let Actor = game.actors.get(tokenData.actorId);
-  let fortitudeFeature = Actor.items.find(i => i.name === "Undead Fortitude");
+  let fortitudeFeature = Actor?.items.find(i => i.name === "Undead Fortitude");
   let fortSett = !!fortitudeFeature;
 
   /** output debug information -- @todo scope by feature */
