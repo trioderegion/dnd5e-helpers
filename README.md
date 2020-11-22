@@ -17,7 +17,7 @@ Little helpers for little 5e tasks.
    - 1) Whenever a token uses an item with activation of "1 Reaction".
    - 2) Whenever a token uses an item with activation of "1 Action" outside of their turn.
    - 3) Any other item activation will be ignored. For example "0 Action" or "1 Bonus Action"
-- Will remove the configured status at the beginning of the token's turn and when combat is ended.
+- Will remove the configured status at the beginning of the token's turn.
 - This status used is configurable and should match the name when hovered over in the token hud.
 - Supports Combat Utility Belt's custom statuses.
 - If auto remove is enabled these statuses will be removed at the end of combat as well.
