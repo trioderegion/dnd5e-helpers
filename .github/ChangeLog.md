@@ -45,3 +45,11 @@
   - Moved hook to preCreateMessage for direct access to the item being used (if any).
   - Now triggers when an item has a usage of "1 Action" or "1 Reaction". All others are ignored (e.g. 0 Action, 1 Bonus Action).
   - Plays nicely with Combat Utility Belt with either custom or core conditions.  - Put in considerations for localization. The status effect name you see when hovering over the icon should be the string you enter in configuration.
+  
+###1.6.0
+-  Launched the Open Wounds Feature
+- Rolls on an "Injury Table" when specific customisable criteria are met; currently: 
+  - Failing a Death Saving Throw by 5 or more
+  - Getting critically hit (customisable value)
+  - Falling to 0hp
+- Fixed some of the previous errors with non-assigned values and actorless tokens.

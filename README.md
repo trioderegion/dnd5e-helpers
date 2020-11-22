@@ -20,6 +20,7 @@ Little helpers for little 5e tasks.
 - Will remove the configured status at the beginning of the token's turn.
 - This status used is configurable and should match the name when hovered over in the token hud.
 - Supports Combat Utility Belt's custom statuses.
+- If auto remove is enabled these statuses will be removed at the end of combat as well.
 
 ### Legendary Action Reset on Start of Turn
 - GM only
@@ -55,6 +56,13 @@ Little helpers for little 5e tasks.
 - There are two settings for levels of checks
     - Quick saves will just measure the change in hp and will not measure "overkill"
     - Advanced saves will query the GM for the amount of damage taken as a more complex system
+
+### Open Wounds
+- Rolls on an "Injury Table" when specific customisable criteria are met; currently: 
+    - Failing a Death Saving Throw by 5 or more
+    - Getting critically hit (customisable value)
+    - Falling to 0hp
+
 
 ## Debug Setting
 - GM Only
