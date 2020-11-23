@@ -434,7 +434,8 @@ function GreatWound_preUpdateActor(actor, update) {
 /** rolls on specified Great Wound Table */
 function DrawGreatWound(actor) {
   (async () => {
-    ChatMessage.create({ content: `${actor.name} has suffered an Open Wound` })
+    const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName",)
+    ChatMessage.create({ content: `${actor.name} has suffered an Great Wound` })
     if (greatWoundTable !== "") {
       game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
     } else {
