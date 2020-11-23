@@ -841,8 +841,8 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
   if (firstGm && game.user === firstGm) {
 
     // early return if no combatants active 
-    if (game.combats.active.data.combatants.length === 0) return;
-
+    let thisCombat = game.combats.get(combat.id);
+    if(thisCombat.data.combatants.length == 0) return;
 
     /** begin removal logic for the _next_ token */
     const nextTurn = combat.turns[changed.turn];
