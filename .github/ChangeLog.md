@@ -54,3 +54,7 @@
   - Falling to 0hp
 - Fixed some of the previous errors with non-assigned values and actorless tokens.
 - Reaction Management is feature complete with the addition of clearing reaction statuses when combat is ended.
+
+###1.6.1
+- Fixed silly bug for reaction detection that caused it only to work for the first GM. (Thanks, Blackbeard)
+- Better support for multiple combats. However, a systemic issue was revealed.  Combat-based features of helpers may not work when multiple encounters exist. combats.active does not always appear to have a valid value during multiple encounters.

@@ -689,8 +689,8 @@ function UndeadFortCheckSlow(tokenData, update, options) {
 
 /** apply a reaction status to the token if the item looks like it should use a reaction (requires active combat) */
 function ReactionApply(castingActor, castingToken, itemId) {
-  //only trigger for GM account and if an item is present, prevents multiple effects being added
-  if (IsFirstGM() && itemId !== undefined) {
+
+  if (itemId !== undefined) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
     let statusEffect = GetStatusEffect(reactionStatus);
 
