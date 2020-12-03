@@ -58,3 +58,6 @@
 ###1.6.1
 - Fixed silly bug for reaction detection that caused it only to work for the first GM. (Thanks, Blackbeard)
 - Better support for multiple combats. However, a systemic issue was revealed.  Combat-based features of helpers may not work when multiple encounters exist. combats.active does not always appear to have a valid value during multiple encounters.
+
+###1.7.0
+- Implemented template scaling for the 5/5/5 diagonal movement rule. Define your spell ranges as usual. When a template is place that sits on a diagonal, the resulting template will be scaled to more accurately cover the diagonal squares. This also means that _all_ circle type AOEs will be converted to an equivalent square template after placement. See examples in readme.

@@ -1,4 +1,22 @@
 Hooks.on('init', () => {
+
+  game.settings.register("dnd5e-helpers", "gridTemplateScaling", {
+    name: "Auto adjust templates to 5e grids",
+    hint: "Lines and cones will have their length scaled. Circles will be converted to an equivalent area reactangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
+    scope: "world",
+    config: true,
+    default: 0,
+    type: Number,
+    choices: {
+      0: "No Template Scaling",
+      1: "Lines and Cones",
+      2: "Circles",
+      3: "All Templates"
+    },
+    type: Number
+  });
+
+
   /** should surges be tested */
   game.settings.register("dnd5e-helpers", "wmEnabled", {
     name: "Wild Magic Auto-Detect",
@@ -1011,3 +1029,40 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   }
 });
 
+Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
+
+  /** range 0-3, b01 = line/cone, b10 = circles, b11 = both */
+  const templateMode = game.settings.get('dnd5e-helpers', 'gridTemplateScaling');
+
+  if (templateMode == 0) {
+    /** template adjusting is not enabled, bail out */
+    return;
+  }
+
+  if ( !!( templateMode & 0b01 ) && (template.t == 'ray' || template.t == 'cone' )) {
+    /** scale rays after placement to cover the correct number of squares based on 5e diagonal distance */
+    let diagonalScale = Math.abs(Math.sin(Math.toRadians(template.direction))) +
+      Math.abs(Math.cos(Math.toRadians(template.direction)))
+    template.distance = diagonalScale*template.distance ;
+  }
+  else if ( !!(templateMode & 0b10) && template.t == 'circle'){
+    /** Convert circles to equivalent squares (e.g. fireball is square) 
+
+    /** convert to a rectangle */
+    template.t = 'rect';
+
+    /** convert radius in grid units to radius in pixels */
+    let radiusPx = (template.distance/scene.data.gridDistance) * scene.data.grid;
+
+    /** shift origin to top left in prep for converting to rectangle */
+    template.x -= radiusPx;
+    template.y -= radiusPx;
+
+    /** convert the "distance" to the squares hypotenuse */
+    const length = template.distance * 2;
+    template.distance = Math.hypot(length,length);
+
+    /** always measured top left to bottom right */
+    template.direction = 45;
+  }
+});
