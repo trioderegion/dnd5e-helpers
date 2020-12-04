@@ -842,7 +842,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 
 
 /** All preUpdateCombat hooks are managed here */
-Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
+Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
   /** only concerned with turn changes */
   if (!("turn" in changed)) {
@@ -901,7 +901,6 @@ Hooks.on("preUpdateCombat", async (combat, changed, options, userId) => {
         Regeneration(currentToken)
       }
 
-      /** hb@todo: functionalize this similar to the other cbt operations */
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
       if (reactMode == 2 || reactMode == 3) {
         ReactionRemove(currentToken)

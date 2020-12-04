@@ -61,3 +61,6 @@
 
 ###1.7.0
 - Implemented template scaling for the 5/5/5 diagonal movement rule. Define your spell ranges as usual. When a template is place that sits on a diagonal, the resulting template will be scaled to more accurately cover the diagonal squares. This also means that _all_ circle type AOEs will be converted to an equivalent square template after placement. See examples in readme.
+
+###1.7.1
+- Corrected a hook used for reaction, recharge, and legendary action that would cause these functions not to fire if a player advanced the turn.
