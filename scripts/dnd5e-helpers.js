@@ -1030,7 +1030,11 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
 
 Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
 
-  /** range 0-3, b01 = line/cone, b10 = circles, b11 = both */
+  /** range 0-3
+   *  b01 = line/cone, 
+   *  b10 = circles,
+   *  b11 = both 
+   */
   const templateMode = game.settings.get('dnd5e-helpers', 'gridTemplateScaling');
 
   if (templateMode == 0) {
@@ -1044,8 +1048,13 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
       Math.abs(Math.cos(Math.toRadians(template.direction)))
     template.distance = diagonalScale*template.distance ;
   }
-  else if ( !!(templateMode & 0b10) && template.t == 'circle'){
+  else if ( !!(templateMode & 0b10) && template.t == 'circle' && 
+            !(template.distance/scene.data.gridDistance < .9) ){
+
     /** Convert circles to equivalent squares (e.g. fireball is square) 
+     *  if the template is 1 grid unit or larger (allows for small circlar
+     *  templates as temporary "markers" of sorts
+     */
 
     /** convert to a rectangle */
     template.t = 'rect';

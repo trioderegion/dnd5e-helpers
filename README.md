@@ -31,6 +31,7 @@ Little helpers for little 5e tasks.
 - _I cast...Firesquare!_
 - Scales line, cone, and circle type templates upon placement to better fit to the 5/5/5 diagonal rule.
 - Line and cone scaling can be enabled independently from circle scaling.
+  - Circle templates less than 1 grid unit in radius will not be converted. These small templates are often useful for creating quick token-like markers on the board or used for macros which need the centerpoint maintained.
 
 ![Line Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/ray_scaling.gif)
 ![Circle Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/circle_scaling.gif)

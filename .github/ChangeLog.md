@@ -64,3 +64,6 @@
 
 ###1.7.1
 - Corrected a hook used for reaction, recharge, and legendary action that would cause these functions not to fire if a player advanced the turn.
+
+###1.7.2
+- Circlular templates with a radius less than 1 grid unit will no longer be converted to square templates as these are often useful for quick token-like markers on the board or used for macros operating on the templates centerpoint.
