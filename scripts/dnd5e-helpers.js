@@ -926,7 +926,7 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
 /** all createOwnedItem hooks handeled here */
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   let type = item.type
-  if (game.settings.get('dnd5e-helpers', 'autoProf')) {
+  if (game.settings.get('dnd5e-helpers', 'autoProf') && (actor.data.type === "character" )) {
     switch (type) {
       case "weapon":
         AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
