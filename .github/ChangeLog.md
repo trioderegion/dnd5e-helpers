@@ -54,3 +54,16 @@
   - Falling to 0hp
 - Fixed some of the previous errors with non-assigned values and actorless tokens.
 - Reaction Management is feature complete with the addition of clearing reaction statuses when combat is ended.
+
+###1.6.1
+- Fixed silly bug for reaction detection that caused it only to work for the first GM. (Thanks, Blackbeard)
+- Better support for multiple combats. However, a systemic issue was revealed.  Combat-based features of helpers may not work when multiple encounters exist. combats.active does not always appear to have a valid value during multiple encounters.
+
+###1.7.0
+- Implemented template scaling for the 5/5/5 diagonal movement rule. Define your spell ranges as usual. When a template is place that sits on a diagonal, the resulting template will be scaled to more accurately cover the diagonal squares. This also means that _all_ circle type AOEs will be converted to an equivalent square template after placement. See examples in readme.
+
+###1.7.1
+- Corrected a hook used for reaction, recharge, and legendary action that would cause these functions not to fire if a player advanced the turn.
+
+###1.7.2
+- Circlular templates with a radius less than 1 grid unit will no longer be converted to square templates as these are often useful for quick token-like markers on the board or used for macros operating on the templates centerpoint.
