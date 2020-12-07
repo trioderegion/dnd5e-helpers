@@ -1074,3 +1074,163 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
     template.direction = 45;
   }
 });
+
+
+async function DrawDebugRays(drawingList){
+  for (let squareRays of drawingList) {
+    await canvas.drawings.createMany(squareRays);
+  }
+}
+
+function generateTokenGrid(token){
+  const tokenBounds = [token.w, token.h];
+  
+  /** use token bounds as the limiter */
+  let boundingBoxes = [];
+  let gridPoints = [];
+  
+  /** @todo this is hideous. I think a flatmap() or something is what i really want to do */
+
+  /** stamp the points out left to right, top to bottom */
+  for(let y = 0; y < tokenBounds[1]; y+=canvas.grid.size) {
+    for(let x = 0; x < tokenBounds[0]; x+=canvas.grid.size) {
+      gridPoints.push([x,y]);
+      
+      /** create the bounding box. we dont have to do a final pass for that and just scale here */
+      boundingBoxes.push([
+        [token.x + x, token.y + y], [token.x + x + canvas.grid.size, token.y + y],
+        [token.x + x, token.y + y + canvas.grid.size], [token.x + x + canvas.grid.size, token.y + y + canvas.grid.size]]);
+    }
+     
+    gridPoints.push([token.width,y]);
+  }
+  
+  /** the final grid point row in the token bounds will not be added */
+  for(let x = 0; x < tokenBounds[0]; x+=canvas.grid.size) {
+      gridPoints.push([x,token.height]);
+  }
+    
+  /** stamp the final point, since we stopped short (handles non-integer sizes) */
+  gridPoints.push([token.width, token.height]);
+  
+  gridPoints = gridPoints.map( localPoint => {
+    return [localPoint[0] + token.x, localPoint[1] + token.y];
+  })
+  
+  return {GridPoints: gridPoints, Squares: boundingBoxes};
+}
+/** now find the maximum number of "false" hit detects across all source corners */
+//let accumulator = { corner: [0, 0], unblocked: 0 }
+function MostVisible(accumulator, currentValue) {
+  const freeLines = currentValue.targetBlocked.filter(blocked => blocked == false).length
+  if (freeLines > accumulator.unblocked) {
+    return { corner: currentValue.source, unblocked: freeLines };
+  } else {
+    return accumulator;
+  }
+}
+
+
+/** member function of Token */
+Token.prototype.computeTargetCover = async function (targetToken = null, visualize = false) { 
+  const myToken = this;
+
+  /** if we were not provided a target token, grab the first one the current user has targeted */
+  targetToken = !!targetToken ? targetToken : game.user.targets.values().next().value;
+
+  if (!targetToken) { ui.noficiations.error("No target token selected to compute cover for!"); return; }
+
+  /** generate token grid points */
+  const myTestPoints = generateTokenGrid(myToken).GridPoints;
+  const theirTestSquares = generateTokenGrid(targetToken).Squares;
+
+  const results = myTestPoints.map( xyPoint => {
+    
+    /** convert the box entries to num visible corners of itself */
+    let individualTests = theirTestSquares.map( square => {
+      return ( pointToSquareCover(xyPoint,square,visualize));
+    });
+    
+    /** return the most number of visible corners */
+    return Math.max.apply(Math, individualTests);
+  });
+  
+    
+  let bestCorner = Math.max.apply(Math, results);
+  
+  switch (bestCorner) {
+    case 0: ui.notifications.info("Total Cover"); break;
+    case 1: ui.notifications.info("Three-quarters cover"); break;
+    case 2: ui.notifications.info("half cover"); break;
+    case 3: ui.notifications.info("half cover"); break;
+    case 4: ui.notifications.info("No cover"); break;
+    default: ui.notifications.warn(" MY EYES!! NOOOO. "); break;
+  }
+  
+  if(_debugLosRays.length > 0){
+    await DrawDebugRays(_debugLosRays);
+    _debugLosRays = [];
+  } 
+  
+  console.log(results);
+  console.log(bestCorner);
+}
+
+var _debugLosRays = [];
+
+function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
+
+  /** create pairs of points representing the test structure as source point to target array of points */
+  let sightLines = {
+    source: sourcePoint,
+    targets: targetSquare
+  }
+
+  /** Debug visualization */
+  if (visualize) {
+    let debugSightLines = sightLines.targets.map( target => [sightLines.source, target]);
+
+    const myCornerDebugRays = debugSightLines.map(ray => {
+      return {
+        type: CONST.DRAWING_TYPES.POLYGON,
+        author: game.user._id,
+        x: 0,
+        y: 0,
+        strokeWidth: 2,
+        strokeColor: "#FF0000",
+        strokeAlpha: 0.75,
+        textColor: "#00FF00",
+        points: [ray[0], ray[1]]
+      }
+    });
+
+    _debugLosRays.push(myCornerDebugRays);
+  }
+  /** \Debug visualization */
+
+  /** only restrict vision based on sight blocking walls */
+  const options = {
+    blockMovement: false,
+    blockSenses: true,
+    mode: 'any'
+  }
+
+  let hitResults = sightLines.targets.map(target => {
+    const ray = new Ray({ x: sightLines.source[0], y: sightLines.source[1] }, { x: target[0], y: target[1] });
+    return WallsLayer.getRayCollisions(ray, options);
+  })
+
+  const numCornersVisible = hitResults.reduce((total,x) => (x==false ? total+1 : total), 0)
+
+  /*
+  switch (bestCorner.unblocked) {
+    case 0: ui.notifications.info("Total Cover"); break;
+    case 1: ui.notifications.info("Three-quarters cover"); break;
+    case 2: ui.notifications.info("half cover"); break;
+    case 3: ui.notifications.info("half cover"); break;
+    case 4: ui.notifications.info("No cover"); break;
+    default: ui.notifications.warn(" MY EYES!! NOOOO. "); break;
+  }
+  */
+  return numCornersVisible;
+}
