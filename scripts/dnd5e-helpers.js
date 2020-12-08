@@ -15,8 +15,6 @@ Hooks.on('init', () => {
     },
     type: Number
   });
-
-
   /** should surges be tested */
   game.settings.register("dnd5e-helpers", "wmEnabled", {
     name: "Wild Magic Auto-Detect",
@@ -563,15 +561,23 @@ function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
   }
 }
 
-/** auto regeneration on turn start */
+/** 
+ * Auto regeneration on turn start
+ */
 async function Regeneration(token) {
-  console.log(token)
   if (token.actor == null) {
     return;
   }
-  let regen = token.actor.items.find(i => i.name === "Regeneration")
+  let regen = token.actor.items.find(i => i.name === "Regeneration");
+  let repair = token.actor.items.find(i => i.name === "Self-Repairing");
+  let regenCheck;
+  if (regen !== null) {
+    regenCheck = regen;
+  }
+  else if (repair !== null) {
+    regenCheck = repair
+  }
 
-  //find token hp value and max hp value 
   let data = {
     tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
     actorMax: token.actor.data.data.attributes.hp.max,
@@ -583,7 +589,7 @@ async function Regeneration(token) {
   // parse the regeration item to locate the formula to use 
 
   const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
-  let match = regen.data.data.description.value.match(regenRegExp);
+  let match = regenCheck.data.data.description.value.match(regenRegExp);
   if (!match) return undefined
   let regenAmout = match[1]
 
@@ -708,8 +714,8 @@ function UndeadFortCheckSlow(tokenData, update, options) {
 
 /** apply a reaction status to the token if the item looks like it should use a reaction (requires active combat) */
 function ReactionApply(castingActor, castingToken, itemId) {
-
-  if (itemId !== undefined) {
+  //only trigger for GM account and if an item is present, prevents multiple effects being added
+  if (IsFirstGM() && itemId !== undefined) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
     let statusEffect = GetStatusEffect(reactionStatus);
 
@@ -786,7 +792,7 @@ function ReactionRemove(currentToken) {
   }
 
   /** Remove an existing effect (stoken from foundy.js:44223) */
-  if(!currentToken.actor){
+  if (!currentToken.actor) {
     /** actorless tokens cannot receive effects */
     return;
   }
@@ -861,7 +867,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
     // early return if no combatants active 
     let thisCombat = game.combats.get(combat.id);
-    if(thisCombat.data.combatants.length == 0) return;
+    if (thisCombat.data.combatants.length == 0) return;
 
     /** begin removal logic for the _next_ token */
     const nextTurn = combat.turns[changed.turn];
@@ -878,11 +884,14 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     let currentToken = canvas.tokens.get(nextTokenId);
 
     /** we dont care about tokens without actors */
-    if(!currentToken.actor){
+    if (!currentToken.actor) {
       return;
     }
 
     let regen = currentToken.actor.items.find(i => i.name === "Regeneration")
+    let repair = currentToken.actor.items.find(i => i.name === "Self-Repairing")
+    if ((regen !== null) || (repair !== null)) let actorRegen = true
+
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       let regenSett = !!regen
@@ -898,10 +907,11 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         RechargeAbilities(currentToken);
       }
 
-      if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (regen !== null)) {
+      if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (actorRegen === true)) {
         Regeneration(currentToken)
       }
 
+      /** hb@todo: functionalize this similar to the other cbt operations */
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
       if (reactMode == 2 || reactMode == 3) {
         ReactionRemove(currentToken)
@@ -943,7 +953,7 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
 /** all createOwnedItem hooks handeled here */
 Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   let type = item.type
-  if (game.settings.get('dnd5e-helpers', 'autoProf') && (actor.data.type === "character" )) {
+  if (game.settings.get('dnd5e-helpers', 'autoProf') && (actor.data.type === "character")) {
     switch (type) {
       case "weapon":
         AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
