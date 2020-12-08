@@ -124,6 +124,14 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
+  game.settings.register("dnd5e-helpers", "gwFeatureName", {
+    name: "Great Wound name replacement",
+    hint: "What name to display for Great Wound functions",
+    scope: "world",
+    config: true,
+    default: "Great Wound",
+    type: String,
+  });
   game.settings.register("dnd5e-helpers", "autoProf", {
     name: 'Auto Proficiency',
     hint: 'Checks newly added items and labels as proficient if needed',
@@ -186,6 +194,14 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
+  game.settings.register('dnd5e-helpers', 'owHp0GW', {
+    name: 'Open Wound - HP at 0 from a Great Wound',
+    hint: 'Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
   game.settings.register("dnd5e-helpers", "owTable", {
     name: "Open Wound Table",
     hint: "Name of table that should be rolled on if a Open Wound occurs.",
@@ -194,20 +210,35 @@ Hooks.on('init', () => {
     default: "",
     type: String,
   });
+  game.settings.register("dnd5e-helpers", "owFeatureName", {
+    name: "Open Wound feature name",
+    hint: "What name to display for Open Wound functions.",
+    scope: "world",
+    config: true,
+    default: "Open Wound",
+    type: String,
+  });
 });
 
 
 Hooks.on('ready', () => {
   console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
-    console.log("socket recived")
+    console.log("Dnd5e helpers socket recived")
+    debugger
     //Rolls Saves for owned tokens 
     if (socketData.greatwound === true) {
+      let actor = game.actors.get(socketData.actorId);
       for (const [key, value] of Object.entries(socketData.users)) {
         if ((value === 3) && game.users.get(`${key}`).data.role !== 4) {
           if (game.user.data._id === `${key}`) {
-            let actor = game.actors.get(socketData.actorId);
-            DrawGreatWound(actor);
+            if (socketData.hp !== 0) {
+              DrawGreatWound(actor);
+            }
+            if (socketData.hp === 0 && game.settings.get('dnd5e-helpers', 'owHp0GW') === true) {
+              const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
+              OpenWounds(actor.data.name, `from ${gwFeatureName} reduce them to 0 hp`)
+            }
           }
         }
       }
@@ -391,8 +422,9 @@ function GreatWound_preUpdateToken(scene, tokenData, update) {
   let hpChange = (data.actorHP - data.updateHP)
   // check if the change in hp would be over 50% max hp
   if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
+    const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
     new Dialog({
-      title: `Great Wound roll for ${actor.name}`,
+      title: `${gwFeatureName} roll for ${actor.name}`,
       buttons: {
         one: {
           label: "Roll",
@@ -420,10 +452,11 @@ function GreatWound_preUpdateActor(actor, update) {
     hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
   };
 
+  const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
   // check if the change in hp would be over 50% max hp
-  if (data.hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
+  if (data.hpChange >= Math.ceil(data.actorMax / 2)) {
     new Dialog({
-      title: `Great Wound roll for ${actor.name}`,
+      title: `${gwFeatureName} roll for ${actor.name}`,
       buttons: {
         one: {
           label: "Roll",
@@ -436,7 +469,8 @@ function GreatWound_preUpdateActor(actor, update) {
             const socketData = {
               users: actor._data.permission,
               actorId: actor._id,
-              greatwound: true
+              greatwound: true,
+              hp: data.updateHP,
             }
             console.log("socket send with " + socketData)
             game.socket.emit(`module.dnd5e-helpers`, socketData)
@@ -449,13 +483,21 @@ function GreatWound_preUpdateActor(actor, update) {
 
 /** rolls on specified Great Wound Table */
 function DrawGreatWound(actor) {
+  const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
   (async () => {
-    const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName",)
-    ChatMessage.create({ content: `${actor.name} has suffered an Great Wound` })
-    if (greatWoundTable !== "") {
-      game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
-    } else {
-      ChatMessage.create({ content: "Looks like you havnt setup a table to use for Great Wounds yet" });
+    let gwSave = await actor.rollAbilitySave("con");
+    if (gwSave.total < 15) {
+      const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName");
+      ChatMessage.create({ content: `${actor.name} has suffered an ${gwFeatureName}` });
+      if (greatWoundTable !== "") {
+        game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
+      }
+      else {
+        ChatMessage.create({ content: `Looks like you havnt setup a table to use for ${gwFeatureName} yet` });
+      }
+    }
+    else {
+      ChatMessage.create({ content: `${actor.name} has not suffered an ${gwFeatureName}` });
     }
   })();
 }
@@ -568,15 +610,7 @@ async function Regeneration(token) {
   if (token.actor == null) {
     return;
   }
-  let regen = token.actor.items.find(i => i.name === "Regeneration");
-  let repair = token.actor.items.find(i => i.name === "Self-Repairing");
-  let regenCheck;
-  if (regen !== null) {
-    regenCheck = regen;
-  }
-  else if (repair !== null) {
-    regenCheck = repair
-  }
+  let regen = token.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
 
   let data = {
     tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
@@ -589,9 +623,9 @@ async function Regeneration(token) {
   // parse the regeration item to locate the formula to use 
 
   const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
-  let match = regenCheck.data.data.description.value.match(regenRegExp);
-  if (!match) return undefined
-  let regenAmout = match[1]
+  let match = regen.data.data.description.value.match(regenRegExp);
+  if (!match) return undefined;
+  let regenAmout = match[1];
 
   //dialog choice to heal or not
   if (regenAmout !== null) {
@@ -602,16 +636,16 @@ async function Regeneration(token) {
         one: {
           label: `Apply healing of ${regenAmout}`,
           callback: () => {
-            let regenRoll = new Roll(regenAmout).roll().total
-            token.actor.applyDamage(- regenRoll)
-            ChatMessage.create({ content: token.name + ` was healed for ${regenRoll}`, whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) })
+            let regenRoll = new Roll(regenAmout).roll().total;
+            token.actor.applyDamage(- regenRoll);
+            ChatMessage.create({ content: token.name + ` was healed for ${regenRoll}`, whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) });
           }
         },
         two: {
-          label: "Do not heal"
+          label: "Do not heal",
         }
       }
-    }).render(true)
+    }).render(true);
 
   }
 }
@@ -816,12 +850,13 @@ function ReactionRemove(currentToken) {
 
 // roll on specified open wounds tabel if triggered
 function OpenWounds(actorName, woundType) {
+  const owFeatureName = game.settings.get("dnd5e-helpers", "owFeatureName");
   const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
-  ChatMessage.create({ content: `${actorName} has suffered an Open Wound ${woundType}` })
+  ChatMessage.create({ content: `${actorName} has suffered an ${owFeatureName} ${woundType}` })
   if (openWoundTable !== "") {
     game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
   } else {
-    ChatMessage.create({ content: "Looks like you havnt setup a table to use for Open Wounds yet" });
+    ChatMessage.create({ content: `Looks like you havnt setup a table to use for ${owFeatureName} yet` });
   }
 }
 
@@ -888,10 +923,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       return;
     }
 
-    let regen = currentToken.actor.items.find(i => i.name === "Regeneration")
-    let repair = currentToken.actor.items.find(i => i.name === "Self-Repairing")
-    if ((regen !== null) || (repair !== null)) let actorRegen = true
-
+    let regen = token.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       let regenSett = !!regen
@@ -907,7 +939,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         RechargeAbilities(currentToken);
       }
 
-      if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (actorRegen === true)) {
+      if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (regen === true)) {
         Regeneration(currentToken)
       }
 
@@ -1039,7 +1071,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   }
 });
 
-Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
+Hooks.on("preCreateMeasuredTemplate", async (scene, template) => {
 
   /** range 0-3
    *  b01 = line/cone, 
@@ -1053,14 +1085,14 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
     return;
   }
 
-  if ( !!( templateMode & 0b01 ) && (template.t == 'ray' || template.t == 'cone' )) {
+  if (!!(templateMode & 0b01) && (template.t == 'ray' || template.t == 'cone')) {
     /** scale rays after placement to cover the correct number of squares based on 5e diagonal distance */
     let diagonalScale = Math.abs(Math.sin(Math.toRadians(template.direction))) +
       Math.abs(Math.cos(Math.toRadians(template.direction)))
-    template.distance = diagonalScale*template.distance ;
+    template.distance = diagonalScale * template.distance;
   }
-  else if ( !!(templateMode & 0b10) && template.t == 'circle' && 
-            !(template.distance/scene.data.gridDistance < .9) ){
+  else if (!!(templateMode & 0b10) && template.t == 'circle' &&
+    !(template.distance / scene.data.gridDistance < .9)) {
 
     /** Convert circles to equivalent squares (e.g. fireball is square) 
      *  if the template is 1 grid unit or larger (allows for small circlar
@@ -1071,7 +1103,7 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
     template.t = 'rect';
 
     /** convert radius in grid units to radius in pixels */
-    let radiusPx = (template.distance/scene.data.gridDistance) * scene.data.grid;
+    let radiusPx = (template.distance / scene.data.gridDistance) * scene.data.grid;
 
     /** shift origin to top left in prep for converting to rectangle */
     template.x -= radiusPx;
@@ -1079,7 +1111,7 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
 
     /** convert the "distance" to the squares hypotenuse */
     const length = template.distance * 2;
-    template.distance = Math.hypot(length,length);
+    template.distance = Math.hypot(length, length);
 
     /** always measured top left to bottom right */
     template.direction = 45;
