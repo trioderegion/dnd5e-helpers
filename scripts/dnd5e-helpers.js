@@ -1074,7 +1074,43 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
     template.direction = 45;
   }
 });
+    
+Hooks.on("targetToken", onTargetToken)
 
+function sightLevelToCoverData(sightLevel){
+  switch (sightLevel) {
+    case 0: return {text: "total cover", img: "icons/svg/mystery-man-black.svg"} ;
+    case 1: return {text: "three-quarters cover", img: "icons/environment/traps/plated.webp"};
+    case 2: 
+    case 3: return {text: "half cover", img: "icons/containers/barrels.barrel-oak-tan.webp"}; 
+    case 4: return {text: "no cover", img: "icons/tools/navigation/spyglass-telescope-brass.webp"};
+    default: return " MY EYES!! NOOOO. (error) "; 
+  }
+}
+
+async function onTargetToken(user, target, onOff) {
+  
+  /** currently only concerned with adding a target for the current user */
+  if (!onOff || user.id !== game.userId) {
+    return;  
+  }
+  
+  for( const selected of canvas.tokens.controlled ) {
+    const sightLevel = await selected.computeTargetCover(target);
+    const data = sightLevelToCoverData(sightLevel);
+   
+    /** abuse the dice roll classes to make it look like I know how to UI ;) */
+    const content = `<div class="dice-roll"><i>${selected.name} checks their sightline to ${target.name}</i>
+                      <div class="dice-result">
+                        <div class="dice-formula">${data.text}</div>
+                        <div class="dice-tooltip">
+                          <div class="dice"><h4 class="dice-total">${sightLevel} visible corners</h4></div></div>`
+    
+    //ChatMessage.create({content: `<img src=${data.img} \>${target.name} has ${data.text} from ${selected.name}`});
+    ChatMessage.create({content: content});
+  }
+  
+}
 
 async function DrawDebugRays(drawingList){
   for (let squareRays of drawingList) {
@@ -1119,17 +1155,6 @@ function generateTokenGrid(token){
   
   return {GridPoints: gridPoints, Squares: boundingBoxes};
 }
-/** now find the maximum number of "false" hit detects across all source corners */
-//let accumulator = { corner: [0, 0], unblocked: 0 }
-function MostVisible(accumulator, currentValue) {
-  const freeLines = currentValue.targetBlocked.filter(blocked => blocked == false).length
-  if (freeLines > accumulator.unblocked) {
-    return { corner: currentValue.source, unblocked: freeLines };
-  } else {
-    return accumulator;
-  }
-}
-
 
 /** member function of Token */
 Token.prototype.computeTargetCover = async function (targetToken = null, visualize = false) { 
@@ -1158,15 +1183,6 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
     
   let bestCorner = Math.max.apply(Math, results);
   
-  switch (bestCorner) {
-    case 0: ui.notifications.info("Total Cover"); break;
-    case 1: ui.notifications.info("Three-quarters cover"); break;
-    case 2: ui.notifications.info("half cover"); break;
-    case 3: ui.notifications.info("half cover"); break;
-    case 4: ui.notifications.info("No cover"); break;
-    default: ui.notifications.warn(" MY EYES!! NOOOO. "); break;
-  }
-  
   if(_debugLosRays.length > 0){
     await DrawDebugRays(_debugLosRays);
     _debugLosRays = [];
@@ -1174,6 +1190,8 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
   
   console.log(results);
   console.log(bestCorner);
+
+  return bestCorner
 }
 
 var _debugLosRays = [];
@@ -1222,15 +1240,5 @@ function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
 
   const numCornersVisible = hitResults.reduce((total,x) => (x==false ? total+1 : total), 0)
 
-  /*
-  switch (bestCorner.unblocked) {
-    case 0: ui.notifications.info("Total Cover"); break;
-    case 1: ui.notifications.info("Three-quarters cover"); break;
-    case 2: ui.notifications.info("half cover"); break;
-    case 3: ui.notifications.info("half cover"); break;
-    case 4: ui.notifications.info("No cover"); break;
-    default: ui.notifications.warn(" MY EYES!! NOOOO. "); break;
-  }
-  */
   return numCornersVisible;
 }
