@@ -36,6 +36,13 @@ Little helpers for little 5e tasks.
 ![Line Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/ray_scaling.gif)
 ![Circle Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/circle_scaling.gif)
 
+### Automatic Cover Checks
+- When a user with a selected token targets another token, the target's cover will be calcuated following the rules presented in DMG pg. 251
+- A message in chat will be posted concerning the target's cover in relation to the selected token(s).
+- Note: This initial version only considers cover from vision blocking walls.
+
+![Cover Calculation](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/los_calc.gif)
+
 ### Auto Proficiency Detection
 - Will automatically mark a newly added weapon, armor or tool 'proficient' if it is part of the actor's listed proficiencies
 - Note: specific weapon or armor proficiencies should match their intended name (ex. "Dagger" proficiency for a weapon called"Dagger").

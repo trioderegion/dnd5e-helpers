@@ -67,3 +67,6 @@
 
 ###1.7.2
 - Circlular templates with a radius less than 1 grid unit will no longer be converted to square templates as these are often useful for quick token-like markers on the board or used for macros operating on the templates centerpoint.
+
+###1.8.0
+- Initial Line of Sight (Cover) calculator implemented.

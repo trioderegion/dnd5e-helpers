@@ -16,11 +16,20 @@ Hooks.on('init', () => {
     type: Number
   });
 
+   /** report cover value to chat on target */
+  game.settings.register("dnd5e-helpers", "losOnTarget", {
+    name: "Compute cover on target",
+    hint: "Enables or disables this feature globally.",
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
+  });
 
   /** should surges be tested */
   game.settings.register("dnd5e-helpers", "wmEnabled", {
     name: "Wild Magic Auto-Detect",
-    hint: "Enables or disables this feature for the current user.",
+    hint: "Enables or disables this feature globaly",
     scope: "world",
     config: true,
     default: false,
@@ -1091,7 +1100,9 @@ function sightLevelToCoverData(sightLevel){
 }
 
 async function onTargetToken(user, target, onOff) {
-  
+  /** bail immediately if LOS calc is disabled */ 
+  if(!game.settings.get('dnd5e-helpers', 'losOnTarget')) { return; }
+
   /** currently only concerned with adding a target for the current user */
   if (!onOff || user.id !== game.userId) {
     return;  
