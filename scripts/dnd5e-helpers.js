@@ -16,11 +16,20 @@ Hooks.on('init', () => {
     type: Number
   });
 
+   /** report cover value to chat on target */
+  game.settings.register("dnd5e-helpers", "losOnTarget", {
+    name: "Compute cover on target",
+    hint: "Enables or disables this feature globally.",
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
+  });
 
   /** should surges be tested */
   game.settings.register("dnd5e-helpers", "wmEnabled", {
     name: "Wild Magic Auto-Detect",
-    hint: "Enables or disables this feature for the current user.",
+    hint: "Enables or disables this feature globaly",
     scope: "world",
     config: true,
     default: false,
@@ -1028,6 +1037,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   }
 });
 
+/** Measured template 5/5/5 scaling */
 Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
 
   /** range 0-3
@@ -1074,3 +1084,198 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
     template.direction = 45;
   }
 });
+    
+/** calculating cover when a token is targeted */
+Hooks.on("targetToken", onTargetToken)
+
+function sightLevelToCoverData(sightLevel){
+  switch (sightLevel) {
+    case 0: return {text: "total cover", img: "icons/svg/mystery-man-black.svg"} ;
+    case 1: return {text: "three-quarters cover", img: "icons/environment/traps/plated.webp"};
+    case 2: 
+    case 3: return {text: "half cover", img: "icons/containers/barrels.barrel-oak-tan.webp"}; 
+    case 4: return {text: "no cover", img: "icons/tools/navigation/spyglass-telescope-brass.webp"};
+    default: return " MY EYES!! NOOOO. (error) "; 
+  }
+}
+
+async function onTargetToken(user, target, onOff) {
+  /** bail immediately if LOS calc is disabled */ 
+  if(!game.settings.get('dnd5e-helpers', 'losOnTarget')) { return; }
+
+  /** currently only concerned with adding a target for the current user */
+  if (!onOff || user.id !== game.userId) {
+    return;  
+  }
+  
+  for( const selected of canvas.tokens.controlled ) {
+    const sightLevel = await selected.computeTargetCover(target);
+    const data = sightLevelToCoverData(sightLevel);
+   
+    /** abuse the dice roll classes to make it look like I know how to UI ;) */
+    const content = `<div class="dice-roll"><i>${selected.name} checks their sightline to ${target.name}</i>
+                      <div class="dice-result">
+                        <div class="dice-formula">${data.text}</div>
+                        <div class="dice-tooltip">
+                          <div class="dice"><h4 class="dice-total">${sightLevel} visible corners</h4></div></div>`
+    
+    //ChatMessage.create({content: `<img src=${data.img} \>${target.name} has ${data.text} from ${selected.name}`});
+    ChatMessage.create({content: content});
+  }
+  
+}
+
+async function DrawDebugRays(drawingList){
+  for (let squareRays of drawingList) {
+    await canvas.drawings.createMany(squareRays);
+  }
+}
+
+/**
+ * For a given token, generates two types of grid points
+ * GridPoints[]: Each grid intersection point contained within the token's occupied squares (unique)
+ * Squares[][]: A list of point quads defining the four corners of each occupied square (points will repeat over shared grid intersections)
+ *
+ * @param {Token} token
+ * @return {{GridPoints: [{x: Number, y: Number},...]}, {Squares: [[{x: Number, y: Number},...],...]}} 
+ */
+function generateTokenGrid(token){
+  const tokenBounds = [token.w, token.h];
+  
+  /** use token bounds as the limiter */
+  let boundingBoxes = [];
+  let gridPoints = [];
+  
+  /** @todo this is hideous. I think a flatmap() or something is what i really want to do */
+
+  /** stamp the points out left to right, top to bottom */
+  for(let y = 0; y < tokenBounds[1]; y+=canvas.grid.size) {
+    for(let x = 0; x < tokenBounds[0]; x+=canvas.grid.size) {
+      gridPoints.push([x,y]);
+      
+      /** create the bounding box. we dont have to do a final pass for that and just scale here */
+      boundingBoxes.push([
+        [token.x + x, token.y + y], [token.x + x + canvas.grid.size, token.y + y],
+        [token.x + x, token.y + y + canvas.grid.size], [token.x + x + canvas.grid.size, token.y + y + canvas.grid.size]]);
+    }
+     
+    gridPoints.push([token.width,y]);
+  }
+  
+  /** the final grid point row in the token bounds will not be added */
+  for(let x = 0; x < tokenBounds[0]; x+=canvas.grid.size) {
+      gridPoints.push([x,token.height]);
+  }
+    
+  /** stamp the final point, since we stopped short (handles non-integer sizes) */
+  gridPoints.push([token.width, token.height]);
+  
+  gridPoints = gridPoints.map( localPoint => {
+    return [localPoint[0] + token.x, localPoint[1] + token.y];
+  })
+  
+  return {GridPoints: gridPoints, Squares: boundingBoxes};
+}
+
+/**
+ * Computes the cover value (num visible corners to any occupied grid square) of
+ * the specified token if provided, otherwise, the first token in the user's
+ * target list.  Can optionally draw each ray tested for cover.
+ *
+ * @param {Token} [targetToken=null]
+ * @param {boolean} [visualize=false]
+ * @return {*} 
+ */
+Token.prototype.computeTargetCover = async function (targetToken = null, visualize = false) { 
+  const myToken = this;
+
+  /** if we were not provided a target token, grab the first one the current user has targeted */
+  targetToken = !!targetToken ? targetToken : game.user.targets.values().next().value;
+
+  if (!targetToken) { ui.noficiations.error("No target token selected to compute cover for!"); return; }
+
+  /** generate token grid points */
+  const myTestPoints = generateTokenGrid(myToken).GridPoints;
+  const theirTestSquares = generateTokenGrid(targetToken).Squares;
+
+  const results = myTestPoints.map( xyPoint => {
+    
+    /** convert the box entries to num visible corners of itself */
+    let individualTests = theirTestSquares.map( square => {
+      return ( pointToSquareCover(xyPoint,square,visualize));
+    });
+    
+    /** return the most number of visible corners */
+    return Math.max.apply(Math, individualTests);
+  });
+  
+    
+  let bestCorner = Math.max.apply(Math, results);
+  
+  if(_debugLosRays.length > 0){
+    await DrawDebugRays(_debugLosRays);
+    _debugLosRays = [];
+  } 
+  
+  console.log(results);
+  console.log(bestCorner);
+
+  return bestCorner
+}
+
+var _debugLosRays = [];
+
+/**
+ * Calculate the number of visible corners of a target grid square from a source point
+ *
+ * @param {{x: Number, y: Number}} sourcePoint
+ * @param {[{x: Number, y: Number}],...} targetSquare
+ * @param {boolean} [visualize=false]
+ * @return {Number} 
+ */
+function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
+
+  /** create pairs of points representing the test structure as source point to target array of points */
+  let sightLines = {
+    source: sourcePoint,
+    targets: targetSquare
+  }
+
+  /** Debug visualization */
+  if (visualize) {
+    let debugSightLines = sightLines.targets.map( target => [sightLines.source, target]);
+
+    const myCornerDebugRays = debugSightLines.map(ray => {
+      return {
+        type: CONST.DRAWING_TYPES.POLYGON,
+        author: game.user._id,
+        x: 0,
+        y: 0,
+        strokeWidth: 2,
+        strokeColor: "#FF0000",
+        strokeAlpha: 0.75,
+        textColor: "#00FF00",
+        points: [ray[0], ray[1]]
+      }
+    });
+
+    _debugLosRays.push(myCornerDebugRays);
+  }
+  /** \Debug visualization */
+
+  /** only restrict vision based on sight blocking walls */
+  const options = {
+    blockMovement: false,
+    blockSenses: true,
+    mode: 'any'
+  }
+
+  let hitResults = sightLines.targets.map(target => {
+    const ray = new Ray({ x: sightLines.source[0], y: sightLines.source[1] }, { x: target[0], y: target[1] });
+    return WallsLayer.getRayCollisions(ray, options);
+  })
+
+  const numCornersVisible = hitResults.reduce((total,x) => (x==false ? total+1 : total), 0)
+
+  return numCornersVisible;
+}
