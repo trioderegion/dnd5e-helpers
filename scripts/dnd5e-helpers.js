@@ -1028,6 +1028,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   }
 });
 
+/** Measured template 5/5/5 scaling */
 Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
 
   /** range 0-3
@@ -1075,6 +1076,7 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
   }
 });
     
+/** calculating cover when a token is targeted */
 Hooks.on("targetToken", onTargetToken)
 
 function sightLevelToCoverData(sightLevel){
@@ -1118,6 +1120,14 @@ async function DrawDebugRays(drawingList){
   }
 }
 
+/**
+ * For a given token, generates two types of grid points
+ * GridPoints[]: Each grid intersection point contained within the token's occupied squares (unique)
+ * Squares[][]: A list of point quads defining the four corners of each occupied square (points will repeat over shared grid intersections)
+ *
+ * @param {Token} token
+ * @return {{GridPoints: [{x: Number, y: Number},...]}, {Squares: [[{x: Number, y: Number},...],...]}} 
+ */
 function generateTokenGrid(token){
   const tokenBounds = [token.w, token.h];
   
@@ -1156,7 +1166,15 @@ function generateTokenGrid(token){
   return {GridPoints: gridPoints, Squares: boundingBoxes};
 }
 
-/** member function of Token */
+/**
+ * Computes the cover value (num visible corners to any occupied grid square) of
+ * the specified token if provided, otherwise, the first token in the user's
+ * target list.  Can optionally draw each ray tested for cover.
+ *
+ * @param {Token} [targetToken=null]
+ * @param {boolean} [visualize=false]
+ * @return {*} 
+ */
 Token.prototype.computeTargetCover = async function (targetToken = null, visualize = false) { 
   const myToken = this;
 
@@ -1196,6 +1214,14 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
 
 var _debugLosRays = [];
 
+/**
+ * Calculate the number of visible corners of a target grid square from a source point
+ *
+ * @param {{x: Number, y: Number}} sourcePoint
+ * @param {[{x: Number, y: Number}],...} targetSquare
+ * @param {boolean} [visualize=false]
+ * @return {Number} 
+ */
 function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
 
   /** create pairs of points representing the test structure as source point to target array of points */
