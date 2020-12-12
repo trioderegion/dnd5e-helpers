@@ -49,8 +49,8 @@ Little helpers for little 5e tasks.
 - For Tools, it tries to match the tool name with the proficiency (Ex. "Flute" will not be detected by checking "Musical Instrument" Tool Proficiency textbox, but "Musical Instrument: Flute" will. To detect "Flute", add "Flute" as a special Tool Proficiency).
 
 ### Auto Regeneration
-- Automatically checks actors with the Regeneration feature
-- Searches the Regeneration Feature for the phrase "X hit points", where X can be a static value or a dice formula
+- Automatically checks actors with the Regeneration or Self-Repair features
+- Searches the these features for the phrase "X hit points", where X can be a static value or a dice formula
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
 ### Undead Fortitude
@@ -66,9 +66,10 @@ Little helpers for little 5e tasks.
   - Failing a Death Saving Throw by 5 or more
   - Getting critically hit (customisable value)
   - Falling to 0hp
+  - Falling to 0hp from a Great Wound
 
 ### Great Wound Detection
-- Triggers on a reduction of 50% of a token/actor's health.
+- Triggers on a reduction of >50% of a token/actor's health.
 - Configurable Great Wound table to draw from.
 - This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save then roll on the table
 
