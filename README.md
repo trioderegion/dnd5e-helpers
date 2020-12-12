@@ -49,12 +49,12 @@ Little helpers for little 5e tasks.
 - For Tools, it tries to match the tool name with the proficiency (Ex. "Flute" will not be detected by checking "Musical Instrument" Tool Proficiency textbox, but "Musical Instrument: Flute" will. To detect "Flute", add "Flute" as a special Tool Proficiency).
 
 ### Auto Regeneration
-- Automaticly checks actors with the Regeneration feature
+- Automatically checks actors with the Regeneration feature
 - Searches the Regeneration Feature for the phrase "X hit points", where X can be a static value or a dice formula
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
 ### Undead Fortitude
-- Automaticly checks actors with the Undead Fortitude feature
+- Automatically checks actors with the Undead Fortitude feature
 - When they are reduced to 0hp it will prompt the GM to choose the type of damage that was applied
 - Then prompts the GM for a Con save for that actor, and will auto heal the NPC if the roll beats the save needed
 - There are two settings for levels of checks:
