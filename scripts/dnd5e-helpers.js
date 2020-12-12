@@ -237,7 +237,6 @@ Hooks.on('ready', () => {
   console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
     console.log("Dnd5e helpers socket recived")
-    debugger
     //Rolls Saves for owned tokens 
     if (socketData.greatwound === true) {
       let actor = game.actors.get(socketData.actorId);
@@ -500,7 +499,7 @@ function DrawGreatWound(actor) {
     let gwSave = await actor.rollAbilitySave("con");
     if (gwSave.total < 15) {
       const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName");
-      ChatMessage.create({ content: `${actor.name} has suffered an ${gwFeatureName}` });
+      ChatMessage.create({ content: `${actor.name} failed the ${gwFeatureName} save` });
       if (greatWoundTable !== "") {
         game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
       }
@@ -509,7 +508,7 @@ function DrawGreatWound(actor) {
       }
     }
     else {
-      ChatMessage.create({ content: `${actor.name} has not suffered an ${gwFeatureName}` });
+      ChatMessage.create({ content: `${actor.name} passed the ${gwFeatureName} save` });
     }
   })();
 }
@@ -663,14 +662,16 @@ async function Regeneration(token) {
 }
 
 //quick undead fort check, just checks change in np, not total damage
-function UndeadFortCheckQuick(tokenData, update, options) {
+async function UndeadFortCheckQuick(tokenData, update, options) {
+  
   let data = {
     actorData: canvas.tokens.get(tokenData._id).actor.data,
     updateData: update,
     actorId: tokenData.actorId,
-    actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
+    actorHp: await getProperty(tokenData, "actorData.data.attributes.hp.value"),
     updateHP: update.actorData.data.attributes.hp.value,
   }
+  
   if (data.actorHp == null) {
     data.actorHp = game.actors.get(data.actorId).data.data.attributes.hp.max
   }
@@ -935,7 +936,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       return;
     }
 
-    let regen = token.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
+    let regen = currentToken.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       let regenSett = !!regen
