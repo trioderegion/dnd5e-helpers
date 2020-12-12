@@ -67,3 +67,11 @@
 
 ###1.7.2
 - Circlular templates with a radius less than 1 grid unit will no longer be converted to square templates as these are often useful for quick token-like markers on the board or used for macros operating on the templates centerpoint.
+
+###1.8.0
+- Initial Line of Sight (Cover) calculator implemented.
+    - Will trigger when a user has a selected token(s) and targets any token.
+    - Currently only considers vision blocking walls when computing cover.
+    - Additionally, a method was added to the Token object for direct use -- Token#computeTargetCover(target = null, visualize = false)
+      - A null token wil grab the first target in the user's targets list
+      - Return value is number of visible corners from most visible occupied square

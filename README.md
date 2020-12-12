@@ -36,18 +36,25 @@ Little helpers for little 5e tasks.
 ![Line Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/ray_scaling.gif)
 ![Circle Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/circle_scaling.gif)
 
+### Automatic Cover Checks
+- When a user with a selected token targets another token, the target's cover will be calcuated following the rules presented in DMG pg. 251
+- A message in chat will be posted concerning the target's cover in relation to the selected token(s).
+- Note: This initial version only considers cover from vision blocking walls.
+
+![Cover Calculation](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/los_calc.gif)
+
 ### Auto Proficiency Detection
 - Will automatically mark a newly added weapon, armor or tool 'proficient' if it is part of the actor's listed proficiencies
 - Note: specific weapon or armor proficiencies should match their intended name (ex. "Dagger" proficiency for a weapon called"Dagger").
 - For Tools, it tries to match the tool name with the proficiency (Ex. "Flute" will not be detected by checking "Musical Instrument" Tool Proficiency textbox, but "Musical Instrument: Flute" will. To detect "Flute", add "Flute" as a special Tool Proficiency).
 
 ### Auto Regeneration
-- Automaticly checks actors with the Regeneration feature
+- Automatically checks actors with the Regeneration feature
 - Searches the Regeneration Feature for the phrase "X hit points", where X can be a static value or a dice formula
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
 ### Undead Fortitude
-- Automaticly checks actors with the Undead Fortitude feature
+- Automatically checks actors with the Undead Fortitude feature
 - When they are reduced to 0hp it will prompt the GM to choose the type of damage that was applied
 - Then prompts the GM for a Con save for that actor, and will auto heal the NPC if the roll beats the save needed
 - There are two settings for levels of checks:
