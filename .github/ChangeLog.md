@@ -78,3 +78,4 @@
 ###1.8.1
 - A few fixes for Open Wounds and Great Wounds not correctly displaying/calculating 
 - Added Self-Repair as an example of Rengeration 
+- Added ui notification for legendary action recharge
