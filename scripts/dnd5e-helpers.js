@@ -120,30 +120,7 @@ Hooks.on('init', () => {
     default: true,
     type: Boolean,
   });
-  game.settings.register("dnd5e-helpers", "gwTableName", {
-    name: "Great Wound Table",
-    hint: "Name of table that should be rolled on if a Great Wound occurs.",
-    scope: "world",
-    config: true,
-    default: "",
-    type: String,
-  });
-  game.settings.register("dnd5e-helpers", "gwEnable", {
-    name: 'Great Wound',
-    hint: 'Rolls on a specified table when a token takes over 50% max hp in a single blow',
-    scope: 'world',
-    type: Boolean,
-    default: false,
-    config: true,
-  });
-  game.settings.register("dnd5e-helpers", "gwFeatureName", {
-    name: "Great Wound name replacement",
-    hint: "What name to display for Great Wound functions",
-    scope: "world",
-    config: true,
-    default: "Great Wound",
-    type: String,
-  });
+
   game.settings.register("dnd5e-helpers", "autoProf", {
     name: 'Auto Proficiency',
     hint: 'Checks newly added items and labels as proficient if needed',
@@ -152,6 +129,7 @@ Hooks.on('init', () => {
     default: true,
     config: true,
   });
+ 
   game.settings.register("dnd5e-helpers", "autoRegen", {
     name: 'Automatic regeneration ',
     hint: 'Automaticly prompts for regeneration rolls for the GM',
@@ -174,54 +152,34 @@ Hooks.on('init', () => {
     default: "0",
     config: true,
   });
-  game.settings.register("dnd5e-helpers", "debug", {
-    name: 'Debugging',
-    hint: 'Adds a few console logs for debugging purposes',
+  
+  game.settings.register("dnd5e-helpers", "gwEnable", {
+    name: 'Great Wound',
+    hint: 'Rolls on a specified table when a token takes over 50% max hp in a single blow',
     scope: 'world',
     type: Boolean,
     default: false,
     config: true,
   });
-  game.settings.register('dnd5e-helpers', 'owDeathSave', {
-    name: 'Open Wound - Death Saves',
-    hint: 'Open Wounds triggered on death saves failed by 5 or more',
-    scope: 'world',
-    type: Boolean,
-    default: false,
+  
+  game.settings.register("dnd5e-helpers", "gwFeatureName", {
+    name: "Great Wound name replacement",
+    hint: "What name to display for Great Wound functions",
+    scope: "world",
     config: true,
+    default: "Great Wound",
+    type: String,
   });
-  game.settings.register('dnd5e-helpers', 'owCrit', {
-    name: 'Open Wound - Crits',
-    hint: 'Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank',
-    scope: 'world',
-    config: true,
-    default: 0,
-    type: Number,
-  });
-  game.settings.register('dnd5e-helpers', 'owHp0', {
-    name: 'Open Wound - HP at 0',
-    hint: 'Open Wounds triggered on dropping to 0 HP',
-    scope: 'world',
-    type: Boolean,
-    default: false,
-    config: true,
-  });
-  game.settings.register('dnd5e-helpers', 'owHp0GW', {
-    name: 'Open Wound - HP at 0 from a Great Wound',
-    hint: 'Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)',
-    scope: 'world',
-    type: Boolean,
-    default: false,
-    config: true,
-  });
-  game.settings.register("dnd5e-helpers", "owTable", {
-    name: "Open Wound Table",
-    hint: "Name of table that should be rolled on if a Open Wound occurs.",
+
+  game.settings.register("dnd5e-helpers", "gwTableName", {
+    name: "Great Wound Table",
+    hint: "Name of table that should be rolled on if a Great Wound occurs.",
     scope: "world",
     config: true,
     default: "",
     type: String,
   });
+  
   game.settings.register("dnd5e-helpers", "owFeatureName", {
     name: "Open Wound feature name",
     hint: "What name to display for Open Wound functions.",
@@ -230,6 +188,60 @@ Hooks.on('init', () => {
     default: "Open Wound",
     type: String,
   });
+
+  game.settings.register('dnd5e-helpers', 'owDeathSave', {
+    name: 'Open Wound - Death Saves',
+    hint: 'Open Wounds triggered on death saves failed by 5 or more',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+  
+  game.settings.register('dnd5e-helpers', 'owCrit', {
+    name: 'Open Wound - Crits',
+    hint: 'Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank',
+    scope: 'world',
+    config: true,
+    default: 0,
+    type: Number,
+  });
+  
+  game.settings.register('dnd5e-helpers', 'owHp0', {
+    name: 'Open Wound - HP at 0',
+    hint: 'Open Wounds triggered on dropping to 0 HP',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+  
+  game.settings.register('dnd5e-helpers', 'owHp0GW', {
+    name: 'Open Wound - HP at 0 from a Great Wound',
+    hint: 'Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+  
+  game.settings.register("dnd5e-helpers", "owTable", {
+    name: "Open Wound Table",
+    hint: "Name of table that should be rolled on if a Open Wound occurs.",
+    scope: "world",
+    config: true,
+    default: "",
+    type: String,
+  });
+  
+  game.settings.register("dnd5e-helpers", "debug", {
+    name: 'Debugging',
+    hint: 'Adds a few console logs for debugging purposes',
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
 });
 
 
@@ -237,7 +249,6 @@ Hooks.on('ready', () => {
   console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
     console.log("Dnd5e helpers socket recived")
-    debugger
     //Rolls Saves for owned tokens 
     if (socketData.greatwound === true) {
       let actor = game.actors.get(socketData.actorId);
@@ -500,7 +511,7 @@ function DrawGreatWound(actor) {
     let gwSave = await actor.rollAbilitySave("con");
     if (gwSave.total < 15) {
       const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName");
-      ChatMessage.create({ content: `${actor.name} has suffered an ${gwFeatureName}` });
+      ChatMessage.create({ content: `${actor.name} failed the ${gwFeatureName} save` });
       if (greatWoundTable !== "") {
         game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
       }
@@ -509,7 +520,7 @@ function DrawGreatWound(actor) {
       }
     }
     else {
-      ChatMessage.create({ content: `${actor.name} has not suffered an ${gwFeatureName}` });
+      ChatMessage.create({ content: `${actor.name} passed the ${gwFeatureName} save` });
     }
   })();
 }
@@ -663,14 +674,16 @@ async function Regeneration(token) {
 }
 
 //quick undead fort check, just checks change in np, not total damage
-function UndeadFortCheckQuick(tokenData, update, options) {
+async function UndeadFortCheckQuick(tokenData, update, options) {
+  
   let data = {
     actorData: canvas.tokens.get(tokenData._id).actor.data,
     updateData: update,
     actorId: tokenData.actorId,
-    actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
+    actorHp: await getProperty(tokenData, "actorData.data.attributes.hp.value"),
     updateHP: update.actorData.data.attributes.hp.value,
   }
+
   if (data.actorHp == null) {
     data.actorHp = game.actors.get(data.actorId).data.data.attributes.hp.max
   }
@@ -935,7 +948,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       return;
     }
 
-    let regen = token.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
+    let regen = currentToken.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       let regenSett = !!regen

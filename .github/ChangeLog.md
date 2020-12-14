@@ -75,3 +75,6 @@
     - Additionally, a method was added to the Token object for direct use -- Token#computeTargetCover(target = null, visualize = false)
       - A null token wil grab the first target in the user's targets list
       - Return value is number of visible corners from most visible occupied square
+###1.8.1
+- A few fixes for Open Wounds and Great Wounds not correctly displaying/calculating 
+- Added Self-Repair as an example of Rengeration 
