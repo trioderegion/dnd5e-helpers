@@ -965,7 +965,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         RechargeAbilities(currentToken);
       }
 
-      if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (regen === true)) {
+      if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (!!regen === true)) {
         Regeneration(currentToken)
       }
 
