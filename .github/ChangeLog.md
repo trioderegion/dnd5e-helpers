@@ -79,3 +79,6 @@
 - A few fixes for Open Wounds and Great Wounds not correctly displaying/calculating 
 - Added Self-Repair as an example of Rengeration 
 - Added ui notification for legendary action recharge
+
+###1.8.2
+- Removed overlapping proficiency marking with the latest dnd5e 1.2.0 system. No backwards compat provided for <1.2.0.  Retains specific proficiency marking like "Daggers" or "Longswords".

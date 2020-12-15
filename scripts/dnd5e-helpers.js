@@ -528,31 +528,23 @@ function DrawGreatWound(actor) {
 
 
 
-/** auto prof Weapon*/
-function AutoProfWeapon_createOwnedItem(actor, item, sheet, id) {
+/** auto prof Weapon ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
+function AutoProfWeapon_createOwnedItem(actor, item) {
 
   //finds item data and actor proficiencies 
-  let { weaponType } = item.data;
   let { name } = item;
   let { weaponProf } = actor.data.data.traits;
   let proficient = false;
-
-  // finds weapon simple/martial type
-  let pass_type = (weaponType === 'simpleM' || weaponType === 'simpleR') ? 'sim'
-    : (weaponType === 'martialM' || weaponType === 'martialR') ? 'mar' : null;
-
-  //if weapon type maches actor sim/mar prof then prof = true
-  if (weaponProf.value.includes(pass_type)) proficient = true;
-
+  
   //if item name matches custom prof lis then prof = true
-  /** @todo consider making this more permissive ex. Dagger vs Daggers vs dagger vs daggers */
-  if (includes_array(weaponProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
+  const weaponProfList = weaponProf.custom.split(" ").map(s => s.slice(0, -1))
+  if (includes_array(weaponProfList, name) || includes_array(weaponProfList, `${name}s`)) proficient = true;
 
-  // update item to match prof
+  // update item to match prof, otherwise, leave as is (dnd5e system will handle generic profs)
   if (proficient) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
     console.log(name + " is marked as proficient")
-  } else {
+  } /* else {
     //Remove proficiency if actor is not proficient and the weapon has proficiency set.
     if (!proficient && item.data.proficient) {
       actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
@@ -561,48 +553,35 @@ function AutoProfWeapon_createOwnedItem(actor, item, sheet, id) {
       ui.notifications.notify(name + " could not be matched to proficiency, please adjust manually.");
     }
   }
+  */
 }
 
-/** Auto prof Armor*/
-function AutoProfArmor_createOwnedItem(actor, item, sheet, id) {
+/** Auto prof Armor ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
+function AutoProfArmor_createOwnedItem(actor, item) {
 
   //finds item data and actor proficiencies 
-  let { type } = item.data.armor;
   let { name } = item;
   let { armorProf } = actor.data.data.traits;
   let proficient = false;
-
-  // finds weapon simple/martial type
-  let pass_type = type === 'light' ? 'lgt'
-    : type === 'medium' ? 'med'
-      : type === 'heavy' ? 'hvy'
-        : type === 'shield' ? 'shl'
-          : null;
-
-  //if armor type maches actor armor prof then prof = true
-  if (armorProf.value.includes(pass_type)) proficient = true;
-
+  
+  /* NOTE: I know of no examples of being granted "Studded Leather Armor" proficiency,
+   *       but it does not make grammatical sense for them to be optionaly pluralized,
+   *       so do not consider plurals when matching like weapons
+  */
+  
   //if item name matches custom prof lis then prof = true
   if (includes_array(armorProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
 
-  // update item to match prof
+  // update item to match prof, otherwise, leave as is (dnd5e will handle generic profs)
   //For items that are not armors (trinkets, clothing) we assume prof = true 
   if (proficient || pass_type == null) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
     console.log(name + " is marked as proficient")
-  } else {
-    //remove armor proficiency if actor does not have it.
-    if (!proficient && item.data.proficient) {
-      actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
-      console.log(name + " is marked as not proficient")
-    } else {
-      ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
-    }
-  }
+  } 
 }
 
 /**Auto Prof Tools*/
-function AutoProfTool_createOwnedItem(actor, item, sheet, id) {
+function AutoProfTool_createOwnedItem(actor, item) {
 
   //finds item data and actor proficiencies 
   let { name } = item;
@@ -1014,13 +993,13 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   if (game.settings.get('dnd5e-helpers', 'autoProf') && (actor.data.type === "character")) {
     switch (type) {
       case "weapon":
-        AutoProfWeapon_createOwnedItem(actor, item, sheet, id);
+        AutoProfWeapon_createOwnedItem(actor, item);
         break;
       case "equipment":
-        AutoProfArmor_createOwnedItem(actor, item, sheet, id);
+        AutoProfArmor_createOwnedItem(actor, item);
         break;
       case "tool":
-        AutoProfTool_createOwnedItem(actor, item, sheet, id);
+        AutoProfTool_createOwnedItem(actor, item);
         break;
       default:
         break;
