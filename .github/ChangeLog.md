@@ -81,4 +81,6 @@
 - Added ui notification for legendary action recharge
 
 ###1.8.2
+- Removed overlapping proficiency marking with the latest dnd5e 1.2.0 system. No backwards compat provided for <1.2.0.  Retains specific proficiency marking like "Daggers" or "Longswords".
 - Quick fix for Auto Regen not working
+
