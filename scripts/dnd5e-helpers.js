@@ -417,7 +417,7 @@ async function ResetLegAct(token) {
   if (legact && legact.value !== null) {
     /** only reset if needed */
     if (legact.value < legact.max) {
-      ui.notifications.info('Legendary actions restored to ${legact.max} for ${token.name}')
+      ui.notifications.info(`Legendary actions restored to ${legact.max} for ${token.name}`)
       legact.value = legact.max;
       await token.actor.update({ 'data.resources.legact': legact });
       token.actor.sheet.render(false);
