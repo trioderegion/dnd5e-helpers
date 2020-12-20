@@ -1129,14 +1129,24 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
 /** calculating cover when a token is targeted */
 Hooks.on("targetToken", onTargetToken)
 
-function sightLevelToCoverData(sightLevel){
-  switch (sightLevel) {
-    case 0: return {text: "total cover", img: "icons/svg/mystery-man-black.svg"} ;
-    case 1: return {text: "three-quarters cover", img: "icons/environment/traps/plated.webp"};
+function VisibleCornersToCoverLevel(corners){
+  switch (corners) {
+    case 0: return 3;
+    case 1: return 2;
     case 2: 
-    case 3: return {text: "half cover", img: "icons/containers/barrels.barrel-oak-tan.webp"}; 
-    case 4: return {text: "no cover", img: "icons/tools/navigation/spyglass-telescope-brass.webp"};
-    default: return " MY EYES!! NOOOO. (error) "; 
+    case 3: return 1;
+    case 4: return 0;
+    default: console.error("Could not convert visible corners to cover level!"); return null;
+  }
+}
+
+function CoverLevelToText(coverLevel){
+   switch (coverLevel) {
+    case 0: return "No cover";
+    case 1: return "Half cover";
+    case 2: return "Three-quarters cover"
+    case 3: return "Full cover";
+    default: console.error("Could not convert cover level to a string! (Cover level "+coverLevel+")."); return "";
   }
 }
 
@@ -1150,15 +1160,21 @@ async function onTargetToken(user, target, onOff) {
   }
   
   for( const selected of canvas.tokens.controlled ) {
-    const sightLevel = await selected.computeTargetCover(target);
-    const data = sightLevelToCoverData(sightLevel);
-   
+    const bestVisibleCorners = await selected.computeTargetCover(target);
+    const losCoverLevel = VisibleCornersToCoverLevel(bestVisibleCorners);
+    const bestTileCover = CoverFromObjects(selected, target);
+    
+    /** always prefer line of sight because its more accurate at the moment (>= instead of >) */
+    const coverData = losCoverLevel >= (bestTileCover?.getFlag('dnd5e-helpers','coverLevel') ?? -1) ? 
+                            {level: losCoverLevel, source:`${bestVisibleCorners} visible corners`} : 
+                            {level: bestTileCover?.getFlag('dnd5e-helpers','coverLevel'), source: `an intervening object`};
+    const coverText = CoverLevelToText(coverData.level);
     /** abuse the dice roll classes to make it look like I know how to UI ;) */
     const content = `<div class="dice-roll"><i>${selected.name} checks their sightline to ${target.name}</i>
                       <div class="dice-result">
-                        <div class="dice-formula">${data.text}</div>
+                        <div class="dice-formula">${coverText}</div>
                         <div class="dice-tooltip">
-                          <div class="dice"><h4 class="dice-total">${sightLevel} visible corners</h4></div></div>`
+                          <div class="dice"><h4 class="dice-total">${coverData.source}</h4></div></div>`
     
     //ChatMessage.create({content: `<img src=${data.img} \>${target.name} has ${data.text} from ${selected.name}`});
     ChatMessage.create({content: content});
@@ -1236,7 +1252,8 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
   if (!targetToken) { ui.noficiations.error("No target token selected to compute cover for!"); return; }
 
   /** generate token grid points */
-  const myTestPoints = generateTokenGrid(myToken).GridPoints;
+  //const myTestPoints = generateTokenGrid(myToken).GridPoints;
+  const myTestPoints = [[this.center.x, this.center.y]]
   const theirTestSquares = generateTokenGrid(targetToken).Squares;
 
   const results = myTestPoints.map( xyPoint => {
@@ -1251,17 +1268,14 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
   });
   
     
-  let bestCorner = Math.max.apply(Math, results);
+  const bestVisibleCorners = Math.max.apply(Math, results);
   
   if(_debugLosRays.length > 0){
     await DrawDebugRays(_debugLosRays);
     _debugLosRays = [];
   } 
-  
-  console.log(results);
-  console.log(bestCorner);
 
-  return bestCorner
+  return bestVisibleCorners;
 }
 
 var _debugLosRays = [];
@@ -1321,3 +1335,66 @@ function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
   return numCornersVisible;
 }
 
+function CollideAgainstTiles(ray, tileList) {
+
+  /** terrible intersectors follow */
+
+  //create an "x" based on the bounding box (cuts down on 2 collisions per blocker)
+  
+
+  const hitTiles = tileList.filter(tile => {
+    /** looking for any collision of this tile's bounds
+     *  by creating an "x" from its bounding box
+     *  and colliding against those lines */
+    //as [[x0,y0,x1,y1],...]
+    const boxGroup = [
+      [tile.x, tile.y, tile.x + tile.width, tile.y + tile.height],
+      [tile.x + tile.width, tile.y, tile.x, tile.y + tile.height],
+    ]
+
+    return !!boxGroup.find(boxRay => {
+      return ray.intersectSegment(boxRay) !== false;
+    })});
+
+  return hitTiles;
+}
+
+function CoverFromObjects(sourceToken, targetToken) {
+  /** center to center allows us to run alongside cover calc
+    * otherwise we should include cover in the optimal search of cover... */
+  const ray = new Ray(sourceToken.center, targetToken.center);
+
+  /** collect "blocker" tiles (this could be cached on preCreateTile or preUpdateTile) */
+  const coverTiles = canvas.tiles.placeables.filter( tile => tile.getFlag('dnd5e-helpers','coverLevel') ?? 0 > 0); 
+
+   /** hits.length is number of blocker tiles hit */
+  const hitTiles = CollideAgainstTiles(ray, coverTiles);
+
+  if(hitTiles.length == 0){
+    return null;
+  }
+
+  const maxCoverLevelTile = hitTiles.reduce( (bestTile, currentTile) => {
+    return bestTile.getFlag('dnd5e-helpers','coverLevel') > currentTile.getFlag('dnd5e-helpers','coverLevel') ? bestTile : currentTile;
+  })
+  
+  return maxCoverLevelTile;
+}
+
+Hooks.on("renderTileConfig", (tileConfig, html)=> {
+  const currentCoverType = tileConfig.object.getFlag('dnd5e-helpers', 'coverLevel');
+  const saveButton = html.find($('button[type="submit"]'));
+
+  let checkboxHTML = `<div class="form-group"><label>Provides Cover</label>
+                        <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
+                          <option value="0" ${currentCoverType == 0 ? 'selected' : ''}>None</option>
+                          <option value="1" ${currentCoverType == 1 ? 'selected' : ''}>Half</option>
+                          <option value="2" ${currentCoverType == 2 ? 'selected' : ''}>Three-Quarters</option>
+                          <option value="3" ${currentCoverType == 3 ? 'selected' : ''}>Total</option>
+                        </select>
+                      </div>`;
+  
+  html.css("height","auto");
+
+  saveButton.before(checkboxHTML);
+});
