@@ -1126,29 +1126,121 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
   }
 });
     
-/** calculating cover when a token is targeted */
-Hooks.on("targetToken", onTargetToken)
 
-function VisibleCornersToCoverLevel(corners){
-  switch (corners) {
-    case 0: return 3;
-    case 1: return 2;
-    case 2: 
-    case 3: return 1;
-    case 4: return 0;
-    default: console.error("Could not convert visible corners to cover level!"); return null;
+/**
+ * Serves as a container for cover data, which is as agnostic as possible, allowing for system extensions
+ * Note: Data must be "finalized" prior to chat message output. This finalization function is ripe for override.
+ * @todo extract finalize and create chat message into CoverData5e to provide an example of this.
+ * @class CoverData
+ */
+class CoverData {
+  constructor(sourceToken, targetToken, visibleCorners, mostObscuringTile, mostObscuringToken){
+    this.SourceToken = sourceToken;
+    this.TargetToken = targetToken;
+    this.VisibleCorners = visibleCorners;
+    this.TileCover = mostObscuringTile;
+    this.TokenCover = mostObscuringToken;
+    this.Summary = "**UNPROCESSED**";
+    this.Source = "**NONE**"
+    this.FinalCoverLevel = -1;
+    this.FinalCoverEntity = null;
   }
-}
+  /**
+   * 5e specific conversion of visible corners to a cover value
+   * @todo implement in CoverData5e
+   * @static
+   * @param {Int} visibleCorners
+   * @return {Int}
+   * @memberof CoverData
+   */
+  static VisibleCornersToCoverLevel(visibleCorners){
+    switch (visibleCorners) {
+      case 0: return 3;
+      case 1: return 2;
+      case 2:
+      case 3: return 1;
+      case 4: return 0;
+      default: console.error("Could not convert visible corners to cover level!"); return null;
+    }
+  }
 
-function CoverLevelToText(coverLevel){
-   switch (coverLevel) {
-    case 0: return "No cover";
-    case 1: return "Half cover";
-    case 2: return "Three-quarters cover"
-    case 3: return "Full cover";
-    default: console.error("Could not convert cover level to a string! (Cover level "+coverLevel+")."); return "";
+  /**
+   * 5e specific conversion of a generic "coverLevel" to the appropriate string
+   * @todo implement in CoverData5e
+   * @static
+   * @param {Int} coverLevel
+   * @return {String} 
+   * @memberof CoverData
+   */
+  static CoverLevelToText(coverLevel) {
+    switch (coverLevel) {
+      case 0: return "No cover";
+      case 1: return "Half cover";
+      case 2: return "Three-quarters cover"
+      case 3: return "Full cover";
+      default: console.error("Could not convert cover level to a string! (Cover level " + coverLevel + ")."); return "";
+    }
   }
-}
+
+   
+  /**
+   * 5e specific interpretation and consideration of all wall and object collisions to produce a final cover value
+   * General flow: If line of sight and objects give same cover, prefer line of sight, and select the entity that gives
+   *               the greatest amount of cover. Note: cover in 5e does not "sum".
+   * @todo implement in CoverData5e
+   * @memberof CoverData
+   */
+  FinalizeData(){
+    /** always prefer line of sight because its more accurate at the moment (>= instead of >) */
+    const losCoverLevel = CoverData.VisibleCornersToCoverLevel(this.VisibleCorners);
+    
+    /** assume LOS will be the main blocker */
+    let internalCoverData = { level: losCoverLevel, source: `${this.VisibleCorners} visible corners`, entity: null };
+    
+    /** prepare the secondary blocker information */
+    const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
+    const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${this.TokenCover?.name ?? ""} is in the way`, entity: this.TokenCover };
+    
+    /** prefer walls -> tiles -> tokens in that order */
+    if (tileCoverData.level > internalCoverData.level){
+      internalCoverData = tileCoverData;
+    }
+    
+    if (tokenCoverData.level > internalCoverData.level){
+      internalCoverData = tokenCoverData;
+    }
+    
+    this.FinalCoverEntity = internalCoverData.entity;
+    this.FinalCoverLevel = internalCoverData.level;
+    this.Source = internalCoverData.source;
+    this.Summary = CoverData.CoverLevelToText(internalCoverData.level);
+  }
+
+  /**
+   * Base chat message output based on a finalized CoverData object. Can be extended if more system specific information
+   * is needed in the message.
+   *
+   * @return {String} 
+   * @memberof CoverData
+   */
+  CovertDataToMessage() {
+    /** the cover data must be fully populated and finalized before anything else can happen */
+    if (this.FinalCoverLevel < 0) {
+      console.error("Cannot create a chat message from unfinalized cover data!");
+      return "";
+    }
+
+    /** abuse the dice roll classes to make it look like I know how to UI ;) */
+    const content = `<div class="dice-roll"><i>${this.SourceToken.name} checks their sightline to ${this.TargetToken.name}</i>
+                      <div class="dice-result">
+                        <div class="dice-formula">${this.Summary}</div>
+                        <div class="dice-tooltip">
+                          <div class="dice"><h4 class="dice-total">${this.Source}</h4></div></div>`;
+    return content;
+  }
+};
+
+
 
 async function onTargetToken(user, target, onOff) {
   /** bail immediately if LOS calc is disabled */ 
@@ -1160,23 +1252,9 @@ async function onTargetToken(user, target, onOff) {
   }
   
   for( const selected of canvas.tokens.controlled ) {
-    const bestVisibleCorners = await selected.computeTargetCover(target);
-    const losCoverLevel = VisibleCornersToCoverLevel(bestVisibleCorners);
-    const bestTileCover = CoverFromObjects(selected, target);
-    
-    /** always prefer line of sight because its more accurate at the moment (>= instead of >) */
-    const coverData = losCoverLevel >= (bestTileCover?.getFlag('dnd5e-helpers','coverLevel') ?? -1) ? 
-                            {level: losCoverLevel, source:`${bestVisibleCorners} visible corners`} : 
-                            {level: bestTileCover?.getFlag('dnd5e-helpers','coverLevel'), source: `an intervening object`};
-    const coverText = CoverLevelToText(coverData.level);
-    /** abuse the dice roll classes to make it look like I know how to UI ;) */
-    const content = `<div class="dice-roll"><i>${selected.name} checks their sightline to ${target.name}</i>
-                      <div class="dice-result">
-                        <div class="dice-formula">${coverText}</div>
-                        <div class="dice-tooltip">
-                          <div class="dice"><h4 class="dice-total">${coverData.source}</h4></div></div>`
-    
-    //ChatMessage.create({content: `<img src=${data.img} \>${target.name} has ${data.text} from ${selected.name}`});
+    let coverData = await selected.computeTargetCover(target);
+    coverData.FinalizeData();
+    const content = coverData.CovertDataToMessage();
     ChatMessage.create({content: content});
   }
   
@@ -1253,7 +1331,7 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
 
   /** generate token grid points */
   //const myTestPoints = generateTokenGrid(myToken).GridPoints;
-  const myTestPoints = [[this.center.x, this.center.y]]
+  const myTestPoints = [[myToken.center.x, myToken.center.y]]
   const theirTestSquares = generateTokenGrid(targetToken).Squares;
 
   const results = myTestPoints.map( xyPoint => {
@@ -1275,7 +1353,9 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
     _debugLosRays = [];
   } 
 
-  return bestVisibleCorners;
+  const bestCover = CoverFromObjects(myToken, targetToken);
+  
+  return new CoverData(myToken, targetToken, bestVisibleCorners, bestCover?.bestTile, bestCover?.bestToken);
 }
 
 var _debugLosRays = [];
@@ -1335,14 +1415,19 @@ function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
   return numCornersVisible;
 }
 
-function CollideAgainstTiles(ray, tileList) {
+/**
+ * Returns all entities in the list that collide with the ray (ray to bounding box)
+ * Object must contain x, y, heigh, width fields.
+ * @param {Ray} ray
+ * @param {[object]} objectList
+ * @return {*} 
+ */
+function CollideAgainstObjects(ray, objectList) {
 
   /** terrible intersectors follow */
 
   //create an "x" based on the bounding box (cuts down on 2 collisions per blocker)
-  
-
-  const hitTiles = tileList.filter(tile => {
+  const hitTiles = objectList.filter(tile => {
     /** looking for any collision of this tile's bounds
      *  by creating an "x" from its bounding box
      *  and colliding against those lines */
@@ -1359,6 +1444,13 @@ function CollideAgainstTiles(ray, tileList) {
   return hitTiles;
 }
 
+/**
+ *
+ *
+ * @param {*} sourceToken
+ * @param {*} targetToken
+ * @return {*} 
+ */
 function CoverFromObjects(sourceToken, targetToken) {
   /** center to center allows us to run alongside cover calc
     * otherwise we should include cover in the optimal search of cover... */
@@ -1368,20 +1460,33 @@ function CoverFromObjects(sourceToken, targetToken) {
   const coverTiles = canvas.tiles.placeables.filter( tile => tile.getFlag('dnd5e-helpers','coverLevel') ?? 0 > 0); 
 
    /** hits.length is number of blocker tiles hit */
-  const hitTiles = CollideAgainstTiles(ray, coverTiles);
+  const hitTiles = CollideAgainstObjects(ray, coverTiles);
+  
+  /** collect tokens that are not ourselves OR the target token */
+  const coverTokens = canvas.tokens.placeables.filter(token => token.id !== sourceToken.id && token.id !== targetToken.id)
+  const hitTokens = CollideAgainstObjects(ray, coverTokens);
 
-  if(hitTiles.length == 0){
+  /** early exit if no collisions were gathered */
+  if(hitTiles.length == 0 && hitTokens.length == 0){
     return null;
   }
 
-  const maxCoverLevelTile = hitTiles.reduce( (bestTile, currentTile) => {
-    return bestTile.getFlag('dnd5e-helpers','coverLevel') > currentTile.getFlag('dnd5e-helpers','coverLevel') ? bestTile : currentTile;
-  })
+  /** using reduce on an empty array with no starting value is a no go
+   *  a starting value (fake tile) is also a no go
+   *  so we test and early return null instead.
+   */
+  const maxCoverLevelTile = hitTiles.length > 0 ? hitTiles.reduce( (bestTile, currentTile) => {
+    return bestTile?.getFlag('dnd5e-helpers','coverLevel') ?? -1 > currentTile?.getFlag('dnd5e-helpers','coverLevel') ?? -1 ? bestTile : currentTile;
+  }) : null;
   
-  return maxCoverLevelTile;
+  /** at the moment, we dont care what we hit, since all creatures give 1/2 cover */
+  const maxCoverToken = hitTokens.length > 0 ? hitTokens[0] : null;
+  
+  return {bestTile: maxCoverLevelTile, bestToken: maxCoverToken}
 }
 
-Hooks.on("renderTileConfig", (tileConfig, html)=> {
+/** attaches the cover dropdown to the tile dialog */
+function onRenderTileConfig (tileConfig, html) {
   const currentCoverType = tileConfig.object.getFlag('dnd5e-helpers', 'coverLevel');
   const saveButton = html.find($('button[type="submit"]'));
 
@@ -1397,4 +1502,10 @@ Hooks.on("renderTileConfig", (tileConfig, html)=> {
   html.css("height","auto");
 
   saveButton.before(checkboxHTML);
-});
+}
+
+/** adding cover dropdown to the tile config dialog */
+Hooks.on("renderTileConfig", onRenderTileConfig);
+
+/** calculating cover when a token is targeted */
+Hooks.on("targetToken", onTargetToken);
