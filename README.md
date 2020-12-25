@@ -36,10 +36,17 @@ Little helpers for little 5e tasks.
 ![Line Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/ray_scaling.gif)
 ![Circle Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/circle_scaling.gif)
 
-### Automatic Cover Checks
+### Cover Calculator (Beta)
 - When a user with a selected token targets another token, the target's cover will be calcuated following the rules presented in DMG pg. 251
 - A message in chat will be posted concerning the target's cover in relation to the selected token(s).
-- Note: This initial version only considers cover from vision blocking walls.
+- Prioritizes walls, specially flaged tiles, then tokens.
+  - Tiles have a new option in their configuration dialog that sets the cover granted by them.
+  - Two tiles are now included from game-icons.net that are configured automatically for half and three-quarters cover in modules/dnd5e-helpers/assets/cover-tiles.
+- Has two modes for cover in relation to walls: Center Point and Four Corner. Cover from tiles and tokens are (currently) only calculated from Center Point.
+  - Center Point - a target token's cover is based on foundry's player vision rendering (center point of self to 4 corners of target)
+  - Four Corner - direct implementation of DMG rules, where vision is computed from each occupied grid point and the corner granting the target the least cover is chosen.
+  - A more detailed discussion of this can be found on our Wiki
+- A new method has been added as ``Token#computeTargetCover``. The usage of it has been detailed in the source code, but is still a work in progress. Basic usage is calling with no arguments with both a selected and targeted token. The return value is a promise of the raw cover data from visibility tests.
 
 ![Cover Calculation](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/los_calc.gif)
 

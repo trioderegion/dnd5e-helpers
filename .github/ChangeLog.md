@@ -84,3 +84,11 @@
 - Removed overlapping proficiency marking with the latest dnd5e 1.2.0 system. No backwards compat provided for <1.2.0.  Retains specific proficiency marking like "Daggers" or "Longswords".
 - Quick fix for Auto Regen not working
 
+###1.8.3
+- Cover Calculator (beta)
+  - Now considers tiles and tokens during cover caluclations
+  - Added dropdown just above the save button in the tile configuration dialog to set the cover level granted by a collision with this tile. Default is "no cover".
+  - Includes two premade tiles for half and three quarters cover that will be automatically set upon placement on the map. Useful for marking obstacles on maps with baked doo-dads.
+  - First pass at abstracting and working towards splitting this off as a standalone API that 5e helpers will hook into.
+    - Token#computeTargetCover now returns a promise of raw cover data which can be interpretted according to your needs
+

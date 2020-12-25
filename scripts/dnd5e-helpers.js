@@ -2,7 +2,7 @@ Hooks.on('init', () => {
 
   game.settings.register("dnd5e-helpers", "gridTemplateScaling", {
     name: "Auto adjust templates to 5e grids",
-    hint: "Lines and cones will have their length scaled. Circles will be converted to an equivalent area reactangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
+    hint: "Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
     scope: "world",
     config: true,
     default: 0,
@@ -12,15 +12,28 @@ Hooks.on('init', () => {
       1: "Lines and Cones",
       2: "Circles",
       3: "All Templates"
-    },
-    type: Number
+    }
   });
 
 
    /** report cover value to chat on target */
   game.settings.register("dnd5e-helpers", "losOnTarget", {
     name: "Compute cover on target",
-    hint: "Enables or disables this feature globally.",
+    hint: "Enables or disables this feature globally (includes tile cover config option).",
+    scope: "world",
+    config: true,
+    default: 0,
+    type: Number,
+    choices: {
+      0: "Disabled",
+      1: "Center Point Vision (Foundry Vision)",
+      2: "Four Corner Vision (DMG pg. 251)",
+    }
+  });
+  
+  game.settings.register("dnd5e-helpers", "losWithTokens", {
+    name: "Consider intervening tokens as half cover",
+    hint: "Unchecked results in tokens not being considered for cover calculation.",
     scope: "world",
     config: true,
     default: false,
@@ -1126,23 +1139,129 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
   }
 });
     
-/** calculating cover when a token is targeted */
-Hooks.on("targetToken", onTargetToken)
 
-function sightLevelToCoverData(sightLevel){
-  switch (sightLevel) {
-    case 0: return {text: "total cover", img: "icons/svg/mystery-man-black.svg"} ;
-    case 1: return {text: "three-quarters cover", img: "icons/environment/traps/plated.webp"};
-    case 2: 
-    case 3: return {text: "half cover", img: "icons/containers/barrels.barrel-oak-tan.webp"}; 
-    case 4: return {text: "no cover", img: "icons/tools/navigation/spyglass-telescope-brass.webp"};
-    default: return " MY EYES!! NOOOO. (error) "; 
+/**
+ * Serves as a container for cover data, which is as agnostic as possible, allowing for system extensions
+ * Note: Data must be "finalized" prior to chat message output. This finalization function is ripe for override.
+ * @todo extract finalize and create chat message into CoverData5e to provide an example of this.
+ * @class CoverData
+ */
+class CoverData {
+  constructor(sourceToken, targetToken, visibleCorners, mostObscuringTile, mostObscuringToken){
+    this.SourceToken = sourceToken;
+    this.TargetToken = targetToken;
+    this.VisibleCorners = visibleCorners;
+    this.TileCover = mostObscuringTile;
+    this.TokenCover = mostObscuringToken;
+    
+    // @todo this should possibly be a different class, will need a pass when my cover api is better
+    this.Summary = {
+      Text: "**UNPROCESSED**",
+      Source:  "**NONE**",
+      FinalCoverLevel: -1,
+      FinalCoverEntity: null
+    }
   }
-}
+  /**
+   * 5e specific conversion of visible corners to a cover value
+   * @todo implement in CoverData5e
+   * @static
+   * @param {Int} visibleCorners
+   * @return {Int}
+   * @memberof CoverData
+   */
+  static VisibleCornersToCoverLevel(visibleCorners){
+    switch (visibleCorners) {
+      case 0: return 3;
+      case 1: return 2;
+      case 2:
+      case 3: return 1;
+      case 4: return 0;
+      default: console.error("Could not convert visible corners to cover level!"); return null;
+    }
+  }
+
+  /**
+   * 5e specific conversion of a generic "coverLevel" to the appropriate string
+   * @todo implement in CoverData5e
+   * @static
+   * @param {Int} coverLevel
+   * @return {String} 
+   * @memberof CoverData
+   */
+  static CoverLevelToText(coverLevel) {
+    switch (coverLevel) {
+      case 0: return "No cover";
+      case 1: return "Half cover";
+      case 2: return "Three-quarters cover"
+      case 3: return "Full cover";
+      default: console.error("Could not convert cover level to a string! (Cover level " + coverLevel + ")."); return "";
+    }
+  }
+
+   
+  /**
+   * 5e specific interpretation and consideration of all wall and object collisions to produce a final cover value
+   * General flow: If line of sight and objects give same cover, prefer line of sight, and select the entity that gives
+   *               the greatest amount of cover. Note: cover in 5e does not "sum".
+   * @todo implement in CoverData5e
+   * @memberof CoverData
+   */
+  FinalizeData(){
+    /** always prefer line of sight because its more accurate at the moment (>= instead of >) */
+    const losCoverLevel = CoverData.VisibleCornersToCoverLevel(this.VisibleCorners);
+    
+    /** assume LOS will be the main blocker */
+    let internalCoverData = { level: losCoverLevel, source: `${this.VisibleCorners} visible corners`, entity: null };
+    
+    /** prepare the secondary blocker information */
+    const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
+    const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${this.TokenCover?.name ?? ""} is in the way`, entity: this.TokenCover };
+    
+    /** prefer walls -> tiles -> tokens in that order */
+    if (tileCoverData.level > internalCoverData.level){
+      internalCoverData = tileCoverData;
+    }
+    
+    if (tokenCoverData.level > internalCoverData.level){
+      internalCoverData = tokenCoverData;
+    }
+    
+    this.Summary.FinalCoverEntity = internalCoverData.entity;
+    this.Summary.FinalCoverLevel = internalCoverData.level;
+    this.Summary.Source = internalCoverData.source;
+    this.Summary.Text = CoverData.CoverLevelToText(internalCoverData.level);
+  }
+
+  /**
+   * Base chat message output based on a finalized CoverData object. Can be extended if more system specific information
+   * is needed in the message.
+   *
+   * @return {String} 
+   * @memberof CoverData
+   */
+  toMessageContent() {
+    /** the cover data must be fully populated and finalized before anything else can happen */
+    if (this.FinalCoverLevel < 0) {
+      console.error("Cannot create a chat message from unfinalized cover data!");
+      return "";
+    }
+
+    /** abuse the dice roll classes to make it look like I know how to UI ;) */
+    const content = `<div class="dice-roll"><i>${this.SourceToken.name} checks their sightline to ${this.TargetToken.name}</i>
+                      <div class="dice-result">
+                        <div class="dice-formula">${this.Summary.Text}</div>
+                        <div class="dice-tooltip">
+                          <div class="dice"><h4 class="dice-total">${this.Summary.Source}</h4></div></div>`;
+    return content;
+  }
+};
+
+
 
 async function onTargetToken(user, target, onOff) {
   /** bail immediately if LOS calc is disabled */ 
-  if(!game.settings.get('dnd5e-helpers', 'losOnTarget')) { return; }
+  if(game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
 
   /** currently only concerned with adding a target for the current user */
   if (!onOff || user.id !== game.userId) {
@@ -1150,18 +1269,14 @@ async function onTargetToken(user, target, onOff) {
   }
   
   for( const selected of canvas.tokens.controlled ) {
-    const sightLevel = await selected.computeTargetCover(target);
-    const data = sightLevelToCoverData(sightLevel);
-   
-    /** abuse the dice roll classes to make it look like I know how to UI ;) */
-    const content = `<div class="dice-roll"><i>${selected.name} checks their sightline to ${target.name}</i>
-                      <div class="dice-result">
-                        <div class="dice-formula">${data.text}</div>
-                        <div class="dice-tooltip">
-                          <div class="dice"><h4 class="dice-total">${sightLevel} visible corners</h4></div></div>`
+    let coverData = await selected.computeTargetCover(target);
     
-    //ChatMessage.create({content: `<img src=${data.img} \>${target.name} has ${data.text} from ${selected.name}`});
-    ChatMessage.create({content: content});
+    /** if we got valid cover data back, finalize and output results */
+    if (coverData){
+      coverData.FinalizeData();
+      const content = coverData.toMessageContent();
+      ChatMessage.create({ content: content });
+    }
   }
   
 }
@@ -1181,6 +1296,8 @@ async function DrawDebugRays(drawingList){
  * @return {{GridPoints: [{x: Number, y: Number},...]}, {Squares: [[{x: Number, y: Number},...],...]}} 
  */
 function generateTokenGrid(token){
+
+  /** operate at the origin, then translate at the end */
   const tokenBounds = [token.w, token.h];
   
   /** use token bounds as the limiter */
@@ -1194,7 +1311,7 @@ function generateTokenGrid(token){
     for(let x = 0; x < tokenBounds[0]; x+=canvas.grid.size) {
       gridPoints.push([x,y]);
       
-      /** create the bounding box. we dont have to do a final pass for that and just scale here */
+      /** create the transformed bounding box. we dont have to do a final pass for that */
       boundingBoxes.push([
         [token.x + x, token.y + y], [token.x + x + canvas.grid.size, token.y + y],
         [token.x + x, token.y + y + canvas.grid.size], [token.x + x + canvas.grid.size, token.y + y + canvas.grid.size]]);
@@ -1211,6 +1328,7 @@ function generateTokenGrid(token){
   /** stamp the final point, since we stopped short (handles non-integer sizes) */
   gridPoints.push([token.width, token.height]);
   
+  /** offset the entire grid to the token's absolute position */
   gridPoints = gridPoints.map( localPoint => {
     return [localPoint[0] + token.x, localPoint[1] + token.y];
   })
@@ -1227,16 +1345,24 @@ function generateTokenGrid(token){
  * @param {boolean} [visualize=false]
  * @return {*} 
  */
-Token.prototype.computeTargetCover = async function (targetToken = null, visualize = false) { 
+Token.prototype.computeTargetCover = async function (targetToken = null, 
+                                                     mode = game.settings.get('dnd5e-helpers', 'losOnTarget'),
+                                                     includeTiles = game.settings.get('dnd5e-helpers', 'losOnTarget') > 0,
+                                                     includeTokens = game.settings.get('dnd5e-helpers', 'losWithTokens'),
+                                                     visualize = false) { 
   const myToken = this;
 
   /** if we were not provided a target token, grab the first one the current user has targeted */
   targetToken = !!targetToken ? targetToken : game.user.targets.values().next().value;
 
-  if (!targetToken) { ui.noficiations.error("No target token selected to compute cover for!"); return; }
+  if (!targetToken) { ui.noficiations.error("No target token selected to compute cover for!"); return false; }
+
+  /** dont compute cover on self */
+  if(myToken.id == targetToken.id){return false;}
 
   /** generate token grid points */
-  const myTestPoints = generateTokenGrid(myToken).GridPoints;
+  /** if we have been called we are computing LOS, use the requested LOS mode (center vs 4 corners) */
+  const myTestPoints = mode > 1 ? generateTokenGrid(myToken).GridPoints : [[myToken.center.x, myToken.center.y]];
   const theirTestSquares = generateTokenGrid(targetToken).Squares;
 
   const results = myTestPoints.map( xyPoint => {
@@ -1251,17 +1377,16 @@ Token.prototype.computeTargetCover = async function (targetToken = null, visuali
   });
   
     
-  let bestCorner = Math.max.apply(Math, results);
+  const bestVisibleCorners = Math.max.apply(Math, results);
   
   if(_debugLosRays.length > 0){
     await DrawDebugRays(_debugLosRays);
     _debugLosRays = [];
   } 
-  
-  console.log(results);
-  console.log(bestCorner);
 
-  return bestCorner
+  const bestCover = CoverFromObjects(myToken, targetToken, includeTiles, includeTokens);
+  
+  return new CoverData(myToken, targetToken, bestVisibleCorners, bestCover?.bestTile, bestCover?.bestToken);
 }
 
 var _debugLosRays = [];
@@ -1321,3 +1446,123 @@ function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
   return numCornersVisible;
 }
 
+/**
+ * Returns all entities in the list that collide with the ray (ray to bounding box)
+ * Object must contain x, y, heigh, width fields.
+ * @param {Ray} ray
+ * @param {[object]} objectList
+ * @return {*} 
+ */
+function CollideAgainstObjects(ray, objectList) {
+
+  /** terrible intersectors follow */
+
+  //create an "x" based on the bounding box (cuts down on 2 collisions per blocker)
+  const hitTiles = objectList.filter(tile => {
+    /** looking for any collision of this tile's bounds
+     *  by creating an "x" from its bounding box
+     *  and colliding against those lines */
+    //as [[x0,y0,x1,y1],...]
+    const boxGroup = [
+      [tile.x, tile.y, tile.x + tile.width, tile.y + tile.height],
+      [tile.x + tile.width, tile.y, tile.x, tile.y + tile.height],
+    ]
+
+    return !!boxGroup.find(boxRay => {
+      return ray.intersectSegment(boxRay) !== false;
+    })});
+
+  return hitTiles;
+}
+
+/**
+ *
+ *
+ * @param {*} sourceToken
+ * @param {*} targetToken
+ * @return {*} 
+ */
+function CoverFromObjects(sourceToken, targetToken, includeTiles, includeTokens) {
+  /** center to center allows us to run alongside cover calc
+    * otherwise we should include cover in the optimal search of cover... */
+  const ray = new Ray(sourceToken.center, targetToken.center);
+  
+  /** create the container to optionally populate with results based on config */
+  let objectHitResults = {tiles: null, tokens: null};
+
+  if (includeTiles){
+    /** collect "blocker" tiles (this could be cached on preCreateTile or preUpdateTile) */
+    const coverTiles = canvas.tiles.placeables.filter(tile => tile.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0);
+
+    /** hits.length is number of blocker tiles hit */
+    objectHitResults.tiles = CollideAgainstObjects(ray, coverTiles);  
+  }
+  
+  if(includeTokens){
+    /** collect tokens that are not ourselves OR the target token */
+    const coverTokens = canvas.tokens.placeables.filter(token => token.id !== sourceToken.id && token.id !== targetToken.id)
+    objectHitResults.tokens = CollideAgainstObjects(ray, coverTokens);
+  } 
+
+  /** using reduce on an empty array with no starting value is a no go
+   *  a starting value (fake tile) is also a no go
+   *  so we test and early return null instead.
+   */
+  const maxCoverLevelTile = objectHitResults.tiles?.length ?? 0 > 0 ? objectHitResults.tiles.reduce( (bestTile, currentTile) => {
+    return bestTile?.getFlag('dnd5e-helpers','coverLevel') ?? -1 > currentTile?.getFlag('dnd5e-helpers','coverLevel') ?? -1 ? bestTile : currentTile;
+  }) : null;
+  
+  /** at the moment, we dont care what we hit, since all creatures give 1/2 cover */
+  const maxCoverToken = objectHitResults.tokens?.length ?? 0 > 0 ? objectHitResults.tokens[0] : null;
+  
+  return {bestTile: maxCoverLevelTile, bestToken: maxCoverToken}
+}
+
+/** attaches the cover dropdown to the tile dialog */
+function onRenderTileConfig (tileConfig, html) {
+  
+  /** 0 = disabled, get out of here if we are disabled */
+  if(game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
+
+  const currentCoverType = tileConfig.object.getFlag('dnd5e-helpers', 'coverLevel');
+  
+  /** anchor our new dropdown at the bottom of the dialog */
+  const saveButton = html.find($('button[type="submit"]'));
+
+  let checkboxHTML = `<div class="form-group"><label>Provides Cover</label>
+                        <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
+                          <option value="0" ${currentCoverType == 0 ? 'selected' : ''}>None</option>
+                          <option value="1" ${currentCoverType == 1 ? 'selected' : ''}>Half</option>
+                          <option value="2" ${currentCoverType == 2 ? 'selected' : ''}>Three-Quarters</option>
+                          <option value="3" ${currentCoverType == 3 ? 'selected' : ''}>Total</option>
+                        </select>
+                      </div>`;
+  
+  html.css("height","auto");
+
+  saveButton.before(checkboxHTML);
+}
+
+function onPreCreateTile(scene, tileData, options, id){
+  const halfPath ="modules/dnd5e-helpers/assets/cover-tiles/half-cover.svg";
+  const threePath = "modules/dnd5e-helpers/assets/cover-tiles/three-quarters-cover.svg";
+  /** what else could it be? */
+  if (tileData.type == "Tile" && (tileData.img == halfPath || tileData.img == threePath)){
+    /** its our sample tiles -- set the flag structure */
+    const tileCover = tileData.img == halfPath ? 1 : 2;
+
+    if (!tileData.flags){
+      tileData.flags = {};
+    }
+
+    tileData.flags["dnd5e-helpers"] = {coverLevel: tileCover};
+  }
+}
+
+/** adding cover dropdown to the tile config dialog */
+Hooks.on("renderTileConfig", onRenderTileConfig);
+
+/** calculating cover when a token is targeted */
+Hooks.on("targetToken", onTargetToken);
+
+Hooks.on("preCreateTile", onPreCreateTile);
