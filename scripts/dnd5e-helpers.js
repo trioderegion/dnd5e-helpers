@@ -829,7 +829,7 @@ function ReactionApply(castingActor, castingToken, itemId) {
   }
 }
 
-function ReactionRemove(currentToken) {
+async function ReactionRemove(currentToken) {
   const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
   let statusEffect = GetStatusEffect(reactionStatus);
 
@@ -854,13 +854,13 @@ function ReactionRemove(currentToken) {
 
       /** first, test if this is a cub condition */
       if (game.cub.getCondition(reactionStatus)) {
-        RemoveCUB(currentToken, reactionStatus)
+        await RemoveCUB(currentToken, reactionStatus)
         return; //early exit once we trigger correctly
       }
     }
 
     /** if nothing else , it should be core */
-    ToggleStatus(currentToken, statusEffect);
+    await ToggleStatus(currentToken, statusEffect);
     return; //early exit once we trigger correctly
   }
 
@@ -948,23 +948,24 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       console.log(`Dnd5e Helpers: ${currentToken.name}'s update contains regen: ${regenSett}`)
     }
 
+    /** @todo data vs _data -- multiple updates reset changes made by previous updates */
     if (currentToken) {
       if (game.settings.get('dnd5e-helpers', 'cbtLegactEnable') == true) {
-        ResetLegAct(currentToken);
+        await ResetLegAct(currentToken)
       }
 
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') == true) {
-        RechargeAbilities(currentToken);
+        await RechargeAbilities(currentToken);
       }
 
       if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (!!regen === true)) {
-        Regeneration(currentToken)
+        await Regeneration(currentToken)
       }
 
       /** hb@todo: functionalize this similar to the other cbt operations */
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
       if (reactMode == 2 || reactMode == 3) {
-        ReactionRemove(currentToken)
+        await ReactionRemove(currentToken)
       }
     }
 
