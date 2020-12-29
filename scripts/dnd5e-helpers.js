@@ -378,11 +378,11 @@ function RollForSurge(spellLevel, moreSurges, rollType = null, volatileSurge = n
   let extraResult = 0;
   if (volatileSurge) {
       const d4roll = new Roll("1d4").roll();
-      extraResult = d4roll["result"];
+      extraResult = +d4roll["result"];
   }
 
   const extraText = (extraResult > 0) ? " + ([[/r " + extraResult + " #1d4 result]])" : ""
-  if (d20result <= (surgeThreshold + +extraResult)) {
+  if (d20result <= (surgeThreshold + extraResult)) {
     ChatMessage.create({
       content: "<i>surges as a level " + spellLevel + extraText + " spell is cast!</i> ([[/r " + d20result + " #1d20 result]])",
       speaker: ChatMessage.getSpeaker({ alias: "The Weave" })
