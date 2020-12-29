@@ -63,7 +63,7 @@ Hooks.on('init', () => {
   /** want even more surges? you know you do */
   game.settings.register("dnd5e-helpers", "wmVolatileSurges", {
     name: "Volatile Surges for MORE Surges (homebrew)",
-    hint: "Using Tides of Chaos causes the chance of a surge to increase by adding a d4 to the check. A surge will occur on a d20 roll <= the spell level just cast + d4 roll, rather than only on a 1.",
+    hint: "Using Tides of Chaos causes the chance of a surge to increase by adding a d4 to the MORE surges check. A surge will occur on a d20 roll <= the spell level just cast + d4 roll, rather than only on a 1.",
     scope: "world",
     config: true,
     default: false,
@@ -444,7 +444,7 @@ function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
 
     const moreSurges = game.settings.get('dnd5e-helpers', 'wmMoreSurges');
     const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
-    let volatileSurge = game.settings.get('dnd5e-helpers', 'wmVolatileSurges');
+    let volatileSurge = game.settings.get('dnd5e-helpers', 'wmVolatileSurges') && moreSurges;
 
     if (volatileSurge) {
         const wmToCFeatureName = game.settings.get('dnd5e-helpers', 'wmToCFeatureName');
