@@ -14,8 +14,8 @@ Hooks.on('init', () => {
       3: "All Templates"
     }
   });
-  
-  
+
+
    /** report cover value to chat on target */
   game.settings.register("dnd5e-helpers", "losOnTarget", {
     name: "Compute cover on target",
@@ -30,7 +30,7 @@ Hooks.on('init', () => {
       2: "Four Corner Vision (DMG pg. 251)",
     }
   });
-    
+
   game.settings.register("dnd5e-helpers", "losWithTokens", {
     name: "Consider intervening tokens as half cover",
     hint: "Unchecked results in tokens not being considered for cover calculation.",
@@ -39,7 +39,7 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean,
   });
-  
+
   /** should surges be tested */
   game.settings.register("dnd5e-helpers", "wmEnabled", {
     name: "Wild Magic Auto-Detect",
@@ -49,7 +49,7 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean,
   });
-  
+
   /** want more surges? you know you do */
   game.settings.register("dnd5e-helpers", "wmMoreSurges", {
     name: "MORE Surges (homebrew)",
@@ -59,7 +59,7 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean,
   });
-  
+
   /** want more surges? you know you do */
   game.settings.register("dnd5e-helpers", "wmVolatileSurges", {
     name: "Volatile Surges for MORE Surges (homebrew)",
@@ -69,7 +69,7 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean,
   });
-  
+
   /** name of the feature to trigger on */
   game.settings.register("dnd5e-helpers", "wmFeatureName", {
     name: "Wild Magic Feature Name",
@@ -79,7 +79,7 @@ Hooks.on('init', () => {
     default: "Wild Magic Surge",
     type: String,
   });
-  
+
   /** name of the table on which to roll if a surge occurs */
   game.settings.register("dnd5e-helpers", "wmTableName", {
     name: "Wild Magic Surge Table Name",
@@ -89,7 +89,7 @@ Hooks.on('init', () => {
     default: "Wild-Magic-Surge-Table",
     type: String,
   });
-  
+
   /** toggle result gm whisper for WM */
   game.settings.register("dnd5e-helpers", "wmWhisper", {
     name: "Blind Table Draw",
@@ -99,7 +99,7 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean,
   });
-  
+
   /** enable auto reaction reset */
   game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
     name: "Reaction status automation.",
@@ -115,7 +115,7 @@ Hooks.on('init', () => {
     default: 0,
     config: true,
   });
-  
+
   game.settings.register("dnd5e-helpers", "cbtReactionStatus", {
     name: "Reaction status name",
     hint: "As seen when hovering over the status in the token HUD (default: Weakened).",
@@ -124,7 +124,7 @@ Hooks.on('init', () => {
     default: "Weakened",
     type: String,
   });
-  
+
   /** enable auto legact reset */
   game.settings.register("dnd5e-helpers", "cbtLegactEnable", {
     name: "Start of turn legendary action reset.",
@@ -134,7 +134,7 @@ Hooks.on('init', () => {
     default: true,
     type: Boolean,
   });
-  
+
   /** enable auto ability charge roll */
   game.settings.register("dnd5e-helpers", "cbtAbilityRecharge", {
     name: "Automatically roll any uncharged abilities with a d6 recharge.",
@@ -144,7 +144,7 @@ Hooks.on('init', () => {
     default: true,
     type: Boolean,
   });
-  
+
   game.settings.register("dnd5e-helpers", "autoProf", {
     name: 'Auto Proficiency',
     hint: 'Checks newly added items and labels as proficient if needed',
@@ -153,7 +153,7 @@ Hooks.on('init', () => {
     default: true,
     config: true,
   });
-   
+
   game.settings.register("dnd5e-helpers", "autoRegen", {
     name: 'Automatic regeneration ',
     hint: 'Automaticly prompts for regeneration rolls for the GM',
@@ -162,7 +162,7 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
-  
+
   game.settings.register("dnd5e-helpers", "undeadFort", {
     name: 'Undead Fortitude',
     hint: 'Automaticly prompts for Undead Fortitude Checks for the GM',
@@ -176,7 +176,7 @@ Hooks.on('init', () => {
     default: "0",
     config: true,
   });
-    
+
   game.settings.register("dnd5e-helpers", "gwEnable", {
     name: 'Great Wound',
     hint: 'Rolls on a specified table when a token takes over 50% max hp in a single blow',
@@ -185,7 +185,7 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
-    
+
   game.settings.register("dnd5e-helpers", "gwFeatureName", {
     name: "Great Wound name replacement",
     hint: "What name to display for Great Wound functions",
@@ -194,7 +194,7 @@ Hooks.on('init', () => {
     default: "Great Wound",
     type: String,
   });
-  
+
   game.settings.register("dnd5e-helpers", "gwTableName", {
     name: "Great Wound Table",
     hint: "Name of table that should be rolled on if a Great Wound occurs.",
@@ -203,7 +203,7 @@ Hooks.on('init', () => {
     default: "",
     type: String,
   });
-    
+
   game.settings.register("dnd5e-helpers", "owFeatureName", {
     name: "Open Wound feature name",
     hint: "What name to display for Open Wound functions.",
@@ -212,7 +212,7 @@ Hooks.on('init', () => {
     default: "Open Wound",
     type: String,
   });
-  
+
   game.settings.register('dnd5e-helpers', 'owDeathSave', {
     name: 'Open Wound - Death Saves',
     hint: 'Open Wounds triggered on death saves failed by 5 or more',
@@ -221,7 +221,7 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
-    
+
   game.settings.register('dnd5e-helpers', 'owCrit', {
     name: 'Open Wound - Crits',
     hint: 'Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank',
@@ -230,7 +230,7 @@ Hooks.on('init', () => {
     default: 0,
     type: Number,
   });
-    
+
   game.settings.register('dnd5e-helpers', 'owHp0', {
     name: 'Open Wound - HP at 0',
     hint: 'Open Wounds triggered on dropping to 0 HP',
@@ -239,7 +239,7 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
-    
+
   game.settings.register('dnd5e-helpers', 'owHp0GW', {
     name: 'Open Wound - HP at 0 from a Great Wound',
     hint: 'Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)',
@@ -248,7 +248,7 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
-    
+
   game.settings.register("dnd5e-helpers", "owTable", {
     name: "Open Wound Table",
     hint: "Name of table that should be rolled on if a Open Wound occurs.",
@@ -257,7 +257,7 @@ Hooks.on('init', () => {
     default: "",
     type: String,
   });
-  
+
   game.settings.register("dnd5e-helpers", "debug", {
     name: 'Debugging',
     hint: 'Adds a few console logs for debugging purposes',
@@ -267,8 +267,8 @@ Hooks.on('init', () => {
     config: true,
   });
 });
-  
-  
+
+
 Hooks.on('ready', () => {
   console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
@@ -292,13 +292,13 @@ Hooks.on('ready', () => {
     }
   })
 })
-  
+
   /** helper functions */
-  
+
 function IsFirstGM() {
   return game.user === game.users.find((u) => u.isGM && u.active);
 }
-  
+
 function GetKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value);
 }
@@ -613,8 +613,8 @@ function AutoProfArmor_createOwnedItem(actor, item) {
   let proficient = false;
   
   /* NOTE: I know of no examples of being granted "Studded Leather Armor" proficiency,
-    *       but it does not make grammatical sense for them to be optionaly pluralized,
-    *       so do not consider plurals when matching like weapons
+   *       but it does not make grammatical sense for them to be optionaly pluralized,
+   *       so do not consider plurals when matching like weapons
   */
   
   //if item name matches custom prof lis then prof = true
@@ -1235,7 +1235,7 @@ class CoverData {
     }
   }
 
-    
+
   /**
    * 5e specific interpretation and consideration of all wall and object collisions to produce a final cover value
    * General flow: If line of sight and objects give same cover, prefer line of sight, and select the entity that gives
@@ -1352,7 +1352,7 @@ function generateTokenGrid(token){
         [token.x + x, token.y + y], [token.x + x + canvas.grid.size, token.y + y],
         [token.x + x, token.y + y + canvas.grid.size], [token.x + x + canvas.grid.size, token.y + y + canvas.grid.size]]);
     }
-      
+
     gridPoints.push([token.width,y]);
   }
   
@@ -1382,10 +1382,10 @@ function generateTokenGrid(token){
  * @return {*} 
  */
 Token.prototype.computeTargetCover = async function (targetToken = null, 
-                                                      mode = game.settings.get('dnd5e-helpers', 'losOnTarget'),
-                                                      includeTiles = game.settings.get('dnd5e-helpers', 'losOnTarget') > 0,
-                                                      includeTokens = game.settings.get('dnd5e-helpers', 'losWithTokens'),
-                                                      visualize = false) { 
+                                                     mode = game.settings.get('dnd5e-helpers', 'losOnTarget'),
+                                                     includeTiles = game.settings.get('dnd5e-helpers', 'losOnTarget') > 0,
+                                                     includeTokens = game.settings.get('dnd5e-helpers', 'losWithTokens'),
+                                                     visualize = false) { 
   const myToken = this;
 
   /** if we were not provided a target token, grab the first one the current user has targeted */
