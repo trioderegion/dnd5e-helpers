@@ -60,7 +60,7 @@ Hooks.on('init', () => {
     type: Boolean,
   });
 
-  /** want more surges? you know you do */
+  /** want even more surges? you know you do */
   game.settings.register("dnd5e-helpers", "wmVolatileSurges", {
     name: "Volatile Surges for MORE Surges (homebrew)",
     hint: "Using Tides of Chaos causes the chance of a surge to increase by adding a d4 to the check. A surge will occur on a d20 roll <= the spell level just cast + d4 roll, rather than only on a 1.",
@@ -87,6 +87,16 @@ Hooks.on('init', () => {
     scope: "world",
     config: true,
     default: "Wild-Magic-Surge-Table",
+    type: String,
+  });
+
+  /** name of the feature to trigger on */
+  game.settings.register("dnd5e-helpers", "wmToCFeatureName", {
+    name: "Tides of Chaos Feature Name",
+    hint: "Name of feature that represents the Sorcerer's Tides of Chaos (default: Tides of Chaos)",
+    scope: "world",
+    config: true,
+    default: "Tides of Chaos",
     type: String,
   });
 
@@ -372,7 +382,7 @@ function RollForSurge(spellLevel, moreSurges, rollType = null, volatileSurge = n
   }
 
   const extraText = (extraResult > 0) ? " + ([[/r " + extraResult + " #1d4 result]])" : ""
-  if (d20result <= surgeThreshold + extraResult) {
+  if (d20result <= (surgeThreshold + +extraResult)) {
     ChatMessage.create({
       content: "<i>surges as a level " + spellLevel + extraText + " spell is cast!</i> ([[/r " + d20result + " #1d20 result]])",
       speaker: ChatMessage.getSpeaker({ alias: "The Weave" })
@@ -437,13 +447,14 @@ function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
     let volatileSurge = game.settings.get('dnd5e-helpers', 'wmVolatileSurges');
 
     if (volatileSurge) {
+        const wmToCFeatureName = game.settings.get('dnd5e-helpers', 'wmToCFeatureName');
         /** if tides of chaos hasn't been used then no volatile roll */
         if (
-            (actor.data.data.resources.primary.label === "Tides of Chaos" &&
+            (actor.data.data.resources.primary.label === wmToCFeatureName &&
             actor.data.data.resources.primary.value > 0) ||
-            (actor.data.data.resources.secondary.label === "Tides of Chaos" &&
+            (actor.data.data.resources.secondary.label === wmToCFeatureName &&
             actor.data.data.resources.secondary.value > 0) ||
-            (actor.data.data.resources.tertiary.label === "Tides of Chaos" &&
+            (actor.data.data.resources.tertiary.label === wmToCFeatureName &&
             actor.data.data.resources.tertiary.value > 0)
         ) {
             volatileSurge = null
