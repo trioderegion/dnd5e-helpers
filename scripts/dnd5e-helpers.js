@@ -325,17 +325,17 @@ function GetStatusEffect(statusName) {
 
 //toggle core status effects
 async function ToggleStatus(token, status) {
-  await token.toggleEffect(status);
+  return await token.toggleEffect(status);
 }
 
 //apply a CUB status effect
 async function ApplyCUB(token, cubStatus) {
-  await game.cub.addCondition(cubStatus, token)
+  return await game.cub.addCondition(cubStatus, token)
 }
 
 //remove a CUB status effect
 async function RemoveCUB(token, cubStatus) {
-  await game.cub.removeCondition(cubStatus, token)
+  return await game.cub.removeCondition(cubStatus, token)
 }
 
 /** Prof array check */
@@ -422,19 +422,21 @@ function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
 }
 
 /** sets current legendary actions to max (or current if higher) */
-async function ResetLegAct(token) {
-  if (token.actor == null) {
-    return;
+async function ResetLegAct(actor, tokenName) {
+  if (actor == null) {
+    return null;
   }
-  let legact = token.actor.data.data.resources.legact;
+  let legact = actor.data.data.resources.legact;
   if (legact && legact.value !== null) {
     /** only reset if needed */
     if (legact.value < legact.max) {
-      ui.notifications.info(`Legendary actions restored to ${legact.max} for ${token.name}`)
-      legact.value = legact.max;
-      await token.actor.update({ 'data.resources.legact': legact });
-      token.actor.sheet.render(false);
+      ui.notifications.info(`Legendary actions restored to ${legact.max} for ${tokenName}`)
+      let newActor = await actor.update({ 'data.resources.legact.value': legact.max });
+      newActor.sheet.render(false);
+      return newActor;
     }
+    
+    return actor;
   }
 }
 
@@ -951,7 +953,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     /** @todo data vs _data -- multiple updates reset changes made by previous updates */
     if (currentToken) {
       if (game.settings.get('dnd5e-helpers', 'cbtLegactEnable') == true) {
-        await ResetLegAct(currentToken)
+        await ResetLegAct(currentToken.actor, currentToken.name)
       }
 
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') == true) {

@@ -92,3 +92,6 @@
   - First pass at abstracting and working towards splitting this off as a standalone API that 5e helpers will hook into.
     - Token#computeTargetCover now returns a promise of raw cover data which can be interpretted according to your needs
 
+###1.8.4
+- Fixed several race conditions relating to token updates on new combat turns.
+
