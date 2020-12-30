@@ -2,7 +2,7 @@
     "name": "dnd5e-helpers",
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
-    "version": "1.8.5",
+    "version": "1.8.4",
     "authors": [
       {
         "name": "honeybadger",
@@ -11,10 +11,6 @@
       {
         "name": "Kandashi",
         "url": "https://github.com/kandashi"
-      },
-      {
-        "name": "Werner",
-        "url": "https://github.com/Werner-Dohse"
       }
     ],
     "scripts": [

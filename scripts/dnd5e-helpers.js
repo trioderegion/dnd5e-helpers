@@ -408,12 +408,12 @@ function RollForMoreSurge(spellLevel, rollType) {
 }
 
 /** Role a volatile surge, checking against spell level cast + d4 */
-function RollForVolatileSurge(spellLevel, rollType, actor) {
+async function RollForVolatileSurge(spellLevel, rollType, actor) {
   const wmToCFeatureName = (game.settings.get('dnd5e-helpers', 'wmToCFeatureName') !== '') 
     ? game.settings.get('dnd5e-helpers', 'wmToCFeatureName') : wmToCFeatureDefault;
   if (wmToCFeatureName !== '') {
     /** if tides of chaos hasn't been used then no volatile roll */
-    if (!TidesOfChaosSpent(actor, wmToCFeatureName)) {
+    if (!IsTidesOfChaosSpent(actor, wmToCFeatureName)) {
       /** Tide of Chaos hasn't been used or has already reset, do more surge */
       RollForMoreSurge(spellLevel, rollType);
     } else {
@@ -429,6 +429,8 @@ function RollForVolatileSurge(spellLevel, rollType, actor) {
       if (d20result <= (spellLevel + d4result)) {
         ShowSurgeResult('surges', spellLevel, `([[/r ${d20result} #1d20 result]])`, `([[/r ${d4result} #1d4 result]])`);
         RollOnWildTable(rollType);
+        
+        await ResetTidesOfChaos(actor, wmToCFeatureName);
       } else {
         ShowSurgeResult('remains calm', spellLevel, `([[/r ${d20result} #1d20 result]])`, `([[/r ${d4result}  #1d4 result]])`);
       }
@@ -449,20 +451,40 @@ function ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
 }
 
 /** is the tides of chaos feature used */
-function TidesOfChaosSpent(actor, wmToCFeatureName) {
-  if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(`Dnd5e Helper: Primary Resource - ${actor.data.data.resources.primary.label}; Left: ${actor.data.data.resources.primary.value};`);
-    console.log(`Dnd5e Helper: Secondary Resource - ${actor.data.data.resources.secondary.label}; Left: ${actor.data.data.resources.secondary.value};`);
-    console.log(`Dnd5e Helper: Tertiary Resource - ${actor.data.data.resources.tertiary.label}; Left: ${actor.data.data.resources.tertiary.value};`);
-  }    
-  return (
-    (actor.data.data.resources.primary.label === wmToCFeatureName &&
-    actor.data.data.resources.primary.value === 0) ||
-    (actor.data.data.resources.secondary.label === wmToCFeatureName &&
-    actor.data.data.resources.secondary.value === 0) ||
-    (actor.data.data.resources.tertiary.label === wmToCFeatureName &&
-    actor.data.data.resources.tertiary.value === 0)
-  );
+function IsTidesOfChaosSpent(actor, wmToCFeatureName) {
+  const tocItem = actor.items.getName(wmToCFeatureName);
+  
+  if (tocItem) {
+    return (tocItem.data.data.uses.value === 0);
+  } else {
+    return false;
+  }
+}
+
+/** reset the tides of chaose feature also reset the resource if that is also used */
+async function ResetTidesOfChaos(actor, wmToCFeatureName) {
+  const tocItem = actor.items.getName(wmToCFeatureName);
+
+  if (tocItem) {
+    const item = await tocItem.update({ 'data.uses.value': tocItem.data.data.uses.max });
+
+    // in case there is a resource for tide of chaos, reset it too
+    let newActor;
+    if (actor.data.data.resources.primary.label === wmToCFeatureName) {
+      newActor = await actor.update({ 'data.resources.primary.value': actor.data.data.resources.primary.max });      
+    } else if (actor.data.data.resources.secondary.label === wmToCFeatureName) {
+      newActor = await actor.update({ 'data.resources.secondary.value': actor.data.data.resources.secondary.max });
+    } else if (actor.data.data.resources.tertiary.label === wmToCFeatureName) {
+      newActor = await actor.update({ 'data.resources.tertiary.value': actor.data.data.resources.tertiary.max });
+    }
+    if (newActor) {
+      newActor.sheet.render(false);
+    }    
+
+    return item;
+  }
+  
+  return tocItem;
 }
 
 function NeedsRecharge(recharge = { value: 0, charged: false }) {
@@ -486,7 +508,7 @@ async function RechargeAbilities(token) {
 }
 
 /** Wild Magic Surge Handling */
-function WildMagicSuge_preUpdateActor(actor, update, selectedOption) {
+async function WildMagicSuge_preUpdateActor(actor, update, selectedOption) {
   const origSlots = actor.data.data.spells;
 
   /** find the spell level just cast */
@@ -513,7 +535,7 @@ function WildMagicSuge_preUpdateActor(actor, update, selectedOption) {
     } else if (selectedOption === 2) {
       RollForMoreSurge(lvl, rollMode);
     } else if (selectedOption === 3) {
-      RollForVolatileSurge(lvl, rollMode, actor);
+      await RollForVolatileSurge(lvl, rollMode, actor);
     }
   }
 }
@@ -988,7 +1010,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   /** WM check, are we enabled for the current user? */
   const wmSelectedOption = game.settings.get('dnd5e-helpers', 'wmOptions');
   if (wmSelectedOption !== 0 && spells !== undefined) {
-    WildMagicSuge_preUpdateActor(actor, update, wmSelectedOption)
+    await WildMagicSuge_preUpdateActor(actor, update, wmSelectedOption)
   }
   // GW check 
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
