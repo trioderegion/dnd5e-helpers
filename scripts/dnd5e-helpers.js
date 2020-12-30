@@ -1,5 +1,8 @@
-Hooks.on('init', () => {
+const wmFeatureDefault = "Wild Magic Surge";
+const wmToCFeatureDefault = "Tides of Chaos";
+const wmSurgeTableDefault = "Wild-Magic-Surge-Table";
 
+Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "gridTemplateScaling", {
     name: "Auto adjust templates to 5e grids",
     hint: "Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
@@ -14,7 +17,6 @@ Hooks.on('init', () => {
       3: "All Templates"
     }
   });
-
 
    /** report cover value to chat on target */
   game.settings.register("dnd5e-helpers", "losOnTarget", {
@@ -39,36 +41,24 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean,
   });
-
+  
   /** should surges be tested */
-  game.settings.register("dnd5e-helpers", "wmEnabled", {
+  game.settings.register("dnd5e-helpers", "wmOptions", {
     name: "Wild Magic Auto-Detect",
-    hint: "Enables or disables this feature globaly",
+    hint: "Enables or disables auto detection of Wild Magic and how it should be handled. Standard - as per D&D 5e rules. " + 
+          "More - A surge will occur on a d20 roll <= the spell level just cast, rather than only on a 1." + 
+          "Volatile - Using Tides of Chaos causes the chance of a surge to increase by adding a d4 to surges check. A surge will occur on a d20 roll <= the spell level just cast + d4 roll, rather than only on a 1.",
     scope: "world",
     config: true,
-    default: false,
-    type: Boolean,
-  });
-
-  /** want more surges? you know you do */
-  game.settings.register("dnd5e-helpers", "wmMoreSurges", {
-    name: "MORE Surges (homebrew)",
-    hint: "A surge will occur on a d20 roll <= the spell level just cast, rather than only on a 1.",
-    scope: "world",
-    config: true,
-    default: false,
-    type: Boolean,
-  });
-
-  /** want even more surges? you know you do */
-  game.settings.register("dnd5e-helpers", "wmVolatileSurges", {
-    name: "Volatile Surges for MORE Surges (homebrew)",
-    hint: "Using Tides of Chaos causes the chance of a surge to increase by adding a d4 to the MORE surges check. A surge will occur on a d20 roll <= the spell level just cast + d4 roll, rather than only on a 1.",
-    scope: "world",
-    config: true,
-    default: false,
-    type: Boolean,
-  });
+    default: 0,
+    type: Number,
+    choices: {
+      0: "Disabled",
+      1: "Enabled - Standard",
+      2: "Enabled - More",
+      3: "Enabled - Volatile"
+    }
+  });  
 
   /** name of the feature to trigger on */
   game.settings.register("dnd5e-helpers", "wmFeatureName", {
@@ -76,7 +66,7 @@ Hooks.on('init', () => {
     hint: "Name of feature that represents the Sorcerer's Wild Magic Surge (default: Wild Magic Surge)",
     scope: "world",
     config: true,
-    default: "Wild Magic Surge",
+    default: wmFeatureDefault,
     type: String,
   });
 
@@ -86,7 +76,7 @@ Hooks.on('init', () => {
     hint: "Name of table that should be rolled on if a surge occurs (default: Wild-Magic-Surge-Table). Leave empty to skip this step.",
     scope: "world",
     config: true,
-    default: "Wild-Magic-Surge-Table",
+    default: wmSurgeTableDefault,
     type: String,
   });
 
@@ -96,7 +86,7 @@ Hooks.on('init', () => {
     hint: "Name of feature that represents the Sorcerer's Tides of Chaos (default: Tides of Chaos)",
     scope: "world",
     config: true,
-    default: "Tides of Chaos",
+    default: wmToCFeatureDefault,
     type: String,
   });
 
@@ -369,37 +359,110 @@ function includes_array(arr, comp) {
 }
 
 /** \helper functions */
+/** roll on the provided table */
+function RollOnWildTable(rollType) {  
+  const wmTableName = (game.settings.get('dnd5e-helpers', 'wmTableName') !== '') 
+    ? game.settings.get('dnd5e-helpers', 'wmTableName') : wmSurgeTableDefault;
 
-function RollForSurge(spellLevel, moreSurges, rollType = null, volatileSurge = null) {
+  if (wmTableName !== "") {
+    game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
+  } else {
+    if (game.settings.get('dnd5e-helpers', 'debug')) {
+      console.log('Dnd5e Helper: No Wild Surge table setup');
+    }    
+  }
+}
 
-  const surgeThreshold = moreSurges ? spellLevel : 1;
+/** Roll a normal surge as per D&D 5e standard rules */
+function RollForNormalSurge(spellLevel, rollType) {
   const roll = new Roll("1d20").roll();
-  const d20result = roll["result"];
-  let extraResult = 0;
-  if (volatileSurge) {
-      const d4roll = new Roll("1d4").roll();
-      extraResult = +d4roll["result"];
+  const d20result = +roll["result"];
+
+  if (game.settings.get('dnd5e-helpers', 'debug')) {
+    console.log(`DnD5e Helper: Normal Surge - ${d20result}`);
   }
 
-  const extraText = (extraResult > 0) ? " + ([[/r " + extraResult + " #1d4 result]])" : ""
-  if (d20result <= (surgeThreshold + extraResult)) {
-    ChatMessage.create({
-      content: "<i>surges as a level " + spellLevel + extraText + " spell is cast!</i> ([[/r " + d20result + " #1d20 result]])",
-      speaker: ChatMessage.getSpeaker({ alias: "The Weave" })
-    });
+  if (d20result === 1) {
+    ShowSurgeResult('surges', spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    RollOnWildTable(rollType);
+  } else {
+    ShowSurgeResult('remains calm', spellLevel, `([[/r ${d20result} #1d20 result]])`);
+  }
+}
 
-    /** roll on the provided table */
-    const wmTableName = game.settings.get('dnd5e-helpers', 'wmTableName');
-    if (wmTableName !== "") {
-      game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
+/** Role a more surge, checking against spell level cast */
+function RollForMoreSurge(spellLevel, rollType) {
+  const roll = new Roll("1d20").roll();
+  const d20result = +roll["result"];
+
+  if (game.settings.get('dnd5e-helpers', 'debug')) {
+    console.log(`DnD5e Helper: More Surge - ${d20result} vs ${spellLevel}`);
+  }
+
+  if (d20result <= spellLevel) {
+    ShowSurgeResult('surges', spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    RollOnWildTable(rollType);
+  } else {
+    ShowSurgeResult('remains calm', spellLevel, `([[/r ${d20result} #1d20 result]])`);
+  }
+}
+
+/** Role a volatile surge, checking against spell level cast + d4 */
+function RollForVolatileSurge(spellLevel, rollType, actor) {
+  const wmToCFeatureName = (game.settings.get('dnd5e-helpers', 'wmToCFeatureName') !== '') 
+    ? game.settings.get('dnd5e-helpers', 'wmToCFeatureName') : wmToCFeatureDefault;
+  if (wmToCFeatureName !== '') {
+    /** if tides of chaos hasn't been used then no volatile roll */
+    if (!TidesOfChaosSpent(actor, wmToCFeatureName)) {
+      /** Tide of Chaos hasn't been used or has already reset, do more surge */
+      RollForMoreSurge(spellLevel, rollType);
+    } else {
+      const d20roll = new Roll("1d20").roll();
+      const d4roll = new Roll("1d4").roll();
+      const d20result = +d20roll["result"];
+      const d4result = +d4roll["result"];
+
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log(`DnD5e Helper: Volatile Surge - ${d20result} vs ${spellLevel + d4result}(Spell: ${spellLevel})(d4: ${d4result})`);
+      }
+
+      if (d20result <= (spellLevel + d4result)) {
+        ShowSurgeResult('surges', spellLevel, `([[/r ${d20result} #1d20 result]])`, `([[/r ${d4result} #1d4 result]])`);
+        RollOnWildTable(rollType);
+      } else {
+        ShowSurgeResult('remains calm', spellLevel, `([[/r ${d20result} #1d20 result]])`, `([[/r ${d4result}  #1d4 result]])`);
+      }
+    }
+  } else {
+    if (game.settings.get('dnd5e-helpers', 'debug')) {
+      console.log('Dnd5e Helper: Tides of Chaos feature name not setup');
     }
   }
-  else {
-    ChatMessage.create({
-      content: "<i>remains calm as a level " + spellLevel + extraText + " spell is cast...</i> ([[/r " + d20result + " #1d20 result]])",
-      speaker: ChatMessage.getSpeaker({ alias: "The Weave" })
-    });
-  }
+}
+
+/** show surge result in chat box */
+function ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
+  ChatMessage.create({
+    content: `<i>${action} as a level ${spellLevel} ${extraText} spell is cast!</i> ${resultText}`,
+    speaker: ChatMessage.getSpeaker({ alias: "The Weave" })
+  });
+}
+
+/** is the tides of chaos feature used */
+function TidesOfChaosSpent(actor, wmToCFeatureName) {
+  if (game.settings.get('dnd5e-helpers', 'debug')) {
+    console.log(`Dnd5e Helper: Primary Resource - ${actor.data.data.resources.primary.label}; Left: ${actor.data.data.resources.primary.value};`);
+    console.log(`Dnd5e Helper: Secondary Resource - ${actor.data.data.resources.secondary.label}; Left: ${actor.data.data.resources.secondary.value};`);
+    console.log(`Dnd5e Helper: Tertiary Resource - ${actor.data.data.resources.tertiary.label}; Left: ${actor.data.data.resources.tertiary.value};`);
+  }    
+  return (
+    (actor.data.data.resources.primary.label === wmToCFeatureName &&
+    actor.data.data.resources.primary.value === 0) ||
+    (actor.data.data.resources.secondary.label === wmToCFeatureName &&
+    actor.data.data.resources.secondary.value === 0) ||
+    (actor.data.data.resources.tertiary.label === wmToCFeatureName &&
+    actor.data.data.resources.tertiary.value === 0)
+  );
 }
 
 function NeedsRecharge(recharge = { value: 0, charged: false }) {
@@ -421,8 +484,9 @@ async function RechargeAbilities(token) {
     await item.rollRecharge();
   }
 }
+
 /** Wild Magic Surge Handling */
-function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
+function WildMagicSuge_preUpdateActor(actor, update, selectedOption) {
   const origSlots = actor.data.data.spells;
 
   /** find the spell level just cast */
@@ -433,7 +497,8 @@ function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
   const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
   const bWasCast = preCastSlotCount - postCastSlotCount > 0;
 
-  const wmFeatureName = game.settings.get('dnd5e-helpers', 'wmFeatureName');
+  const wmFeatureName = (game.settings.get('dnd5e-helpers', 'wmFeatureName') !== '') 
+    ? game.settings.get('dnd5e-helpers', 'wmFeatureName') : wmFeatureDefault;
   const wmFeature = actor.items.find(i => i.name === wmFeatureName) !== null
 
   lvl++;
@@ -442,26 +507,14 @@ function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
     /** lets go baby lets go */
     console.log("Rolling for surge...");
 
-    const moreSurges = game.settings.get('dnd5e-helpers', 'wmMoreSurges');
     const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
-    let volatileSurge = game.settings.get('dnd5e-helpers', 'wmVolatileSurges') && moreSurges;
-
-    if (volatileSurge) {
-        const wmToCFeatureName = game.settings.get('dnd5e-helpers', 'wmToCFeatureName');
-        /** if tides of chaos hasn't been used then no volatile roll */
-        if (
-            (actor.data.data.resources.primary.label === wmToCFeatureName &&
-            actor.data.data.resources.primary.value > 0) ||
-            (actor.data.data.resources.secondary.label === wmToCFeatureName &&
-            actor.data.data.resources.secondary.value > 0) ||
-            (actor.data.data.resources.tertiary.label === wmToCFeatureName &&
-            actor.data.data.resources.tertiary.value > 0)
-        ) {
-            volatileSurge = null
-        }
+    if (selectedOption === 1) {
+      RollForNormalSurge(lvl, rollMode);
+    } else if (selectedOption === 2) {
+      RollForMoreSurge(lvl, rollMode);
+    } else if (selectedOption === 3) {
+      RollForVolatileSurge(lvl, rollMode, actor);
     }
-
-    RollForSurge(lvl, moreSurges, rollMode, volatileSurge);
   }
 }
 
@@ -933,8 +986,9 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
     console.log(`Dnd5e Helpers: ${actor.name}'s update contains hp: ${hp}, spells: ${spells}`)
   }
   /** WM check, are we enabled for the current user? */
-  if ((game.settings.get('dnd5e-helpers', 'wmEnabled') == true) && (spells !== undefined)) {
-    WildMagicSuge_preUpdateActor(actor, update, options, userId)
+  const wmSelectedOption = game.settings.get('dnd5e-helpers', 'wmOptions');
+  if (wmSelectedOption !== 0 && spells !== undefined) {
+    WildMagicSuge_preUpdateActor(actor, update, wmSelectedOption)
   }
   // GW check 
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
