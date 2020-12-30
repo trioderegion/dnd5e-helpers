@@ -46,7 +46,7 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "wmOptions", {
     name: "Wild Magic Auto-Detect",
     hint: "Enables or disables auto detection of Wild Magic and how it should be handled. Standard - as per D&D 5e rules. " + 
-          "More - A surge will occur on a d20 roll <= the spell level just cast, rather than only on a 1." + 
+          "More - A surge will occur on a d20 roll <= the spell level just cast, rather than only on a 1. " + 
           "Volatile - Using Tides of Chaos causes the chance of a surge to increase by adding a d4 to surges check. A surge will occur on a d20 roll <= the spell level just cast + d4 roll, rather than only on a 1.",
     scope: "world",
     config: true,
