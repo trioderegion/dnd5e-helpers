@@ -95,3 +95,11 @@
 ###1.8.4
 - Fixed several race conditions relating to token updates on new combat turns.
 
+###1.8.5
+- Additions to Wild Magic Surge - Volatile Surges
+  - Contributed directly by Werner (https://github.com/Werner-Dohse). Big thanks.
+  - These homebrew surges will trigger similarly to the More Surges option, except when the sorcerer's Tides of Chaos feature has been expended. In this case, the spell level will be increased by 1d4 for the sake of the d20 target number (i.e. surge if ``d20 <= spell level + 1d4``).
+    - Additionally, if a Volatile Surge occurs, you will regain one use of Tides of Chaos immediately.
+  - More Surges homebrew and wild magic surge enable configuration options have been rolled into a single dropdown to select the mode or disable this helper entirely.
+- More Surges now also will recharge Tides of Chaos when a surge occurs like it always should have. Was extremely easy to implement with Werner's additions.
+
