@@ -5,8 +5,10 @@ Little helpers for little 5e tasks.
 
 ### Automatic Wild Magic Surge
 - Triggers on *any* reduction in current spell slots from a character with the indicated feature (default: Wild Magic Surge)
-- Optional homebrew: MORE Surges - a surge triggers on a roll <= spell level.
-- Blind roll surge table results (GM only)
+- Optional homebrews
+   - More Surges - a surge triggers on a roll <= spell level. Also recharges Tides of Chaos.
+   - Volatile Surges - Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended
+- Blind draw surge table results, which hides the results of the surge from the players.
 
 ![WildSurge](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/surge-output.webp)
 
