@@ -8,6 +8,7 @@ Little helpers for little 5e tasks.
 - Optional homebrews
    - More Surges - a surge triggers on a roll <= spell level. Also recharges Tides of Chaos.
    - Volatile Surges - Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended
+   - Note: Both homebrews look for the designated Tides of Chaos feature and expects it to have "X uses per long rest"
 - Blind draw surge table results, which hides the results of the surge from the players.
 
 ![WildSurge](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/surge-output.webp)
