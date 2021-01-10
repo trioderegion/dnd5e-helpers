@@ -1153,7 +1153,7 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 function ReactionDetect_preCreateChatMessage(msg) {
 
   /** Reactions are only important IF a combat is active. Bail early */
-  if (!game.combats.active) {
+  if (!game.combats.find(combat => combat.started)) {
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       console.log("Dnd5e helpers: Could not find an active combat")
     }
