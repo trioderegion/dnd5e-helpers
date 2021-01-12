@@ -758,6 +758,8 @@ async function Regeneration(token) {
     tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
     actorMax: token.actor.data.data.attributes.hp.max,
   }
+
+  if(token.data.actorLink === true)data.tokenHP = token.actor.data.data.attributes.hp.value
   // if token isnt damaged, set tokenHP to max
   if (data.tokenHP == undefined) {
     data.tokenHP = data.actorMax
