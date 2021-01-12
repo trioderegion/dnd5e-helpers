@@ -1322,8 +1322,8 @@ class CoverData {
   static CoverLevelToText(coverLevel) {
     switch (coverLevel) {
       case 0: return "No cover";
-      case 1: return "Half cover";
-      case 2: return "Three-quarters cover"
+      case 1: return "Half cover (+2)";
+      case 2: return "Three-quarters cover (+5)"
       case 3: return "Full cover";
       default: console.error("Could not convert cover level to a string! (Cover level " + coverLevel + ")."); return "";
     }
@@ -1382,7 +1382,7 @@ class CoverData {
                       <div class="dice-result">
                         <div class="dice-formula">${this.Summary.Text}</div>
                         <div class="dice-tooltip">
-                          <div class="dice"><h4 class="dice-total">${this.Summary.Source}</h4></div></div>`;
+                          <div class="dice">${this.Summary.Source}</div></div>`;
     return content;
   }
 };

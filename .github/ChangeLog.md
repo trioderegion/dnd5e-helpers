@@ -103,3 +103,6 @@
   - More Surges homebrew and wild magic surge enable configuration options have been rolled into a single dropdown to select the mode or disable this helper entirely.
 - More Surges now also will recharge Tides of Chaos when a surge occurs like it always should have. Was extremely easy to implement with Werner's additions.
 
+###1.8.6
+- Regeneration fixed for linked actors
+- Added bonus reminder to cover output (ex. "Half Cover (+2)" )
