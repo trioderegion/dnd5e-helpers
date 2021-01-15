@@ -16,6 +16,13 @@
     "scripts": [
         "/scripts/dnd5e-helpers.js"
     ],
+    "languages": [
+      {
+        "lang": "en",
+        "name": "English",
+        "path": "lang/en.json"
+      }
+    ],
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",
