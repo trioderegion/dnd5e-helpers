@@ -2,7 +2,8 @@
     "name": "dnd5e-helpers",
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
-    "version": "1.8.6",
+    "systems": ["dnd5e"],
+    "version": "1.8.7",
     "authors": [
       {
         "name": "honeybadger",

@@ -109,3 +109,4 @@
 
 ###1.8.7
 - Player reactions should now properly apply the status effect.
+- Properly denoted dnd5e system requirement.
