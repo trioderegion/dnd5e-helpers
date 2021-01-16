@@ -106,3 +106,6 @@
 ###1.8.6
 - Regeneration fixed for linked actors
 - Added bonus reminder to cover output (ex. "Half Cover (+2)" )
+
+###1.8.7
+- Player reactions should now properly apply the status effect.
