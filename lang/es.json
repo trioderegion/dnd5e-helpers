@@ -131,7 +131,7 @@
     "DND5EH.GreatWoundTableName_hint":"Nombre de la tabla en la que tirar si ocurre un Daño Masivo.",
 
     "DND5EH.OpenWoundFeaturename_name":"Nombre función de Herida Abierta",
-    "DND5EH.OpenWoundFeaturename_hint":"Qué nombre mostar para las funciones de Herida Abierta.",
+    "DND5EH.OpenWoundFeaturename_hint":"Qué nombre mostrar para las funciones de Herida Abierta.",
     "DND5EH.OpenWoundFeaturename_default":"Herida Abierta",
     "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} ha sufrido una {owFeatureName} {woundType}",
 
