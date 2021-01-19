@@ -155,7 +155,7 @@
 
     "DND5EH.OpenWoundTableName_name":"Open Wound Table",
     "DND5EH.OpenWoundTableName_hint":"Name of table that should be rolled on if a Open Wound occurs.",
-    "DND5EH.OpenWoundTableName_error":"Looks like you havnt setup a table to use for {owFeatureName} yet",
+    "DND5EH.OpenWoundTableName_error":"Looks like you haven't setup a table to use for {owFeatureName} yet",
 
     "DND5EH.OpenWoundDebug_name":"Debugging",
     "DND5EH.OpenWoundDebug_hint":"Adds a few console logs for debugging purposes",
