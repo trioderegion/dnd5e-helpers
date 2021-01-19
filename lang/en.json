@@ -121,7 +121,7 @@
     "DND5EH.GreatWoundDialogTitle" : "{gwFeatureName} roll for {actorName}",
     "DND5EH.GreatWoundDialogFailMessage": "{actorName} failed the {gwFeatureName} save",
     "DND5EH.GreatWoundDialogSuccessMessage": "{actorName} passed the {gwFeatureName} save",
-    "DND5EH.GreatWoundDialogError" : "Looks like you havnt setup a table to use for {gwFeatureName} yet",
+    "DND5EH.GreatWoundDialogError" : "Looks like you haven't setup a table to use for {gwFeatureName} yet",
 
     "DND5EH.GreatWoundFeatureName_name" : "Great Wound name replacement",
     "DND5EH.GreatWoundFeatureName_hint" :  "What name to display for Great Wound functions",
