@@ -107,7 +107,7 @@
     "DND5EH.UndeadFort_quick":"Salvaciones rápidas",
     "DND5EH.UndeadFort_advanced":"Salvaciones avanzadas",
     "DND5EH.UndeadFort_dialogname":"Salvación de Fortaleza de Muerto Viviente",
-    "DND5EH.UndeadFort_quickdialogcontent":"¿<p>Cuál fue la fuente de daño</p>",
+    "DND5EH.UndeadFort_quickdialogcontent":"<p>Cuál fue la fuente de daño</p>",
     "DND5EH.UndeadFort_quickdialogprompt1":"Daño Radiante o Golpe crítico",
     "DND5EH.UndeadFort_quickdialogprompt2":"Daño normal",
     "DND5EH.UndeadFort_insantdeathmessage":"El objetivo muere directamente",
@@ -115,52 +115,52 @@
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} sobrevive con un {total}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Daño al objetivo:",
 
-    "DND5EH.GreatWoundEnable_name":"Great Wound",
-    "DND5EH.GreatWoundEnable_hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow,",
+    "DND5EH.GreatWoundEnable_name":"Daño Masivo",
+    "DND5EH.GreatWoundEnable_hint":"Tira en una tabla específica cuando un token recibe más de un 50% de su vida máxima de daño en un solo golpe",
 
-    "DND5EH.GreatWoundDialogTitle" : "{gwFeatureName} roll for {actorName}",
-    "DND5EH.GreatWoundDialogFailMessage": "{actorName} failed the {gwFeatureName} save",
-    "DND5EH.GreatWoundDialogSuccessMessage": "{actorName} passed the {gwFeatureName} save",
-    "DND5EH.GreatWoundDialogError" : "Looks like you havnt setup a table to use for {gwFeatureName} yet",
+    "DND5EH.GreatWoundDialogTitle" : "Tirada de {gwFeatureName} para {actorName}",
+    "DND5EH.GreatWoundDialogFailMessage": "{actorName} falla la salvación de {gwFeatureName}",
+    "DND5EH.GreatWoundDialogSuccessMessage": "{actorName} ha superado la salvación de {gwFeatureName}",
+    "DND5EH.GreatWoundDialogError" : "Parece que todavía no has configurado una tabla para {gwFeatureName}",
 
-    "DND5EH.GreatWoundFeatureName_name" : "Great Wound name replacement",
-    "DND5EH.GreatWoundFeatureName_hint" :  "What name to display for Great Wound functions",
-    "DND5EH.GreatWoundFeatureName_default" : "Great Wound",
+    "DND5EH.GreatWoundFeatureName_name" : "Nombre de Daño Masivo alternativo",
+    "DND5EH.GreatWoundFeatureName_hint" :  "Qué nombre mostrar para las funciones de Daño Masivo",
+    "DND5EH.GreatWoundFeatureName_default" : "Daño Masivo",
 
-    "DND5EH.GreatWoundTableName_name":"Great Wound Table",
-    "DND5EH.GreatWoundTableName_hint":"Name of table that should be rolled on if a Great Wound occurs.",
+    "DND5EH.GreatWoundTableName_name":"Tabla de Daño Masivo",
+    "DND5EH.GreatWoundTableName_hint":"Nombre de la tabla en la que tirar si ocurre un Daño Masivo.",
 
-    "DND5EH.OpenWoundFeaturename_name":"Open Wound feature name",
-    "DND5EH.OpenWoundFeaturename_hint":"What name to display for Open Wound functions.",
-    "DND5EH.OpenWoundFeaturename_default":"Open Wound",
-    "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} has suffered an {owFeatureName} {woundType}",
+    "DND5EH.OpenWoundFeaturename_name":"Nombre función de Herida Abierta",
+    "DND5EH.OpenWoundFeaturename_hint":"Qué nombre mostar para las funciones de Herida Abierta.",
+    "DND5EH.OpenWoundFeaturename_default":"Herida Abierta",
+    "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} ha sufrido una {owFeatureName} {woundType}",
 
-    "DND5EH.OpenWoundSocketMessage": "from {gwFeatureName} reduce them to 0 hp",
+    "DND5EH.OpenWoundSocketMessage": "Por {gwFeatureName} queda reducido 0 PG",
 
-    "DND5EH.OpenWoundDeathSave_name" :"Open Wound - Death Saves",
-    "DND5EH.OpenWoundDeathSave_hint" :"Open Wounds triggered on death saves failed by 5 or more",
-    "DND5EH.OpenWoundDeathSave_reason" :"from a failed death saving throw",
+    "DND5EH.OpenWoundDeathSave_name" :"Herida abierta - Salvaciones de muerte",
+    "DND5EH.OpenWoundDeathSave_hint" :"Se activa la Herida Abierta si falla una tirada de salvación por 5 o más",
+    "DND5EH.OpenWoundDeathSave_reason" :"por una tirada de muerte fallida",
 
-    "DND5EH.OpenWoundCrit_name":"Open Wound - Crits",
-    "DND5EH.OpenWoundCrit_hint":"Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank",
-    "DND5EH.OpenWoundCrit_reason":"from a critical hit",
+    "DND5EH.OpenWoundCrit_name":"Herida abierta - Críticos",
+    "DND5EH.OpenWoundCrit_hint":"Se activa la Herida Abierta por tiradas de ataque. Si la tirada de ataque es superior a este valor se tira una Herida Abierta. Deja en blanco para desactivar.",
+    "DND5EH.OpenWoundCrit_reason":"por un golpe crítico",
 
-    "DND5EH.OpenWound0HP_name":"Open Wound - HP at 0",
-    "DND5EH.OpenWound0HP_hint":"Open Wounds triggered on dropping to 0 HP",
-    "DND5EH.OpenWound0HP_reason":"from falling to 0hp",
+    "DND5EH.OpenWound0HP_name":"Herida Abierta - PG a 0",
+    "DND5EH.OpenWound0HP_hint":"Se activa la Herida Abierta al caer a 0 PG.",
+    "DND5EH.OpenWound0HP_reason":"por caer a 0 PG",
 
-    "DND5EH.OpenWound0HPGW_name":"Open Wound - HP at 0 from a Great Wound",
-    "DND5EH.OpenWound0HPGW_hint":"Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)",
+    "DND5EH.OpenWound0HPGW_name":"Herida Abierta - PG a 0 por Daño Masivo",
+    "DND5EH.OpenWound0HPGW_hint":"Se activa la herida abierta al caer a 0 PG por una fuente de daño que haya hecho más del 50% de la vida máxima (Daño Masivo debe estar activado)",
 
 
-    "DND5EH.OpenWoundTableName_name":"Open Wound Table",
-    "DND5EH.OpenWoundTableName_hint":"Name of table that should be rolled on if a Open Wound occurs.",
-    "DND5EH.OpenWoundTableName_error":"Looks like you havnt setup a table to use for {owFeatureName} yet",
+    "DND5EH.OpenWoundTableName_name":"Tabla de Heridas Abiertas",
+    "DND5EH.OpenWoundTableName_hint":"Nombre de la tabla en la que tirar si ocurre una herida abierta.",
+    "DND5EH.OpenWoundTableName_error":"Parece que todavía no has configurado una tabla para {owFeatureName}",
 
     "DND5EH.OpenWoundDebug_name":"Debugging",
-    "DND5EH.OpenWoundDebug_hint":"Adds a few console logs for debugging purposes",
+    "DND5EH.OpenWoundDebug_hint":"Añade unos registros en la consola para debugging",
 
-    "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: {actorName}'s update contains hp: {hp}, spells: {spells}",
-    "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: {currentTokenName}'s update contains regen: {regenSett}",
-    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName}'s update contains hp: {hp}, and Fort: {fortSett}"
+    "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: La actualización de {actorName} contiene PG: {hp}, conjuros: {spells}",
+    "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: La actualización de {currentTokenName} contiene regen: {regenSett}",
+    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: La actualización de {ActorName} contiene PG: {hp}, y Fort: {fortSett}"
 }
