@@ -106,3 +106,11 @@
 ###1.8.6
 - Regeneration fixed for linked actors
 - Added bonus reminder to cover output (ex. "Half Cover (+2)" )
+
+###1.8.7
+- Player reactions should now properly apply the status effect.
+- Properly denoted dnd5e system requirement.
+
+###1.8.8
+- Can now optionally "mask" NPC names in cover chat cards
+- Fixed noisy error when adding armor and detecting specific proficiencies (`pass_type undefined`)

@@ -33,6 +33,7 @@ Hooks.on('init', () => {
     }
   });
 
+  /** badger@todo update "name" localization string (removed "intervening") */
   game.settings.register("dnd5e-helpers", "losWithTokens", {
     name: game.i18n.format("DND5EH.LoSWithTokens_name"),
     hint: game.i18n.format("DND5EH.LoSWithTokens_hint"),
@@ -40,6 +41,16 @@ Hooks.on('init', () => {
     config: true,
     default: false,
     type: Boolean,
+  });
+  
+  /** badger@todo localize */
+  game.settings.register("dnd5e-helpers", "losMaskNPCs", {
+     name: "Hide NPC names in cover output",
+    hint: 'Replaces uses of the NPC\'s name with "A creature" when reporting cover',
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean
   });
   
   /** should surges be tested */
@@ -715,7 +726,7 @@ function AutoProfArmor_createOwnedItem(actor, item) {
 
   // update item to match prof, otherwise, leave as is (dnd5e will handle generic profs)
   //For items that are not armors (trinkets, clothing) we assume prof = true 
-  if (proficient || pass_type == null) {
+  if (proficient) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
     console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", {name: name}))
   } 
@@ -1338,6 +1349,21 @@ class CoverData {
     }
   }
 
+  /** tokenCoverData = {level: number, source: string, entity: token} */
+  static SanitizeNPCNames(tokenCoverData){
+
+    /** if we are told to hide NPC names and an NPC token is providing cover */
+    if (game.settings.get('dnd5e-helpers', 'losMaskNPCs') && 
+        tokenCoverData.level > -1 &&
+        (tokenCoverData.entity?.actor?.data.type ?? "") == "npc"){
+      
+      /** change the source of the cover to be a generic "creature" */
+      /** badger@todo update this string output for localization */
+      tokenCoverData.source = "Another creature is in the way";
+    }
+    
+    return tokenCoverData;
+  }
 
   /**
    * 5e specific interpretation and consideration of all wall and object collisions to produce a final cover value
@@ -1364,7 +1390,7 @@ class CoverData {
     }
     
     if (tokenCoverData.level > internalCoverData.level){
-      internalCoverData = tokenCoverData;
+      internalCoverData = CoverData.SanitizeNPCNames(tokenCoverData);
     }
     
     Summary.FinalCoverEntity = internalCoverData.entity;
@@ -1387,9 +1413,18 @@ class CoverData {
       return "";
     }
 
+    /** sanitize an NPC target */
+    const sanitizeNPC = function (token){
+      /** badger@todo localize 'a creature' */
+      const targetName = token.actor?.data.type === "npc" &&
+                       game.settings.get('dnd5e-helpers', 'losMaskNPCs') ? "a creature" : token.name;
+      
+      return targetName;
+    }
+
     /** abuse the dice roll classes to make it look like I know how to UI ;) */
-    const sightlineTranslation = game.i18n.format("DND5EH.LoS_outputmessage")
-    const content = `<div class="dice-roll"><i>${SourceToken.name} ${sightlineTranslation} ${TargetToken.name}</i>
+    const sightlineTranslation = game.i18n.format("DND5EH.LoS_outputmessage");
+    const content = `<div class="dice-roll"><i>${sanitizeNPC(this.SourceToken)} ${sightlineTranslation} ${sanitizeNPC(this.TargetToken)}</i>
                       <div class="dice-result">
                         <div class="dice-formula">${Summary.Text}</div>
                         <div class="dice-tooltip">
