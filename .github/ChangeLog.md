@@ -110,3 +110,7 @@
 ###1.8.7
 - Player reactions should now properly apply the status effect.
 - Properly denoted dnd5e system requirement.
+
+###1.8.8
+- Can now optionally "mask" NPC names in cover chat cards
+- Fixed noisy error when adding armor and detecting specific proficiencies (`pass_type undefined`)
