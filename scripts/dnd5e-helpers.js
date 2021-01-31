@@ -724,7 +724,7 @@ function AutoProfArmor_createOwnedItem(actor, item) {
 
   // update item to match prof, otherwise, leave as is (dnd5e will handle generic profs)
   //For items that are not armors (trinkets, clothing) we assume prof = true 
-  if (proficient || pass_type == null) {
+  if (proficient) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
     console.log(name + " is marked as proficient")
   } 
