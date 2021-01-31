@@ -29,9 +29,13 @@
     "DND5EH.LoS_outputmessage":"checks their sightline to",
     "DND5EH.LoS_notargeterror":"No target token selected to compute cover for!",
     "DND5EH.LoS_providescover":"Provides Cover",
+    "DND5EH.LoSMaskNPCs_sourceMask": "Another creature is in the way.",
+    "DND5EH.LoSMaskNPCs_targetMask": "a creature",
 
     "DND5EH.LoSWithTokens_name":"Consider intervening tokens as half cover",
     "DND5EH.LoSWithTokens_hint": "Unchecked results in tokens not being considered for cover calculation.",
+    "DND5EH.LoSMaskNPCs_name": "Hide NPC names in cover output",
+    "DND5EH.LoSMaskNPCs_hint": "Replaces uses of the NPC's name with \"A creature\" when reporting cover.",
 
     "DND5EH.WildMagicOptions_name":  "Wild Magic Auto-Detect",
     "DND5EH.WildMagicOptions_hint": "Enables or disables auto detection of Wild Magic and how it should be handled. Standard (PHB): as seen on PHB pg. 103. More: surges on d20 <= spell level and recharges Tides of Chaos. Volatile: Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended.",
@@ -70,7 +74,6 @@
 
     "DND5EH.CombatReactionStatus_name": "Reaction status name",
     "DND5EH.CombatReactionStatus_hint":"As seen when hovering over the status in the token HUD (default: Weakened).",
-    "DND5EH.CombatReactionStatus_default":"Weakened",
     "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: Could not find staus: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: Not an actors item roll",
     "DND5EH.CombatReactionStatus_actionname" :"1 Action",
@@ -125,14 +128,12 @@
 
     "DND5EH.GreatWoundFeatureName_name" : "Great Wound name replacement",
     "DND5EH.GreatWoundFeatureName_hint" :  "What name to display for Great Wound functions",
-    "DND5EH.GreatWoundFeatureName_default" : "Great Wound",
 
     "DND5EH.GreatWoundTableName_name":"Great Wound Table",
     "DND5EH.GreatWoundTableName_hint":"Name of table that should be rolled on if a Great Wound occurs.",
 
     "DND5EH.OpenWoundFeaturename_name":"Open Wound feature name",
     "DND5EH.OpenWoundFeaturename_hint":"What name to display for Open Wound functions.",
-    "DND5EH.OpenWoundFeaturename_default":"Open Wound",
     "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} has suffered an {owFeatureName} {woundType}",
 
     "DND5EH.OpenWoundSocketMessage": "from {gwFeatureName} reduce them to 0 hp",

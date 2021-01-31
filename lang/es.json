@@ -29,9 +29,13 @@
     "DND5EH.LoS_outputmessage":"comprobar su línea de visión hacia",
     "DND5EH.LoS_notargeterror":"¡No hay token seleccionado para calcular cobertura!",
     "DND5EH.LoS_providescover":"Proporciona cobertura",
+    "DND5EH.LoSMaskNPCs_sourceMask": "[EN] Another creature is in the way.",
+    "DND5EH.LoSMaskNPCs_targetMask": "[EN] a creature",
 
-    "DND5EH.LoSWithTokens_name":"Considerar tokens intervinientes como media cob.",
+    "DND5EH.LoSWithTokens_name":"Considerar tokens como media cob.",
     "DND5EH.LoSWithTokens_hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",
+    "DND5EH.LoSMaskNPCs_name": "[EN] Hide NPC names in cover output",
+    "DND5EH.LoSMaskNPCs_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting cover.",
 
     "DND5EH.WildMagicOptions_name":  "Auto detectar Magia Salvaje",
     "DND5EH.WildMagicOptions_hint": "Activa o desactiva auto detección de Magia Salvaje y cómo debería manejarse. Estándar: PHB pg. 103. Más: sobrecargas en d20 <= nivel de conjuro y recarga Mareas del Caos. Volátil: Similar a Más, pero añade 1d4 al nivel de conjuro si se ha gastado Mareas del Caos.",
@@ -125,14 +129,12 @@
 
     "DND5EH.GreatWoundFeatureName_name" : "Nombre de Daño Masivo alternativo",
     "DND5EH.GreatWoundFeatureName_hint" :  "Qué nombre mostrar para las funciones de Daño Masivo",
-    "DND5EH.GreatWoundFeatureName_default" : "Daño Masivo",
 
     "DND5EH.GreatWoundTableName_name":"Tabla de Daño Masivo",
     "DND5EH.GreatWoundTableName_hint":"Nombre de la tabla en la que tirar si ocurre un Daño Masivo.",
 
     "DND5EH.OpenWoundFeaturename_name":"Nombre función de Herida Abierta",
     "DND5EH.OpenWoundFeaturename_hint":"Qué nombre mostrar para las funciones de Herida Abierta.",
-    "DND5EH.OpenWoundFeaturename_default":"Herida Abierta",
     "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} ha sufrido una {owFeatureName} {woundType}",
 
     "DND5EH.OpenWoundSocketMessage": "Por {gwFeatureName} queda reducido 0 PG",

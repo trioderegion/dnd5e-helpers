@@ -33,7 +33,6 @@ Hooks.on('init', () => {
     }
   });
 
-  /** badger@todo update "name" localization string (removed "intervening") */
   game.settings.register("dnd5e-helpers", "losWithTokens", {
     name: game.i18n.format("DND5EH.LoSWithTokens_name"),
     hint: game.i18n.format("DND5EH.LoSWithTokens_hint"),
@@ -43,10 +42,9 @@ Hooks.on('init', () => {
     type: Boolean,
   });
   
-  /** badger@todo localize */
   game.settings.register("dnd5e-helpers", "losMaskNPCs", {
-     name: "Hide NPC names in cover output",
-    hint: 'Replaces uses of the NPC\'s name with "A creature" when reporting cover',
+    name: game.i18n.format("DND5EH.LoSMaskNPCs_name"),
+    hint: game.i18n.format("DND5EH.LoSMaskNPCs_hint"),
     scope: "world",
     config: true,
     default: false,
@@ -130,7 +128,7 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.CombatReactionStatus_hint"),
     scope: "world",
     config: true,
-    default: game.i18n.format("DND5EH.CombatReactionStatus_default"),
+    default: "Weakened",
     type: String,
   });
 
@@ -200,7 +198,7 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.GreatWoundFeatureName_hint"),
     scope: "world",
     config: true,
-    default: game.i18n.format("DND5EH.GreatWoundFeatureName_default"),
+    default: "Great Wound",
     type: String,
   });
 
@@ -218,7 +216,7 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.OpenWoundFeaturename_hint"),
     scope: "world",
     config: true,
-    default: game.i18n.format("DND5EH.OpenWoundFeaturename_default"),
+    default: "Open Wound",
     type: String,
   });
 
@@ -1298,14 +1296,14 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
  */
 class CoverData {
   constructor(sourceToken, targetToken, visibleCorners, mostObscuringTile, mostObscuringToken){
-    SourceToken = sourceToken;
-    TargetToken = targetToken;
-    VisibleCorners = visibleCorners;
-    TileCover = mostObscuringTile;
-    TokenCover = mostObscuringToken;
+    this.SourceToken = sourceToken;
+    this.TargetToken = targetToken;
+    this.VisibleCorners = visibleCorners;
+    this.TileCover = mostObscuringTile;
+    this.TokenCover = mostObscuringToken;
     
     // @todo this should possibly be a different class, will need a pass when my cover api is better
-    Summary = {
+    this.Summary = {
       Text: "**UNPROCESSED**",
       Source:  "**NONE**",
       FinalCoverLevel: -1,
@@ -1358,8 +1356,7 @@ class CoverData {
         (tokenCoverData.entity?.actor?.data.type ?? "") == "npc"){
       
       /** change the source of the cover to be a generic "creature" */
-      /** badger@todo update this string output for localization */
-      tokenCoverData.source = "Another creature is in the way";
+      tokenCoverData.source = game.i18n.format("DND5EH.LoSMaskNPCs_sourceMask");
     }
     
     return tokenCoverData;
@@ -1374,15 +1371,15 @@ class CoverData {
    */
   FinalizeData(){
     /** always prefer line of sight because its more accurate at the moment (>= instead of >) */
-    const losCoverLevel = CoverData.VisibleCornersToCoverLevel(VisibleCorners);
+    const losCoverLevel = CoverData.VisibleCornersToCoverLevel(this.VisibleCorners);
     
     /** assume LOS will be the main blocker */
-    let internalCoverData = { level: losCoverLevel, source: `${VisibleCorners} visible corners`, entity: null };
+    let internalCoverData = { level: losCoverLevel, source: `${this.VisibleCorners} visible corners`, entity: null };
     
     /** prepare the secondary blocker information */
-    const tileCoverData = { level: TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: TileCover };
+    const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
     const obstructionTranslation = game.i18n.format("DND5EH.LoS_obsruct")
-    const tokenCoverData = { level: !!TokenCover ? 1 : -1, source: `${TokenCover?.name ?? ""} ${obstructionTranslation}`, entity: TokenCover };
+    const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${this.TokenCover?.name ?? ""} ${obstructionTranslation}`, entity: this.TokenCover };
     
     /** prefer walls -> tiles -> tokens in that order */
     if (tileCoverData.level > internalCoverData.level){
@@ -1393,10 +1390,10 @@ class CoverData {
       internalCoverData = CoverData.SanitizeNPCNames(tokenCoverData);
     }
     
-    Summary.FinalCoverEntity = internalCoverData.entity;
-    Summary.FinalCoverLevel = internalCoverData.level;
-    Summary.Source = internalCoverData.source;
-    Summary.Text = CoverData.CoverLevelToText(internalCoverData.level);
+    this.Summary.FinalCoverEntity = internalCoverData.entity;
+    this.Summary.FinalCoverLevel = internalCoverData.level;
+    this.Summary.Source = internalCoverData.source;
+    this.Summary.Text = CoverData.CoverLevelToText(internalCoverData.level);
   }
 
   /**
@@ -1408,16 +1405,15 @@ class CoverData {
    */
   toMessageContent() {
     /** the cover data must be fully populated and finalized before anything else can happen */
-    if (FinalCoverLevel < 0) {
+    if (this.FinalCoverLevel < 0) {
       console.error(game.i18n.format("DND5EH.LoS_coverlevelerror1"));
       return "";
     }
 
     /** sanitize an NPC target */
     const sanitizeNPC = function (token){
-      /** badger@todo localize 'a creature' */
       const targetName = token.actor?.data.type === "npc" &&
-                       game.settings.get('dnd5e-helpers', 'losMaskNPCs') ? "a creature" : token.name;
+                       game.settings.get('dnd5e-helpers', 'losMaskNPCs') ? game.i18n.format("DND5EH.LoSMaskNPCs_targetMask"): token.name;
       
       return targetName;
     }
@@ -1426,7 +1422,7 @@ class CoverData {
     const sightlineTranslation = game.i18n.format("DND5EH.LoS_outputmessage");
     const content = `<div class="dice-roll"><i>${sanitizeNPC(this.SourceToken)} ${sightlineTranslation} ${sanitizeNPC(this.TargetToken)}</i>
                       <div class="dice-result">
-                        <div class="dice-formula">${Summary.Text}</div>
+                        <div class="dice-formula">${this.Summary.Text}</div>
                         <div class="dice-tooltip">
                           <div class="dice">${this.Summary.Source}</div></div>`;
     return content;
