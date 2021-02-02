@@ -450,7 +450,8 @@ async function RollForVolatileSurge(spellLevel, rollType, actor) {
       }
 
       if (d20result <= (spellLevel + d4result)) {
-        await ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result} #1d4 result]])`);
+        const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
+        await ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result} #1d4 result]])`);
         RollOnWildTable(rollType);
         
         if (tocSpent){
@@ -458,14 +459,14 @@ async function RollForVolatileSurge(spellLevel, rollType, actor) {
           return ResetTidesOfChaos(actor, wmToCFeatureName);
         }
       } else {
-        return ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result}  #1d4 result]])`);
+        const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
+        return ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result}  #1d4 result]])`);
       }
   } else {
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       console.log(game.i18n.format("DND5EH.WildMagicTidesOfChaos_error"));
     }
   }
-  0
   return; //no promise
 }
 
