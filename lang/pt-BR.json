@@ -1,0 +1,167 @@
+{
+    "DND5EH.Default_disabled" : "Desabilitado",
+    "DND5EH.Default_none" : "Nenhum", 
+    "DND5EH.Default_SocketSetup" :"Socket do DnD5e Helpers recebido",
+    "DND5EH.Default_SocketSend": "Socket enviado com {socketData}",
+    "DND5EH.Default_roll" : "Rolagem",
+
+    "DND5EH.GridTemplateScaling_name": "Autoajustar modelos em grids da 5e",
+   "DND5EH.GridTemplateScaling_hint" :"Linhas e cones terão seu alcance ajustado. Círculos serão convertidos em um retângulo de área equivalente. Isso busca criar a correspondência de distância do grid da 5e quando medidas diagonais são envolvidas no posicionamento de modelos.",
+    "DND5EH.GridTemplateScaling_none":"Sem ajuste de modelos",
+    "DND5EH.GridTemplateScaling_lineCone":"Linhas e Cones",
+    "DND5EH.GridTemplateScaling_circle":"Círculos",
+    "DND5EH.GridTemplateScaling_all":"Todos os modelos",
+
+    "DND5EH.LoSOnTarget_name":"Calcular cobertura ao mirar",
+    "DND5EH.LoSOnTarget_hint":"Habilitar ou desabilitar esta função globalmente (inclui a opção de cobertura por objetos).",
+    "DND5EH.LoSOnTarget_center":"Visão a partir do ponto central (Visão do Foundry)",
+    "DND5EH.LoSOnTarget_corner":"Visão a partir dos cantos (DMG, p. 251)",
+    "DND5EH.LoS_cornererror1":"Não foi possível converter cantos visíveis em nível de cobertura!",
+    "DND5EH.LoS_cornererror2":"Não foi possível converter o nível de cobertura em um string! (Nível de cobertura {coverLevel}).",
+    "DND5EH.LoS_nocover": "Sem Cobertura",
+    "DND5EH.LoS_halfcover":"Cobertura Parcial(+2)",
+    "DND5EH.LoS_34cover":"Cobertura de Três Quartos(+5)",
+    "DND5EH.LoS_fullcover":"Cobertura Total",
+    "DND5EH.LoS_visiblecorners" :"cantos visíveis",
+    "DND5EH.LoS_object":"um objeto interposto",
+    "DND5EH.LoS_obsruct":"está no caminho",
+    "DND5EH.LoS_coverlevelerror1":"Não é possível criar uma mensagem no chat a partir de dados de cobertura incompletos!",
+    "DND5EH.LoS_outputmessage":"checa sua linha de visão até",
+    "DND5EH.LoS_notargeterror":"Sem token alvo para calcular cobertura!",
+    "DND5EH.LoS_providescover":"Fornece Cobertura",
+    "DND5EH.LoSMaskNPCs_sourceMask": "Outra criatura está no caminho.",
+    "DND5EH.LoSMaskNPCs_targetMask": "uma criatura",
+
+    "DND5EH.LoSWithTokens_name":"Considerar tokens interpostos como cobertura parcial",
+    "DND5EH.LoSWithTokens_hint": "Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
+    "DND5EH.LoSMaskNPCs_name": "Esconder nomes de PdMs ao gerar o resultado de cobertura",
+    "DND5EH.LoSMaskNPCs_hint": "Substitui nomes de PdM com \"Uma criatura\" ao relatar a cobertura.",
+
+    "DND5EH.WildMagicOptions_name":  "Autodetectar Magia Selvagem",
+    "DND5EH.WildMagicOptions_hint": "Habilita ou desabilita a autodetecção de Magia Selvagem e como ela deve ser tratada. Padrão (PHB): como visto na p. 81 do Livro do Jogador. Maior: surtos ocorrem caso o d20 seja menor ou igual ao círculo da magia e recargas de Marés do Caos. Volátil: Similar a \"Maior\", mas adiciona 1d4 ao círculo da magia se Marés do Caos foi usada.",
+    "DND5EH.WildMagicOptions_standard": "Habilitada - Padrão (PHB)",
+    "DND5EH.WildMagicOptions_more": "Habilitada - Maior",
+    "DND5EH.WildMagicOptions_volatile": "Habilitada - Volátil",
+    "DND5EH.WildMagicConsoleNormalSurgeLog" : "DnD5e Helpers: Surto Normal - {d20result}",
+    "DND5EH.WildMagicConsoleMoreSurgeLog" : "DnD5e Helpers: Surto Maior - {d20result} vs {spellLevel}",
+    "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helpers: Surto Volátil - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
+    "DND5EH.WildMagicConsoleSurgesCalm" : "continua tranquila",
+    "DND5EH.WildMagicConsoleSurgesSurge" : "surta",
+    "DND5EH.WildMagicConsoleSurgesMessage" : "<i>{action} é conjurada como uma magia de {spellLevel}º círculo {extraText}!</i> {resultText}",
+    "DND5EH.WildMagicConsoleSurgesroll" :"Rolando para o surto...",
+    "DND5EH.WildMagicChatSurgesMessage" : "Um espaço de {lvl}º círculo foi gasto ({bWasCast}) por alguém com a característica de Magia Selvagem ({wmFeatureName})",
+    "DND5EH.WildMagicChatSpeakerName": "A Trama",
+
+    "DND5EH.WildMagicFeatureName_name":"Nome da Característica de Magia Selvagem",
+    "DND5EH.WildMagicFeatureName_hint":"Nome da característica que representa o Surto de Magia Selvagem do Feiticeiro: (padrão: Wild Magic Surge).",
+
+    "DND5EH.WildMagicTableName_name":"Nome da Tabela de Surto de Magia Selvagem",
+    "DND5EH.WildMagicTableName_hint":"Nome da tabela que deve ser rolada caso um surto ocorra:(padrão: Wild-Magic-Surge-Table). Deixe em branco para pular esta etapa.",
+    "DND5EH.WildMagicTableError" : "DnD5e Helpers: Nenhuma tabela de Magia Selvagem configurada",
+
+    "DND5EH.WildMagicTidesOfChaos_name":"Nome da Característica Marés do Caos",
+    "DND5EH.WildMagicTidesOfChaos_hint":"Nome da característica que representa as Marés do Caos do Feiticeiro (padrão: Tides of Chaos).",
+    "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helpers: Nome da característica Marés do Caos não configurado",
+
+    "DND5EH.WildMagicWisper_name":"Rolagem Cega de Tabela",
+    "DND5EH.WildMagicWisper_hint":"Esconde os resultados da tabela em um surto bem sucedido. Visível apenas por GMs.",
+
+    "DND5EH.CombatReactionEnable_name": "Automação de uso de Reações.",
+    "DND5EH.CombatReactionEnable_hint":"Habilita ou desabilita essa função (global). Checa habilidades de Reação ou Ações fora de turno e aplica o estado especificado. \"Remover\" vai remover esse efeito automaticamente no início do turno do ator.",
+    "DND5EH.CombatReactionEnable_apply":"Apenas Aplicar",
+    "DND5EH.CombatReactionEnable_remove":"Apenas Remover",
+    "DND5EH.CombatReactionEnable_both":"Aplicar e Remover",
+
+    "DND5EH.CombatReactionStatus_name": "Nome do estado de Reação",
+    "DND5EH.CombatReactionStatus_hint":"Como visto ao colocar o mouse sobre o estado na interface do token (padrão: Weakened).",
+    "DND5EH.CombatReactionStatus_statuserror":"DnD5e Helpers: Não foi possível encontrar o estado: {reactionStatus}",
+    "DND5EH.CombatReactionStatus_actoritemerror" : "DnD5e Helpers: Não é uma rolagem de item de ator",
+    "DND5EH.CombatReactionStatus_actionname" :"1 Ação",
+    "DND5EH.CombatReactionStatus_reactionname": "1 Reação",
+    "DND5EH.CombatReactionStatus_statuslog":"DnD5e Helpers: o efeito de estado é: {statusEffect}",
+    "DND5EH.CombatReactionStatus_effecterror":"DnD5e Helpers: Não foi possível encontrar um efeito ativo chamado: {reactionStatus}",
+    "DND5EH.CombatReactionStatus_combaterror":"DnD5e Helpers: Não foi possível encontrar um combate ativo",
+
+    "DND5EH.CombatLegendary_name":"Reiniciar ação lendária no início do turno.",
+    "DND5EH.CombatLegendary_hint":"Habilitar ou desabilitar essa função (global).",
+    "DND5EH.CombatLegendary_notification":"{tokenName} teve {max} ações lendárias restauradas",
+
+    "DND5EH.CombatAbilityRecharge_name":"Re-rolar automaticamente quaisquer habilidades com uma recarga de d6.",
+    "DND5EH.CombatAbilityRecharge_hint":"Habilitar ou desabilitar essa função (global).",
+
+    "DND5EH.AutoProf_name":"Proficiência Automática",
+    "DND5EH.AutoProf_hint":"Verifica novos ítens adicionados e os caracteriza como Proficiência, caso necessário.",
+    "DND5EH.AutoProf_consolelogsuccess":"{name} foi marcado como proficiência",
+    "DND5EH.AutoProf_consolelogfail" :"{name} não pôde ser marcado como proficiência; por favor, ajuste manualmente",
+
+    "DND5EH.AutoRegen_name":"Regeneração automática",
+    "DND5EH.AutoRegen_hint":"Sugere jogadas de Regeneração automaticamente ao GM.",
+    "DND5EH.AutoRegen_Regneration": "Regeneração",
+    "DND5EH.AutoRegen_SelfRepair": "Autorreparação",
+    "DND5EH.AutoRegenDialog_name": "Regeneração para {tokenName}",
+    "DND5EH.AutoRegenDialog_content": "{tokenName} atualmente tem {tokenHP}/{actorMax} PV",
+    "DND5EH.AutoRegenDialog_healingprompt": "Aplicar cura de {regenAmout}",
+    "DND5EH.AutoRegenDialog_healingmessage": "{tokenName} curou {regenRoll} PV",
+    "DND5EH.AutoRegenDialog_stopprompt":"Não curar",
+
+    "DND5EH.UndeadFort_name":"Fortitude de Morto-Vivo",
+    "DND5EH.UndeadFort_hint":"Sugere verificação de Fortitude de Morto-Vivo automaticamente ao GM.",
+    "DND5EH.UndeadFort_none":"Sem verificação",
+    "DND5EH.UndeadFort_quick":"Salvaguardas Rápidas",
+    "DND5EH.UndeadFort_advanced":"Salvaguardas Avançadas",
+    "DND5EH.UndeadFort_dialogname":"Salvaguarda de Fortitude de Morto-Vivo",
+    "DND5EH.UndeadFort_quickdialogcontent":"<p>Qual foi a fonte do dano?</p>",
+    "DND5EH.UndeadFort_quickdialogprompt1":"Dano Radiante ou Acerto Crítico",
+    "DND5EH.UndeadFort_quickdialogprompt2":"Dano normal",
+    "DND5EH.UndeadFort_insantdeathmessage":"O alvo morre imediatamente",
+    "DND5EH.UndeadFort_deathmessage":"{tokenName} morre ao falhar com {total}",
+    "DND5EH.UndeadFort_surivalmessage":"{tokenName} sobrevive com {total}",
+    "DND5EH.UndeadFort_slowdialogcontentquery" : "Dano no alvo:",
+
+    "DND5EH.GreatWoundEnable_name":"Dano Maciço",
+    "DND5EH.GreatWoundEnable_hint":"Rola em uma tabela quando um alvo perde mais de 50% dos PV em um único golpe.",
+
+    "DND5EH.GreatWoundDialogTitle" : "{actorName} faz uma salvaguarda de {gwFeatureName}",
+    "DND5EH.GreatWoundDialogFailMessage": "{actorName} falhou na salvaguarda de {gwFeatureName}",
+    "DND5EH.GreatWoundDialogSuccessMessage": "{actorName} passou na salvaguarda de {gwFeatureName}",
+    "DND5EH.GreatWoundDialogError" : "Parece que você ainda não configurou uma tabela para ser usada com {gwFeatureName}",
+
+    "DND5EH.GreatWoundFeatureName_name" : "Substituição de nome de Dano Maciço",
+    "DND5EH.GreatWoundFeatureName_hint" :  "Que nome exibir para as funções de Dano Maciço.",
+
+    "DND5EH.GreatWoundTableName_name":"Tabela de Dano Maciço",
+    "DND5EH.GreatWoundTableName_hint":"Nome da tabela que deve ser rolada caso Dano Maciço ocorra.",
+
+    "DND5EH.OpenWoundFeaturename_name":"Nome da característica de Lesão Persistente",
+    "DND5EH.OpenWoundFeaturename_hint":"Que nome exibir para as funções de Lesão Persistente.",
+    "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} sofreu uma {owFeatureName} {woundType}",
+
+    "DND5EH.OpenWoundSocketMessage": "Devido a {gwFeatureName} é reduzido a 0 PV",
+
+    "DND5EH.OpenWoundDeathSave_name" :"Lesão Persistente - Salvaguarda contra Morte",
+    "DND5EH.OpenWoundDeathSave_hint" :"Lesão Persistente decorrente de salvaguardas contra morte falhas por 5 ou mais.",
+    "DND5EH.OpenWoundDeathSave_reason" :"de uma falha de salvaguarda contra morte",
+
+    "DND5EH.OpenWoundCrit_name":"Lesão Persistente - Críticos",
+    "DND5EH.OpenWoundCrit_hint":"Lesão Persistente decorrente de jogadas de ataque. Se uma jogada de ataque for maior que esse valor, uma Lesão Persistente é rolada. Para desabilitar, deixe o campo em branco.",
+    "DND5EH.OpenWoundCrit_reason":"de um acerto crítico",
+
+    "DND5EH.OpenWound0HP_name":"Lesão Persistente - 0 PV",
+    "DND5EH.OpenWound0HP_hint":"Lesão Persistente decorrente de ser reduzido a 0 PV.",
+    "DND5EH.OpenWound0HP_reason":"de ser reduzido a 0 PV",
+
+    "DND5EH.OpenWound0HPGW_name":"Lesão Persistente - 0 PV devido a Dano Maciço",
+    "DND5EH.OpenWound0HPGW_hint":"Lesão Persistente decorrente de ser reduzido a 0 PV devido a uma fonte de dano causando mais da metade do valor máximo dos PVs do ator (exige Dano Maciço ativado).",
+
+
+    "DND5EH.OpenWoundTableName_name":"Tabela de Lesão Persistente",
+    "DND5EH.OpenWoundTableName_hint":"Nome da tabela que deve ser rolada caso uma Lesão Persistente ocorra.",
+    "DND5EH.OpenWoundTableName_error":"Parece que você ainda não configurou uma tabela para ser usada com {owFeatureName}",
+
+    "DND5EH.OpenWoundDebug_name":"Debugging",
+    "DND5EH.OpenWoundDebug_hint":"Adiciona alguns logs no console para propósito de debugging.",
+
+    "DND5EH.Hooks_preUpdateActor_updatelog" : "DnD5e Helpers: A atualização de {actorName} tem PV: {hp}, magias: {spells}",
+    "DND5EH.Hooks_updateActor_updatelog" :"DnD5e Helpers: A atualização de {currentTokenName} tem regen: {regenSett}",
+    "DND5EH.Hooks_preupdateToken_updatelog" : "DnD5e Helpers: A atualização de {ActorName} tem PV: {hp}, e Fort: {fortSett}"
+}
