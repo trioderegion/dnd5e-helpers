@@ -3,7 +3,7 @@
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
     "systems": ["dnd5e"],
-    "version": "1.9.0",
+    "version": "1.9.1",
     "authors": [
       {
         "name": "honeybadger",
@@ -30,6 +30,10 @@
         "lang": "fr",
         "name": "French",
         "path": "lang/fr.json"
+      },{
+        "lang": "pt-BR",
+        "name": "Brazilian Portugues",
+        "path": "lang/pt-BR.json"
       }
     ],
     "socket": true,

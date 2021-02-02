@@ -122,3 +122,4 @@
 
 ###1.9.1
 - Missed a localization string in Wild Magic surge output. Corrected and functionality restored.
+- Brazilian Portuguese localization added! Thanks brnmuller!
