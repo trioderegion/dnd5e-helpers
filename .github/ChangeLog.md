@@ -119,3 +119,6 @@
 - Localization support! Finally! Oh yea, and you owe Kandashi a beer.
   - `es` and `fr` translations provided by github users MS-PBS and Elfenduil (respectively). Huge thanks to both!
   - MRs for fixes and additional languages welcome.
+
+###1.9.1
+- Missed a localization string in Wild Magic surge output. Corrected and functionality restored.

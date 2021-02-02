@@ -414,7 +414,8 @@ async function RollForMoreSurge(spellLevel, rollType, actor) {
   }
 
   if (d20result <= spellLevel) {
-    ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
+    ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
     RollOnWildTable(rollType);
     
     /** recharge TOC if we surged */
@@ -423,7 +424,8 @@ async function RollForMoreSurge(spellLevel, rollType, actor) {
       return ResetTidesOfChaos(actor, tocName );
     }
   } else {
-    ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
+    ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
   }
   
   return;
