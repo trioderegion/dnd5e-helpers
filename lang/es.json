@@ -34,8 +34,8 @@
 
     "DND5EH.LoSWithTokens_name":"Considerar tokens como media cob.",
     "DND5EH.LoSWithTokens_hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",
-    "DND5EH.LoSMaskNPCs_name": "[EN] Hide NPC names in cover output",
-    "DND5EH.LoSMaskNPCs_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting cover.",
+    "DND5EH.LoSMaskNPCs_name": "[EN] Hide GM info from Cover Report",
+    "DND5EH.LoSMaskNPCs_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting cover and whispers GM prompted cover checks..",
 
     "DND5EH.WildMagicOptions_name":  "Auto detectar Magia Salvaje",
     "DND5EH.WildMagicOptions_hint": "Activa o desactiva auto detección de Magia Salvaje y cómo debería manejarse. Estándar: PHB pg. 103. Más: sobrecargas en d20 <= nivel de conjuro y recarga Mareas del Caos. Volátil: Similar a Más, pero añade 1d4 al nivel de conjuro si se ha gastado Mareas del Caos.",

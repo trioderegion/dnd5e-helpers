@@ -127,5 +127,9 @@
 ###1.9.2
 - Missed a localization string in Volatile Wild Magic surge output. Corrected and functionality restored. (I can see where this is going, lol)
 
+###1.9.3
+- Mask NPC names in cover output now also whispers the cover result to the GM instead of being public (i.e. hide GM info from players)
+- Localization Changes: `LoSMaskNPCs_name`, `LoSMaskNPCs_hint`
+
 
 

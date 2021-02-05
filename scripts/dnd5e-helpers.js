@@ -1450,7 +1450,17 @@ async function onTargetToken(user, target, onOff) {
     if (coverData){
       coverData.FinalizeData();
       const content = coverData.toMessageContent();
-      ChatMessage.create({ content: content });
+      /** whisper the message if we are being a cautious GM */
+      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')){
+        ChatMessage.create({
+          content: content,
+          whisper: ChatMessage.getWhisperRecipients('GM')
+        });
+      } else {
+        ChatMessage.create({
+          content: content
+        });
+      }
     }
   }
   

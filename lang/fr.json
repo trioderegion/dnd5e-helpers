@@ -34,8 +34,8 @@
 
     "DND5EH.LoSWithTokens_name":"Considérez les jetons comme une demi-couverture",
     "DND5EH.LoSWithTokens_hint": "Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
-    "DND5EH.LoSMaskNPCs_name": "Masquer les noms de PNJ dans le chat",
-    "DND5EH.LoSMaskNPCs_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting cover.",
+    "DND5EH.LoSMaskNPCs_name": "[EN] Hide GM info from Cover Report",
+    "DND5EH.LoSMaskNPCs_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting cover [EN] and whispers GM prompted cover checks.",
 
     "DND5EH.WildMagicOptions_name":  "Détection automatique Magie Sauvage",
     "DND5EH.WildMagicOptions_hint": "Active ou désactive la détection automatique de Magie Sauvage et comment elle doit être gérée. Standard (PHB): as seen on PHB pg. 103. More: surges on d20 <= spell level and recharges Tides of Chaos. Volatile: Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended.",

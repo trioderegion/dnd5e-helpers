@@ -3,7 +3,7 @@
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
     "systems": ["dnd5e"],
-    "version": "1.9.2",
+    "version": "1.9.3",
     "authors": [
       {
         "name": "honeybadger",
