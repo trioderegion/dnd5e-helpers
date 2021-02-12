@@ -2,6 +2,8 @@ const wmFeatureDefault = "Wild Magic Surge";
 const wmToCFeatureDefault = "Tides of Chaos";
 const wmSurgeTableDefault = "Wild-Magic-Surge-Table";
 
+const MODULE = 'dnd5e-helpers';
+
 Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "gridTemplateScaling", {
     name: game.i18n.format("DND5EH.GridTemplateScaling_name"),
@@ -367,12 +369,12 @@ function includes_array(arr, comp) {
 
 /** \helper functions */
 /** roll on the provided table */
-function RollOnWildTable(rollType) {  
+async function RollOnWildTable(rollType) {  
   const wmTableName = (game.settings.get('dnd5e-helpers', 'wmTableName') !== '') 
     ? game.settings.get('dnd5e-helpers', 'wmTableName') : wmSurgeTableDefault;
 
   if (wmTableName !== "") {
-    game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
+    await game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
   } else {
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       console.log(game.i18n.format("DND5EH.WildMagicTableError"));
@@ -386,7 +388,7 @@ function GetTidesOfChaosFeatureName(){
 }
 
 /** Roll a normal surge as per D&D 5e standard rules */
-function RollForNormalSurge(spellLevel, rollType) {
+async function RollForNormalSurge(spellLevel, rollType) {
   const roll = new Roll("1d20").roll();
   const d20result = +roll["result"];
   let surges = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge")
@@ -396,12 +398,16 @@ function RollForNormalSurge(spellLevel, rollType) {
     console.log(game.i18n.format("DND5EH.WildMagicConsoleNormalSurgeLog", {d20result: d20result}));
   }
 
+  let promise = false; 
+
   if (d20result === 1) {
-    ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-    RollOnWildTable(rollType);
+    await ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    promise = RollOnWildTable(rollType);
   } else {
-    ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    promise = ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`);
   }
+  
+  return promise;
 }
 
 /** Role a more surge, checking against spell level cast */
@@ -413,22 +419,23 @@ async function RollForMoreSurge(spellLevel, rollType, actor) {
     console.log(game.i18n.format("DND5EH.WildMagicConsoleMoreSurgeLog", {d20result : d20result, spellLevel : spellLevel}));
   }
 
+  let promise = false;
   if (d20result <= spellLevel) {
     const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
-    ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-    RollOnWildTable(rollType);
+    await ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    promise = RollOnWildTable(rollType);
     
     /** recharge TOC if we surged */
     const tocName = GetTidesOfChaosFeatureName();
     if (IsTidesOfChaosSpent(actor, tocName )) {
-      return ResetTidesOfChaos(actor, tocName );
+      promise = ResetTidesOfChaos(actor, tocName );
     }
   } else {
     const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
-    ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    promise = ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
   }
   
-  return;
+  return promise;
 }
 
 /** Role a volatile surge, checking against spell level cast + d4 */
@@ -452,7 +459,7 @@ async function RollForVolatileSurge(spellLevel, rollType, actor) {
       if (d20result <= (spellLevel + d4result)) {
         const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
         await ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result} #1d4 result]])`);
-        RollOnWildTable(rollType);
+        await RollOnWildTable(rollType);
         
         if (tocSpent){
           /** return the promise of the item update */
@@ -470,11 +477,15 @@ async function RollForVolatileSurge(spellLevel, rollType, actor) {
   return; //no promise
 }
 
-/** show surge result in chat box */
+/** show surge result in chat (optionally whisper via module settings) */
 async function ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
+
+  const gmWhisper = game.settings.get(MODULE, 'wmWhisper');
+
   return ChatMessage.create({
     content: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", {action: action, spellLevel: spellLevel, extraText: extraText, resultText: resultText}),
-    speaker: ChatMessage.getSpeaker({ alias: game.i18n.format("DND5EH.WildMagicChatSpeakerName") })
+    speaker: ChatMessage.getSpeaker({ alias: game.i18n.format("DND5EH.WildMagicChatSpeakerName") }),
+    whisper: gmWhisper ? ChatMessage.getWhisperRecipients("GM") : false
   });
 }
 
@@ -541,14 +552,14 @@ async function WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
   lvl++;
   console.log(game.i18n.format("DND5EH.WildMagicChatSurgesMessage", {lvl: lvl, bWasCast: bWasCast, wmFeatureName: wmFeatureName}));
 
-  let promise = null;
+  let promise = false;
   if (wmFeature && bWasCast && lvl > 0) {
     /** lets go baby lets go */
     console.log(game.i18n.format("DND5EH.WildMagicConsoleSurgesroll" ));
 
     const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
     if (selectedOption === 1) {
-      RollForNormalSurge(lvl, rollMode);
+      promise = RollForNormalSurge(lvl, rollMode);
     } else if (selectedOption === 2) {
       promise = RollForMoreSurge(lvl, rollMode, actor);
     } else if (selectedOption === 3) {
@@ -1034,21 +1045,23 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   if (game.settings.get('dnd5e-helpers', 'debug')) {
     console.log(game.i18n.format("DND5EH.Hooks_preUpdateActor_updatelog", {actorName:actor.name, hp: hp, spells: spells}))
   }
+
   /** WM check, are we enabled for the current user? */
   const wmSelectedOption = game.settings.get('dnd5e-helpers', 'wmOptions');
   if (wmSelectedOption !== 0 && spells !== undefined) {
     await WildMagicSurge_preUpdateActor(actor, update, wmSelectedOption)
   }
-  // GW check 
+  
+  /** Great wound checks */
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
     GreatWound_preUpdateActor(actor, update);
   }
-  //OW check
+  
+  /** Open wound checks */
   if ((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)) {
     OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWound0HP_reason"))
   }
 });
-
 
 /** All preUpdateCombat hooks are managed here */
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {

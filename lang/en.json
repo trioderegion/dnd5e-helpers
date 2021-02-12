@@ -63,8 +63,8 @@
     "DND5EH.WildMagicTidesOfChaos_hint":"Name of feature that represents the Sorcerer's Tides of Chaos (default: Tides of Chaos)",
     "DND5EH.WildMagicTidesOfChaos_error": "Dnd5e Helper: Tides of Chaos feature name not setup",
 
-    "DND5EH.WildMagicWisper_name":"Blind Table Draw",
-    "DND5EH.WildMagicWisper_hint":"Hides table results of a successful surge. Viewable by GM only.",
+    "DND5EH.WildMagicWisper_name":"Hide Wild Magic from Players",
+    "DND5EH.WildMagicWisper_hint":"Whispers all rolls and table results to the GM",
 
     "DND5EH.CombatReactionEnable_name": "Reaction status automation.",
     "DND5EH.CombatReactionEnable_hint":"Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the specified status. Remove will automatically remove this effect at the start of an actor's turn",

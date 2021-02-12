@@ -63,8 +63,8 @@
     "DND5EH.WildMagicTidesOfChaos_hint":"Nome da característica que representa as Marés do Caos do Feiticeiro (padrão: Tides of Chaos).",
     "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helpers: Nome da característica Marés do Caos não configurado",
 
-    "DND5EH.WildMagicWisper_name":"Rolagem Cega de Tabela",
-    "DND5EH.WildMagicWisper_hint":"Esconde os resultados da tabela em um surto bem sucedido. Visível apenas por GMs.",
+    "DND5EH.WildMagicWisper_name":"[EN] Hide Wild Magic from Players",
+    "DND5EH.WildMagicWisper_hint":"[EN] Whispers all rolls and table results to the GM",
 
     "DND5EH.CombatReactionEnable_name": "Automação de uso de Reações.",
     "DND5EH.CombatReactionEnable_hint":"Habilita ou desabilita essa função (global). Checa habilidades de Reação ou Ações fora de turno e aplica o estado especificado. \"Remover\" vai remover esse efeito automaticamente no início do turno do ator.",

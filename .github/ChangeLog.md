@@ -131,5 +131,14 @@
 - Mask NPC names in cover output now also whispers the cover result to the GM instead of being public (i.e. hide GM info from players)
 - Localization Changes: `LoSMaskNPCs_name`, `LoSMaskNPCs_hint`
 
+###1.9.4
+- `Blind Table Draw` for wild magic surges has been expanded to hide _all_ wild magic results from the players. Initial d20 roll, flavor text, and table outputs will be whispered to the GM.
+  - KNOWN ISSUE: The message is whispered from the player's client, so the player casting the spell will be aware of its results. I need to rework some things, bear with me.
+  - This option is now called `Hide Wild Magic from Players`.
+  - Localization changes (sorry):
+    - WildMagicWisper_name
+    - WildMagicWisper_hint
+- Addressed a few async oversights. Wild magic results should be better synchronized between clients now. Surge Roll -> Surge Result -> Spell.
+
 
 

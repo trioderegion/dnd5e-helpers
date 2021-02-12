@@ -63,8 +63,8 @@
     "DND5EH.WildMagicTidesOfChaos_hint":"Nombre del rasgo que representa las Mareas Salvajes del hechicero (por defecto: Tides of Chaos)",
     "DND5EH.WildMagicTidesOfChaos_error": "Dnd5e Helper: Nombre de rasgo de Mareas Salvajes no configurado",
 
-    "DND5EH.WildMagicWisper_name":"Tirada ciega de tabla",
-    "DND5EH.WildMagicWisper_hint":"Esconde el resultado de la tirada si ocurre una sobrecarga. Visible solo para el GM.",
+    "DND5EH.WildMagicWisper_name":"[EN] Hide Wild Magic from Players",
+    "DND5EH.WildMagicWisper_hint":"[EN] Whispers all rolls and table results to the GM",
 
     "DND5EH.CombatReactionEnable_name": "Automatización del uso de reacciones.",
     "DND5EH.CombatReactionEnable_hint":"Activa o desactiva esta función (global). Comprueba el uso de habilidades de reacción o acciones fuera de turno y aplica el estado especificado.and applies the specified status. 'Quitar' quitará este efecto autom. al principio del turnodel actor",
