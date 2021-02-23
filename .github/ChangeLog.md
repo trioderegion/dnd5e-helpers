@@ -144,5 +144,16 @@
 - Korean language support added.
   - Contributed by KLO#1490, big thanks!
 
+###1.9.6
+- Ability recharge rolls can now be whispered to the GM (i.e. hidden from players)
+- Ability recharge rolls can now be rolled at the _end_ of a creature's turn, if desired, rather than at the beginning (RAW).
+- Localization changes:
+  - `DND5EH.CombatAbilityRecharge_hint`
+  - `DND5EH.CombatAbilityRechargeHide_name`
+  - `DND5EH.CombatAbilityRechargeHide_hint`
+  - `DND5EH.CombatAbilityRecharge_Off`
+  - `DND5EH.CombatAbilityRecharge_Start`
+  - `DND5EH.CombatAbilityRecharge_End`
+
 
 
