@@ -153,9 +153,9 @@ Hooks.on('init', () => {
     default: "off",
     type: String,
     choices: {
-      "off": "Off",
-      "start": "Start of Turn",
-      "end": "End of Turn"
+      "off": game.i18n.format("DND5EH.CombatAbilityRecharge_Off"),
+      "start": game.i18n.format("DND5EH.CombatAbilityRecharge_Start"),
+      "end": game.i18n.format("DND5EH.CombatAbilityRecharge_End"),
     }
   });
   /** hide ability recharge roll */
