@@ -29,7 +29,7 @@
     "DND5EH.LoS_outputmessage":"comprobar su línea de visión hacia",
     "DND5EH.LoS_notargeterror":"¡No hay token seleccionado para calcular cobertura!",
     "DND5EH.LoS_providescover":"Proporciona cobertura",
-    "DND5EH.LoSMaskNPCs_sourceMask": "otra criatura está en medio.",
+    "DND5EH.LoSMaskNPCs_sourceMask": "Otra criatura está en medio.",
     "DND5EH.LoSMaskNPCs_targetMask": "una criatura",
 
     "DND5EH.LoSWithTokens_name":"Considerar tokens como media cob.",
