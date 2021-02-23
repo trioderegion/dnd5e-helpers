@@ -34,8 +34,8 @@
 
     "DND5EH.LoSWithTokens_name":"Considerar tokens interpostos como cobertura parcial",
     "DND5EH.LoSWithTokens_hint": "Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
-    "DND5EH.LoSMaskNPCs_name": "[EN] Hide GM info from Cover Report",
-    "DND5EH.LoSMaskNPCs_hint": "Substitui nomes de PdM com \"Uma criatura\" ao relatar a cobertura [EN] and whispers GM prompted cover checks.",
+    "DND5EH.LoSMaskNPCs_name": "Ocultar informações do GM ao Relatar Cobertura",
+    "DND5EH.LoSMaskNPCs_hint": "Substitui nomes de PdM com \"Uma criatura\" ao relatar a cobertura e sussurra os cálculos ao GM.",
 
     "DND5EH.WildMagicOptions_name":  "Autodetectar Magia Selvagem",
     "DND5EH.WildMagicOptions_hint": "Habilita ou desabilita a autodetecção de Magia Selvagem e como ela deve ser tratada. Padrão (PHB): como visto na p. 81 do Livro do Jogador. Maior: surtos ocorrem caso o d20 seja menor ou igual ao círculo da magia e recargas de Marés do Caos. Volátil: Similar a \"Maior\", mas adiciona 1d4 ao círculo da magia se Marés do Caos foi usada.",
@@ -63,8 +63,8 @@
     "DND5EH.WildMagicTidesOfChaos_hint":"Nome da característica que representa as Marés do Caos do Feiticeiro (padrão: Tides of Chaos).",
     "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helpers: Nome da característica Marés do Caos não configurado",
 
-    "DND5EH.WildMagicWisper_name":"[EN] Hide Wild Magic from Players",
-    "DND5EH.WildMagicWisper_hint":"[EN] Whispers all rolls and table results to the GM",
+    "DND5EH.WildMagicWisper_name":"Ocultar Magia Selvagem de Jogadores",
+    "DND5EH.WildMagicWisper_hint":"Sussurrar todas as jogadas e resultados de tabelas ao GM.",
 
     "DND5EH.CombatReactionEnable_name": "Automação de uso de Reações.",
     "DND5EH.CombatReactionEnable_hint":"Habilita ou desabilita essa função (global). Checa habilidades de Reação ou Ações fora de turno e aplica o estado especificado. \"Remover\" vai remover esse efeito automaticamente no início do turno do ator.",
@@ -88,11 +88,11 @@
 
     "DND5EH.CombatAbilityRecharge_name":"Re-rolar automaticamente quaisquer habilidades com uma recarga de d6.",
     "DND5EH.CombatAbilityRecharge_hint":"Habilitar ou desabilitar essa função (global).",
-    "DND5EH.CombatAbilityRechargeHide_name" : "[EN] Hide the results of ability recharge rolls",
-    "DND5EH.CombatAbilityRechargeHide_hint":"[EN] Enables or disables this feature (global). Can be toggled between start or end of turn",
-    "DND5EH.CombatAbilityRecharge_Off": "[EN] Off",
-    "DND5EH.CombatAbilityRecharge_Start": "[EN] Start of Turn",
-    "DND5EH.CombatAbilityRecharge_End": "[EN] End of Turn",
+    "DND5EH.CombatAbilityRechargeHide_name" : " Ocultar os resultados de rolagem de recarga de habilidades",
+    "DND5EH.CombatAbilityRechargeHide_hint":"Habilita ou desabilita essa função (global). Pode ser alterada entre o início ou o fim do turno.",
+    "DND5EH.CombatAbilityRecharge_Off": "Desabilitado",
+    "DND5EH.CombatAbilityRecharge_Start": "Início do Turno",
+    "DND5EH.CombatAbilityRecharge_End": "Fim do Turno",
     
     "DND5EH.AutoProf_name":"Proficiência Automática",
     "DND5EH.AutoProf_hint":"Verifica novos ítens adicionados e os caracteriza como Proficiência, caso necessário.",
