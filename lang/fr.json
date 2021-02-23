@@ -89,7 +89,7 @@
     "DND5EH.CombatAbilityRecharge_name":"Lancez automatiquement toutes les capacités non chargées avec une recharge de d6.",
     "DND5EH.CombatAbilityRecharge_hint":"Active ou désactive cette fonctionnalité (global)",
     "DND5EH.CombatAbilityRechargeHide_name" : "[EN] Hide the results of ability recharge rolls",
-    "DND5EH.CombatAbilityRechargeHide_hint":"Enables or disables this feature (global). Can be toggled between start or end of turn",
+    "DND5EH.CombatAbilityRechargeHide_hint":"[EN] Enables or disables this feature (global). Can be toggled between start or end of turn",
 
     "DND5EH.AutoProf_name":"Compétence automatique",
     "DND5EH.AutoProf_hint":"Vérifie les objets et étiquettes nouvellement ajoutés comme compétent si besoin",
