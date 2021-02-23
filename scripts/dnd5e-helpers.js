@@ -150,6 +150,19 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.CombatAbilityRecharge_hint"),
     scope: "world",
     config: true,
+    default: "off",
+    type: String,
+    choices: {
+      "off": "Off",
+      "start": "Start of Turn",
+      "end": "End of Turn"
+    }
+  });
+  /** hide ability recharge roll */
+  game.settings.register("dnd5e-helpers", "cbtAbilityRechargeHide", {
+    name: game.i18n.format("DND5EH.CombatAbilityRechargeHide_name"),
+    scope: game.i18n.format("DND5EH.CombatAbilityRechargeHide_hint"),
+    config: true,
     default: true,
     type: Boolean,
   });
@@ -529,8 +542,29 @@ async function RechargeAbilities(token) {
   const rechargeItems = CollectRechargeAbilities(token);
 
   for (item of rechargeItems) {
-    await item.rollRecharge();
+    await CustomRollRecharge(item);
   }
+}
+
+/** Custom recharge roll to allow for rollmode */
+async function CustomRollRecharge(item) {
+  const data = item.data.data;
+  if ( !data.recharge.value ) return;
+
+  // Roll the check
+  const roll = new Roll("1d6").roll();
+  const success = roll.total >= parseInt(data.recharge.value);
+  const rollMode = game.settings.get("dnd5e-helpers", "cbtAbilityRechargeHide") == true ? "selfroll" : "";
+  // Display a Chat Message
+  const promises = [roll.toMessage({
+    flavor: `${game.i18n.format("DND5E.ItemRechargeCheck", {name: item.name})} - ${game.i18n.localize(success ? "DND5E.ItemRechargeSuccess" : "DND5E.ItemRechargeFailure")}`,
+    speaker: ChatMessage.getSpeaker({actor: item.actor, token: item.actor.token}),
+    rollMode: rollMode
+  })];
+
+  // Update the Item data
+  if ( success ) promises.push(item.update({"data.recharge.charged": true}));
+  return Promise.all(promises).then(() => roll);
 }
 
 /** Wild Magic Surge Handling */
@@ -1086,6 +1120,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
     /** begin removal logic for the _next_ token */
     const nextTurn = combat.turns[changed.turn];
+    const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
+
     /** data structure for 0.6 */
     let nextTokenId = null;
     if (getProperty(nextTurn, "tokenId")) {
@@ -1097,6 +1133,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
 
     let currentToken = canvas.tokens.get(nextTokenId);
+    let previousToken = canvas.tokens.get(previousTurn.tokenId)
+
 
     /** we dont care about tokens without actors */
     if (!currentToken.actor) {
@@ -1117,7 +1155,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         await ResetLegAct(currentToken.actor, currentToken.name)
       }
 
-      if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') == true) {
+      if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "start") {
         await RechargeAbilities(currentToken);
       }
 
@@ -1129,6 +1167,11 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
       if (reactMode == 2 || reactMode == 3) {
         await ReactionRemove(currentToken)
+      }
+    }
+    if (previousToken) {
+      if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
+        await RechargeAbilities(previousToken);
       }
     }
 

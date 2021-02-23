@@ -88,6 +88,8 @@
 
     "DND5EH.CombatAbilityRecharge_name":"Re-rolar automaticamente quaisquer habilidades com uma recarga de d6.",
     "DND5EH.CombatAbilityRecharge_hint":"Habilitar ou desabilitar essa função (global).",
+    "DND5EH.CombatAbilityRechargeHide_name" : "Hide the results of ability recharge rolls",
+    "DND5EH.CombatAbilityRechargeHide_hint":"Enables or disables this feature (global). Can be toggled between start or end of turn",
 
     "DND5EH.AutoProf_name":"Proficiência Automática",
     "DND5EH.AutoProf_hint":"Verifica novos ítens adicionados e os caracteriza como Proficiência, caso necessário.",
