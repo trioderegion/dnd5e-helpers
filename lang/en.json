@@ -87,7 +87,12 @@
     "DND5EH.CombatLegendary_notification":"Legendary actions restored to {max} for {tokenName}",
 
     "DND5EH.CombatAbilityRecharge_name":"Automatically roll any uncharged abilities with a d6 recharge.",
-    "DND5EH.CombatAbilityRecharge_hint":"Enables or disables this feature (global)",
+    "DND5EH.CombatAbilityRecharge_hint":"Enables or disables this feature (global). Can be toggled between start or end of turn",
+    "DND5EH.CombatAbilityRechargeHide_name" : "Hide the results of ability recharge rolls",
+    "DND5EH.CombatAbilityRechargeHide_hint":"Enables or disables this feature (global). Can be toggled between start or end of turn",
+    "DND5EH.CombatAbilityRecharge_Off": "Off",
+    "DND5EH.CombatAbilityRecharge_Start": "Start of Turn",
+    "DND5EH.CombatAbilityRecharge_End": "End of Turn",
 
     "DND5EH.AutoProf_name":"Auto Proficiency",
     "DND5EH.AutoProf_hint":"Checks newly added items and labels as proficient if needed",

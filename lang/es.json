@@ -89,6 +89,11 @@
 
     "DND5EH.CombatAbilityRecharge_name":"Hacer las tiradas d6 de recarga para habilidades descargadas automáticamente.",
     "DND5EH.CombatAbilityRecharge_hint":"Activa o desactiva esta función (global)",
+    "DND5EH.CombatAbilityRechargeHide_name" : "[EN] Hide the results of ability recharge rolls",
+    "DND5EH.CombatAbilityRechargeHide_hint":"[EN] Enables or disables this feature (global). Can be toggled between start or end of turn",
+    "DND5EH.CombatAbilityRecharge_Off": "[EN] Off",
+    "DND5EH.CombatAbilityRecharge_Start": "[EN] Start of Turn",
+    "DND5EH.CombatAbilityRecharge_End": "[EN] End of Turn",
 
     "DND5EH.AutoProf_name":"Competencia automática",
     "DND5EH.AutoProf_hint":"Comprueba items nuevos y los marca como competente si procede",

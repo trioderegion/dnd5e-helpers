@@ -88,7 +88,12 @@
 
     "DND5EH.CombatAbilityRecharge_name":"모든 D6 재충전 특성 자동 굴림",
     "DND5EH.CombatAbilityRecharge_hint":"이 기능을 활성화/비활성화 한다. (전반적)",
-
+    "DND5EH.CombatAbilityRechargeHide_name" : "[EN] Hide the results of ability recharge rolls",
+    "DND5EH.CombatAbilityRechargeHide_hint":"[EN] Enables or disables this feature (global). Can be toggled between start or end of turn",
+    "DND5EH.CombatAbilityRecharge_Off": "[EN] Off",
+    "DND5EH.CombatAbilityRecharge_Start": "[EN] Start of Turn",
+    "DND5EH.CombatAbilityRecharge_End": "[EN] End of Turn",
+    
     "DND5EH.AutoProf_name":"자동 숙련 확인",
     "DND5EH.AutoProf_hint":"필요시 새로 추가된 아이템 및 명칭을 확인한다.",
     "DND5EH.AutoProf_consolelogsuccess":"{name} 항목에 숙련이 확인 되었습니다.",
