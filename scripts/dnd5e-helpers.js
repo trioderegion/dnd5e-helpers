@@ -291,7 +291,7 @@ Hooks.on('init', () => {
 });
 
 Hooks.on("init", () => {
-    Die.MODIFIERS["min"] = function minResult(modifier) {
+    Die.MODIFIERS["mr"] = function minResult(modifier) {
         const min = parseInt(modifier.match(/\d+/));
         if (!min || !Number.isNumeric(min)) return;
         this.results = this.results.flatMap(result => {
