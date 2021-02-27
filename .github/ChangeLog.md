@@ -156,7 +156,7 @@
   - `DND5EH.CombatAbilityRecharge_End`
 
 ###1.10.0
-- Rejoice! For Crymic has provided a solution for Elemental Adept!
+- Rejoice! For cole has provided a solution for Elemental Adept!
 - New die roll modifier added: `mr` (minimum roll)
   - Example: `1d6mr2` will replace any rolls less than 2 with 2s, `1d2mr10` will replace any rolls less than 10 with 10!
   - Spell and Cantrip scaling works as expected. `1d6mr2` in the scaling field will ensure upcasting of Burning Hands will replace 1s with 2s. Cantrip scaling can be left blank in most cases (as per stock dnd5e operation) as the first damage field of the cantrip will be used as the scaling formula.
