@@ -1,6 +1,6 @@
 {
     "DND5EH.Default_disabled" : "Desactivado",
-    "DND5EH.Default_none" : "Ninguno", 
+    "DND5EH.Default_none" : "Ninguno",
     "DND5EH.Default_SocketSetup" :"Socket de dnd5e helpers recibido",
     "DND5EH.Default_SocketSend": "socket enviado con {socketData}",
     "DND5EH.Default_roll" : "Tirada",
@@ -15,7 +15,7 @@
     "DND5EH.LoSOnTarget_name":"Calcular cobertura del objetivo",
     "DND5EH.LoSOnTarget_hint":"Activa o desactiva esta función de manera global (incluye opción de conf. de cobertura por baldosas).",
     "DND5EH.LoSOnTarget_center":"Visión de punto central (visión de Foundry)",
-    "DND5EH.LoSOnTarget_corner":"Visión de cuatro esquinas (Four Corner Vision (DMG pg. 251)",
+    "DND5EH.LoSOnTarget_corner":"Visión de cuatro esquinas (Four Corner Vision ,DMG pg. 251)",
     "DND5EH.LoS_cornererror1":"¡No se pudieron convertir esquinas visibles en nivel de cobertura!",
     "DND5EH.LoS_cornererror2":"No se pudo convertir el nivel de cob. a un string (Nivel de cob. {coverLevel}).",
     "DND5EH.LoS_nocover": "Sin cobertura",
@@ -29,13 +29,13 @@
     "DND5EH.LoS_outputmessage":"comprobar su línea de visión hacia",
     "DND5EH.LoS_notargeterror":"¡No hay token seleccionado para calcular cobertura!",
     "DND5EH.LoS_providescover":"Proporciona cobertura",
-    "DND5EH.LoSMaskNPCs_sourceMask": "[EN] Another creature is in the way.",
-    "DND5EH.LoSMaskNPCs_targetMask": "[EN] a creature",
+    "DND5EH.LoSMaskNPCs_sourceMask": "Otra criatura está en medio.",
+    "DND5EH.LoSMaskNPCs_targetMask": "una criatura",
 
     "DND5EH.LoSWithTokens_name":"Considerar tokens como media cob.",
     "DND5EH.LoSWithTokens_hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",
-    "DND5EH.LoSMaskNPCs_name": "[EN] Hide GM info from Cover Report",
-    "DND5EH.LoSMaskNPCs_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting cover and whispers GM prompted cover checks..",
+    "DND5EH.LoSMaskNPCs_name": "No mostrar información del GM del Anuncio de Cob.",
+    "DND5EH.LoSMaskNPCs_hint": "Reemplaza el nombre del PNJ por \"Una criatura\" al anunciar cob. y susurra control de cob. pedido por el GM..",
 
     "DND5EH.WildMagicOptions_name":  "Auto detectar Magia Salvaje",
     "DND5EH.WildMagicOptions_hint": "Activa o desactiva auto detección de Magia Salvaje y cómo debería manejarse. Estándar: PHB pg. 103. Más: sobrecargas en d20 <= nivel de conjuro y recarga Mareas del Caos. Volátil: Similar a Más, pero añade 1d4 al nivel de conjuro si se ha gastado Mareas del Caos.",
@@ -63,8 +63,8 @@
     "DND5EH.WildMagicTidesOfChaos_hint":"Nombre del rasgo que representa las Mareas Salvajes del hechicero (por defecto: Tides of Chaos)",
     "DND5EH.WildMagicTidesOfChaos_error": "Dnd5e Helper: Nombre de rasgo de Mareas Salvajes no configurado",
 
-    "DND5EH.WildMagicWisper_name":"[EN] Hide Wild Magic from Players",
-    "DND5EH.WildMagicWisper_hint":"[EN] Whispers all rolls and table results to the GM",
+    "DND5EH.WildMagicWisper_name":"No mostrar Magia Salvaje a los jugadores",
+    "DND5EH.WildMagicWisper_hint":"Susurra todas las tiradas y resultados de la tabla al GM",
 
     "DND5EH.CombatReactionEnable_name": "Automatización del uso de reacciones.",
     "DND5EH.CombatReactionEnable_hint":"Activa o desactiva esta función (global). Comprueba el uso de habilidades de reacción o acciones fuera de turno y aplica el estado especificado.and applies the specified status. 'Quitar' quitará este efecto autom. al principio del turnodel actor",
@@ -89,11 +89,11 @@
 
     "DND5EH.CombatAbilityRecharge_name":"Hacer las tiradas d6 de recarga para habilidades descargadas automáticamente.",
     "DND5EH.CombatAbilityRecharge_hint":"Activa o desactiva esta función (global)",
-    "DND5EH.CombatAbilityRechargeHide_name" : "[EN] Hide the results of ability recharge rolls",
-    "DND5EH.CombatAbilityRechargeHide_hint":"[EN] Enables or disables this feature (global). Can be toggled between start or end of turn",
-    "DND5EH.CombatAbilityRecharge_Off": "[EN] Off",
-    "DND5EH.CombatAbilityRecharge_Start": "[EN] Start of Turn",
-    "DND5EH.CombatAbilityRecharge_End": "[EN] End of Turn",
+    "DND5EH.CombatAbilityRechargeHide_name" : "No mostrar el resultado de tiradas de recarga de hab.",
+    "DND5EH.CombatAbilityRechargeHide_hint":"Activa o desactiva esta función (global). Puede cambiarse entre principio o final de turno",
+    "DND5EH.CombatAbilityRecharge_Off": "Apagado",
+    "DND5EH.CombatAbilityRecharge_Start": "Comienzo del turno",
+    "DND5EH.CombatAbilityRecharge_End": "Fin del turno",
 
     "DND5EH.AutoProf_name":"Competencia automática",
     "DND5EH.AutoProf_hint":"Comprueba items nuevos y los marca como competente si procede",
