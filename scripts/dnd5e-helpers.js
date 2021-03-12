@@ -20,7 +20,7 @@ Hooks.on('init', () => {
     }
   });
 
-   /** report cover value to chat on target */
+  /** report cover value to chat on target */
   game.settings.register("dnd5e-helpers", "losOnTarget", {
     name: game.i18n.format("DND5EH.LoSOnTarget_name"),
     hint: game.i18n.format("DND5EH.LoSOnTarget_hint"),
@@ -31,7 +31,7 @@ Hooks.on('init', () => {
     choices: {
       0: game.i18n.format("DND5EH.Default_disabled"),
       1: game.i18n.format("DND5EH.LoSOnTarget_center"),
-      2: game.i18n.format( "DND5EH.LoSOnTarget_corner"),
+      2: game.i18n.format("DND5EH.LoSOnTarget_corner"),
     }
   });
 
@@ -102,7 +102,7 @@ Hooks.on('init', () => {
   /** toggle result gm whisper for WM */
   game.settings.register("dnd5e-helpers", "wmWhisper", {
     name: game.i18n.format("DND5EH.WildMagicWisper_name"),
-    hint: game.i18n.format( "DND5EH.WildMagicWisper_hint"),
+    hint: game.i18n.format("DND5EH.WildMagicWisper_hint"),
     scope: "world",
     config: true,
     default: false,
@@ -117,22 +117,13 @@ Hooks.on('init', () => {
     type: Number,
     choices: {
       0: game.i18n.format("DND5EH.Default_none"),
-      1: game.i18n.format( "DND5EH.CombatReactionEnable_apply"),
-      2: game.i18n.format("DND5EH.CombatReactionEnable_remove"),
-      3: game.i18n.format("DND5EH.CombatReactionEnable_both"),
+      1: game.i18n.format("DND5EH.CombatReactionEnable_both"),
     },
     default: 0,
     config: true,
+    onChange: () => window.location.reload()
   });
 
-  game.settings.register("dnd5e-helpers", "cbtReactionStatus", {
-    name: game.i18n.format("DND5EH.CombatReactionStatus_name"),
-    hint: game.i18n.format("DND5EH.CombatReactionStatus_hint"),
-    scope: "world",
-    config: true,
-    default: "Weakened",
-    type: String,
-  });
 
   /** enable auto legact reset */
   game.settings.register("dnd5e-helpers", "cbtLegactEnable", {
@@ -317,774 +308,22 @@ Hooks.on('ready', () => {
         if ((value === 3) && game.users.get(`${key}`).data.role !== 4) {
           if (game.user.data._id === `${key}`) {
             if (socketData.hp !== 0) {
-              DrawGreatWound(actor);
+              DnDWounds.DrawGreatWound(actor);
             }
             if (socketData.hp === 0 && game.settings.get('dnd5e-helpers', 'owHp0GW') === true) {
               const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-              OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundSocketMessage", {gwFeatureName: gwFeatureName}))
+              DnDWounds.OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundSocketMessage", { gwFeatureName: gwFeatureName }))
             }
           }
         }
       }
+    }
+    if(socketData.actionMarkers){
+      DnDActionManagement.UpdateOpacities(socketData.tokenId)
     }
   })
 })
 
-  /** helper functions */
-
-function IsFirstGM() {
-  return game.user === game.users.find((u) => u.isGM && u.active);
-}
-
-function GetKeyByValue(object, value) {
-  return Object.keys(object).find(key => object[key] === value);
-}
-
-//find status effect based on passed name
-function GetStatusEffect(statusName) {
-  /** Core Status Effects -- pass displayed name backwards through localization to match to status.label */
-  const { EFFECT } = game.i18n.translations;
-
-  /** find the key (will be label) from the value */
-  let statusLabel = GetKeyByValue(EFFECT, statusName);
-  let statusEffect = CONFIG.statusEffects.find(st => st.label === `EFFECT.${statusLabel}`);
-
-  if (statusEffect) {
-    /** first match is core, always prefer core */
-    return statusEffect;
-  }
-  else {
-    /** cant find it, it still may be available via other modules/methods */
-
-    /** CUB Compatibility -- statusName matches displayed CUB name (status.label) */
-    if (!statusEffect && game.modules.get("combat-utility-belt")?.active) {
-
-      /** if we find it, pick it */
-      statusEffect = CONFIG.statusEffects.find(st => st.label === statusName);
-    }
-
-    //note: other module compatibilities should check for a null statusEffect before
-    //      changing the current statusEffect. Priority based on evaluation order.
-  }
-
-  /** return the best label we found */
-  return statusEffect;
-}
-
-//toggle core status effects
-async function ToggleStatus(token, status) {
-  return await token.toggleEffect(status);
-}
-
-//apply a CUB status effect
-async function ApplyCUB(token, cubStatus) {
-  return await game.cub.addCondition(cubStatus, token)
-}
-
-//remove a CUB status effect
-async function RemoveCUB(token, cubStatus) {
-  return await game.cub.removeCondition(cubStatus, token)
-}
-
-/** Prof array check */
-function includes_array(arr, comp) {
-  //Ignore empty array
-  if (arr.toString() == [""]) {
-    return false;
-  }
-  return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
-}
-
-/** \helper functions */
-/** roll on the provided table */
-async function RollOnWildTable(rollType) {  
-  const wmTableName = (game.settings.get('dnd5e-helpers', 'wmTableName') !== '') 
-    ? game.settings.get('dnd5e-helpers', 'wmTableName') : wmSurgeTableDefault;
-
-  if (wmTableName !== "") {
-    await game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
-  } else {
-    if (game.settings.get('dnd5e-helpers', 'debug')) {
-      console.log(game.i18n.format("DND5EH.WildMagicTableError"));
-    }    
-  }
-}
-
-function GetTidesOfChaosFeatureName(){
-  return (game.settings.get('dnd5e-helpers', 'wmToCFeatureName') !== '') 
-    ? game.settings.get('dnd5e-helpers', 'wmToCFeatureName') : wmToCFeatureDefault;
-}
-
-/** Roll a normal surge as per D&D 5e standard rules */
-async function RollForNormalSurge(spellLevel, rollType) {
-  const roll = new Roll("1d20").roll();
-  const d20result = +roll["result"];
-  let surges = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge")
-  let calm = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm")
-
-  if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(game.i18n.format("DND5EH.WildMagicConsoleNormalSurgeLog", {d20result: d20result}));
-  }
-
-  let promise = false; 
-
-  if (d20result === 1) {
-    await ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-    promise = RollOnWildTable(rollType);
-  } else {
-    promise = ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-  }
-  
-  return promise;
-}
-
-/** Role a more surge, checking against spell level cast */
-async function RollForMoreSurge(spellLevel, rollType, actor) {
-  const roll = new Roll("1d20").roll();
-  const d20result = +roll["result"];
-
-  if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(game.i18n.format("DND5EH.WildMagicConsoleMoreSurgeLog", {d20result : d20result, spellLevel : spellLevel}));
-  }
-
-  let promise = false;
-  if (d20result <= spellLevel) {
-    const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
-    await ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-    promise = RollOnWildTable(rollType);
-    
-    /** recharge TOC if we surged */
-    const tocName = GetTidesOfChaosFeatureName();
-    if (IsTidesOfChaosSpent(actor, tocName )) {
-      promise = ResetTidesOfChaos(actor, tocName );
-    }
-  } else {
-    const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
-    promise = ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-  }
-  
-  return promise;
-}
-
-/** Role a volatile surge, checking against spell level cast + d4 */
-async function RollForVolatileSurge(spellLevel, rollType, actor) {
-  const wmToCFeatureName = GetTidesOfChaosFeatureName();
-  if (wmToCFeatureName !== '') {
-      
-      const tocSpent = IsTidesOfChaosSpent(actor, wmToCFeatureName); 
-
-      const d20roll = new Roll("1d20").roll();
-      const d4roll = new Roll("1d4").roll();
-      const d20result = +d20roll["result"];
-
-      /** if tides of chaos hasn't been used then no volatile roll */
-      const d4result = tocSpent ? +d4roll["result"] : 0;
-
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log(game.i18n.format("DND5EH.WildMagicConsoleVolatileSurgeLog", {d20result : d20result, spellLevel: spellLevel, d4result : d4result}));
-      }
-
-      if (d20result <= (spellLevel + d4result)) {
-        const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
-        await ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result} #1d4 result]])`);
-        await RollOnWildTable(rollType);
-        
-        if (tocSpent){
-          /** return the promise of the item update */
-          return ResetTidesOfChaos(actor, wmToCFeatureName);
-        }
-      } else {
-        const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
-        return ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result}  #1d4 result]])`);
-      }
-  } else {
-    if (game.settings.get('dnd5e-helpers', 'debug')) {
-      console.log(game.i18n.format("DND5EH.WildMagicTidesOfChaos_error"));
-    }
-  }
-  return; //no promise
-}
-
-/** show surge result in chat (optionally whisper via module settings) */
-async function ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
-
-  const gmWhisper = game.settings.get(MODULE, 'wmWhisper');
-
-  return ChatMessage.create({
-    content: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", {action: action, spellLevel: spellLevel, extraText: extraText, resultText: resultText}),
-    speaker: ChatMessage.getSpeaker({ alias: game.i18n.format("DND5EH.WildMagicChatSpeakerName") }),
-    whisper: gmWhisper ? ChatMessage.getWhisperRecipients("GM") : false
-  });
-}
-
-/** is the tides of chaos feature used */
-function IsTidesOfChaosSpent(actor, wmToCFeatureName) {
-  const tocItem = actor.items.getName(wmToCFeatureName);
-  
-  if (tocItem) {
-    return (tocItem.data.data.uses.value === 0);
-  } else {
-    return false;
-  }
-}
-
-/** reset the tides of chaose feature also reset the resource if that is also used */
-async function ResetTidesOfChaos(actor, wmToCFeatureName) {
-  const tocItem = actor?.items.getName(wmToCFeatureName);
-
-  if (tocItem) {
-      const item = await tocItem.update({ 'data.uses.value': tocItem.data.data.uses.max });
-      actor.sheet.render(false);
-      return item;
-    }    
-  
-  return tocItem;
-}
-
-function NeedsRecharge(recharge = { value: 0, charged: false }) {
-  return (recharge.value !== null &&
-    (recharge.value > 0) &&
-    recharge.charged !== null &&
-    recharge.charged == false);
-}
-
-function CollectRechargeAbilities(token) {
-  const rechargeItems = token.actor.items.filter(e => NeedsRecharge(e.data.data.recharge));
-  return rechargeItems;
-}
-
-async function RechargeAbilities(token) {
-  const rechargeItems = CollectRechargeAbilities(token);
-
-  for (item of rechargeItems) {
-    await CustomRollRecharge(item);
-  }
-}
-
-/** Custom recharge roll to allow for rollmode */
-async function CustomRollRecharge(item) {
-  const data = item.data.data;
-  if ( !data.recharge.value ) return;
-
-  // Roll the check
-  const roll = new Roll("1d6").roll();
-  const success = roll.total >= parseInt(data.recharge.value);
-  const rollMode = game.settings.get("dnd5e-helpers", "cbtAbilityRechargeHide") == true ? "selfroll" : "";
-  // Display a Chat Message
-  const promises = [roll.toMessage({
-    flavor: `${game.i18n.format("DND5E.ItemRechargeCheck", {name: item.name})} - ${game.i18n.localize(success ? "DND5E.ItemRechargeSuccess" : "DND5E.ItemRechargeFailure")}`,
-    speaker: ChatMessage.getSpeaker({actor: item.actor, token: item.actor.token}),
-    rollMode: rollMode
-  })];
-
-  // Update the Item data
-  if ( success ) promises.push(item.update({"data.recharge.charged": true}));
-  return Promise.all(promises).then(() => roll);
-}
-
-/** Wild Magic Surge Handling */
-async function WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
-  const origSlots = actor.data.data.spells;
-
-  /** find the spell level just cast */
-  const spellLvlNames = ["spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
-  let lvl = spellLvlNames.findIndex(name => { return getProperty(update, "data.spells." + name) });
-
-  const preCastSlotCount = getProperty(origSlots, spellLvlNames[lvl] + ".value");
-  const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
-  const bWasCast = preCastSlotCount - postCastSlotCount > 0;
-
-  const wmFeatureName = (game.settings.get('dnd5e-helpers', 'wmFeatureName') !== '') 
-    ? game.settings.get('dnd5e-helpers', 'wmFeatureName') : wmFeatureDefault;
-  const wmFeature = actor.items.find(i => i.name === wmFeatureName) !== null
-
-  lvl++;
-  console.log(game.i18n.format("DND5EH.WildMagicChatSurgesMessage", {lvl: lvl, bWasCast: bWasCast, wmFeatureName: wmFeatureName}));
-
-  let promise = false;
-  if (wmFeature && bWasCast && lvl > 0) {
-    /** lets go baby lets go */
-    console.log(game.i18n.format("DND5EH.WildMagicConsoleSurgesroll" ));
-
-    const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
-    if (selectedOption === 1) {
-      promise = RollForNormalSurge(lvl, rollMode);
-    } else if (selectedOption === 2) {
-      promise = RollForMoreSurge(lvl, rollMode, actor);
-    } else if (selectedOption === 3) {
-      promise = RollForVolatileSurge(lvl, rollMode, actor);
-    }
-  }
-  
-  return promise;
-}
-
-/** sets current legendary actions to max (or current if higher) */
-async function ResetLegAct(actor, tokenName) {
-  if (actor == null) {
-    return null;
-  }
-  let legact = actor.data.data.resources.legact;
-  if (legact && legact.value !== null) {
-    /** only reset if needed */
-    if (legact.value < legact.max) {
-      ui.notifications.info(game.i18n.format("DND5EH.CombatLegendary_notification", {max : legact.max, tokenName: tokenName}))
-      let newActor = await actor.update({ 'data.resources.legact.value': legact.max });
-      newActor.sheet.render(false);
-      return newActor;
-    }
-    
-    return actor;
-  }
-}
-
-/** checks for Unlinked Token Great Wounds */
-function GreatWound_preUpdateToken(scene, tokenData, update) {
-
-  //find update data and original data
-  let actor = game.actors.get(tokenData.actorId)
-  let data = {
-    actorData: canvas.tokens.get(tokenData._id).actor.data,
-    updateData: update,
-    actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
-    actorMax: getProperty(tokenData, "actorData.data.attributes.hp.max"),
-    updateHP: update.actorData.data.attributes.hp.value,
-  }
-  if (data.actorMax == undefined) {
-    data.actorMax = actor.data.data.attributes.hp.max;
-  }
-  if (data.actorHP == undefined) {
-    data.actorHP = data.actorMax;
-  }
-  let hpChange = (data.actorHP - data.updateHP)
-  // check if the change in hp would be over 50% max hp
-  if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
-    const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-    new Dialog({
-      title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {gwFeatureName: gwFeatureName, actorName: actor.name}),
-      buttons: {
-        one: {
-          label: game.i18n.format("DND5EH.Default_roll"),
-          callback: () => {
-            DrawGreatWound(actor);
-          }
-        }
-      }
-    }).render(true)
-  }
-}
-
-
-/** checks for Linked Token Great Wounds */
-function GreatWound_preUpdateActor(actor, update) {
-
-  //find update data and original data
-  let data = {
-    actor: actor,
-    actorData: actor.data,
-    updateData: update,
-    actorHP: actor.data.data.attributes.hp.value,
-    actorMax: actor.data.data.attributes.hp.max,
-    updateHP: (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : 0),
-    hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
-  };
-
-  const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-  // check if the change in hp would be over 50% max hp
-  if (data.hpChange >= Math.ceil(data.actorMax / 2)) {
-    new Dialog({
-      title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {gwFeatureName: gwFeatureName, actorName: actor.name}),
-      buttons: {
-        one: {
-          label: game.i18n.format("DND5EH.Default_roll"),
-          callback: () => {
-            if (game.user.data.role !== 4) {
-              DrawGreatWound(actor)
-              return;
-            }
-
-            const socketData = {
-              users: actor._data.permission,
-              actorId: actor._id,
-              greatwound: true,
-              hp: data.updateHP,
-            }
-            console.log(game.i18n.format("DND5EH.Default_SocketSend", {socketData: socketData}))
-            game.socket.emit(`module.dnd5e-helpers`, socketData)
-          }
-        }
-      }
-    }).render(true)
-  }
-}
-
-/** rolls on specified Great Wound Table */
-function DrawGreatWound(actor) {
-  const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-  (async () => {
-    let gwSave = await actor.rollAbilitySave("con");
-    if (gwSave.total < 15) {
-      const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName");
-      ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogFailMessage", {actorName: actor.name, gwFeatureName: gwFeatureName}) });
-      if (greatWoundTable !== "") {
-        game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
-      }
-      else {
-        ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogError", {gwFeatureName: gwFeatureName})});
-      }
-    }
-    else {
-      ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogSuccessMessage", {actorName: actor.name, gwFeatureName: gwFeatureName})});
-    }
-  })();
-}
-
-
-
-/** auto prof Weapon ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
-function AutoProfWeapon_createOwnedItem(actor, item) {
-
-  //finds item data and actor proficiencies 
-  let { name } = item;
-  let { weaponProf } = actor.data.data.traits;
-  let proficient = false;
-  
-  //if item name matches custom prof lis then prof = true
-  const weaponProfList = weaponProf.custom.split(" ").map(s => s.slice(0, -1))
-  if (includes_array(weaponProfList, name) || includes_array(weaponProfList, `${name}s`)) proficient = true;
-
-  // update item to match prof, otherwise, leave as is (dnd5e system will handle generic profs)
-  if (proficient) {
-    actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
-    console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", {name: name}))
-  } /* else {
-    //Remove proficiency if actor is not proficient and the weapon has proficiency set.
-    if (!proficient && item.data.proficient) {
-      actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
-      console.log(name + " is marked as not proficient")
-    } else {
-      ui.notifications.notify(name + " could not be matched to proficiency, please adjust manually.");
-    }
-  }
-  */
-}
-
-/** Auto prof Armor ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
-function AutoProfArmor_createOwnedItem(actor, item) {
-
-  //finds item data and actor proficiencies 
-  let { name } = item;
-  let { armorProf } = actor.data.data.traits;
-  let proficient = false;
-  
-  /* NOTE: I know of no examples of being granted "Studded Leather Armor" proficiency,
-   *       but it does not make grammatical sense for them to be optionaly pluralized,
-   *       so do not consider plurals when matching like weapons
-  */
-  
-  //if item name matches custom prof lis then prof = true
-  if (includes_array(armorProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
-
-  // update item to match prof, otherwise, leave as is (dnd5e will handle generic profs)
-  //For items that are not armors (trinkets, clothing) we assume prof = true 
-  if (proficient) {
-    actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
-    console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", {name: name}))
-  } 
-}
-
-/**Auto Prof Tools*/
-function AutoProfTool_createOwnedItem(actor, item) {
-
-  //finds item data and actor proficiencies 
-  let { name } = item;
-  let { toolProf } = actor.data.data.traits;
-  let proficient = false;
-
-  //pass_name is here to match some of the toolProf strings
-  const pass_name = name.toLowerCase().replace("navi", "navg").replace("thiev", "thief");
-
-  if (includes_array(toolProf.value, pass_name)) proficient = true;
-
-  //if item name matches custom prof lis then prof = true
-  if (includes_array(toolProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
-
-  // update item to match prof
-  //For items that are not armors (trinkets, clothing) we assume prof = true 
-  if (proficient) {
-    actor.updateOwnedItem({ _id: item._id, "data.proficient": 1 });
-    console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", {name: name}))
-  } else {
-    ui.notifications.notify(game.i18n.format("DND5EH.AutoProf_consolelogfail", {name: name}));
-  }
-}
-
-/** 
- * Auto regeneration on turn start
- */
-async function Regeneration(token) {
-  if (token.actor == null) {
-    return;
-  }
-  let option1 = game.i18n.format("DND5EH.AutoRegen_Regneration")
-  let option2 = game.i18n.format("DND5EH.AutoRegen_SelfRepair")
-  let regen = token.actor.items.find(i => i.name === option1 || i.name === option2);
-
-  let data = {
-    tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
-    actorMax: token.actor.data.data.attributes.hp.max,
-  }
-
-  if(token.data.actorLink === true){
-    data.tokenHP = token.actor.data.data.attributes.hp.value;
-  }
-  
-  // if token isnt damaged, set tokenHP to max
-  if (data.tokenHP == undefined) {
-    data.tokenHP = data.actorMax
-  }
-  // parse the regeration item to locate the formula to use 
-
-  const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
-  let match = regen.data.data.description.value.match(regenRegExp);
-  if (!match) return undefined;
-  let regenAmout = match[1];
-
-  //dialog choice to heal or not
-  if (regenAmout !== null) {
-    new Dialog({
-      title: game.i18n.format("DND5EH.AutoRegenDialog_name", {tokenName: token.name}),
-      content: game.i18n.format("DND5EH.AutoRegenDialog_content", {tokenName: token.name, tokenHP: data.tokenHP, actorMax: data.actorMax}),
-      buttons: {
-        one: {
-          label: game.i18n.format("DND5EH.AutoRegenDialog_healingprompt", {regenAmout: regenAmout}),
-          callback: () => {
-            let regenRoll = new Roll(regenAmout).roll().total;
-            token.actor.applyDamage(- regenRoll);
-            ChatMessage.create({ content: game.i18n.format( "DND5EH.AutoRegenDialog_healingmessage", {tokenName: token.name, regenRoll: regenRoll}), whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) });
-          }
-        },
-        two: {
-          label: game.i18n.format("DND5EH.AutoRegenDialog_stopprompt"),
-        }
-      }
-    }).render(true);
-
-  }
-}
-
-//quick undead fort check, just checks change in np, not total damage
-async function UndeadFortCheckQuick(tokenData, update, options) {
-  
-  let data = {
-    actorData: canvas.tokens.get(tokenData._id).actor.data,
-    updateData: update,
-    actorId: tokenData.actorId,
-    actorHp: await getProperty(tokenData, "actorData.data.attributes.hp.value"),
-    updateHP: update.actorData.data.attributes.hp.value,
-  }
-
-  if (data.actorHp == null) {
-    data.actorHp = game.actors.get(data.actorId).data.data.attributes.hp.max
-  }
-  let hpChange = (data.actorHp - data.updateHP)
-  let token = canvas.tokens.get(tokenData._id)
-  if (!options.skipUndeadCheck) {
-    new Dialog({
-      title: game.i18n.format("DND5EH.UndeadFort_dialogname"),
-      content: game.i18n.format("DND5EH.UndeadFort_quickdialogcontent"),
-      buttons: {
-        one: {
-          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
-          callback: () => {
-            token.update({ hp: 0 }, { skipUndeadCheck: true })
-            ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
-            return;
-          },
-        },
-        two: {
-          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt2"),
-          callback: async () => {
-            let { total } = await token.actor.rollAbilitySave("con")
-            if (total >= (5 + hpChange)) {
-              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", {tokenName: token.name, total: total}))
-              token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
-            } else if (total < (5 + hpChange)) {
-              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", {tokenName: token.name, total: total}))
-              token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
-            }
-          },
-        },
-      },
-    }).render(true);
-    return false;
-  } else return true;
-}
-
-// undead fort check, requires manual input
-function UndeadFortCheckSlow(tokenData, update, options) {
-  let data = {
-    actorData: canvas.tokens.get(tokenData._id).actor.data,
-    updateData: update,
-    actorHP: tokenData.actorData.data.attributes.hp.value,
-    updateHP: update.actorData.data.attributes.hp.value,
-    hpChange: (tokenData.actorData.data.attributes.hp.value - update.actorData.data.attributes.hp.value)
-  }
-  let token = canvas.tokens.get(tokenData._id)
-  if (!options.skipUndeadCheck) {
-    let damageQuery = game.i18n.format("DND5EH.UndeadFort_slowdialogcontentquery")
-    let content = `
-    <form>
-            <div class="form-group">
-                <label for="num">${damageQuery} </label>
-                <input id="num" name="num" type="number" min="0"></input>
-            </div>
-        </form>`;
-    new Dialog({
-      title: game.i18n.format("DND5EH.UndeadFort_dialogname"),
-      content: content,
-      buttons: {
-        one: {
-          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
-          callback: () => {
-            token.update({ hp: 0 }, { skipUndeadCheck: true })
-            ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
-            return;
-          },
-        },
-        two: {
-          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt2"),
-          callback: async (html) => {
-            let { total } = await token.actor.rollAbilitySave("con")
-            let number = Number(html.find("#num")[0].value);
-            if (total >= (5 + number)) {
-              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", {tokenName: token.name, total: total}))
-              token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
-            } else if (total < (5 + number)) {
-              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", {tokenName: token.name, total: total}))
-              token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
-            }
-          },
-        },
-      },
-    }).render(true);
-    return false;
-  } else return true;
-}
-
-/** apply a reaction status to the token if the item looks like it should use a reaction (requires active combat) */
-function ReactionApply(castingActor, castingToken, itemId) {
-  
-  if (itemId !== undefined) {
-    const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-    let statusEffect = GetStatusEffect(reactionStatus);
-
-    /** bail out if we can't find the status. */
-    if (!statusEffect) {
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuserror", {reactionStatus: reactionStatus}))
-      }
-      return;
-    }
-
-    //find the current token instance that called the roll card
-    let currentCombatant = getProperty(game.combats, "active.current.tokenId");
-    if (!currentCombatant) {
-      return;
-    }
-
-    if (castingToken === null && castingActor === null) {
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log(game.i18n.format("DND5EH.CombatReactionStatus_actoritemerror"))
-      }
-      return; // not a item roll message, prevents unneeded errors in console
-    }
-
-    //find token for linked actor 
-    if (castingToken === null && castingActor !== null) {
-      castingToken = canvas.tokens.placeables.find(i => i.actor?.data._id.includes(castingActor)).data._id
-    }
-
-    let effectToken = canvas.tokens.get(castingToken)
-
-    let ownedItem = effectToken.actor.getOwnedItem(itemId);
-    const { activation } = ownedItem.labels;
-
-    /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
-    const isAction = activation === game.i18n.format( "DND5EH.CombatReactionStatus_actionname")
-    const isReaction = activation === game.i18n.format("DND5EH.CombatReactionStatus_reactionname")
-
-    let shouldApply = isReaction || (isAction && (currentCombatant !== castingToken));
-
-    if (shouldApply) {
-      if (game.modules.get("combat-utility-belt")?.active) {
-
-        /** first, test if this is a cub condition */
-        if (game.cub.getCondition(reactionStatus)) {
-          ApplyCUB(effectToken, reactionStatus)
-          return; //early exit once we trigger correctly
-        }
-      }
-
-      /** if nothing else , it should be core -- if the effect is already present, dont toggle
-       * @todo maybe put out a nice reminder that you have used your action in chat? */
-      const existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-      if (!existing) {
-        ToggleStatus(effectToken, statusEffect);
-        return; //early exit once we trigger correctly
-      }
-    }
-  }
-}
-
-async function ReactionRemove(currentToken) {
-  const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-  let statusEffect = GetStatusEffect(reactionStatus);
-
-  if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuslog", {statusEffect: statusEffect}))
-  }
-
-  /** latest version, attempt to play nice with active effects and CUB statuses */
-  if (!statusEffect) {
-    console.log(game.i18n.format("DND5EH.CombatReactionStatus_effecterror", {reactionStatus: reactionStatus}));
-    return;
-  }
-
-  /** Remove an existing effect (stoken from foundy.js:44223) */
-  if (!currentToken.actor) {
-    /** actorless tokens cannot receive effects */
-    return;
-  }
-  const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-  if (existing) {
-    if (game.modules.get("combat-utility-belt")?.active) {
-
-      /** first, test if this is a cub condition */
-      if (game.cub.getCondition(reactionStatus)) {
-        await RemoveCUB(currentToken, reactionStatus)
-        return; //early exit once we trigger correctly
-      }
-    }
-
-    /** if nothing else , it should be core */
-    await ToggleStatus(currentToken, statusEffect);
-    return; //early exit once we trigger correctly
-  }
-
-}
-
-// roll on specified open wounds tabel if triggered
-function OpenWounds(actorName, woundType) {
-  const owFeatureName = game.settings.get("dnd5e-helpers", "owFeatureName");
-  const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
-  ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundFeaturename_chatoutput", {actorName: actorName, owFeatureName: owFeatureName, woundType: woundType})})
-  if (openWoundTable !== "") {
-    game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
-  } else {
-    ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundTableName_error", {owFeatureName: owFeatureName}) });
-  }
-}
 
 //collate all preUpdateActor hooked functions into a single hook call
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
@@ -1092,28 +331,34 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   let hp = getProperty(update, "data.attributes.hp.value");
   let spells = getProperty(update, "data.spells");
   if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(game.i18n.format("DND5EH.Hooks_preUpdateActor_updatelog", {actorName:actor.name, hp: hp, spells: spells}))
+    console.log(game.i18n.format("DND5EH.Hooks_preUpdateActor_updatelog", { actorName: actor.name, hp: hp, spells: spells }))
   }
 
   /** WM check, are we enabled for the current user? */
   const wmSelectedOption = game.settings.get('dnd5e-helpers', 'wmOptions');
   if (wmSelectedOption !== 0 && spells !== undefined) {
-    await WildMagicSurge_preUpdateActor(actor, update, wmSelectedOption)
+    await DnDWildMagic.WildMagicSurge_preUpdateActor(actor, update, wmSelectedOption)
   }
-  
+
   /** Great wound checks */
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
-    GreatWound_preUpdateActor(actor, update);
+    DnDWounds.GreatWound_preUpdateActor(actor, update);
   }
-  
+
   /** Open wound checks */
   if ((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)) {
-    OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWound0HP_reason"))
+    DnDWounds.OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWound0HP_reason"))
   }
 });
 
 /** All preUpdateCombat hooks are managed here */
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+
+  if (changed.round === 1 && combat.started) {
+    let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
+    let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
+    DnDActionManagement.AddActionMarkers(tokenArray)
+  }
 
   /** only concerned with turn changes */
   if (!("turn" in changed)) {
@@ -1161,32 +406,31 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       let regenSett = !!regen
-      console.log(game.i18n.format("DND5EH.Hooks_updateActor_updatelog", {currentTokenName: currentToken.name, regenSett: regenSett}))
+      console.log(game.i18n.format("DND5EH.Hooks_updateActor_updatelog", { currentTokenName: currentToken.name, regenSett: regenSett }))
     }
 
     /** @todo data vs _data -- multiple updates reset changes made by previous updates */
     if (currentToken) {
       if (game.settings.get('dnd5e-helpers', 'cbtLegactEnable') == true) {
-        await ResetLegAct(currentToken.actor, currentToken.name)
+        await DnDCombatUpdates.ResetLegAct(currentToken.actor, currentToken.name)
       }
 
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "start") {
-        await RechargeAbilities(currentToken);
+        await DnDCombatUpdates.RechargeAbilities(currentToken);
       }
 
       if ((game.settings.get('dnd5e-helpers', 'autoRegen')) && (!!regen === true)) {
-        await Regeneration(currentToken)
+        await DnDCombatUpdates.Regeneration(currentToken)
       }
 
-      /** hb@todo: functionalize this similar to the other cbt operations */
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
-      if (reactMode == 2 || reactMode == 3) {
-        await ReactionRemove(currentToken)
+      if (reactMode === 1) {
+        await DnDActionManagement.ReactionRemove(currentToken)
       }
     }
     if (previousToken) {
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
-        await RechargeAbilities(previousToken);
+        await DnDCombatUpdates.RechargeAbilities(previousToken);
       }
     }
 
@@ -1198,7 +442,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   let hp = getProperty(update, "actorData.data.attributes.hp.value");
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && hp !== (null || undefined)) {
-    GreatWound_preUpdateToken(scene, tokenData, update);
+    DnDWounds.GreatWound_preUpdateToken(scene, tokenData, update);
   }
 
   let Actor = game.actors.get(tokenData.actorId);
@@ -1207,17 +451,17 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
 
   /** output debug information -- @todo scope by feature */
   if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(game.i18n.format("DND5EH.Hooks_preupdateToken_updatelog", {ActorName: Actor.name, hp: hp, fortSett: fortSett}))
+    console.log(game.i18n.format("DND5EH.Hooks_preupdateToken_updatelog", { ActorName: Actor.name, hp: hp, fortSett: fortSett }))
   }
 
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
     if (hp === 0 && fortitudeFeature !== null) {
-      UndeadFortCheckQuick(tokenData, update, options)
+      DnDCombatUpdates.UndeadFortCheckQuick(tokenData, update, options)
     }
   }
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "2") {
     if (hp === 0 && fortitudeFeature !== null) {
-      UndeadFortCheckSlow(tokenData, update, options)
+      DnDCombatUpdates.UndeadFortCheckSlow(tokenData, update, options)
     }
   }
 });
@@ -1228,13 +472,13 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   if (game.settings.get('dnd5e-helpers', 'autoProf') && (actor.data.type === "character")) {
     switch (type) {
       case "weapon":
-        AutoProfWeapon_createOwnedItem(actor, item);
+        DnDProf.AutoProfWeapon_createOwnedItem(actor, item);
         break;
       case "equipment":
-        AutoProfArmor_createOwnedItem(actor, item);
+        DnDProf.AutoProfArmor_createOwnedItem(actor, item);
         break;
       case "tool":
-        AutoProfTool_createOwnedItem(actor, item);
+        DnDProf.AutoProfTool_createOwnedItem(actor, item);
         break;
       default:
         break;
@@ -1242,41 +486,10 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   }
 });
 
-
-
-function ReactionDetect_preCreateChatMessage(msg) {
-
-  /** Reactions are only important IF a combat is active. Bail early */
-  if (!game.combats.find(combat => combat.started)) {
-    if (game.settings.get('dnd5e-helpers', 'debug')) {
-      console.log(game.i18n.format("DND5EH.CombatReactionStatus_combaterror"))
-    }
-    return;
-  }
-
-  if (msg.type == null) {
-    /** some weird, freeform chat message...mainly our own */
-    return;
-  }
-
-  const itemId = $(msg.content).attr("data-item-id");
-
-  /** could not find the item id, must not have been an item */
-  if (itemId == undefined) {
-    return;
-  }
-
-  const speaker = getProperty(msg, "speaker");
-  if (speaker) {
-    /** hand over to reaction apply logic (checks combat state, etc) */
-    ReactionApply(speaker.actor, speaker.token, itemId);
-  }
-};
-
 Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
-  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if (reactMode === 1 || reactMode === 3) {
-    ReactionDetect_preCreateChatMessage(msg);
+  const reactMode = game.settings.get('dnd5e-helpers', "cbtReactionEnable");
+  if (reactMode === 1) {
+    await DnDActionManagement.ReactionDetect_preCreateChatMessage(msg);
   }
 
   let rollType = getProperty(msg, "flags.dnd5e.roll.type");
@@ -1284,7 +497,7 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   if (rollType === "death" && (game.settings.get('dnd5e-helpers', 'owDeathSave'))) {
     if (parseInt(msg.content) < 6) {
       let actor = game.actors.get(msg.speaker.actor);
-      OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundDeathSave_reason"));
+      DnDWounds.OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundDeathSave_reason"));
     }
   }
 
@@ -1295,7 +508,7 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
     if (parseInt(rollResult[2]) >= critRange) {
       let targetArray = game.users.get(msg.user).targets;
       for (let targets of targetArray) {
-        OpenWounds(targets.actor.data.name, game.i18n.format("DND5EH.OpenWoundCrit_reason"))
+        DnDWounds.OpenWounds(targets.actor.data.name, game.i18n.format("DND5EH.OpenWoundCrit_reason"))
       }
     }
   }
@@ -1303,17 +516,23 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
 
 Hooks.on("deleteCombat", async (combat, settings, id) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if (reactMode == 2 || reactMode == 3) {
-
-    for (let token of canvas.tokens.placeables) {
-      ReactionRemove(token)
+  if (reactMode === 1) {
+    for (let combatant of combat.data.combatants) {
+      DnDActionManagement.RemoveActionMarkers(combatant.tokenId)
     }
   }
+
 });
 
+Hooks.on("deleteCombatant", (combat, combatant) => {
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if (reactMode === 1) {
+    DnDActionManagement.RemoveActionMarkers(combatant.tokenId)
+  }
+})
 
 /** Measured template 5/5/5 scaling */
-Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
+Hooks.on("preCreateMeasuredTemplate", async (scene, template) => {
 
 
   /** range 0-3
@@ -1360,7 +579,969 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
     template.direction = 45;
   }
 });
-    
+
+/** adding cover dropdown to the tile config dialog */
+Hooks.on("renderTileConfig", onRenderTileConfig);
+
+/** calculating cover when a token is targeted */
+Hooks.on("targetToken", onTargetToken);
+
+Hooks.on("preCreateTile", onPreCreateTile);
+
+Hooks.on("ready", () => {
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if (reactMode === 1) {
+    let combat = game.combats.active
+    let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
+    let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
+    DnDActionManagement.AddActionMarkers(tokenArray)
+  }
+})
+
+Hooks.on("createCombatant", (combat, token) => {
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if (combat.data.active && combat.started && reactMode === 1) {
+    let tokenInstance = canvas.tokens.get(token.tokenId)
+    DnDActionManagement.AddActionMarkers([tokenInstance])
+  }
+})
+
+Hooks.on("updateToken", (scene, token, update) => {
+  if ("tint" in update || "width" in update || "height" in update || "img" in update) {
+    const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+    let tokenIds = game.combats.active.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
+    if (tokenIds.includes(token._id) && reactMode === 1) {
+      let tokenInstance = canvas.tokens.get(token._id)
+      DnDActionManagement.AddActionMarkers([tokenInstance])
+    }
+  }
+})
+
+Hooks.on("controlToken", (token, state) => {
+  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  if (reactMode === 1) {
+    let actionMarkers = token.children.filter(i => !!i.actionType)
+    actionMarkers.forEach(i => i.visible = state)
+  }
+})
+
+/** helper functions */
+
+class DnDHelpers {
+
+  static IsFirstGM() {
+    return game.user === game.users.find((u) => u.isGM && u.active);
+  }
+
+  static GetKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+  }
+
+  //find status effect based on passed name
+  static GetStatusEffect(statusName) {
+    /** Core Status Effects -- pass displayed name backwards through localization to match to status.label */
+    const { EFFECT } = game.i18n.translations;
+
+    /** find the key (will be label) from the value */
+    let statusLabel = DnDHelpers.GetKeyByValue(EFFECT, statusName);
+    let statusEffect = CONFIG.statusEffects.find(st => st.label === `EFFECT.${statusLabel}`);
+
+    if (statusEffect) {
+      /** first match is core, always prefer core */
+      return statusEffect;
+    }
+    else {
+      /** cant find it, it still may be available via other modules/methods */
+
+      /** CUB Compatibility -- statusName matches displayed CUB name (status.label) */
+      if (!statusEffect && game.modules.get("combat-utility-belt")?.active) {
+
+        /** if we find it, pick it */
+        statusEffect = CONFIG.statusEffects.find(st => st.label === statusName);
+      }
+
+      //note: other module compatibilities should check for a null statusEffect before
+      //      changing the current statusEffect. Priority based on evaluation order.
+    }
+
+    /** return the best label we found */
+    return statusEffect;
+  }
+
+  //toggle core status effects
+  static async ToggleStatus(token, status) {
+    return await token.toggleEffect(status);
+  }
+
+  //apply a CUB status effect
+  static async ApplyCUB(token, cubStatus) {
+    return await game.cub.addCondition(cubStatus, token)
+  }
+
+  //remove a CUB status effect
+  static async RemoveCUB(token, cubStatus) {
+    return await game.cub.removeCondition(cubStatus, token)
+  }
+
+  /** Prof array check */
+  static includes_array(arr, comp) {
+    //Ignore empty array
+    if (arr.toString() == [""]) {
+      return false;
+    }
+    return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
+  }
+}
+
+/** Wild Magic Surge Handling */
+class DnDWildMagic {
+  /** roll on the provided table */
+  static async RollOnWildTable(rollType) {
+    const wmTableName = (game.settings.get('dnd5e-helpers', 'wmTableName') !== '')
+      ? game.settings.get('dnd5e-helpers', 'wmTableName') : wmSurgeTableDefault;
+
+    if (wmTableName !== "") {
+      await game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
+    } else {
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log(game.i18n.format("DND5EH.WildMagicTableError"));
+      }
+    }
+  }
+
+  static GetTidesOfChaosFeatureName() {
+    return (game.settings.get('dnd5e-helpers', 'wmToCFeatureName') !== '')
+      ? game.settings.get('dnd5e-helpers', 'wmToCFeatureName') : wmToCFeatureDefault;
+  }
+
+  /** Roll a normal surge as per D&D 5e standard rules */
+  static async RollForNormalSurge(spellLevel, rollType) {
+    const roll = new Roll("1d20").roll();
+    const d20result = +roll["result"];
+    let surges = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge")
+    let calm = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm")
+
+    if (game.settings.get('dnd5e-helpers', 'debug')) {
+      console.log(game.i18n.format("DND5EH.WildMagicConsoleNormalSurgeLog", { d20result: d20result }));
+    }
+
+    let promise = false;
+
+    if (d20result === 1) {
+      await DnDWildMagic.ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+      promise = DnDWildMagic.RollOnWildTable(rollType);
+    } else {
+      promise = DnDWildMagic.ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    }
+
+    return promise;
+  }
+
+  /** Role a more surge, checking against spell level cast */
+  static async RollForMoreSurge(spellLevel, rollType, actor) {
+    const roll = new Roll("1d20").roll();
+    const d20result = +roll["result"];
+
+    if (game.settings.get('dnd5e-helpers', 'debug')) {
+      console.log(game.i18n.format("DND5EH.WildMagicConsoleMoreSurgeLog", { d20result: d20result, spellLevel: spellLevel }));
+    }
+
+    let promise = false;
+    if (d20result <= spellLevel) {
+      const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
+      await DnDWildMagic.ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+      promise = DnDWildMagic.RollOnWildTable(rollType);
+
+      /** recharge TOC if we surged */
+      const tocName = DnDWildMagic.GetTidesOfChaosFeatureName();
+      if (DnDWildMagic.IsTidesOfChaosSpent(actor, tocName)) {
+        promise = DnDWildMagic.ResetTidesOfChaos(actor, tocName);
+      }
+    } else {
+      const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
+      promise = DnDWildMagic.ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    }
+
+    return promise;
+  }
+
+  /** Role a volatile surge, checking against spell level cast + d4 */
+  static async RollForVolatileSurge(spellLevel, rollType, actor) {
+    const wmToCFeatureName = DnDWildMagic.GetTidesOfChaosFeatureName();
+    if (wmToCFeatureName !== '') {
+
+      const tocSpent = DnDWildMagic.IsTidesOfChaosSpent(actor, wmToCFeatureName);
+
+      const d20roll = new Roll("1d20").roll();
+      const d4roll = new Roll("1d4").roll();
+      const d20result = +d20roll["result"];
+
+      /** if tides of chaos hasn't been used then no volatile roll */
+      const d4result = tocSpent ? +d4roll["result"] : 0;
+
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log(game.i18n.format("DND5EH.WildMagicConsoleVolatileSurgeLog", { d20result: d20result, spellLevel: spellLevel, d4result: d4result }));
+      }
+
+      if (d20result <= (spellLevel + d4result)) {
+        const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
+        await DnDWildMagic.ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result} #1d4 result]])`);
+        await DnDWildMagic.RollOnWildTable(rollType);
+
+        if (tocSpent) {
+          /** return the promise of the item update */
+          return DnDWildMagic.ResetTidesOfChaos(actor, wmToCFeatureName);
+        }
+      } else {
+        const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
+        return DnDWildMagic.ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result}  #1d4 result]])`);
+      }
+    } else {
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log(game.i18n.format("DND5EH.WildMagicTidesOfChaos_error"));
+      }
+    }
+    return; //no promise
+  }
+
+  /** show surge result in chat (optionally whisper via module settings) */
+  static async ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
+
+    const gmWhisper = game.settings.get(MODULE, 'wmWhisper');
+
+    return ChatMessage.create({
+      content: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", { action: action, spellLevel: spellLevel, extraText: extraText, resultText: resultText }),
+      speaker: ChatMessage.getSpeaker({ alias: game.i18n.format("DND5EH.WildMagicChatSpeakerName") }),
+      whisper: gmWhisper ? ChatMessage.getWhisperRecipients("GM") : false
+    });
+  }
+
+  /** is the tides of chaos feature used */
+  static IsTidesOfChaosSpent(actor, wmToCFeatureName) {
+    const tocItem = actor.items.getName(wmToCFeatureName);
+
+    if (tocItem) {
+      return (tocItem.data.data.uses.value === 0);
+    } else {
+      return false;
+    }
+  }
+
+  /** reset the tides of chaose feature also reset the resource if that is also used */
+  static async ResetTidesOfChaos(actor, wmToCFeatureName) {
+    const tocItem = actor?.items.getName(wmToCFeatureName);
+
+    if (tocItem) {
+      const item = await tocItem.update({ 'data.uses.value': tocItem.data.data.uses.max });
+      actor.sheet.render(false);
+      return item;
+    }
+
+    return tocItem;
+  }
+  static async WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
+    const origSlots = actor.data.data.spells;
+
+    /** find the spell level just cast */
+    const spellLvlNames = ["spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
+    let lvl = spellLvlNames.findIndex(name => { return getProperty(update, "data.spells." + name) });
+
+    const preCastSlotCount = getProperty(origSlots, spellLvlNames[lvl] + ".value");
+    const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
+    const bWasCast = preCastSlotCount - postCastSlotCount > 0;
+
+    const wmFeatureName = (game.settings.get('dnd5e-helpers', 'wmFeatureName') !== '')
+      ? game.settings.get('dnd5e-helpers', 'wmFeatureName') : wmFeatureDefault;
+    const wmFeature = actor.items.find(i => i.name === wmFeatureName) !== null
+
+    lvl++;
+    console.log(game.i18n.format("DND5EH.WildMagicChatSurgesMessage", { lvl: lvl, bWasCast: bWasCast, wmFeatureName: wmFeatureName }));
+
+    let promise = false;
+    if (wmFeature && bWasCast && lvl > 0) {
+      /** lets go baby lets go */
+      console.log(game.i18n.format("DND5EH.WildMagicConsoleSurgesroll"));
+
+      const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
+      if (selectedOption === 1) {
+        promise = DnDWildMagic.RollForNormalSurge(lvl, rollMode);
+      } else if (selectedOption === 2) {
+        promise = DnDWildMagic.RollForMoreSurge(lvl, rollMode, actor);
+      } else if (selectedOption === 3) {
+        promise = DnDWildMagic.RollForVolatileSurge(lvl, rollMode, actor);
+      }
+    }
+
+    return promise;
+  }
+}
+
+class DnDCombatUpdates {
+  static NeedsRecharge(recharge = { value: 0, charged: false }) {
+    return (recharge.value !== null &&
+      (recharge.value > 0) &&
+      recharge.charged !== null &&
+      recharge.charged == false);
+  }
+
+  static CollectRechargeAbilities(token) {
+    const rechargeItems = token.actor.items.filter(e => DnDCombatUpdates.NeedsRecharge(e.data.data.recharge));
+    return rechargeItems;
+  }
+
+  static async RechargeAbilities(token) {
+    const rechargeItems = DnDCombatUpdates.CollectRechargeAbilities(token);
+
+    for (item of rechargeItems) {
+      await DnDCombatUpdates.CustomRollRecharge(item);
+    }
+  }
+  /** 
+   * Auto regeneration on turn start
+   */
+  static async Regeneration(token) {
+    if (token.actor == null) {
+      return;
+    }
+    let option1 = game.i18n.format("DND5EH.AutoRegen_Regneration")
+    let option2 = game.i18n.format("DND5EH.AutoRegen_SelfRepair")
+    let regen = token.actor.items.find(i => i.name === option1 || i.name === option2);
+
+    let data = {
+      tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
+      actorMax: token.actor.data.data.attributes.hp.max,
+    }
+
+    if (token.data.actorLink === true) {
+      data.tokenHP = token.actor.data.data.attributes.hp.value;
+    }
+
+    // if token isnt damaged, set tokenHP to max
+    if (data.tokenHP == undefined) {
+      data.tokenHP = data.actorMax
+    }
+    // parse the regeration item to locate the formula to use 
+
+    const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
+    let match = regen.data.data.description.value.match(regenRegExp);
+    if (!match) return undefined;
+    let regenAmout = match[1];
+
+    //dialog choice to heal or not
+    if (regenAmout !== null) {
+      new Dialog({
+        title: game.i18n.format("DND5EH.AutoRegenDialog_name", { tokenName: token.name }),
+        content: game.i18n.format("DND5EH.AutoRegenDialog_content", { tokenName: token.name, tokenHP: data.tokenHP, actorMax: data.actorMax }),
+        buttons: {
+          one: {
+            label: game.i18n.format("DND5EH.AutoRegenDialog_healingprompt", { regenAmout: regenAmout }),
+            callback: () => {
+              let regenRoll = new Roll(regenAmout).roll().total;
+              token.actor.applyDamage(- regenRoll);
+              ChatMessage.create({ content: game.i18n.format("DND5EH.AutoRegenDialog_healingmessage", { tokenName: token.name, regenRoll: regenRoll }), whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) });
+            }
+          },
+          two: {
+            label: game.i18n.format("DND5EH.AutoRegenDialog_stopprompt"),
+          }
+        }
+      }).render(true);
+
+    }
+  }
+
+  /** Custom recharge roll to allow for rollmode */
+  static async CustomRollRecharge(item) {
+    const data = item.data.data;
+    if (!data.recharge.value) return;
+
+    // Roll the check
+    const roll = new Roll("1d6").roll();
+    const success = roll.total >= parseInt(data.recharge.value);
+    const rollMode = game.settings.get("dnd5e-helpers", "cbtAbilityRechargeHide") == true ? "selfroll" : "";
+    // Display a Chat Message
+    const promises = [roll.toMessage({
+      flavor: `${game.i18n.format("DND5E.ItemRechargeCheck", { name: item.name })} - ${game.i18n.localize(success ? "DND5E.ItemRechargeSuccess" : "DND5E.ItemRechargeFailure")}`,
+      speaker: ChatMessage.getSpeaker({ actor: item.actor, token: item.actor.token }),
+      rollMode: rollMode
+    })];
+
+    // Update the Item data
+    if (success) promises.push(item.update({ "data.recharge.charged": true }));
+    return Promise.all(promises).then(() => roll);
+  }
+
+  /** sets current legendary actions to max (or current if higher) */
+  static async ResetLegAct(actor, tokenName) {
+    if (actor == null) {
+      return null;
+    }
+    let legact = actor.data.data.resources.legact;
+    if (legact && legact.value !== null) {
+      /** only reset if needed */
+      if (legact.value < legact.max) {
+        ui.notifications.info(game.i18n.format("DND5EH.CombatLegendary_notification", { max: legact.max, tokenName: tokenName }))
+        let newActor = await actor.update({ 'data.resources.legact.value': legact.max });
+        newActor.sheet.render(false);
+        return newActor;
+      }
+
+      return actor;
+    }
+  }
+
+  //quick undead fort check, just checks change in np, not total damage
+  static async UndeadFortCheckQuick(tokenData, update, options) {
+
+    let data = {
+      actorData: canvas.tokens.get(tokenData._id).actor.data,
+      updateData: update,
+      actorId: tokenData.actorId,
+      actorHp: await getProperty(tokenData, "actorData.data.attributes.hp.value"),
+      updateHP: update.actorData.data.attributes.hp.value,
+    }
+
+    if (data.actorHp == null) {
+      data.actorHp = game.actors.get(data.actorId).data.data.attributes.hp.max
+    }
+    let hpChange = (data.actorHp - data.updateHP)
+    let token = canvas.tokens.get(tokenData._id)
+    if (!options.skipUndeadCheck) {
+      new Dialog({
+        title: game.i18n.format("DND5EH.UndeadFort_dialogname"),
+        content: game.i18n.format("DND5EH.UndeadFort_quickdialogcontent"),
+        buttons: {
+          one: {
+            label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
+            callback: () => {
+              token.update({ hp: 0 }, { skipUndeadCheck: true })
+              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
+              return;
+            },
+          },
+          two: {
+            label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt2"),
+            callback: async () => {
+              let { total } = await token.actor.rollAbilitySave("con")
+              if (total >= (5 + hpChange)) {
+                ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", { tokenName: token.name, total: total }))
+                token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
+              } else if (total < (5 + hpChange)) {
+                ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", { tokenName: token.name, total: total }))
+                token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
+              }
+            },
+          },
+        },
+      }).render(true);
+      return false;
+    } else return true;
+  }
+
+  // undead fort check, requires manual input
+  static UndeadFortCheckSlow(tokenData, update, options) {
+
+    let token = canvas.tokens.get(tokenData._id)
+    if (!options.skipUndeadCheck) {
+      let damageQuery = game.i18n.format("DND5EH.UndeadFort_slowdialogcontentquery")
+      let content = `
+    <form>
+            <div class="form-group">
+                <label for="num">${damageQuery} </label>
+                <input id="num" name="num" type="number" min="0"></input>
+            </div>
+        </form>`;
+      new Dialog({
+        title: game.i18n.format("DND5EH.UndeadFort_dialogname"),
+        content: content,
+        buttons: {
+          one: {
+            label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
+            callback: () => {
+              token.update({ hp: 0 }, { skipUndeadCheck: true })
+              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
+              return;
+            },
+          },
+          two: {
+            label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt2"),
+            callback: async (html) => {
+              let { total } = await token.actor.rollAbilitySave("con")
+              let number = Number(html.find("#num")[0].value);
+              if (total >= (5 + number)) {
+                ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", { tokenName: token.name, total: total }))
+                token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
+              } else if (total < (5 + number)) {
+                ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", { tokenName: token.name, total: total }))
+                token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
+              }
+            },
+          },
+        },
+      }).render(true);
+      return false;
+    } else return true;
+  }
+
+}
+
+class DnDWounds {
+  /** checks for Unlinked Token Great Wounds */
+  static GreatWound_preUpdateToken(scene, tokenData, update) {
+
+    //find update data and original data
+    let actor = game.actors.get(tokenData.actorId)
+    let data = {
+      actorData: canvas.tokens.get(tokenData._id).actor.data,
+      updateData: update,
+      actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
+      actorMax: getProperty(tokenData, "actorData.data.attributes.hp.max"),
+      updateHP: update.actorData.data.attributes.hp.value,
+    }
+    if (data.actorMax == undefined) {
+      data.actorMax = actor.data.data.attributes.hp.max;
+    }
+    if (data.actorHP == undefined) {
+      data.actorHP = data.actorMax;
+    }
+    let hpChange = (data.actorHP - data.updateHP)
+    // check if the change in hp would be over 50% max hp
+    if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
+      const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
+      new Dialog({
+        title: game.i18n.format("DND5EH.GreatWoundDialogTitle", { gwFeatureName: gwFeatureName, actorName: actor.name }),
+        buttons: {
+          one: {
+            label: game.i18n.format("DND5EH.Default_roll"),
+            callback: () => {
+              DnDWounds.DrawGreatWound(actor);
+            }
+          }
+        }
+      }).render(true)
+    }
+  }
+
+  /** checks for Linked Token Great Wounds */
+  static GreatWound_preUpdateActor(actor, update) {
+
+    //find update data and original data
+    let data = {
+      actor: actor,
+      actorData: actor.data,
+      updateData: update,
+      actorHP: actor.data.data.attributes.hp.value,
+      actorMax: actor.data.data.attributes.hp.max,
+      updateHP: (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : 0),
+      hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
+    };
+
+    const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
+    // check if the change in hp would be over 50% max hp
+    if (data.hpChange >= Math.ceil(data.actorMax / 2)) {
+      new Dialog({
+        title: game.i18n.format("DND5EH.GreatWoundDialogTitle", { gwFeatureName: gwFeatureName, actorName: actor.name }),
+        buttons: {
+          one: {
+            label: game.i18n.format("DND5EH.Default_roll"),
+            callback: () => {
+              if (game.user.data.role !== 4) {
+                DnDWounds.DrawGreatWound(actor)
+                return;
+              }
+
+              const socketData = {
+                users: actor._data.permission,
+                actorId: actor._id,
+                greatwound: true,
+                hp: data.updateHP,
+              }
+              console.log(game.i18n.format("DND5EH.Default_SocketSend", { socketData: socketData }))
+              game.socket.emit(`module.dnd5e-helpers`, socketData)
+            }
+          }
+        }
+      }).render(true)
+    }
+  }
+
+  /** rolls on specified Great Wound Table */
+  static DrawGreatWound(actor) {
+    const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
+    (async () => {
+      let gwSave = await actor.rollAbilitySave("con");
+      if (gwSave.total < 15) {
+        const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName");
+        ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogFailMessage", { actorName: actor.name, gwFeatureName: gwFeatureName }) });
+        if (greatWoundTable !== "") {
+          game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
+        }
+        else {
+          ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogError", { gwFeatureName: gwFeatureName }) });
+        }
+      }
+      else {
+        ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogSuccessMessage", { actorName: actor.name, gwFeatureName: gwFeatureName }) });
+      }
+    })();
+  }
+
+  // roll on specified open wounds tabel if triggered
+  static OpenWounds(actorName, woundType) {
+    const owFeatureName = game.settings.get("dnd5e-helpers", "owFeatureName");
+    const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
+    ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundFeaturename_chatoutput", { actorName: actorName, owFeatureName: owFeatureName, woundType: woundType }) })
+    if (openWoundTable !== "") {
+      game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
+    } else {
+      ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundTableName_error", { owFeatureName: owFeatureName }) });
+    }
+  }
+
+}
+
+class DnDProf {
+  /** auto prof Weapon ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
+  static AutoProfWeapon_createOwnedItem(actor, item) {
+
+    //finds item data and actor proficiencies 
+    let { name } = item;
+    let { weaponProf } = actor.data.data.traits;
+    let proficient = false;
+
+    //if item name matches custom prof lis then prof = true
+    const weaponProfList = weaponProf.custom.split(" ").map(s => s.slice(0, -1))
+    if (DnDHelpers.includes_array(weaponProfList, name) || DnDHelpers.includes_array(weaponProfList, `${name}s`)) proficient = true;
+
+    // update item to match prof, otherwise, leave as is (dnd5e system will handle generic profs)
+    if (proficient) {
+      actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
+      console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", { name: name }))
+    } /* else {
+    //Remove proficiency if actor is not proficient and the weapon has proficiency set.
+    if (!proficient && item.data.proficient) {
+      actor.updateOwnedItem({ _id: item._id, "data.proficient": false });
+      console.log(name + " is marked as not proficient")
+    } else {
+      ui.notifications.notify(name + " could not be matched to proficiency, please adjust manually.");
+    }
+  }
+  */
+  }
+
+  /** Auto prof Armor ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
+  static AutoProfArmor_createOwnedItem(actor, item) {
+
+    //finds item data and actor proficiencies 
+    let { name } = item;
+    let { armorProf } = actor.data.data.traits;
+    let proficient = false;
+
+    /* NOTE: I know of no examples of being granted "Studded Leather Armor" proficiency,
+     *       but it does not make grammatical sense for them to be optionaly pluralized,
+     *       so do not consider plurals when matching like weapons
+    */
+
+    //if item name matches custom prof lis then prof = true
+    if (DnDHelpers.includes_array(armorProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
+
+    // update item to match prof, otherwise, leave as is (dnd5e will handle generic profs)
+    //For items that are not armors (trinkets, clothing) we assume prof = true 
+    if (proficient) {
+      actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
+      console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", { name: name }))
+    }
+  }
+
+  /**Auto Prof Tools*/
+  static AutoProfTool_createOwnedItem(actor, item) {
+
+    //finds item data and actor proficiencies 
+    let { name } = item;
+    let { toolProf } = actor.data.data.traits;
+    let proficient = false;
+
+    //pass_name is here to match some of the toolProf strings
+    const pass_name = name.toLowerCase().replace("navi", "navg").replace("thiev", "thief");
+
+    if (DnDHelpers.includes_array(toolProf.value, pass_name)) proficient = true;
+
+    //if item name matches custom prof lis then prof = true
+    if (DnDHelpers.includes_array(toolProf.custom.split(" ").map(s => s.slice(0, -1)), name)) proficient = true;
+
+    // update item to match prof
+    //For items that are not armors (trinkets, clothing) we assume prof = true 
+    if (proficient) {
+      actor.updateOwnedItem({ _id: item._id, "data.proficient": 1 });
+      console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", { name: name }))
+    } else {
+      ui.notifications.notify(game.i18n.format("DND5EH.AutoProf_consolelogfail", { name: name }));
+    }
+  }
+
+}
+
+
+class DnDActionManagement {
+
+  /** apply a reaction status to the token if the item looks like it should use a reaction (requires active combat) */
+  static async ReactionApply(castingActor, castingToken, itemId) {
+
+    if (itemId !== undefined) {
+      //const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
+      //let statusEffect = DnDHelpers.GetStatusEffect(reactionStatus);
+
+       /**bail out if we can't find the status. 
+      if (!statusEffect) {
+        if (game.settings.get('dnd5e-helpers', 'debug')) {
+          console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuserror", { reactionStatus: reactionStatus }))
+        }
+        return;
+      }*/
+
+      //find the current token instance that called the roll card
+      let currentCombatant = getProperty(game.combats, "active.current.tokenId");
+      if (!currentCombatant) {
+        return;
+      }
+
+      if (castingToken === null && castingActor === null) {
+        if (game.settings.get('dnd5e-helpers', 'debug')) {
+          console.log(game.i18n.format("DND5EH.CombatReactionStatus_actoritemerror"))
+        }
+        return; // not a item roll message, prevents unneeded errors in console
+      }
+
+      //find token for linked actor 
+      if (castingToken === null && castingActor !== null) {
+        castingToken = canvas.tokens.placeables.find(i => i.actor?.data._id.includes(castingActor)).data._id
+      }
+
+      let effectToken = canvas.tokens.get(castingToken)
+
+      let ownedItem = effectToken.actor.getOwnedItem(itemId);
+      const { activation } = ownedItem.labels;
+
+      /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
+      const isAction = activation === game.i18n.format("DND5EH.CombatReactionStatus_actionname")
+      const isReaction = activation === game.i18n.format("DND5EH.CombatReactionStatus_reactionname")
+      const isBonus = activation === game.i18n.format("DND5EH.CombatReactionStatus_bonusname")
+
+      let isActionReaction = isReaction || (isAction && (currentCombatant !== castingToken));
+
+      if (isActionReaction) {
+        return DnDActionManagement.UpdateActionMarkers(effectToken, "reaction")
+      }
+      else if (isAction) {
+        return DnDActionManagement.UpdateActionMarkers(effectToken, "action")
+      }
+      else if (isBonus) {
+        return DnDActionManagement.UpdateActionMarkers(effectToken, "bonus")
+      }
+      /*
+          if (shouldApply) {
+            if (game.modules.get("combat-utility-belt")?.active) {
+      
+              // first, test if this is a cub condition 
+              if (game.cub.getCondition(reactionStatus)) {
+                ApplyCUB(effectToken, reactionStatus)
+                return; //early exit once we trigger correctly
+              }
+            }
+      
+            // if nothing else , it should be core -- if the effect is already present, dont toggle
+            // @todo maybe put out a nice reminder that you have used your action in chat? 
+            const existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+            if (!existing) {
+              ToggleStatus(effectToken, statusEffect);
+              return; //early exit once we trigger correctly
+            }
+          }
+          */
+    }
+    return true
+  }
+
+  static async ReactionRemove(currentToken) {
+    /*
+    const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
+    let statusEffect = GetStatusEffect(reactionStatus);
+  
+    if (game.settings.get('dnd5e-helpers', 'debug')) {
+      console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuslog", { statusEffect: statusEffect }))
+    }
+  
+    /** latest version, attempt to play nice with active effects and CUB statuses *
+    if (!statusEffect) {
+      console.log(game.i18n.format("DND5EH.CombatReactionStatus_effecterror", { reactionStatus: reactionStatus }));
+      return;
+    }
+  
+    /** Remove an existing effect (stoken from foundy.js:44223) *
+    if (!currentToken.actor) {
+      /** actorless tokens cannot receive effects *
+      return;
+    }
+    const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
+    if (existing) {
+      if (game.modules.get("combat-utility-belt")?.active) {
+  
+        /** first, test if this is a cub condition *
+        if (game.cub.getCondition(reactionStatus)) {
+          await RemoveCUB(currentToken, reactionStatus)
+          return; //early exit once we trigger correctly
+        }
+      }
+  
+      /** if nothing else , it should be core *
+      await ToggleStatus(currentToken, statusEffect);
+      return; //early exit once we trigger correctly
+    }*/
+
+    let actionMarkers = currentToken.children.filter((i => !!i.actionType))
+    actionMarkers.forEach(i => i.alpha = 1)
+    await currentToken.unsetFlag('dnd5e-helpers', 'ActionManagement')
+
+    const socketData = {
+      actionMarkers: true,
+      tokenId: currentToken.id
+    }
+    game.socket.emit(`module.dnd5e-helpers`, socketData)
+  }
+
+  static async ReactionDetect_preCreateChatMessage(msg) {
+
+    /** Reactions are only important IF a combat is active. Bail early */
+    if (!game.combats.find(combat => combat.started)) {
+      if (game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log(game.i18n.format("DND5EH.CombatReactionStatus_combaterror"))
+      }
+      return;
+    }
+
+    if (msg.type == null) {
+      /** some weird, freeform chat message...mainly our own */
+      return;
+    }
+
+    const itemId = $(msg.content).attr("data-item-id");
+
+    /** could not find the item id, must not have been an item */
+    if (itemId == undefined) {
+      return;
+    }
+
+    const speaker = getProperty(msg, "speaker");
+    if (speaker) {
+      /** hand over to reaction apply logic (checks combat state, etc) */
+      await DnDActionManagement.ReactionApply(speaker.actor, speaker.token, itemId);
+    }
+  };
+
+  static async AddActionMarkers(tokenArray) {
+    let actionTexture = await loadTexture("modules/dnd5e-helpers/assets/5e helpers images/Action Used.png")
+    let reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/5e helpers images/Reaction Used.png")
+    let bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/5e helpers images/Bonus Action Used.png")
+
+    for (let token of tokenArray) {
+      let actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
+      let action = new PIXI.Sprite(actionTexture)
+      let reaction = new PIXI.Sprite(reactionTexture)
+      let bonus = new PIXI.Sprite(bonusTexture)
+      const textureSize = token.data.height * canvas.grid.size;
+      //calculate size based on the token size (image is 1250 pixels calculated for 800 pixel token, 1.5625 is conversion to increase to correct scaling)
+      let size = textureSize * 1.5625
+      let orig = { height: size, width: size }
+      //for some reason it places 3 pixels to the left (on 100pixel grid) this adjusts for this drift
+      let placementFix = token.data.height * (canvas.grid.size / 33.3)
+      action.orig = orig;
+      reaction.orig = orig;
+      bonus.orig = orig;
+
+      //generate scale for overlay
+      let scale = textureSize / 800
+      action.scale.set(scale)
+      reaction.scale.set(scale)
+      bonus.scale.set(scale)
+
+
+
+      let actionIcon = await token.addChild(action)
+      let reactionIcon = await token.addChild(reaction)
+      let bonusIcon = await token.addChild(bonus)
+
+      actionIcon.position.set((textureSize - size) / 2 + placementFix, (textureSize - size) / 2,)
+      actionIcon.actionType = "action"
+      actionIcon.alpha = actions?.action ? 0.2 : 1
+      actionIcon.visible = token._controlled
+
+      reactionIcon.position.set((textureSize - size) / 2 + placementFix, (textureSize - size) / 2,)
+      reactionIcon.actionType = "reaction"
+      reactionIcon.alpha = actions?.reaction ? 0.2 : 1
+      reactionIcon.visible = token._controlled
+
+      bonusIcon.position.set((textureSize - size) / 2 + placementFix, (textureSize - size) / 2,)
+      bonusIcon.actionType = "bonus"
+      bonusIcon.alpha = actions?.bonus ? 0.2 : 1
+      bonusIcon.visible = token._controlled
+    }
+  }
+
+  static async UpdateActionMarkers(token, action) {
+
+    switch (action) {
+      case "action": {
+        let actionIcon = token.children.find(i => i.actionType === "action")
+        actionIcon.alpha = await 0.2
+        const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
+        actions[action] = true
+        await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
+      }
+        break;
+      case "reaction": {
+        let reactionIcon = token.children.find(i => i.actionType === "reaction")
+        reactionIcon.alpha = await 0.2
+        const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
+        actions[action] = true
+        await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
+      }
+        break;
+      case "bonus": {
+        let bonusIcon = token.children.find(i => i.actionType === "bonus")
+        bonusIcon.alpha = await 0.2
+        const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
+        actions[action] = true
+        await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
+      }
+        break;
+    }
+      const socketData = {
+        actionMarkers: true,
+        tokenId: token.id
+      }
+    game.socket.emit(`module.dnd5e-helpers`, socketData)
+
+  }
+
+  static async RemoveActionMarkers(tokenId) {
+    let token = canvas.tokens.get(tokenId)
+    let actionIcons = token.children.filter(i => i.actionType)
+    actionIcons.forEach(i => i.destroy())
+    token.unsetFlag('dnd5e-helpers', 'ActionManagement')
+  }
+
+  static async UpdateOpacities(tokenId) {
+    let token = canvas.tokens.get(tokenId);
+    if(!token.owner) return;
+    let actions = await token.getFlag('dnd5e-helpers', 'ActionManagement');
+    let actionIcon = token.children.find(i => i.actionType === "action");
+    let reactionIcon = token.children.find(i => i.actionType === "reaction");
+    let bonusIcon = token.children.find(i => i.actionType === "bonus");
+    actionIcon.alpha = actions?.action ? 0.2 : 1;
+    reactionIcon.alpha = actions?.reaction ? 0.2 : 1;
+    bonusIcon.alpha = actions?.bonus ? 0.2 : 1;
+  }
+}
 
 /**
  * Serves as a container for cover data, which is as agnostic as possible, allowing for system extensions
@@ -1369,17 +1550,17 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
  * @class CoverData
  */
 class CoverData {
-  constructor(sourceToken, targetToken, visibleCorners, mostObscuringTile, mostObscuringToken){
+  constructor(sourceToken, targetToken, visibleCorners, mostObscuringTile, mostObscuringToken) {
     this.SourceToken = sourceToken;
     this.TargetToken = targetToken;
     this.VisibleCorners = visibleCorners;
     this.TileCover = mostObscuringTile;
     this.TokenCover = mostObscuringToken;
-    
+
     // @todo this should possibly be a different class, will need a pass when my cover api is better
     this.Summary = {
       Text: "**UNPROCESSED**",
-      Source:  "**NONE**",
+      Source: "**NONE**",
       FinalCoverLevel: -1,
       FinalCoverEntity: null
     }
@@ -1392,7 +1573,7 @@ class CoverData {
    * @return {Int}
    * @memberof CoverData
    */
-  static VisibleCornersToCoverLevel(visibleCorners){
+  static VisibleCornersToCoverLevel(visibleCorners) {
     switch (visibleCorners) {
       case 0: return 3;
       case 1: return 2;
@@ -1417,22 +1598,22 @@ class CoverData {
       case 1: return game.i18n.format("DND5EH.LoS_halfcover");
       case 2: return game.i18n.format("DND5EH.LoS_34cover");
       case 3: return game.i18n.format("DND5EH.LoS_fullcover");
-      default: console.error(game.i18n.format("DND5EH.LoS_cornererror2", {coverLevel: coverLevel})); return "";
+      default: console.error(game.i18n.format("DND5EH.LoS_cornererror2", { coverLevel: coverLevel })); return "";
     }
   }
 
   /** tokenCoverData = {level: number, source: string, entity: token} */
-  static SanitizeNPCNames(tokenCoverData){
+  static SanitizeNPCNames(tokenCoverData) {
 
     /** if we are told to hide NPC names and an NPC token is providing cover */
-    if (game.settings.get('dnd5e-helpers', 'losMaskNPCs') && 
-        tokenCoverData.level > -1 &&
-        (tokenCoverData.entity?.actor?.data.type ?? "") == "npc"){
-      
+    if (game.settings.get('dnd5e-helpers', 'losMaskNPCs') &&
+      tokenCoverData.level > -1 &&
+      (tokenCoverData.entity?.actor?.data.type ?? "") == "npc") {
+
       /** change the source of the cover to be a generic "creature" */
       tokenCoverData.source = game.i18n.format("DND5EH.LoSMaskNPCs_sourceMask");
     }
-    
+
     return tokenCoverData;
   }
 
@@ -1443,27 +1624,27 @@ class CoverData {
    * @todo implement in CoverData5e
    * @memberof CoverData
    */
-  FinalizeData(){
+  FinalizeData() {
     /** always prefer line of sight because its more accurate at the moment (>= instead of >) */
     const losCoverLevel = CoverData.VisibleCornersToCoverLevel(this.VisibleCorners);
-    
+
     /** assume LOS will be the main blocker */
     let internalCoverData = { level: losCoverLevel, source: `${this.VisibleCorners} visible corners`, entity: null };
-    
+
     /** prepare the secondary blocker information */
     const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
     const obstructionTranslation = game.i18n.format("DND5EH.LoS_obsruct")
     const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${this.TokenCover?.name ?? ""} ${obstructionTranslation}`, entity: this.TokenCover };
-    
+
     /** prefer walls -> tiles -> tokens in that order */
-    if (tileCoverData.level > internalCoverData.level){
+    if (tileCoverData.level > internalCoverData.level) {
       internalCoverData = tileCoverData;
     }
-    
-    if (tokenCoverData.level > internalCoverData.level){
+
+    if (tokenCoverData.level > internalCoverData.level) {
       internalCoverData = CoverData.SanitizeNPCNames(tokenCoverData);
     }
-    
+
     this.Summary.FinalCoverEntity = internalCoverData.entity;
     this.Summary.FinalCoverLevel = internalCoverData.level;
     this.Summary.Source = internalCoverData.source;
@@ -1485,10 +1666,10 @@ class CoverData {
     }
 
     /** sanitize an NPC target */
-    const sanitizeNPC = function (token){
+    const sanitizeNPC = function (token) {
       const targetName = token.actor?.data.type === "npc" &&
-                       game.settings.get('dnd5e-helpers', 'losMaskNPCs') ? game.i18n.format("DND5EH.LoSMaskNPCs_targetMask"): token.name;
-      
+        game.settings.get('dnd5e-helpers', 'losMaskNPCs') ? game.i18n.format("DND5EH.LoSMaskNPCs_targetMask") : token.name;
+
       return targetName;
     }
 
@@ -1504,25 +1685,24 @@ class CoverData {
 };
 
 
-
 async function onTargetToken(user, target, onOff) {
-  /** bail immediately if LOS calc is disabled */ 
-  if(game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
+  /** bail immediately if LOS calc is disabled */
+  if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
 
   /** currently only concerned with adding a target for the current user */
   if (!onOff || user.id !== game.userId) {
-    return;  
+    return;
   }
-  
-  for( const selected of canvas.tokens.controlled ) {
+
+  for (const selected of canvas.tokens.controlled) {
     let coverData = await selected.computeTargetCover(target);
-    
+
     /** if we got valid cover data back, finalize and output results */
-    if (coverData){
+    if (coverData) {
       coverData.FinalizeData();
       const content = coverData.toMessageContent();
       /** whisper the message if we are being a cautious GM */
-      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')){
+      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')) {
         ChatMessage.create({
           content: content,
           whisper: ChatMessage.getWhisperRecipients('GM')
@@ -1534,10 +1714,10 @@ async function onTargetToken(user, target, onOff) {
       }
     }
   }
-  
+
 }
 
-async function DrawDebugRays(drawingList){
+async function DrawDebugRays(drawingList) {
   for (let squareRays of drawingList) {
     await canvas.drawings.createMany(squareRays);
   }
@@ -1551,45 +1731,45 @@ async function DrawDebugRays(drawingList){
  * @param {Token} token
  * @return {{GridPoints: [{x: Number, y: Number},...]}, {Squares: [[{x: Number, y: Number},...],...]}} 
  */
-function generateTokenGrid(token){
+function generateTokenGrid(token) {
 
   /** operate at the origin, then translate at the end */
   const tokenBounds = [token.w, token.h];
-  
+
   /** use token bounds as the limiter */
   let boundingBoxes = [];
   let gridPoints = [];
-  
+
   /** @todo this is hideous. I think a flatmap() or something is what i really want to do */
 
   /** stamp the points out left to right, top to bottom */
-  for(let y = 0; y < tokenBounds[1]; y+=canvas.grid.size) {
-    for(let x = 0; x < tokenBounds[0]; x+=canvas.grid.size) {
-      gridPoints.push([x,y]);
-      
+  for (let y = 0; y < tokenBounds[1]; y += canvas.grid.size) {
+    for (let x = 0; x < tokenBounds[0]; x += canvas.grid.size) {
+      gridPoints.push([x, y]);
+
       /** create the transformed bounding box. we dont have to do a final pass for that */
       boundingBoxes.push([
         [token.x + x, token.y + y], [token.x + x + canvas.grid.size, token.y + y],
         [token.x + x, token.y + y + canvas.grid.size], [token.x + x + canvas.grid.size, token.y + y + canvas.grid.size]]);
     }
 
-    gridPoints.push([token.width,y]);
+    gridPoints.push([token.width, y]);
   }
-  
+
   /** the final grid point row in the token bounds will not be added */
-  for(let x = 0; x < tokenBounds[0]; x+=canvas.grid.size) {
-      gridPoints.push([x,token.height]);
+  for (let x = 0; x < tokenBounds[0]; x += canvas.grid.size) {
+    gridPoints.push([x, token.height]);
   }
-    
+
   /** stamp the final point, since we stopped short (handles non-integer sizes) */
   gridPoints.push([token.width, token.height]);
-  
+
   /** offset the entire grid to the token's absolute position */
-  gridPoints = gridPoints.map( localPoint => {
+  gridPoints = gridPoints.map(localPoint => {
     return [localPoint[0] + token.x, localPoint[1] + token.y];
   })
-  
-  return {GridPoints: gridPoints, Squares: boundingBoxes};
+
+  return { GridPoints: gridPoints, Squares: boundingBoxes };
 }
 
 /**
@@ -1601,11 +1781,11 @@ function generateTokenGrid(token){
  * @param {boolean} [visualize=false]
  * @return {*} 
  */
-Token.prototype.computeTargetCover = async function (targetToken = null, 
-                                                     mode = game.settings.get('dnd5e-helpers', 'losOnTarget'),
-                                                     includeTiles = game.settings.get('dnd5e-helpers', 'losOnTarget') > 0,
-                                                     includeTokens = game.settings.get('dnd5e-helpers', 'losWithTokens'),
-                                                     visualize = false) { 
+Token.prototype.computeTargetCover = async function (targetToken = null,
+  mode = game.settings.get('dnd5e-helpers', 'losOnTarget'),
+  includeTiles = game.settings.get('dnd5e-helpers', 'losOnTarget') > 0,
+  includeTokens = game.settings.get('dnd5e-helpers', 'losWithTokens'),
+  visualize = false) {
   const myToken = this;
 
   /** if we were not provided a target token, grab the first one the current user has targeted */
@@ -1614,34 +1794,34 @@ Token.prototype.computeTargetCover = async function (targetToken = null,
   if (!targetToken) { ui.noficiations.error(game.i18n.format("DND5EH.LoS_notargeterror")); return false; }
 
   /** dont compute cover on self */
-  if(myToken.id == targetToken.id){return false;}
+  if (myToken.id == targetToken.id) { return false; }
 
   /** generate token grid points */
   /** if we have been called we are computing LOS, use the requested LOS mode (center vs 4 corners) */
   const myTestPoints = mode > 1 ? generateTokenGrid(myToken).GridPoints : [[myToken.center.x, myToken.center.y]];
   const theirTestSquares = generateTokenGrid(targetToken).Squares;
 
-  const results = myTestPoints.map( xyPoint => {
-    
+  const results = myTestPoints.map(xyPoint => {
+
     /** convert the box entries to num visible corners of itself */
-    let individualTests = theirTestSquares.map( square => {
-      return ( pointToSquareCover(xyPoint,square,visualize));
+    let individualTests = theirTestSquares.map(square => {
+      return (pointToSquareCover(xyPoint, square, visualize));
     });
-    
+
     /** return the most number of visible corners */
     return Math.max.apply(Math, individualTests);
   });
-  
-    
+
+
   const bestVisibleCorners = Math.max.apply(Math, results);
-  
-  if(_debugLosRays.length > 0){
+
+  if (_debugLosRays.length > 0) {
     await DrawDebugRays(_debugLosRays);
     _debugLosRays = [];
-  } 
+  }
 
   const bestCover = CoverFromObjects(myToken, targetToken, includeTiles, includeTokens);
-  
+
   return new CoverData(myToken, targetToken, bestVisibleCorners, bestCover?.bestTile, bestCover?.bestToken);
 }
 
@@ -1665,7 +1845,7 @@ function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
 
   /** Debug visualization */
   if (visualize) {
-    let debugSightLines = sightLines.targets.map( target => [sightLines.source, target]);
+    let debugSightLines = sightLines.targets.map(target => [sightLines.source, target]);
 
     const myCornerDebugRays = debugSightLines.map(ray => {
       return {
@@ -1697,7 +1877,7 @@ function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
     return WallsLayer.getRayCollisions(ray, options);
   })
 
-  const numCornersVisible = hitResults.reduce((total,x) => (x==false ? total+1 : total), 0)
+  const numCornersVisible = hitResults.reduce((total, x) => (x == false ? total + 1 : total), 0)
 
   return numCornersVisible;
 }
@@ -1726,7 +1906,8 @@ function CollideAgainstObjects(ray, objectList) {
 
     return !!boxGroup.find(boxRay => {
       return ray.intersectSegment(boxRay) !== false;
-    })});
+    })
+  });
 
   return hitTiles;
 }
@@ -1742,53 +1923,53 @@ function CoverFromObjects(sourceToken, targetToken, includeTiles, includeTokens)
   /** center to center allows us to run alongside cover calc
     * otherwise we should include cover in the optimal search of cover... */
   const ray = new Ray(sourceToken.center, targetToken.center);
-  
-  /** create the container to optionally populate with results based on config */
-  let objectHitResults = {tiles: null, tokens: null};
 
-  if (includeTiles){
+  /** create the container to optionally populate with results based on config */
+  let objectHitResults = { tiles: null, tokens: null };
+
+  if (includeTiles) {
     /** collect "blocker" tiles (this could be cached on preCreateTile or preUpdateTile) */
     const coverTiles = canvas.tiles.placeables.filter(tile => tile.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0);
 
     /** hits.length is number of blocker tiles hit */
-    objectHitResults.tiles = CollideAgainstObjects(ray, coverTiles);  
+    objectHitResults.tiles = CollideAgainstObjects(ray, coverTiles);
   }
-  
-  if(includeTokens){
+
+  if (includeTokens) {
     /** collect tokens that are not ourselves OR the target token */
     const coverTokens = canvas.tokens.placeables.filter(token => token.id !== sourceToken.id && token.id !== targetToken.id)
     objectHitResults.tokens = CollideAgainstObjects(ray, coverTokens);
-  } 
+  }
 
   /** using reduce on an empty array with no starting value is a no go
    *  a starting value (fake tile) is also a no go
    *  so we test and early return null instead.
    */
-  const maxCoverLevelTile = objectHitResults.tiles?.length ?? 0 > 0 ? objectHitResults.tiles.reduce( (bestTile, currentTile) => {
-    return bestTile?.getFlag('dnd5e-helpers','coverLevel') ?? -1 > currentTile?.getFlag('dnd5e-helpers','coverLevel') ?? -1 ? bestTile : currentTile;
+  const maxCoverLevelTile = objectHitResults.tiles?.length ?? 0 > 0 ? objectHitResults.tiles.reduce((bestTile, currentTile) => {
+    return bestTile?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1 > currentTile?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1 ? bestTile : currentTile;
   }) : null;
-  
+
   /** at the moment, we dont care what we hit, since all creatures give 1/2 cover */
   const maxCoverToken = objectHitResults.tokens?.length ?? 0 > 0 ? objectHitResults.tokens[0] : null;
-  
-  return {bestTile: maxCoverLevelTile, bestToken: maxCoverToken}
+
+  return { bestTile: maxCoverLevelTile, bestToken: maxCoverToken }
 }
 
 /** attaches the cover dropdown to the tile dialog */
-function onRenderTileConfig (tileConfig, html) {
-  
+function onRenderTileConfig(tileConfig, html) {
+
   /** 0 = disabled, get out of here if we are disabled */
-  if(game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
+  if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
 
   const currentCoverType = tileConfig.object.getFlag('dnd5e-helpers', 'coverLevel');
-  
+
   /** anchor our new dropdown at the bottom of the dialog */
   const saveButton = html.find($('button[type="submit"]'));
   const coverTranslation = game.i18n.format("DND5EH.LoS_providescover");
   const noCover = game.i18n.format("DND5EH.LoS_nocover")
-  const halfCover =game.i18n.format("DND5EH.LoS_halfcover")
-  const threeQuaterCover =game.i18n.format("DND5EH.LoS_34cover")
-  const fullCover =game.i18n.format("DND5EH.LoS_fullcover")
+  const halfCover = game.i18n.format("DND5EH.LoS_halfcover")
+  const threeQuaterCover = game.i18n.format("DND5EH.LoS_34cover")
+  const fullCover = game.i18n.format("DND5EH.LoS_fullcover")
   let checkboxHTML = `<div class="form-group"><label${coverTranslation}</label>
                         <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
                           <option value="0" ${currentCoverType == 0 ? 'selected' : ''}>${noCover}</option>
@@ -1797,32 +1978,29 @@ function onRenderTileConfig (tileConfig, html) {
                           <option value="3" ${currentCoverType == 3 ? 'selected' : ''}>${fullCover}</option>
                         </select>
                       </div>`;
-  
-  html.css("height","auto");
+
+  html.css("height", "auto");
 
   saveButton.before(checkboxHTML);
 }
 
-function onPreCreateTile(scene, tileData, options, id){
-  const halfPath ="modules/dnd5e-helpers/assets/cover-tiles/half-cover.svg";
+function onPreCreateTile(scene, tileData, options, id) {
+  const halfPath = "modules/dnd5e-helpers/assets/cover-tiles/half-cover.svg";
   const threePath = "modules/dnd5e-helpers/assets/cover-tiles/three-quarters-cover.svg";
   /** what else could it be? */
-  if (tileData.type == "Tile" && (tileData.img == halfPath || tileData.img == threePath)){
+  if (tileData.type == "Tile" && (tileData.img == halfPath || tileData.img == threePath)) {
     /** its our sample tiles -- set the flag structure */
     const tileCover = tileData.img == halfPath ? 1 : 2;
 
-    if (!tileData.flags){
+    if (!tileData.flags) {
       tileData.flags = {};
     }
 
-    tileData.flags["dnd5e-helpers"] = {coverLevel: tileCover};
+    tileData.flags["dnd5e-helpers"] = { coverLevel: tileCover };
   }
 }
 
-/** adding cover dropdown to the tile config dialog */
-Hooks.on("renderTileConfig", onRenderTileConfig);
 
-/** calculating cover when a token is targeted */
-Hooks.on("targetToken", onTargetToken);
 
-Hooks.on("preCreateTile", onPreCreateTile);
+
+

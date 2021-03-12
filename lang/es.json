@@ -67,14 +67,14 @@
     "DND5EH.WildMagicWisper_hint":"Susurra todas las tiradas y resultados de la tabla al GM",
 
     "DND5EH.CombatReactionEnable_name": "Automatización del uso de reacciones.",
-    "DND5EH.CombatReactionEnable_hint":"Activa o desactiva esta función (global). Comprueba el uso de habilidades de reacción o acciones fuera de turno y aplica el estado especificado.and applies the specified status. 'Quitar' quitará este efecto autom. al principio del turnodel actor",
+    "DND5EH.CombatReactionEnable_hintOld":"Activa o desactiva esta función (global). Comprueba el uso de habilidades de reacción o acciones fuera de turno y aplica el estado especificado.and applies the specified status. 'Quitar' quitará este efecto autom. al principio del turnodel actor",
+    "DND5EH.CombatReactionEnable_hint":"[EN] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
+
     "DND5EH.CombatReactionEnable_apply":"Solo aplicar",
     "DND5EH.CombatReactionEnable_remove":"Solo quitar",
     "DND5EH.CombatReactionEnable_both":"Aplicar y quitar",
 
-    "DND5EH.CombatReactionStatus_name": "Nombre del estado de reacción",
-    "DND5EH.CombatReactionStatus_hint":"Tal y como se ve al poner el ratón sobre el estado en la interfaz del token (por defecto: Debilitado).",
-    "DND5EH.CombatReactionStatus_default":"Debilitado",
+
     "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: No se pudo encontrar el estado: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: No es una tirada de item de actor",
     "DND5EH.CombatReactionStatus_actionname" :"1 Acción",

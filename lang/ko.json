@@ -67,14 +67,14 @@
     "DND5EH.WildMagicWisper_hint":"모든 굴림 및 표 결과를 GM에게 귓속말로 알린다.",
 
     "DND5EH.CombatReactionEnable_name": "반응행동 상태 자동화",
-    "DND5EH.CombatReactionEnable_hint":"이 기능을 활성화/비활성화 하여, 적용시 반응행동 능력 확인 및 턴 외 행동과 지정 상태를 확인할 수 있다. 제거시 액터의 턴이 시작될 때까지 이 효과를 자동적으로 제거한다.",
+    "DND5EH.CombatReactionEnable_hintOld":"이 기능을 활성화/비활성화 하여, 적용시 반응행동 능력 확인 및 턴 외 행동과 지정 상태를 확인할 수 있다. 제거시 액터의 턴이 시작될 때까지 이 효과를 자동적으로 제거한다.",
+    "DND5EH.CombatReactionEnable_hint":"[EN] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
+
     "DND5EH.CombatReactionEnable_apply":"적용만",
     "DND5EH.CombatReactionEnable_remove":"제거만",
     "DND5EH.CombatReactionEnable_both":"적용 및 제거",
 
-    "DND5EH.CombatReactionStatus_name": "반응행동 상태 이름",
-    "DND5EH.CombatReactionStatus_hint":"토큰 HUD 상태에 호버 시 볼 수 있다. (기본값: Weakened)",
-    "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: 상태를 찾을 수 없습니다 {reactionStatus}",
+
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: 액터 아이템 굴림이 아닙니다",
     "DND5EH.CombatReactionStatus_actionname" :"1 행동",
     "DND5EH.CombatReactionStatus_reactionname": "1 반응행동",

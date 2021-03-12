@@ -67,14 +67,11 @@
     "DND5EH.WildMagicWisper_hint":"Whispers all rolls and table results to the GM",
 
     "DND5EH.CombatReactionEnable_name": "Reaction status automation.",
-    "DND5EH.CombatReactionEnable_hint":"Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the specified status. Remove will automatically remove this effect at the start of an actor's turn",
+    "DND5EH.CombatReactionEnable_hint":"Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
     "DND5EH.CombatReactionEnable_apply":"Only Apply",
     "DND5EH.CombatReactionEnable_remove":"Only Remove",
     "DND5EH.CombatReactionEnable_both":"Apply and Remove",
 
-    "DND5EH.CombatReactionStatus_name": "Reaction status name",
-    "DND5EH.CombatReactionStatus_hint":"As seen when hovering over the status in the token HUD (default: Weakened).",
-    "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: Could not find staus: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: Not an actors item roll",
     "DND5EH.CombatReactionStatus_actionname" :"1 Action",
     "DND5EH.CombatReactionStatus_reactionname": "1 Reaction",

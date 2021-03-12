@@ -67,14 +67,14 @@
     "DND5EH.WildMagicWisper_hint":"[EN] Whispers all rolls and table results to the GM",
 
     "DND5EH.CombatReactionEnable_name": "Automatisation du statut de réaction.",
-    "DND5EH.CombatReactionEnable_hint":"Active ou désactive cette fonctionnalité (global). Appliquez des vérifications pour les capacités de réaction ou les actions hors tour et applique le statut spécifié. Supprimera automatiquement cet effet au début du tour de l'acteur",
+    "DND5EH.CombatReactionEnable_hintOld":"Active ou désactive cette fonctionnalité (global). Appliquez des vérifications pour les capacités de réaction ou les actions hors tour et applique le statut spécifié. Supprimera automatiquement cet effet au début du tour de l'acteur",
+    "DND5EH.CombatReactionEnable_hint":"[EN] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
+
     "DND5EH.CombatReactionEnable_apply":"Appliquer uniquement",
     "DND5EH.CombatReactionEnable_remove":"Retirer uniquement",
     "DND5EH.CombatReactionEnable_both":"Appliquer et retirer",
 
-    "DND5EH.CombatReactionStatus_name": "Nom du statut de réaction",
-    "DND5EH.CombatReactionStatus_hint":"Apercevoir en survolant le statut du jeton HUD (Par défaut: Affaibli).",
-    "DND5EH.CombatReactionStatus_statuserror":"Aide Dnd5e: Ne trouve pas le statut: {reactionStatus}",
+
     "DND5EH.CombatReactionStatus_actoritemerror" : "Aide Dnd5e: Not an actors item roll",
     "DND5EH.CombatReactionStatus_actionname" :"1 Action",
     "DND5EH.CombatReactionStatus_reactionname": "1 Reaction",
