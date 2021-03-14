@@ -612,7 +612,7 @@ Hooks.on("createCombatant", (combat, token) => {
   if (combat.data.active && combat.started && reactMode === 1) {
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
-  DnDCombatUpdates.LairActionMapping(tokenInstance.actor.id, combat)
+  DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
 })
 
 Hooks.on("updateToken", (scene, token, update) => {
@@ -1094,12 +1094,12 @@ class DnDCombatUpdates {
 
 
   /**@todo remake to array not map */
-  static async LairActionMapping(actorId, combat) {
-    let actor = game.actors.get(actorId)
-    let lairActions = actor.items.filter((i) => i.data?.data?.activation?.type === "lair");
+  static async LairActionMapping(token, combat) {
+    let tokenItems = getProperty(token, "items") || token.actor.items
+    let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
     if (lairActions.length > 0) {
       let combatLair = duplicate(await combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
-      combatLair.push([actor.data.name, lairActions])
+      combatLair.push([token.data.name, lairActions, token.id])
       await combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
     }
   }
@@ -1110,25 +1110,22 @@ class DnDCombatUpdates {
     
 
 
-    function addTableContents(actionArray) {
+    function addTableContents(actorName, actionArray, tokenId) {
       let actionContents = ``;
       for (let action of actionArray) {
         actionContents += `
-        <td>"${action.name}"</td>
-        <td>"space to roll"</td>
+        <td>${action.name}</td>
+        <td><button id=${action._id} value="${tokenId},${action._id}" >Roll</button></td>
       `
-      //<td>< button onclick = "rollAction(action)" id="${action._id}">Roll</td>
+      
         return actionContents
       }
     }
-    function rollACtion() {
-      ui.notifications.notify("test")
-    }
     function addLairActor(actor) {
-      let actions = addTableContents(actor[1])
+      let actions = addTableContents(actor[0], actor[1], actor[2])
       let actorActions = `
       <tr>
-        <td>${actor[0]}</td>
+        <td><button value="${actor[2]}"> ${actor[0]}</td>
         ${actions}
       </tr>
       `
@@ -1137,40 +1134,45 @@ class DnDCombatUpdates {
     for (let actor of lairActionArray) { 
       lairContents += addLairActor(actor) 
     }
-let lairTable =
-      `
-    <table style="width:100%">
-      <tr>
-        <th> Creature</th>
-        <th> Action </th>
-        <th> Roll </th>
-      </tr>
-      ${lairContents}
-    </table>
+    let lairTable =
     `
+  <table style="width:100%">
+  <script type"text/javascript">
+  $("button").click(function() {
+    var fired_button = $(this).val();
+    debugger
+    let [tokenID, itemID] = fired_button.split(",");
+    let token = canvas.tokens.get(tokenID)
+    if(itemID === undefined){
+      canvas.animatePan({x: token.center.x, y: token.center.y, duration: 250 })
+    }
+    else{
+    let token = canvas.tokens.get(tokenID);
+    let item = token.actor.items.get(itemID);
+    item.roll();
+    }
 
-    lairTable = ` <table style="width:100%">
-      <tr>
-        <th> Creature</th>
-        <th> Action </th>
-        <th Roll </th>
-      </tr>
-      
-      <tr>
-        <td>Adult Black Dragon</td>
-        
-        <td>"Lair Actions"</td>
-        <td>"space to roll"</td>
-      
-      </tr>
-      
-    </table>`
+
+    });
+    </script>
+  <thead>
+    <tr>
+      <th> Creature</th>
+      <th> Action </th>
+      <th> Roll </th>
+    </tr>
+  </thead>
+  <tbody>
+    ${lairContents}
+    </tbody>
+  </table>
+  `
     new Dialog({
       title: "Lair Actions",
-      contents: lairTable,
+      content: lairTable,
       buttons: {
         one: {
-          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
+          label: "test",
           callback: () => {
             ui.notifications.notify("test")
             return;
