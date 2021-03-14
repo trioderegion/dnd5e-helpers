@@ -1408,96 +1408,35 @@ class DnDActionManagement {
 
       if (castingToken === null && castingActor === null) {
         if (game.settings.get('dnd5e-helpers', 'debug')) {
-          console.log(game.i18n.format("DND5EH.CombatReactionStatus_actoritemerror"))
+          console.log(game.i18n.format("DND5EH.CombatReactionStatus_actoritemerror"));
         }
         return; // not a item roll message, prevents unneeded errors in console
       }
 
       //find token for linked actor 
       if (castingToken === null && castingActor !== null) {
-        castingToken = canvas.tokens.placeables.find(i => i.actor?.data._id.includes(castingActor)).data._id
+        castingToken = canvas.tokens.placeables.find(i => i.actor?.data._id.includes(castingActor)).data._id;
       }
 
-      let effectToken = canvas.tokens.get(castingToken)
+      let effectToken = canvas.tokens.get(castingToken);
 
       let ownedItem = effectToken.actor.getOwnedItem(itemId);
       const { type, cost } = ownedItem?.data?.data?.activation;
 
+      if (!type || !cost){
+        return true;
+      }
+
       /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
-      const isAction = cost == 1 && type === "action";
-      const isReaction = cost == 1 && type === "reaction";
-      const isBonus = cost == 1 && type === "bonus";
-
-      let isActionReaction = isReaction || (isAction && (currentCombatant !== castingToken));
-
-      if (isActionReaction) {
-        return DnDActionManagement.UpdateActionMarkers(effectToken, "reaction")
+      const finalType = (type == "action" && (currentCombatant !== castingToken)) ? "reaction" : type;
+      if (cost > 0){
+        return DnDActionManagement.UpdateActionMarkers(effectToken, finalType);
       }
-      else if (isAction) {
-        return DnDActionManagement.UpdateActionMarkers(effectToken, "action")
-      }
-      else if (isBonus) {
-        return DnDActionManagement.UpdateActionMarkers(effectToken, "bonus")
-      }
-      /*
-          if (shouldApply) {
-            if (game.modules.get("combat-utility-belt")?.active) {
-      
-              // first, test if this is a cub condition 
-              if (game.cub.getCondition(reactionStatus)) {
-                ApplyCUB(effectToken, reactionStatus)
-                return; //early exit once we trigger correctly
-              }
-            }
-      
-            // if nothing else , it should be core -- if the effect is already present, dont toggle
-            // @todo maybe put out a nice reminder that you have used your action in chat? 
-            const existing = effectToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-            if (!existing) {
-              ToggleStatus(effectToken, statusEffect);
-              return; //early exit once we trigger correctly
-            }
-          }
-          */
     }
-    return true
+    return true;
   }
 
   static async ReactionRemove(currentToken) {
-    /*
-    const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
-    let statusEffect = GetStatusEffect(reactionStatus);
-  
-    if (game.settings.get('dnd5e-helpers', 'debug')) {
-      console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuslog", { statusEffect: statusEffect }))
-    }
-  
-    /** latest version, attempt to play nice with active effects and CUB statuses *
-    if (!statusEffect) {
-      console.log(game.i18n.format("DND5EH.CombatReactionStatus_effecterror", { reactionStatus: reactionStatus }));
-      return;
-    }
-  
-    /** Remove an existing effect (stoken from foundy.js:44223) *
-    if (!currentToken.actor) {
-      /** actorless tokens cannot receive effects *
-      return;
-    }
-    const existing = currentToken.actor.effects.find(e => e.getFlag("core", "statusId") === statusEffect.id);
-    if (existing) {
-      if (game.modules.get("combat-utility-belt")?.active) {
-  
-        /** first, test if this is a cub condition *
-        if (game.cub.getCondition(reactionStatus)) {
-          await RemoveCUB(currentToken, reactionStatus)
-          return; //early exit once we trigger correctly
-        }
-      }
-  
-      /** if nothing else , it should be core *
-      await ToggleStatus(currentToken, statusEffect);
-      return; //early exit once we trigger correctly
-    }*/
 
     let actionMarkers = currentToken.children.filter((i => !!i.actionType))
     actionMarkers.forEach(i => i.alpha = 1)
