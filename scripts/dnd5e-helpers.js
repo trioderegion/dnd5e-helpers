@@ -382,7 +382,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     const nextTurn = combat.turns[changed.turn];
     const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
-    let pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
+    let pastLair = false;
+    if(nextTurn?.initiative && previousTurn?.initiative){
+      pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
+    }
 
     /** data structure for 0.6 */
     let nextTokenId = null;
@@ -390,14 +393,14 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       nextTokenId = nextTurn.tokenId;
     }
     else {
-      nextTokenId = getProperty(nextTurn, token._id);
+      nextTokenId = getProperty(nextTurn, "token._id");
     }
 
     let currentToken = canvas.tokens.get(nextTokenId);
     let previousToken = canvas.tokens.get(previousTurn.tokenId)
 
     /** we dont care about tokens without actors */
-    if (!currentToken.actor) {
+    if (!currentToken?.actor) {
       return;
     }
     let option1 = game.i18n.format("DND5EH.AutoRegen_Regneration")
@@ -1140,11 +1143,11 @@ class DnDCombatUpdates {
   <script type"text/javascript">
   $("button").click(function() {
     var fired_button = $(this).val();
-    debugger
     let [tokenID, itemID] = fired_button.split(",");
     let token = canvas.tokens.get(tokenID)
     if(itemID === undefined){
       canvas.animatePan({x: token.center.x, y: token.center.y, duration: 250 })
+      token.control();
     }
     else{
     let token = canvas.tokens.get(tokenID);
