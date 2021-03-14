@@ -73,8 +73,6 @@
     "DND5EH.CombatReactionEnable_both":"Apply and Remove",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: Not an actors item roll",
-    "DND5EH.CombatReactionStatus_actionname" :"1 Action",
-    "DND5EH.CombatReactionStatus_reactionname": "1 Reaction",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: status effect is: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"dnd5e-helpers: could not located active effect named: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Dnd5e helpers: Could not find an active combat",

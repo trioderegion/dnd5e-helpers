@@ -1421,12 +1421,12 @@ class DnDActionManagement {
       let effectToken = canvas.tokens.get(castingToken)
 
       let ownedItem = effectToken.actor.getOwnedItem(itemId);
-      const { activation } = ownedItem.labels;
+      const { type, cost } = ownedItem?.data?.data?.activation;
 
       /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
-      const isAction = activation === game.i18n.format("DND5EH.CombatReactionStatus_actionname")
-      const isReaction = activation === game.i18n.format("DND5EH.CombatReactionStatus_reactionname")
-      const isBonus = activation === game.i18n.format("DND5EH.CombatReactionStatus_bonusname")
+      const isAction = cost == 1 && type === "action";
+      const isReaction = cost == 1 && type === "reaction";
+      const isBonus = cost == 1 && type === "bonus";
 
       let isActionReaction = isReaction || (isAction && (currentCombatant !== castingToken));
 
