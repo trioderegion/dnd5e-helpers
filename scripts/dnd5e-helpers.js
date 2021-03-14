@@ -43,7 +43,7 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean,
   });
-  
+
   game.settings.register("dnd5e-helpers", "losMaskNPCs", {
     name: game.i18n.format("DND5EH.LoSMaskNPCs_name"),
     hint: game.i18n.format("DND5EH.LoSMaskNPCs_hint"),
@@ -52,7 +52,7 @@ Hooks.on('init', () => {
     default: false,
     type: Boolean
   });
-  
+
   /** should surges be tested */
   game.settings.register("dnd5e-helpers", "wmOptions", {
     name: game.i18n.format("DND5EH.WildMagicOptions_name"),
@@ -67,7 +67,7 @@ Hooks.on('init', () => {
       2: game.i18n.format("DND5EH.WildMagicOptions_more"),
       3: game.i18n.format("DND5EH.WildMagicOptions_volatile")
     }
-  });  
+  });
 
   /** name of the feature to trigger on */
   game.settings.register("dnd5e-helpers", "wmFeatureName", {
@@ -282,19 +282,19 @@ Hooks.on('init', () => {
 });
 
 Hooks.on("init", () => {
-    Die.MODIFIERS["mr"] = function minResult(modifier) {
-        const min = parseInt(modifier.match(/\d+/));
-        if (!min || !Number.isNumeric(min)) return;
-        this.results = this.results.flatMap(result => {
-            if (result.result < min) {
-                result.active = false;
-                result.discarded = true;
-                return [result, { result: min, active: true }];
-            } else {
-                return [ result ];
-            }
-        });
-    }
+  Die.MODIFIERS["mr"] = function minResult(modifier) {
+    const min = parseInt(modifier.match(/\d+/));
+    if (!min || !Number.isNumeric(min)) return;
+    this.results = this.results.flatMap(result => {
+      if (result.result < min) {
+        result.active = false;
+        result.discarded = true;
+        return [result, { result: min, active: true }];
+      } else {
+        return [result];
+      }
+    });
+  }
 })
 
 Hooks.on('ready', () => {
@@ -318,7 +318,7 @@ Hooks.on('ready', () => {
         }
       }
     }
-    if(socketData.actionMarkers){
+    if (socketData.actionMarkers) {
       DnDActionManagement.UpdateOpacities(socketData.tokenId)
     }
   })
@@ -382,6 +382,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     const nextTurn = combat.turns[changed.turn];
     const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
+    let pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
+
     /** data structure for 0.6 */
     let nextTokenId = null;
     if (getProperty(nextTurn, "tokenId")) {
@@ -391,10 +393,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       nextTokenId = getProperty(nextTurn, token._id);
     }
 
-
     let currentToken = canvas.tokens.get(nextTokenId);
     let previousToken = canvas.tokens.get(previousTurn.tokenId)
-
 
     /** we dont care about tokens without actors */
     if (!currentToken.actor) {
@@ -433,6 +433,14 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         await DnDCombatUpdates.RechargeAbilities(previousToken);
       }
     }
+
+    if (pastLair) {
+      let lairActions = await combat.getFlag('dnd5e-helpers', 'Lair Actions')
+      if (lairActions) DnDCombatUpdates.RunLairActions(lairActions)
+
+      ui.notifications.notify("lair action")
+    }
+
 
   }
 
@@ -600,10 +608,11 @@ Hooks.on("ready", () => {
 
 Hooks.on("createCombatant", (combat, token) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  let tokenInstance = canvas.tokens.get(token.tokenId)
   if (combat.data.active && combat.started && reactMode === 1) {
-    let tokenInstance = canvas.tokens.get(token.tokenId)
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
+  DnDCombatUpdates.LairActionMapping(tokenInstance.actor.id, combat)
 })
 
 Hooks.on("updateToken", (scene, token, update) => {
@@ -1083,7 +1092,97 @@ class DnDCombatUpdates {
     } else return true;
   }
 
+
+  /**@todo remake to array not map */
+  static async LairActionMapping(actorId, combat) {
+    let actor = game.actors.get(actorId)
+    let lairActions = actor.items.filter((i) => i.data?.data?.activation?.type === "lair");
+    if (lairActions.length > 0) {
+      let combatLair = duplicate(await combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
+      combatLair.push([actor.data.name, lairActions])
+      await combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
+    }
+  }
+
+  static RunLairActions(lairActionArray) {
+    if (!lairActionArray) return;
+    let lairContents = ``;
+    
+
+
+    function addTableContents(actionArray) {
+      let actionContents = ``;
+      for (let action of actionArray) {
+        actionContents += `
+        <td>"${action.name}"</td>
+        <td>"space to roll"</td>
+      `
+      //<td>< button onclick = "rollAction(action)" id="${action._id}">Roll</td>
+        return actionContents
+      }
+    }
+    function rollACtion() {
+      ui.notifications.notify("test")
+    }
+    function addLairActor(actor) {
+      let actions = addTableContents(actor[1])
+      let actorActions = `
+      <tr>
+        <td>${actor[0]}</td>
+        ${actions}
+      </tr>
+      `
+      return actorActions;
+    }
+    for (let actor of lairActionArray) { 
+      lairContents += addLairActor(actor) 
+    }
+let lairTable =
+      `
+    <table style="width:100%">
+      <tr>
+        <th> Creature</th>
+        <th> Action </th>
+        <th> Roll </th>
+      </tr>
+      ${lairContents}
+    </table>
+    `
+
+    lairTable = ` <table style="width:100%">
+      <tr>
+        <th> Creature</th>
+        <th> Action </th>
+        <th Roll </th>
+      </tr>
+      
+      <tr>
+        <td>Adult Black Dragon</td>
+        
+        <td>"Lair Actions"</td>
+        <td>"space to roll"</td>
+      
+      </tr>
+      
+    </table>`
+    new Dialog({
+      title: "Lair Actions",
+      contents: lairTable,
+      buttons: {
+        one: {
+          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
+          callback: () => {
+            ui.notifications.notify("test")
+            return;
+          },
+        },
+      }
+    }).render(true)
+
+
+  }
 }
+
 
 class DnDWounds {
   /** checks for Unlinked Token Great Wounds */
@@ -1291,13 +1390,13 @@ class DnDActionManagement {
       //const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
       //let statusEffect = DnDHelpers.GetStatusEffect(reactionStatus);
 
-       /**bail out if we can't find the status. 
-      if (!statusEffect) {
-        if (game.settings.get('dnd5e-helpers', 'debug')) {
-          console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuserror", { reactionStatus: reactionStatus }))
-        }
-        return;
-      }*/
+      /**bail out if we can't find the status. 
+     if (!statusEffect) {
+       if (game.settings.get('dnd5e-helpers', 'debug')) {
+         console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuserror", { reactionStatus: reactionStatus }))
+       }
+       return;
+     }*/
 
       //find the current token instance that called the roll card
       let currentCombatant = getProperty(game.combats, "active.current.tokenId");
@@ -1515,10 +1614,10 @@ class DnDActionManagement {
       }
         break;
     }
-      const socketData = {
-        actionMarkers: true,
-        tokenId: token.id
-      }
+    const socketData = {
+      actionMarkers: true,
+      tokenId: token.id
+    }
     game.socket.emit(`module.dnd5e-helpers`, socketData)
 
   }
@@ -1532,7 +1631,7 @@ class DnDActionManagement {
 
   static async UpdateOpacities(tokenId) {
     let token = canvas.tokens.get(tokenId);
-    if(!token.owner) return;
+    if (!token.owner) return;
     let actions = await token.getFlag('dnd5e-helpers', 'ActionManagement');
     let actionIcon = token.children.find(i => i.actionType === "action");
     let reactionIcon = token.children.find(i => i.actionType === "reaction");
