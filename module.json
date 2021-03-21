@@ -38,6 +38,10 @@
         "lang": "ko",
         "name": "Korean",
         "path": "lang/ko.json"
+      },{
+        "lang": "ja",
+        "name": "日本語",
+        "path": "lang/ja.json"
       }
     ],
     "socket": true,
