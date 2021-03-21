@@ -124,6 +124,16 @@ Hooks.on('init', () => {
     onChange: () => window.location.reload()
   });
 
+  /** lair action helper enable */
+  game.settings.register("dnd5e-helpers", "lairHelperEnable", {
+    name: game.i18n.format("DND5EH.LairHelper_name"),
+    hint: game.i18n.format("DND5EH.LairHelper_hint"),
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
+  });
+
 
   /** enable auto legact reset */
   game.settings.register("dnd5e-helpers", "cbtLegactEnable", {
@@ -382,11 +392,6 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     const nextTurn = combat.turns[changed.turn];
     const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
-    let pastLair = false;
-    if(nextTurn?.initiative && previousTurn?.initiative){
-      pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
-    }
-
     /** data structure for 0.6 */
     let nextTokenId = null;
     if (getProperty(nextTurn, "tokenId")) {
@@ -437,11 +442,20 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       }
     }
 
-    if (pastLair) {
-      let lairActions = await combat.getFlag('dnd5e-helpers', 'Lair Actions')
-      if (lairActions) DnDCombatUpdates.RunLairActions(lairActions)
+    if(game.settings.get(MODULE, 'lairHelperEnable')){
+      let pastLair = false;
+      if(nextTurn?.initiative && previousTurn?.initiative){
+        pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
+      }
 
-      ui.notifications.notify("lair action")
+      if (pastLair) {
+        const lairActions = combat.getFlag('dnd5e-helpers', 'Lair Actions')
+        if (lairActions?.length ?? [] > 0){ 
+          DnDCombatUpdates.RunLairActions(lairActions)
+        }
+
+        ui.notifications.notify("lair action")
+      }
     }
 
 
@@ -529,16 +543,20 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode === 1) {
     for (let combatant of combat.data.combatants) {
-      DnDActionManagement.RemoveActionMarkers(combatant.tokenId)
+      DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
     }
   }
 
 });
 
-Hooks.on("deleteCombatant", (combat, combatant) => {
+Hooks.on("deleteCombatant", async (combat, combatant) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode === 1) {
-    DnDActionManagement.RemoveActionMarkers(combatant.tokenId)
+    await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
+  }
+
+  if(game.settings.get(MODULE, 'lairHelperEnable')){
+    await DnDCombatUpdates.RemoveLairMapping(combat, combatant); 
   }
 })
 
@@ -603,7 +621,7 @@ Hooks.on("ready", () => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode === 1) {
     let combat = game.combats.active
-    let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
+    let tokenIds = combat?.data.combatants.reduce((a, v) => a.concat(v.tokenId), []) ?? [];
     let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
     DnDActionManagement.AddActionMarkers(tokenArray)
   }
@@ -611,11 +629,16 @@ Hooks.on("ready", () => {
 
 Hooks.on("createCombatant", (combat, token) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+  const lairHelperEnable = game.settings.get(MODULE, 'lairHelperEnable');
   let tokenInstance = canvas.tokens.get(token.tokenId)
+
   if (combat.data.active && combat.started && reactMode === 1) {
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
-  DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
+
+  if(lairHelperEnable){
+    DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
+  }
 })
 
 Hooks.on("updateToken", (scene, token, update) => {
@@ -1101,17 +1124,33 @@ class DnDCombatUpdates {
     let tokenItems = getProperty(token, "items") || token.actor.items
     let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
     if (lairActions.length > 0) {
-      let combatLair = duplicate(await combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
+      let combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
       combatLair.push([token.data.name, lairActions, token.id])
-      await combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
+      return combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
     }
+
+    return true;
+  }
+
+  static async RemoveLairMapping(combat, combatant){
+    
+    /** get the actual token */
+    const tokenId = combat.scene.getEmbeddedEntity('Token',combatant.tokenId)?.id;
+
+    /** check for a removal of a lair actor */
+    const combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
+    const updatedList = combatLair.filter( entry => entry[2] == tokenId );
+
+    if(combatLair.length != updatedList.length){
+      /** a change occured, update the flag */
+      return combat.setFlag('dnd5e-helpers', 'Lair Actions', updatedList)
+    }
+
   }
 
   static RunLairActions(lairActionArray) {
     if (!lairActionArray) return;
     let lairContents = ``;
-    
-
 
     function addTableContents(actorName, actionArray, tokenId) {
       let actionContents = ``;
@@ -1124,6 +1163,7 @@ class DnDCombatUpdates {
         return actionContents
       }
     }
+
     function addLairActor(actor) {
       let actions = addTableContents(actor[0], actor[1], actor[2])
       let actorActions = `
@@ -1535,7 +1575,7 @@ class DnDActionManagement {
     switch (action) {
       case "action": {
         let actionIcon = token.children.find(i => i.actionType === "action")
-        actionIcon.alpha = await 0.2
+        actionIcon.alpha = 0.2
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = true
         await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
@@ -1543,7 +1583,7 @@ class DnDActionManagement {
         break;
       case "reaction": {
         let reactionIcon = token.children.find(i => i.actionType === "reaction")
-        reactionIcon.alpha = await 0.2
+        reactionIcon.alpha = 0.2
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = true
         await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
@@ -1551,7 +1591,7 @@ class DnDActionManagement {
         break;
       case "bonus": {
         let bonusIcon = token.children.find(i => i.actionType === "bonus")
-        bonusIcon.alpha = await 0.2
+        bonusIcon.alpha = 0.2
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = true
         await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
@@ -1570,13 +1610,13 @@ class DnDActionManagement {
     let token = canvas.tokens.get(tokenId)
     let actionIcons = token.children.filter(i => i.actionType)
     actionIcons.forEach(i => i.destroy())
-    token.unsetFlag('dnd5e-helpers', 'ActionManagement')
+    return token.unsetFlag('dnd5e-helpers', 'ActionManagement')
   }
 
-  static async UpdateOpacities(tokenId) {
+  static UpdateOpacities(tokenId) {
     let token = canvas.tokens.get(tokenId);
     if (!token.owner) return;
-    let actions = await token.getFlag('dnd5e-helpers', 'ActionManagement');
+    let actions = token.getFlag('dnd5e-helpers', 'ActionManagement');
     let actionIcon = token.children.find(i => i.actionType === "action");
     let reactionIcon = token.children.find(i => i.actionType === "reaction");
     let bonusIcon = token.children.find(i => i.actionType === "bonus");
