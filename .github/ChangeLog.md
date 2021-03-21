@@ -163,5 +163,8 @@
   - Note: There is no toggle option for this functionality.
 - Translation updates provided by github users MS-PBS and brnmuller. We are thankful, as always.
 
+###1.11.0
+- Japanese localization provided by `togue`!
+
 
 
