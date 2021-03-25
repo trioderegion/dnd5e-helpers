@@ -1522,9 +1522,9 @@ class DnDActionManagement {
   };
 
   static async AddActionMarkers(tokenArray) {
-    let actionTexture = await loadTexture("modules/dnd5e-helpers/assets/5e helpers images/Action Used.png")
-    let reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/5e helpers images/Reaction Used.png")
-    let bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/5e helpers images/Bonus Action Used.png")
+    let actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Action Used.png")
+    let reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Reaction Used.png")
+    let bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Bonus Action Used.png")
 
     for (let token of tokenArray) {
       let actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
