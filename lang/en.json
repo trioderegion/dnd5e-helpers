@@ -118,6 +118,9 @@
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} survives with a {total}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Damage to target:",
 
+    "DND5EH.LairHelper_name" : "Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
+
     "DND5EH.GreatWoundEnable_name":"Great Wound",
     "DND5EH.GreatWoundEnable_hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow,",
 
