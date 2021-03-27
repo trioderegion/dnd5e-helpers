@@ -166,3 +166,11 @@
 ###1.10.1
 - Japanese localization provided by `togue`!
 
+###1.10.2
+= Additional Wild Magic Surge homebrew added, courtesy of `xdy`. All wild magic surge options can now optionally recharge Tides of Chaos when a surge occurs. This is added as a seperate 'Recharge Tides of Chaos on surge' option to decouple it from the Surge variations already present.
+- Translation changes/additions (denoted `[*]` and `[EN]` respectively in the packs):
+  - `DND5EH.WildMagicOptions_hint` has been updated to remove reference to recharging Tides of Chaos
+  - `DND5EH.WildMagicTidesOfChaos_name` added
+  - Several French translation strings were missing the untranslated `[EN]` flag.
+    - Note: French translation is beginning to fall behind in updates. Any help is appreciated on this front <3
+

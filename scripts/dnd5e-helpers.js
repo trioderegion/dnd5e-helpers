@@ -66,7 +66,6 @@ Hooks.on('init', () => {
       1: game.i18n.format("DND5EH.WildMagicOptions_standard"),
       2: game.i18n.format("DND5EH.WildMagicOptions_more"),
       3: game.i18n.format("DND5EH.WildMagicOptions_volatile"),
-      4: game.i18n.format("DND5EH.WildMagicOptions_standard_plus"),
     }
   });  
 
@@ -98,6 +97,15 @@ Hooks.on('init', () => {
     config: true,
     default: wmToCFeatureDefault,
     type: String,
+  });
+
+  /** should tides of chaos be recharged on a surge? */
+  game.settings.register("dnd5e-helpers", "wmToCRecharge", {
+    name: game.i18n.format("DND5EH.WildMagicTidesOfChaosRecharge_name"),
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
   });
 
   /** toggle result gm whisper for WM */
@@ -163,6 +171,7 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "cbtAbilityRechargeHide", {
     name: game.i18n.format("DND5EH.CombatAbilityRechargeHide_name"),
     scope: game.i18n.format("DND5EH.CombatAbilityRechargeHide_hint"),
+    scope: "world",
     config: true,
     default: true,
     type: Boolean,
@@ -417,6 +426,7 @@ function GetTidesOfChaosFeatureName(){
     ? game.settings.get('dnd5e-helpers', 'wmToCFeatureName') : wmToCFeatureDefault;
 }
 
+// @todo turn these parameters into a config object. Compress spellLevel and onlyLevelOne into a single "target number" field.
 /**
  * Roll for a surge as per D&D 5e standard rules, with support for several optional rules: recharge ToC if spent, compare against spell level instead of 1, adding a bonus to spell level for comparison.
  * @param spellLevel {number}
@@ -429,7 +439,7 @@ function GetTidesOfChaosFeatureName(){
  * @returns {Promise<void>}
  */
 async function RollForSurge(spellLevel, rollType, actor, onlyLevelOne, rechargeToC, bonus, debugLog) {
-  const d20result = new Roll("1d20").roll().total;
+  let d20result = new Roll("1d20").roll().total;
   let surges = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge")
   let calm = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm")
 
@@ -437,10 +447,15 @@ async function RollForSurge(spellLevel, rollType, actor, onlyLevelOne, rechargeT
     console.log(game.i18n.format(debugLog, {d20result: d20result, d4result: bonus, spellLevel: (onlyLevelOne ? 1 : spellLevel)}));
   }
 
+  //apply the bonus as a penalty to the d20 roll (easier to parse visually)
+  d20result -= bonus;
+
+  //@todo adapt this to be more flexible for bonuses to d20 roll
+  const bonusString = bonus !== 0 ? `-1d4`:``;
   let promise;
 
   if (onlyLevelOne ? d20result === 1 : d20result <= (spellLevel + bonus)) {
-    await ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    await ShowSurgeResult(surges, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
     promise = RollOnWildTable(rollType);
 
     if (rechargeToC) {
@@ -456,7 +471,7 @@ async function RollForSurge(spellLevel, rollType, actor, onlyLevelOne, rechargeT
     }
 
   } else {
-    promise = ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    promise = ShowSurgeResult(calm, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
   }
   
   return promise;
@@ -563,16 +578,15 @@ async function WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
     /** lets go baby lets go */
     console.log(game.i18n.format("DND5EH.WildMagicConsoleSurgesroll" ));
 
-    const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
+    const rollMode = game.settings.get(MODULE, 'wmWhisper') ? "blindroll" : "roll";
+    const rechargeToC = game.settings.get(MODULE, 'wmToCRecharge');
     if (selectedOption === 1) {
-      promise = RollForSurge(lvl, rollMode, actor, true, false, 0, "DND5EH.WildMagicConsoleNormalSurgeLog");
+      promise = RollForSurge(lvl, rollMode, actor, true, rechargeToC, 0, "DND5EH.WildMagicConsoleNormalSurgeLog");
     } else if (selectedOption === 2) {
-      promise = RollForSurge(lvl, rollMode, actor, false, true, 0, "DND5EH.WildMagicConsoleMoreSurgeLog");
+      promise = RollForSurge(lvl, rollMode, actor, false, rechargeToC, 0, "DND5EH.WildMagicConsoleMoreSurgeLog");
     } else if (selectedOption === 3) {
-      promise = RollForSurge(lvl, rollMode, actor, false, true, new Roll("1d4").roll().total, "DND5EH.WildMagicConsoleVolatileSurgeLog");
-    } else if (selectedOption === 4) {
-      promise = RollForSurge(lvl, rollMode, actor, true, true, 0, "DND5EH.WildMagicConsoleNormalSurgePlusToCLog");
-    }
+      promise = RollForSurge(lvl, rollMode, actor, false, rechargeToC, new Roll("1d4").roll().total, "DND5EH.WildMagicConsoleVolatileSurgeLog");
+    } 
   }
   
   return promise;

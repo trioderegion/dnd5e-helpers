@@ -6,7 +6,7 @@
     "DND5EH.Default_roll" : "Tirada",
 
     "DND5EH.GridTemplateScaling_name": "Auto ajustar plantillas a la cuadrícula de 5e",
-   "DND5EH.GridTemplateScaling_hint" :"Se ajustará la longitud de líneas y conos. Los círculos serán convertidos a un rectángulo de área equivalente. La intención es armonizar la distancia de la cuadrícula de 5e a la hora de calcular distancias diagonales en las plantillas.",
+    "DND5EH.GridTemplateScaling_hint" :"Se ajustará la longitud de líneas y conos. Los círculos serán convertidos a un rectángulo de área equivalente. La intención es armonizar la distancia de la cuadrícula de 5e a la hora de calcular distancias diagonales en las plantillas.",
     "DND5EH.GridTemplateScaling_none":"Ningún escalado de plantillas",
     "DND5EH.GridTemplateScaling_lineCone":"Líneas y conos",
     "DND5EH.GridTemplateScaling_circle":"Círculos",
@@ -57,11 +57,12 @@
 
     "DND5EH.WildMagicTableName_name":"Nombre de la tabla de sobrecarga de Magia Salvaje",
     "DND5EH.WildMagicTableName_hint":"Nombre de la tabla en la que tirar si ocurre una sobrecarga (por defecto: Wild-Magic-Surge-Table). Deja en blanco para saltar este paso.",
-    "DND5EH.WildMagicTableError" : "Dnd5e Helper: Ninguna tabla de Sobrecarga Salvaje configurada",
+    "DND5EH.WildMagicTableError" : "DnD5e Helper: Ninguna tabla de Sobrecarga Salvaje configurada",
 
     "DND5EH.WildMagicTidesOfChaos_name":"Nombre del rasgo de Mareas Salvajes",
     "DND5EH.WildMagicTidesOfChaos_hint":"Nombre del rasgo que representa las Mareas Salvajes del hechicero (por defecto: Tides of Chaos)",
-    "DND5EH.WildMagicTidesOfChaos_error": "Dnd5e Helper: Nombre de rasgo de Mareas Salvajes no configurado",
+    "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helper: Nombre de rasgo de Mareas Salvajes no configurado",
+    "DND5EH.WildMagicTidesOfChaosRecharge_name":"[EN] Recharge Tides of Chaos on surge",
 
     "DND5EH.WildMagicWisper_name":"No mostrar Magia Salvaje a los jugadores",
     "DND5EH.WildMagicWisper_hint":"Susurra todas las tiradas y resultados de la tabla al GM",
@@ -74,7 +75,6 @@
 
     "DND5EH.CombatReactionStatus_name": "Nombre del estado de reacción",
     "DND5EH.CombatReactionStatus_hint":"Tal y como se ve al poner el ratón sobre el estado en la interfaz del token (por defecto: Debilitado).",
-    "DND5EH.CombatReactionStatus_default":"Debilitado",
     "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: No se pudo encontrar el estado: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: No es una tirada de item de actor",
     "DND5EH.CombatReactionStatus_actionname" :"1 Acción",
