@@ -174,3 +174,6 @@
   - Several French translation strings were missing the untranslated `[EN]` flag.
     - Note: French translation is beginning to fall behind in updates. Any help is appreciated on this front <3
 
+###1.10.3
+- Small tweak to token/tile cover calculations -- the hitbox size has been reduced by 10% of the grid square size. This should address the erroneous half cover when targeting a token diagonally due to degenerate collisions.
+

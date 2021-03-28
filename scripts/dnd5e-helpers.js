@@ -1686,6 +1686,10 @@ function CollideAgainstObjects(ray, objectList) {
 
   /** terrible intersectors follow */
 
+  /** create a padding value to shrink the hitbox corners by -- total of 10% of the grid square size */
+  /** this should help with diagonals and degenerate collisions */
+  const padding = canvas.grid.size * 0.05;
+
   //create an "x" based on the bounding box (cuts down on 2 collisions per blocker)
   const hitTiles = objectList.filter(tile => {
     /** looking for any collision of this tile's bounds
@@ -1693,8 +1697,8 @@ function CollideAgainstObjects(ray, objectList) {
      *  and colliding against those lines */
     //as [[x0,y0,x1,y1],...]
     const boxGroup = [
-      [tile.x, tile.y, tile.x + tile.width, tile.y + tile.height],
-      [tile.x + tile.width, tile.y, tile.x, tile.y + tile.height],
+      [tile.x+padding, tile.y+padding, tile.x + tile.width - padding, tile.y + tile.height - padding],
+      [tile.x + tile.width - padding, tile.y+padding, tile.x+padding, tile.y + tile.height-padding],
     ]
 
     return !!boxGroup.find(boxRay => {
