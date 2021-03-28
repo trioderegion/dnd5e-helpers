@@ -442,15 +442,15 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       }
     }
 
-    if(game.settings.get(MODULE, 'lairHelperEnable')){
+    if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
       let pastLair = false;
-      if(nextTurn?.initiative && previousTurn?.initiative){
+      if (nextTurn?.initiative && previousTurn?.initiative) {
         pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
       }
 
       if (pastLair) {
         const lairActions = combat.getFlag('dnd5e-helpers', 'Lair Actions')
-        if (lairActions?.length ?? [] > 0){ 
+        if (lairActions?.length ?? [] > 0) {
           DnDCombatUpdates.RunLairActions(lairActions)
         }
 
@@ -464,10 +464,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 });
 
 /** all preUpdateToken hooks handeled here */
-Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
+Hooks.on("preUpdateToken", (_scene, tokenData, update, options) => {
   let hp = getProperty(update, "actorData.data.attributes.hp.value");
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && hp !== (null || undefined)) {
-    DnDWounds.GreatWound_preUpdateToken(scene, tokenData, update);
+    DnDWounds.GreatWound_preUpdateToken( tokenData, update);
   }
 
   let Actor = game.actors.get(tokenData.actorId);
@@ -555,8 +555,8 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
     await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
   }
 
-  if(game.settings.get(MODULE, 'lairHelperEnable')){
-    await DnDCombatUpdates.RemoveLairMapping(combat, combatant); 
+  if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
+    await DnDCombatUpdates.RemoveLairMapping(combat, combatant);
   }
 })
 
@@ -629,14 +629,14 @@ Hooks.on("ready", () => {
 
 Hooks.on("createCombatant", (combat, token) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  const lairHelperEnable = game.settings.get(MODULE, 'lairHelperEnable');
+  const lairHelperEnable = game.settings.get('dnd5e-helpers', 'lairHelperEnable');
   let tokenInstance = canvas.tokens.get(token.tokenId)
 
   if (combat.data.active && combat.started && reactMode === 1) {
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
 
-  if(lairHelperEnable){
+  if (lairHelperEnable) {
     DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
   }
 })
@@ -736,7 +736,8 @@ class DnDWildMagic {
       ? game.settings.get('dnd5e-helpers', 'wmTableName') : wmSurgeTableDefault;
 
     if (wmTableName !== "") {
-      await game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
+      const table = game.tables.getName(wmTableName);
+      await table.draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
     } else {
       if (game.settings.get('dnd5e-helpers', 'debug')) {
         console.log(game.i18n.format("DND5EH.WildMagicTableError"));
@@ -749,100 +750,60 @@ class DnDWildMagic {
       ? game.settings.get('dnd5e-helpers', 'wmToCFeatureName') : wmToCFeatureDefault;
   }
 
-  /** Roll a normal surge as per D&D 5e standard rules */
-  static async RollForNormalSurge(spellLevel, rollType) {
-    const roll = new Roll("1d20").roll();
-    const d20result = +roll["result"];
+  // @todo turn these parameters into a config object. Compress spellLevel and onlyLevelOne into a single "target number" field.
+  /**
+   * Roll for a surge as per D&D 5e standard rules, with support for several optional rules: recharge ToC if spent, compare against spell level instead of 1, adding a bonus to spell level for comparison.
+   * @param spellLevel {number}
+   * @param rollType {string}
+   * @param actor {Actor}
+   * @param onlyLevelOne {boolean}
+   * @param rechargeToC {boolean}
+   * @param bonus {number}
+   * @param debugLog {string}
+   * @returns {Promise<void>}
+   */
+  static async RollForSurge(spellLevel, rollType, actor, onlyLevelOne, rechargeToC, bonus, debugLog) {
+    let d20result = new Roll("1d20").roll().total;
     let surges = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge")
     let calm = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm")
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
-      console.log(game.i18n.format("DND5EH.WildMagicConsoleNormalSurgeLog", { d20result: d20result }));
+      console.log(game.i18n.format(debugLog, { d20result: d20result, d4result: bonus, spellLevel: (onlyLevelOne ? 1 : spellLevel) }));
     }
 
-    let promise = false;
+    //apply the bonus as a penalty to the d20 roll (easier to parse visually)
+    d20result -= bonus;
 
-    if (d20result === 1) {
-      await DnDWildMagic.ShowSurgeResult(surges, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-      promise = DnDWildMagic.RollOnWildTable(rollType);
-    } else {
-      promise = DnDWildMagic.ShowSurgeResult(calm, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-    }
+    //@todo adapt this to be more flexible for bonuses to d20 roll
+    const bonusString = bonus !== 0 ? `-1d4` : ``;
+    let promise;
 
-    return promise;
-  }
-
-  /** Role a more surge, checking against spell level cast */
-  static async RollForMoreSurge(spellLevel, rollType, actor) {
-    const roll = new Roll("1d20").roll();
-    const d20result = +roll["result"];
-
-    if (game.settings.get('dnd5e-helpers', 'debug')) {
-      console.log(game.i18n.format("DND5EH.WildMagicConsoleMoreSurgeLog", { d20result: d20result, spellLevel: spellLevel }));
-    }
-
-    let promise = false;
-    if (d20result <= spellLevel) {
-      const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
-      await DnDWildMagic.ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
+    if (onlyLevelOne ? d20result === 1 : d20result <= (spellLevel + bonus)) {
+      await DnDWildMagic.ShowSurgeResult(surges, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
       promise = DnDWildMagic.RollOnWildTable(rollType);
 
-      /** recharge TOC if we surged */
-      const tocName = DnDWildMagic.GetTidesOfChaosFeatureName();
-      if (DnDWildMagic.IsTidesOfChaosSpent(actor, tocName)) {
-        promise = DnDWildMagic.ResetTidesOfChaos(actor, tocName);
-      }
-    } else {
-      const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
-      promise = DnDWildMagic.ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`);
-    }
-
-    return promise;
-  }
-
-  /** Role a volatile surge, checking against spell level cast + d4 */
-  static async RollForVolatileSurge(spellLevel, rollType, actor) {
-    const wmToCFeatureName = DnDWildMagic.GetTidesOfChaosFeatureName();
-    if (wmToCFeatureName !== '') {
-
-      const tocSpent = DnDWildMagic.IsTidesOfChaosSpent(actor, wmToCFeatureName);
-
-      const d20roll = new Roll("1d20").roll();
-      const d4roll = new Roll("1d4").roll();
-      const d20result = +d20roll["result"];
-
-      /** if tides of chaos hasn't been used then no volatile roll */
-      const d4result = tocSpent ? +d4roll["result"] : 0;
-
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log(game.i18n.format("DND5EH.WildMagicConsoleVolatileSurgeLog", { d20result: d20result, spellLevel: spellLevel, d4result: d4result }));
-      }
-
-      if (d20result <= (spellLevel + d4result)) {
-        const surgesMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge");
-        await DnDWildMagic.ShowSurgeResult(surgesMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result} #1d4 result]])`);
-        await DnDWildMagic.RollOnWildTable(rollType);
-
-        if (tocSpent) {
-          /** return the promise of the item update */
-          return DnDWildMagic.ResetTidesOfChaos(actor, wmToCFeatureName);
+      if (rechargeToC) {
+        /** recharge TOC if we surged */
+        const tocName = DnDWildMagic.GetTidesOfChaosFeatureName();
+        if (!tocName && game.settings.get('dnd5e-helpers', 'debug')) {
+          console.log(game.i18n.format("DND5EH.WildMagicTidesOfChaos_error"));
         }
-      } else {
-        const calmMsg = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm");
-        return DnDWildMagic.ShowSurgeResult(calmMsg, spellLevel, `([[/r ${d20result} #1d20 result]])`, `(+[[/r ${d4result}  #1d4 result]])`);
-      }
-    } else {
-      if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log(game.i18n.format("DND5EH.WildMagicTidesOfChaos_error"));
-      }
-    }
-    return; //no promise
-  }
 
+        if (DnDWildMagic.IsTidesOfChaosSpent(actor, tocName)) {
+          promise = DnDWildMagic.ResetTidesOfChaos(actor, tocName);
+        }
+      }
+
+    } else {
+      promise = DnDWildMagic.ShowSurgeResult(calm, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
+    }
+
+    return promise;
+  }
   /** show surge result in chat (optionally whisper via module settings) */
   static async ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
 
-    const gmWhisper = game.settings.get(MODULE, 'wmWhisper');
+    const gmWhisper = game.settings.get('dnd5e-helpers', 'wmWhisper');
 
     return ChatMessage.create({
       content: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", { action: action, spellLevel: spellLevel, extraText: extraText, resultText: resultText }),
@@ -874,6 +835,7 @@ class DnDWildMagic {
 
     return tocItem;
   }
+  /** Wild Magic Surge Handling */
   static async WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
     const origSlots = actor.data.data.spells;
 
@@ -898,12 +860,13 @@ class DnDWildMagic {
       console.log(game.i18n.format("DND5EH.WildMagicConsoleSurgesroll"));
 
       const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
+      const rechargeToC = game.settings.get('dnd5e-helpers', 'wmToCRecharge');
       if (selectedOption === 1) {
-        promise = DnDWildMagic.RollForNormalSurge(lvl, rollMode);
+        promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, true, rechargeToC, 0, "DND5EH.WildMagicConsoleNormalSurgeLog");
       } else if (selectedOption === 2) {
-        promise = DnDWildMagic.RollForMoreSurge(lvl, rollMode, actor);
+        promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, 0, "DND5EH.WildMagicConsoleMoreSurgeLog");
       } else if (selectedOption === 3) {
-        promise = DnDWildMagic.RollForVolatileSurge(lvl, rollMode, actor);
+        promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, new Roll("1d4").roll().total, "DND5EH.WildMagicConsoleVolatileSurgeLog");
       }
     }
 
@@ -912,6 +875,11 @@ class DnDWildMagic {
 }
 
 class DnDCombatUpdates {
+  /**
+   * 
+   * @param {Object} recharge data from item 
+   * @returns 
+   */
   static NeedsRecharge(recharge = { value: 0, charged: false }) {
     return (recharge.value !== null &&
       (recharge.value > 0) &&
@@ -919,11 +887,20 @@ class DnDCombatUpdates {
       recharge.charged == false);
   }
 
+  /**
+   * 
+   * @param {Object} token 
+   * @returns 
+   */
   static CollectRechargeAbilities(token) {
     const rechargeItems = token.actor.items.filter(e => DnDCombatUpdates.NeedsRecharge(e.data.data.recharge));
     return rechargeItems;
   }
 
+  /**
+   * 
+   * @param {Object} token 
+   */
   static async RechargeAbilities(token) {
     const rechargeItems = DnDCombatUpdates.CollectRechargeAbilities(token);
 
@@ -931,8 +908,9 @@ class DnDCombatUpdates {
       await DnDCombatUpdates.CustomRollRecharge(item);
     }
   }
-  /** 
-   * Auto regeneration on turn start
+  /**
+   * 
+   * @param {Object} token  
    */
   static async Regeneration(token) {
     if (token.actor == null) {
@@ -959,7 +937,7 @@ class DnDCombatUpdates {
 
     const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
     let match = regen.data.data.description.value.match(regenRegExp);
-    if (!match) return undefined;
+    if (!match) return;
     let regenAmout = match[1];
 
     //dialog choice to heal or not
@@ -985,7 +963,12 @@ class DnDCombatUpdates {
     }
   }
 
-  /** Custom recharge roll to allow for rollmode */
+  /**
+   * 
+   * @param {Object} item 
+   * @returns 
+   * custom recharge roll for private rolls
+   */
   static async CustomRollRecharge(item) {
     const data = item.data.data;
     if (!data.recharge.value) return;
@@ -1006,7 +989,13 @@ class DnDCombatUpdates {
     return Promise.all(promises).then(() => roll);
   }
 
-  /** sets current legendary actions to max (or current if higher) */
+  /**
+   * 
+   * @param {Object} actor 
+   * @param {String} tokenName 
+   * @returns Actor
+   * sets current legendary actions to max (or current if higher) 
+   */
   static async ResetLegAct(actor, tokenName) {
     if (actor == null) {
       return null;
@@ -1025,7 +1014,14 @@ class DnDCombatUpdates {
     }
   }
 
-  //quick undead fort check, just checks change in np, not total damage
+/**
+ * 
+ * @param {Object} tokenData token.data
+ * @param {Object} update hp to check
+ * @param {Object} options.skipUndeadCheck  skip from previous failed check
+ * @returns 
+ * quick undead fort check, just checks change in np, not total damage
+ */
   static async UndeadFortCheckQuick(tokenData, update, options) {
 
     let data = {
@@ -1073,7 +1069,14 @@ class DnDCombatUpdates {
     } else return true;
   }
 
-  // undead fort check, requires manual input
+  /**
+   * 
+   * @param {Object} tokenData - token.data 
+   * @param {Object} update - change in HP 
+   * @param {Object} options.skipUndeadCheck - skip check from previous failure
+   * @returns 
+   * undead fort check, requires manual input
+   */
   static UndeadFortCheckSlow(tokenData, update, options) {
 
     let token = canvas.tokens.get(tokenData._id)
@@ -1119,7 +1122,13 @@ class DnDCombatUpdates {
   }
 
 
-  /**@todo remake to array not map */
+  /**
+   * 
+   * @param {Object} token - token to check for lair actions 
+   * @param {Object} combat - combat instance to save lair array to 
+   * @returns 
+   * Generate lair action array
+   */
   static async LairActionMapping(token, combat) {
     let tokenItems = getProperty(token, "items") || token.actor.items
     let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
@@ -1132,22 +1141,33 @@ class DnDCombatUpdates {
     return true;
   }
 
-  static async RemoveLairMapping(combat, combatant){
-    
+  /**
+   * 
+   * @param {Combat} combat 
+   * @param {Combatant} combatant 
+   * @returns 
+   */
+  static async RemoveLairMapping(combat, combatant) {
+
     /** get the actual token */
-    const tokenId = combat.scene.getEmbeddedEntity('Token',combatant.tokenId)?.id;
+    const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?.id;
 
     /** check for a removal of a lair actor */
     const combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
-    const updatedList = combatLair.filter( entry => entry[2] == tokenId );
+    const updatedList = combatLair.filter(entry => entry[2] == tokenId);
 
-    if(combatLair.length != updatedList.length){
+    if (combatLair.length != updatedList.length) {
       /** a change occured, update the flag */
       return combat.setFlag('dnd5e-helpers', 'Lair Actions', updatedList)
     }
 
   }
 
+  /**
+   * 
+   * @param {Array} lairActionArray 
+   * @returns 
+   */
   static RunLairActions(lairActionArray) {
     if (!lairActionArray) return;
     let lairContents = ``;
@@ -1159,7 +1179,7 @@ class DnDCombatUpdates {
         <td>${action.name}</td>
         <td><button id=${action._id} value="${tokenId},${action._id}" >Roll</button></td>
       `
-      
+
         return actionContents
       }
     }
@@ -1174,11 +1194,11 @@ class DnDCombatUpdates {
       `
       return actorActions;
     }
-    for (let actor of lairActionArray) { 
-      lairContents += addLairActor(actor) 
+    for (let actor of lairActionArray) {
+      lairContents += addLairActor(actor)
     }
     let lairTable =
-    `
+      `
   <table style="width:100%">
   <script type"text/javascript">
   $("button").click(function() {
@@ -1230,14 +1250,17 @@ class DnDCombatUpdates {
 
 
 class DnDWounds {
-  /** checks for Unlinked Token Great Wounds */
-  static GreatWound_preUpdateToken(scene, tokenData, update) {
+  /**
+   * 
+   * @param {Object} tokenData 
+   * @param {Object} update 
+   */
+  static GreatWound_preUpdateToken(tokenData, update) {
 
     //find update data and original data
     let actor = game.actors.get(tokenData.actorId)
     let data = {
       actorData: canvas.tokens.get(tokenData._id).actor.data,
-      updateData: update,
       actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
       actorMax: getProperty(tokenData, "actorData.data.attributes.hp.max"),
       updateHP: update.actorData.data.attributes.hp.value,
@@ -1266,7 +1289,11 @@ class DnDWounds {
     }
   }
 
-  /** checks for Linked Token Great Wounds */
+  /**
+   * 
+   * @param {Object} actor 
+   * @param {Object} update 
+   */
   static GreatWound_preUpdateActor(actor, update) {
 
     //find update data and original data
@@ -1309,7 +1336,10 @@ class DnDWounds {
     }
   }
 
-  /** rolls on specified Great Wound Table */
+  /**
+   * 
+   * @param {Object} actor 
+   */
   static DrawGreatWound(actor) {
     const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
     (async () => {
@@ -1330,7 +1360,11 @@ class DnDWounds {
     })();
   }
 
-  // roll on specified open wounds tabel if triggered
+  /**
+   * 
+   * @param {String} actorName 
+   * @param {String} woundType 
+   */
   static OpenWounds(actorName, woundType) {
     const owFeatureName = game.settings.get("dnd5e-helpers", "owFeatureName");
     const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
@@ -1345,7 +1379,11 @@ class DnDWounds {
 }
 
 class DnDProf {
-  /** auto prof Weapon ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
+  /**
+   * auto prof Weapon ONLY for specific proficiencies (not covered by dnd5e 1.2.0)
+   * @param {Object} actor 
+   * @param {Object} item item added
+   */
   static AutoProfWeapon_createOwnedItem(actor, item) {
 
     //finds item data and actor proficiencies 
@@ -1373,7 +1411,11 @@ class DnDProf {
   */
   }
 
-  /** Auto prof Armor ONLY for specific proficiencies (not covered by dnd5e 1.2.0) */
+  /**
+   *  
+   * @param {Object} actor 
+   * @param {Object} item item added 
+   */
   static AutoProfArmor_createOwnedItem(actor, item) {
 
     //finds item data and actor proficiencies 
@@ -1397,7 +1439,11 @@ class DnDProf {
     }
   }
 
-  /**Auto Prof Tools*/
+  /**
+   * 
+   * @param {Object} actor 
+   * @param {Object} item item added
+   */
   static AutoProfTool_createOwnedItem(actor, item) {
 
     //finds item data and actor proficiencies 
@@ -1466,13 +1512,13 @@ class DnDActionManagement {
       let ownedItem = effectToken.actor.getOwnedItem(itemId);
       const { type, cost } = ownedItem?.data?.data?.activation;
 
-      if (!type || !cost){
+      if (!type || !cost) {
         return true;
       }
 
       /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
       const finalType = (type == "action" && (currentCombatant !== castingToken)) ? "reaction" : type;
-      if (cost > 0){
+      if (cost > 0) {
         return DnDActionManagement.UpdateActionMarkers(effectToken, finalType);
       }
     }
@@ -1521,6 +1567,10 @@ class DnDActionManagement {
     }
   };
 
+  /**
+   * 
+   * @param {Array} tokenArray Tokens to add action markers too
+   */
   static async AddActionMarkers(tokenArray) {
     let actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Action Used.png")
     let reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Reaction Used.png")
@@ -1570,6 +1620,11 @@ class DnDActionManagement {
     }
   }
 
+  /**
+   * Update
+   * @param {Object} token 
+   * @param {String} action action taken
+   */
   static async UpdateActionMarkers(token, action) {
 
     switch (action) {
@@ -1606,6 +1661,11 @@ class DnDActionManagement {
 
   }
 
+  /**
+   * Removes action markers from specific token
+   * @param {String} tokenId 
+   * @returns 
+   */
   static async RemoveActionMarkers(tokenId) {
     let token = canvas.tokens.get(tokenId)
     let actionIcons = token.children.filter(i => i.actionType)
@@ -1767,7 +1827,13 @@ class CoverData {
   }
 };
 
-
+/**
+ * 
+ * @param {Object} user 
+ * @param {Object} target 
+ * @param {Boolean} onOff 
+ * @returns 
+ */
 async function onTargetToken(user, target, onOff) {
   /** bail immediately if LOS calc is disabled */
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
@@ -1800,6 +1866,10 @@ async function onTargetToken(user, target, onOff) {
 
 }
 
+/**
+ * 
+ * @param {Array}} drawingList 
+ */
 async function DrawDebugRays(drawingList) {
   for (let squareRays of drawingList) {
     await canvas.drawings.createMany(squareRays);
@@ -2067,7 +2137,12 @@ function onRenderTileConfig(tileConfig, html) {
   saveButton.before(checkboxHTML);
 }
 
-function onPreCreateTile(scene, tileData, options, id) {
+/**
+ * 
+ * @param {Object} _scene 
+ * @param {Object} tileData tile.data
+ */
+function onPreCreateTile(_scene, tileData, _options, _id) {
   const halfPath = "modules/dnd5e-helpers/assets/cover-tiles/half-cover.svg";
   const threePath = "modules/dnd5e-helpers/assets/cover-tiles/three-quarters-cover.svg";
   /** what else could it be? */
