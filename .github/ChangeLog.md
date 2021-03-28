@@ -166,5 +166,13 @@
 ###1.11.0
 - Japanese localization provided by `togue`!
 
+###Action Managment
+- Action Management 
+  - Updated "Reaction settings" to include all aciton types, Action, Reaction, Bonus action are all tracked through HUD elements
+  - These elements are only applied to tokens currently in combat
+  - Icons are "hidden" when the action is taken, and recovered upon starting a tokens turn.
+-Lair Actions.
+  - Added lair action tracking, upon adding actors to the combat tracker it will scan for actions with the `uses lair action` action type and add them to a combat-specific pool
+  - This lair action pool will be given to the GM as combat advances past initiative 20, with the option to jump to the actor, or directly roll the action
 
 
