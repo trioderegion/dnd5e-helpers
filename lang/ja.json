@@ -36,6 +36,7 @@
     "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
     "DND5EH.LoSCover_manual" : "[EN] Manual",
     "DND5EH.LoSCover_auto" : "[EN] Automatic",
+    "DND5EH.LoSCover_cover" : "[EN] cover",
 
     "DND5EH.LoSWithTokens_name":"射線上にあるコマを1/2遮蔽とみなす",
     "DND5EH.LoSWithTokens_hint": "無効にすると遮蔽判定時にコマが考慮されなくなります。",

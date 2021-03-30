@@ -1925,8 +1925,8 @@ async function onTargetToken(user, target, onOff) {
       switch (coverSetting) {
         case 0: break;
         case 1: content += `
-        <button id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half">Half Cover</button>
-        <button id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters">Three-Quarters Cover</button>
+        <button id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
+        <button id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters">${game.i18n.format("DND5EH.LoS_34cover")}</button>
         `
           break;
         case 2: {
@@ -1938,7 +1938,7 @@ async function onTargetToken(user, target, onOff) {
             ],
             disabled: false,
             icon: "icons/svg/combat.svg",
-            label: `DnD5e Helpers Cover (${coverLevel})`,
+            label: `DnD5e Helpers ${game.i18n.format("DND5EH.LoSCover_cover")} (${coverLevel})`,
             tint: "#747272"
           }
           coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
@@ -1972,13 +1972,13 @@ async function onTargetToken(user, target, onOff) {
             changes: changes,
             disabled: false,
             icon: "icons/svg/combat.svg",
-            label: `DnD5e Helpers ${coverName} Cover`,
+            label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}`,
             tint: "#747272"
           }
           let token = canvas.tokens.get(sourceTokenId)
           let oldCover = token.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
           if (oldCover) {
-            token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} Cover` })
+            token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
           }
           else {
             token.actor.createEmbeddedEntity("ActiveEffect", effectData)

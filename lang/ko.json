@@ -36,6 +36,7 @@
     "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
     "DND5EH.LoSCover_manual" : "[EN] Manual",
     "DND5EH.LoSCover_auto" : "[EN] Automatic",
+    "DND5EH.LoSCover_cover" : "[EN] cover",
 
     "DND5EH.LoSWithTokens_name":"방해 토큰을 절반 엄폐로 취급",
     "DND5EH.LoSWithTokens_hint": "비활성화 시 토큰들이 엄폐 계산에 포함되지 않는다.",
