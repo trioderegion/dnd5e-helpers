@@ -15,7 +15,7 @@
     "DND5EH.LoSOnTarget_name":"ターゲットの遮蔽判定",
     "DND5EH.LoSOnTarget_hint":"この機能の有効/無効をグローバルに切り替えます(タイルカバー設定を含む）。",
     "DND5EH.LoSOnTarget_center":"中心点からの視線（FVTTの視界準拠）",
-    "DND5EH.LoSOnTarget_corner":"四隅からの視線（DMG p251）",
+    "DND5EH.LoSOnTarget_corner":"四隅からの視線（DMG p.251）",
     "DND5EH.LoS_cornererror1":"見えている頂点を遮蔽レベルに変換できませんでした。",
     "DND5EH.LoS_cornererror2":"遮蔽レベルを文字列に変換できませんでした（遮蔽レベル{coverLevel}）。",
     "DND5EH.LoS_nocover": "遮蔽なし",
@@ -38,7 +38,7 @@
     "DND5EH.LoSMaskNPCs_hint": "遮蔽判定にGMへの秘話を使い、またNPCの名前を「不明なクリーチャー」に置き換えます。",
 
     "DND5EH.WildMagicOptions_name":  "魔法暴走の自動検出",
-    "DND5EH.WildMagicOptions_hint": "魔法暴走の自動検出を有効または無効にし、どのように処理するかを決定します。【標準（PHB）】PHB p73の記述どおりの処理です。【刺激的】「d20 <= 呪文レベル」で暴走が発生し、混沌潮流が回復します。【不安定】“刺激的”に似ていますが, 混沌潮流が消費済の場合は呪文レベルに1d4が加算されます。",
+    "DND5EH.WildMagicOptions_hint": "魔法暴走の自動検出を有効または無効にし、どのように処理するかを決定します。【標準（PHB）】PHB p.73の記述どおりの処理です。【刺激的】「d20 <= 呪文レベル」で暴走が発生します。【不安定】“刺激的”に似ていますが, 混沌潮流が消費済の場合は呪文レベルに1d4が加算されます。",
     "DND5EH.WildMagicOptions_standard": "有効 - 標準（PHB）",
     "DND5EH.WildMagicOptions_more": "有効 - 刺激的",
     "DND5EH.WildMagicOptions_volatile": "有効 - 不安定",
@@ -62,8 +62,8 @@
     "DND5EH.WildMagicTidesOfChaos_name":"混沌潮流の機能名称",
     "DND5EH.WildMagicTidesOfChaos_hint":"ソーサラーの“混沌潮流”にあたる機能の名称を指定します（デフォルト：Tides of Chaos）。",
     "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helpers：混沌潮流の機能名称が設定されていません。",
-    "DND5EH.WildMagicTidesOfChaosRecharge_name":"[EN] Recharge Tides of Chaos on surge",
-
+    "DND5EH.WildMagicTidesOfChaosRecharge_name":"暴走で混沌潮流をリチャージする",
+   
     "DND5EH.WildMagicWisper_name":"魔法暴走の結果をプレイヤーに隠す",
     "DND5EH.WildMagicWisper_hint":"すべてのロールと表の結果はGMへの秘話になります。",
 
@@ -101,7 +101,7 @@
     "DND5EH.AutoProf_consolelogfail" :"{name}は習熟と一致しませんでした。手動で調整してください。",
 
     "DND5EH.AutoRegen_name":"自動再生",
-    "DND5EH.AutoRegen_hint":"再生（リジェネレーション）を自動化し、DMにロールを促します。該当する特徴の説明欄に“X hit points”（Xは整数もしくはダイス式）という記述が必要です。",
+    "DND5EH.AutoRegen_hint":"再生（リジェネレーション）を自動化し、DMにロールを促します。該当する特徴の説明欄に“X hit points”（Xは数値もしくはダイス式）という記述が必要です。",
     "DND5EH.AutoRegen_Regneration": "再生",
     "DND5EH.AutoRegen_SelfRepair": "修理",
     "DND5EH.AutoRegenDialog_name": "{tokenName}の自己回復",
