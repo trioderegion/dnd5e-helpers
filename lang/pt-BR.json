@@ -32,6 +32,11 @@
     "DND5EH.LoSMaskNPCs_sourceMask": "Outra criatura está no caminho.",
     "DND5EH.LoSMaskNPCs_targetMask": "uma criatura",
 
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+
     "DND5EH.LoSWithTokens_name":"Considerar tokens interpostos como cobertura parcial",
     "DND5EH.LoSWithTokens_hint": "Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
     "DND5EH.LoSMaskNPCs_name": "Ocultar informações do MJ ao Relatar Cobertura",

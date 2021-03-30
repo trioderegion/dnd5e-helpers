@@ -44,6 +44,29 @@ Hooks.on('init', () => {
     type: Boolean,
   });
 
+  game.settings.register("dnd5e-helpers", "losKeybind", {
+    name: game.i18n.format("DND5EH.LoSKeybind_name"),
+    hint: game.i18n.format("DND5EH.LoSWithTokens_hint"),
+    scope: "world",
+    config: true,
+    default: "",
+    type: String,
+  })
+
+  game.settings.register("dnd5e-helpers", "coverApplication", {
+    name: game.i18n.format("DND5EH.LoSCover_name"),
+    hint: game.i18n.format("DND5EH.LoSCover_hint"),
+    scope: "world",
+    config: true,
+    default: 0,
+    type: Number,
+    choices: {
+      0: game.i18n.format("DND5EH.Default_disabled"),
+      1: game.i18n.format("DND5EH.LoSCover_manual"),
+      2: game.i18n.format("DND5EH.LoSCover_auto"),
+    }
+  })
+
   game.settings.register("dnd5e-helpers", "losMaskNPCs", {
     name: game.i18n.format("DND5EH.LoSMaskNPCs_name"),
     hint: game.i18n.format("DND5EH.LoSMaskNPCs_hint"),
@@ -467,7 +490,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 Hooks.on("preUpdateToken", (_scene, tokenData, update, options) => {
   let hp = getProperty(update, "actorData.data.attributes.hp.value");
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && hp !== (null || undefined)) {
-    DnDWounds.GreatWound_preUpdateToken( tokenData, update);
+    DnDWounds.GreatWound_preUpdateToken(tokenData, update);
   }
 
   let Actor = game.actors.get(tokenData.actorId);
@@ -541,12 +564,18 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
 
 Hooks.on("deleteCombat", async (combat, settings, id) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if (reactMode === 1) {
+  if (reactMode === 1 && DnDHelpers.IsFirstGM()) {
     for (let combatant of combat.data.combatants) {
       DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
     }
   }
 
+  if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
+    for (let combatant of combat.data.combatants) {
+      let token = canvas.tokens.get(combatant.tokenId)
+      await removeCover(undefined, token)
+    }
+  }
 });
 
 Hooks.on("deleteCombatant", async (combat, combatant) => {
@@ -557,6 +586,10 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
 
   if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
     await DnDCombatUpdates.RemoveLairMapping(combat, combatant);
+  }
+  if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
+    let token = canvas.tokens.get(combatant.tokenId)
+    removeCover(undefined, token)
   }
 })
 
@@ -613,7 +646,24 @@ Hooks.on("preCreateMeasuredTemplate", async (scene, template) => {
 Hooks.on("renderTileConfig", onRenderTileConfig);
 
 /** calculating cover when a token is targeted */
-Hooks.on("targetToken", onTargetToken);
+Hooks.on("targetToken", (user, target, onOff) => {
+  const k = game.keyboard
+  const keybind = game.settings.get("dnd5e-helpers", "losKeybind")
+  const confirmCover = k._downKeys.has(keybind) || keybind === "";
+  const oneTarget = user.targets.size == 1;
+  switch (oneTarget) {
+    case true: {
+      if (confirmCover) {
+        onTargetToken(user, target, onOff);
+      }
+    }
+      break;
+    case false: {
+      removeCover(user);
+    }
+      break;
+  }
+});
 
 Hooks.on("preCreateTile", onPreCreateTile);
 
@@ -1825,6 +1875,23 @@ class CoverData {
                           <div class="dice">${this.Summary.Source}</div></div>`;
     return content;
   }
+    switch (this.Summary.FinalCoverLevel) {
+      case 0: return false;
+      case 1: return "-2";
+      case 2: return "-5";
+      case 3: return "-40";
+    }
+  }
+
+  applyCoverEffect() {
+
+    const content = `
+  <button id="5eHelpersCover${id}" data-some-data="${coverLevel},${this.SourceToken.id}">Apply Cover</button>
+  `
+    ChatMessage.create({ content: content, whisper: [game.user.id] })
+  }
+
+
 };
 
 /**
@@ -1849,21 +1916,83 @@ async function onTargetToken(user, target, onOff) {
     /** if we got valid cover data back, finalize and output results */
     if (coverData) {
       coverData.FinalizeData();
-      const content = coverData.toMessageContent();
-      /** whisper the message if we are being a cautious GM */
-      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')) {
-        ChatMessage.create({
-          content: content,
-          whisper: ChatMessage.getWhisperRecipients('GM')
-        });
-      } else {
-        ChatMessage.create({
-          content: content
-        });
+      let content = coverData.toMessageContent();
+      const coverSetting = game.settings.get("dnd5e-helpers", "coverApplication")
+      const id = randomID()
+      const coverLevel = coverData.calculateCoverBonus()
+      switch (coverSetting) {
+        case 0: break;
+        case 1: content += `
+        <button id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half">Half Cover</button>
+        <button id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters">Three-Quarters Cover</button>
+        `
+          break;
+        case 2: {
+          let coverLevel = coverData.calculateCoverBonus()
+          let effectData = {
+            changes: [
+              { key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
+              { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel }
+            ],
+            disabled: false,
+            icon: "icons/svg/combat.svg",
+            label: `DnD5e Helpers Cover (${coverLevel})`,
+            tint: "#747272"
+          }
+          coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
+        }
       }
+      /** whisper the message if we are being a cautious GM */
+      let recipients;
+      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')) {
+        recipients = ChatMessage.getWhisperRecipients('GM')
+
+      } else {
+        recipients = game.users.map(u => u.id)
+      }
+      ChatMessage.create({ content: content, whisper : recipients }).then((result) => {
+        if (!result) return;
+
+        setTimeout(() => {
+          let half = document.getElementById(`5eHelpersHalfCover${id}`)
+          half.addEventListener("click", function () { AddCover(half) })
+          let three = document.getElementById(`5eHelpers3/4Cover${id}`)
+          three.addEventListener("click", function () { AddCover(three) })
+
+        }, 1000);
+
+        function AddCover(d) {
+          let data = d.dataset?.someData;
+          const [coverLevel, sourceTokenId, coverName] = data.split(",")
+          const changes = [{ key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
+          { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel }]
+          let effectData = {
+            changes: changes,
+            disabled: false,
+            icon: "icons/svg/combat.svg",
+            label: `DnD5e Helpers ${coverName} Cover`,
+            tint: "#747272"
+          }
+          let token = canvas.tokens.get(sourceTokenId)
+          let oldCover = token.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
+          if (oldCover) {
+            token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} Cover` })
+          }
+          else {
+            token.actor.createEmbeddedEntity("ActiveEffect", effectData)
+          }
+        }
+      });
     }
   }
 
+}
+
+async function removeCover(user, token) {
+  if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
+  let testToken = token !== undefined ? token : canvas.tokens.controlled[0]
+  let coverEffects = testToken.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"))
+  for (let effect of coverEffects) await effect.delete()
 }
 
 /**

@@ -32,6 +32,11 @@
     "DND5EH.LoSMaskNPCs_sourceMask": "다른 생물이 막고 있습니다",
     "DND5EH.LoSMaskNPCs_targetMask": "생물",
 
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+
     "DND5EH.LoSWithTokens_name":"방해 토큰을 절반 엄폐로 취급",
     "DND5EH.LoSWithTokens_hint": "비활성화 시 토큰들이 엄폐 계산에 포함되지 않는다.",
     "DND5EH.LoSMaskNPCs_name": "엄폐 보고에서 GM 정보 숨기기",

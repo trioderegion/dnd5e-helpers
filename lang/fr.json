@@ -32,6 +32,11 @@
     "DND5EH.LoSMaskNPCs_sourceMask": "[EN] Another creature is in the way.",
     "DND5EH.LoSMaskNPCs_targetMask": "[EN] a creature",
 
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+
     "DND5EH.LoSWithTokens_name":"Considérez les jetons comme une demi-couverture",
     "DND5EH.LoSWithTokens_hint": "Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
     "DND5EH.LoSMaskNPCs_name": "[EN] Hide GM info from Cover Report",

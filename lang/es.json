@@ -32,6 +32,11 @@
     "DND5EH.LoSMaskNPCs_sourceMask": "Another creature is in the way.",
     "DND5EH.LoSMaskNPCs_targetMask": "a creature",
 
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+
     "DND5EH.LoSWithTokens_name":"Consider intervening tokens as half cover",
     "DND5EH.LoSWithTokens_hint": "Unchecked results in tokens not being considered for cover calculation.",
     "DND5EH.LoSMaskNPCs_name": "Hide GM info from Cover Report",
