@@ -1064,14 +1064,14 @@ class DnDCombatUpdates {
     }
   }
 
-/**
- * 
- * @param {Object} tokenData token.data
- * @param {Object} update hp to check
- * @param {Object} options.skipUndeadCheck  skip from previous failed check
- * @returns 
- * quick undead fort check, just checks change in np, not total damage
- */
+  /**
+   * 
+   * @param {Object} tokenData token.data
+   * @param {Object} update hp to check
+   * @param {Object} options.skipUndeadCheck  skip from previous failed check
+   * @returns 
+   * quick undead fort check, just checks change in np, not total damage
+   */
   static async UndeadFortCheckQuick(tokenData, update, options) {
 
     let data = {
@@ -1875,6 +1875,8 @@ class CoverData {
                           <div class="dice">${this.Summary.Source}</div></div>`;
     return content;
   }
+
+  calculateCoverBonus() {
     switch (this.Summary.FinalCoverLevel) {
       case 0: return false;
       case 1: return "-2";
