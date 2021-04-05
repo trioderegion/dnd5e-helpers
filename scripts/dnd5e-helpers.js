@@ -683,7 +683,7 @@ Hooks.on("createCombatant", (combat, token) => {
   const lairHelperEnable = game.settings.get('dnd5e-helpers', 'lairHelperEnable');
   let tokenInstance = canvas.tokens.get(token.tokenId)
 
-  if (combat.data.active && combat.started && reactMode === 1) {
+  if (combat.data.active && reactMode === 1) {
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
 
@@ -695,7 +695,7 @@ Hooks.on("createCombatant", (combat, token) => {
 Hooks.on("updateToken", (scene, token, update) => {
   if ("tint" in update || "width" in update || "height" in update || "img" in update) {
     const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-    let tokenIds = game.combats.active.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
+    let tokenIds = game.combats.active?.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
     if (tokenIds.includes(token._id) && reactMode === 1) {
       let tokenInstance = canvas.tokens.get(token._id)
       DnDActionManagement.AddActionMarkers([tokenInstance])
