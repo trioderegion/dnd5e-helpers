@@ -463,6 +463,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
         await DnDCombatUpdates.RechargeAbilities(previousToken);
       }
+      removeCover(undefined, previousToken)
     }
 
     if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
@@ -476,11 +477,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         if (lairActions?.length ?? [] > 0) {
           DnDCombatUpdates.RunLairActions(lairActions)
         }
-
-        ui.notifications.notify("lair action")
       }
     }
 
+    
 
   }
 
@@ -647,6 +647,7 @@ Hooks.on("renderTileConfig", onRenderTileConfig);
 
 /** calculating cover when a token is targeted */
 Hooks.on("targetToken", (user, target, onOff) => {
+  if(game.user !== user) return; // only fire once
   const k = game.keyboard
   const keybind = game.settings.get("dnd5e-helpers", "losKeybind")
   const confirmCover = k._downKeys.has(keybind) || keybind === "";
@@ -1568,8 +1569,10 @@ class DnDActionManagement {
 
       /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
       const finalType = (type == "action" && (currentCombatant !== castingToken)) ? "reaction" : type;
-      if (cost > 0) {
-        return DnDActionManagement.UpdateActionMarkers(effectToken, finalType);
+      /** allow for negative values to re-gain use of the action type */
+      const actionUse = cost === 0 ? false : cost
+      if (actionUse) {
+        return DnDActionManagement.UpdateActionMarkers(effectToken, finalType, actionUse);
       }
     }
     return true;
@@ -1675,30 +1678,29 @@ class DnDActionManagement {
    * @param {Object} token 
    * @param {String} action action taken
    */
-  static async UpdateActionMarkers(token, action) {
-
+  static async UpdateActionMarkers(token, action, use) {
     switch (action) {
       case "action": {
         let actionIcon = token.children.find(i => i.actionType === "action")
-        actionIcon.alpha = 0.2
+        actionIcon.alpha = use > 0 ? 0.2 : 1
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
-        actions[action] = true
+        actions[action] = use
         await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
       }
         break;
       case "reaction": {
         let reactionIcon = token.children.find(i => i.actionType === "reaction")
-        reactionIcon.alpha = 0.2
+        reactionIcon.alpha = use > 0 ? 0.2 : 1
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
-        actions[action] = true
+        actions[action] = use
         await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
       }
         break;
       case "bonus": {
         let bonusIcon = token.children.find(i => i.actionType === "bonus")
-        bonusIcon.alpha = 0.2
+        bonusIcon.alpha = use > 0 ? 0.2 : 1
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
-        actions[action] = true
+        actions[action] = use
         await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
       }
         break;
