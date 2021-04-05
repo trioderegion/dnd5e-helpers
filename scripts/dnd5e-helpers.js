@@ -480,7 +480,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       }
     }
 
-    
+
 
   }
 
@@ -647,7 +647,7 @@ Hooks.on("renderTileConfig", onRenderTileConfig);
 
 /** calculating cover when a token is targeted */
 Hooks.on("targetToken", (user, target, onOff) => {
-  if(game.user !== user) return; // only fire once
+  if (game.user !== user) return; // only fire once
   const k = game.keyboard
   const keybind = game.settings.get("dnd5e-helpers", "losKeybind")
   const confirmCover = k._downKeys.has(keybind) || keybind === "";
@@ -1932,6 +1932,12 @@ async function onTargetToken(user, target, onOff) {
         `
           break;
         case 2: {
+          /**
+            * quit out if token has feature to ignore cover
+            * @todo possible add in a check for features
+          */
+
+          if (coverData.SourceToken.actor.getFlag("dnd5e", "helpersIgnoreCover")) break;
           let coverLevel = coverData.calculateCoverBonus()
           let effectData = {
             changes: [
@@ -1954,18 +1960,21 @@ async function onTargetToken(user, target, onOff) {
       } else {
         recipients = game.users.map(u => u.id)
       }
-      ChatMessage.create({ content: content, whisper : recipients }).then((result) => {
+
+
+      ChatMessage.create({ content: content, whisper: recipients }).then((result) => {
         if (!result) return;
+        if (coverSetting === 1) {
+          setTimeout(() => {
+            let half = document.getElementById(`5eHelpersHalfCover${id}`)
+            half.addEventListener("click", function () { AddCover(half) })
+            let three = document.getElementById(`5eHelpers3/4Cover${id}`)
+            three.addEventListener("click", function () { AddCover(three) })
 
-        setTimeout(() => {
-          let half = document.getElementById(`5eHelpersHalfCover${id}`)
-          half.addEventListener("click", function () { AddCover(half) })
-          let three = document.getElementById(`5eHelpers3/4Cover${id}`)
-          three.addEventListener("click", function () { AddCover(three) })
-
-        }, 1000);
-
+          }, 1000);
+        }
         function AddCover(d) {
+
           let data = d.dataset?.someData;
           const [coverLevel, sourceTokenId, coverName] = data.split(",")
           const changes = [{ key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
@@ -2191,8 +2200,8 @@ function CollideAgainstObjects(ray, objectList) {
      *  and colliding against those lines */
     //as [[x0,y0,x1,y1],...]
     const boxGroup = [
-      [tile.x+padding, tile.y+padding, tile.x + tile.width - padding, tile.y + tile.height - padding],
-      [tile.x + tile.width - padding, tile.y+padding, tile.x+padding, tile.y + tile.height-padding],
+      [tile.x + padding, tile.y + padding, tile.x + tile.width - padding, tile.y + tile.height - padding],
+      [tile.x + tile.width - padding, tile.y + padding, tile.x + padding, tile.y + tile.height - padding],
     ]
 
     return !!boxGroup.find(boxRay => {
