@@ -31,6 +31,8 @@
     "DND5EH.LoS_providescover":"Proporciona cobertura",
     "DND5EH.LoSMaskNPCs_sourceMask": "Otra criatura está en medio.",
     "DND5EH.LoSMaskNPCs_targetMask": "una criatura",
+    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
 
     "DND5EH.LoSCover_name" : "[EN] Cover Application",
     "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
@@ -79,12 +81,7 @@
     "DND5EH.CombatReactionEnable_remove":"Solo quitar",
     "DND5EH.CombatReactionEnable_both":"Aplicar y quitar",
 
-    "DND5EH.CombatReactionStatus_name": "Nombre del estado de reacción",
-    "DND5EH.CombatReactionStatus_hint":"Tal y como se ve al poner el ratón sobre el estado en la interfaz del token (por defecto: Debilitado).",
-    "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: No se pudo encontrar el estado: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: No es una tirada de item de actor",
-    "DND5EH.CombatReactionStatus_actionname" :"1 Acción",
-    "DND5EH.CombatReactionStatus_reactionname": "1 Reacción",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: el efecto de estado es: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"dnd5e-helpers: no se pudo localizar el efecto activo llamado: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Dnd5e-helpers: No se pudo encontrar un combate activo",
@@ -129,6 +126,9 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} muere tras sacar un {total}",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} sobrevive con un {total}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Daño al objetivo:",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
 
     "DND5EH.GreatWoundEnable_name":"Daño Masivo",
     "DND5EH.GreatWoundEnable_hint":"Tira en una tabla específica cuando un token recibe más de un 50% de su vida máxima de daño en un solo golpe",

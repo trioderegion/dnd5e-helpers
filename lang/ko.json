@@ -31,6 +31,8 @@
     "DND5EH.LoS_providescover":"엄폐 제공",
     "DND5EH.LoSMaskNPCs_sourceMask": "다른 생물이 막고 있습니다",
     "DND5EH.LoSMaskNPCs_targetMask": "생물",
+    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
 
     "DND5EH.LoSCover_name" : "[EN] Cover Application",
     "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
@@ -74,17 +76,12 @@
     "DND5EH.WildMagicWisper_hint":"모든 굴림 및 표 결과를 GM에게 귓속말로 알린다.",
 
     "DND5EH.CombatReactionEnable_name": "반응행동 상태 자동화",
-    "DND5EH.CombatReactionEnable_hintOld":"이 기능을 활성화/비활성화 하여, 적용시 반응행동 능력 확인 및 턴 외 행동과 지정 상태를 확인할 수 있다. 제거시 액터의 턴이 시작될 때까지 이 효과를 자동적으로 제거한다.",
     "DND5EH.CombatReactionEnable_hint":"[EN] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
-
     "DND5EH.CombatReactionEnable_apply":"적용만",
     "DND5EH.CombatReactionEnable_remove":"제거만",
     "DND5EH.CombatReactionEnable_both":"적용 및 제거",
 
-
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: 액터 아이템 굴림이 아닙니다",
-    "DND5EH.CombatReactionStatus_actionname" :"1 행동",
-    "DND5EH.CombatReactionStatus_reactionname": "1 반응행동",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: 상태 효과: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"dnd5e-helpers: 다음 이름을 가진 활성화 효과를 찾을 수 없습니다: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Dnd5e helpers: 활성된 전투를 찾을 수 없습니다.",
@@ -129,6 +126,9 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} 대상이 {total}만큼을 굴려 사망했습니다.",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} 대상이 {total}만큼을 굴려 생존했습니다.",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "대상에 대한 피해:",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
 
     "DND5EH.GreatWoundEnable_name":"심각한 부상",
     "DND5EH.GreatWoundEnable_hint":"토큰이 한 번의 피해로 최대 Hp의 절반을 넘는 손실을 입으면 지정된 굴림표에서 굴림을 한다.",

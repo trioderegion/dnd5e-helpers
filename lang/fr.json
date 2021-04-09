@@ -31,6 +31,8 @@
     "DND5EH.LoS_providescover":"Fournit une couverture",
     "DND5EH.LoSMaskNPCs_sourceMask": "[EN] Another creature is in the way.",
     "DND5EH.LoSMaskNPCs_targetMask": "[EN] a creature",
+    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
 
     "DND5EH.LoSCover_name" : "[EN] Cover Application",
     "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
@@ -74,17 +76,12 @@
     "DND5EH.WildMagicWisper_hint":"[EN] Whispers all rolls and table results to the GM",
 
     "DND5EH.CombatReactionEnable_name": "Automatisation du statut de réaction.",
-    "DND5EH.CombatReactionEnable_hintOld":"Active ou désactive cette fonctionnalité (global). Appliquez des vérifications pour les capacités de réaction ou les actions hors tour et applique le statut spécifié. Supprimera automatiquement cet effet au début du tour de l'acteur",
     "DND5EH.CombatReactionEnable_hint":"[EN] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
-
     "DND5EH.CombatReactionEnable_apply":"Appliquer uniquement",
     "DND5EH.CombatReactionEnable_remove":"Retirer uniquement",
     "DND5EH.CombatReactionEnable_both":"Appliquer et retirer",
 
-
     "DND5EH.CombatReactionStatus_actoritemerror" : "Aide Dnd5e: Not an actors item roll",
-    "DND5EH.CombatReactionStatus_actionname" :"1 Action",
-    "DND5EH.CombatReactionStatus_reactionname": "1 Reaction",
     "DND5EH.CombatReactionStatus_statuslog":"Aide Dnd5e: l'effet du statut est: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"Aide Dnd5e: Ne trouve pas le nom de l'effet actif: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Aide Dnd5e: Ne trouve pas un combat actif",
@@ -129,6 +126,9 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} meurt avec un jet de {total}",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} survit avec un jet de {total}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Dégâts sur la cible:",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
 
     "DND5EH.GreatWoundEnable_name":"Blessure grave",
     "DND5EH.GreatWoundEnable_hint":"Lance un dès sur une table spécifiée lorsqu'un jeton prend plus de 50% de HP max en un seul coup,",
