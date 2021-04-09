@@ -63,11 +63,12 @@
 
     "DND5EH.WildMagicTableName_name":"야생 마법 여파 표 이름",
     "DND5EH.WildMagicTableName_hint":"여파 발생 시 굴려야 하는 표 이름 (기본값: Wild-Magic-Surge-Table). 이 단계를 건너뛰려면 비워 두십시오.",
-    "DND5EH.WildMagicTableError" : "Dnd5e Helper: 야생 여파 표가 없습니다",
+    "DND5EH.WildMagicTableError" : "DnD5e Helper: 야생 여파 표가 없습니다",
 
     "DND5EH.WildMagicTidesOfChaos_name":"혼돈의 물결 특성 이름",
     "DND5EH.WildMagicTidesOfChaos_hint":"소서러의 혼돈의 물결을 나타내는 특성 이름. (기본값: Tide of Chaos)",
-    "DND5EH.WildMagicTidesOfChaos_error": "Dnd5e Helper: 혼돈의 물결 특성 이름이 없습니다.",
+    "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helper: 혼돈의 물결 특성 이름이 없습니다.",
+    "DND5EH.WildMagicTidesOfChaosRecharge_name":"[EN] Recharge Tides of Chaos on surge",
 
     "DND5EH.WildMagicWisper_name":"플레이어로부터 야생 마법 숨기기",
     "DND5EH.WildMagicWisper_hint":"모든 굴림 및 표 결과를 GM에게 귓속말로 알린다.",

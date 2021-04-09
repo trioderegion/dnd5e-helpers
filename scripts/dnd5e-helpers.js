@@ -122,6 +122,15 @@ Hooks.on('init', () => {
     type: String,
   });
 
+  /** should tides of chaos be recharged on a surge? */
+  game.settings.register("dnd5e-helpers", "wmToCRecharge", {
+    name: game.i18n.format("DND5EH.WildMagicTidesOfChaosRecharge_name"),
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
+  });
+
   /** toggle result gm whisper for WM */
   game.settings.register("dnd5e-helpers", "wmWhisper", {
     name: game.i18n.format("DND5EH.WildMagicWisper_name"),
@@ -186,6 +195,7 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "cbtAbilityRechargeHide", {
     name: game.i18n.format("DND5EH.CombatAbilityRechargeHide_name"),
     scope: game.i18n.format("DND5EH.CombatAbilityRechargeHide_hint"),
+    scope: "world",
     config: true,
     default: true,
     type: Boolean,

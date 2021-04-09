@@ -6,7 +6,7 @@
     "DND5EH.Default_roll" : "Roll",
 
     "DND5EH.GridTemplateScaling_name": "Auto adjust templates to 5e grids",
-   "DND5EH.GridTemplateScaling_hint" :"Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
+    "DND5EH.GridTemplateScaling_hint" :"Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
     "DND5EH.GridTemplateScaling_none":"No Template Scaling",
     "DND5EH.GridTemplateScaling_lineCone":"Lines and Cones",
     "DND5EH.GridTemplateScaling_circle":"Circles",
@@ -46,7 +46,7 @@
     "DND5EH.LoSCover_cover" : "cover",
 
     "DND5EH.WildMagicOptions_name":  "Wild Magic Auto-Detect",
-    "DND5EH.WildMagicOptions_hint": "Enables or disables auto detection of Wild Magic and how it should be handled. Standard (PHB): as seen on PHB pg. 103. More: surges on d20 <= spell level and recharges Tides of Chaos. Volatile: Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended.",
+    "DND5EH.WildMagicOptions_hint": "Enables or disables auto detection of Wild Magic and how it should be handled. Standard (PHB): as seen on PHB pg. 103. More: surges on d20 <= spell level. Volatile: Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended.",
     "DND5EH.WildMagicOptions_standard": "Enabled - Standard (PHB)",
     "DND5EH.WildMagicOptions_more": "Enabled - More",
     "DND5EH.WildMagicOptions_volatile": "Enabled - Volatile",
@@ -65,11 +65,12 @@
 
     "DND5EH.WildMagicTableName_name":"Wild Magic Surge Table Name",
     "DND5EH.WildMagicTableName_hint":"Name of table that should be rolled on if a surge occurs (default: Wild-Magic-Surge-Table). Leave empty to skip this step.",
-    "DND5EH.WildMagicTableError" : "Dnd5e Helper: No Wild Surge table setup",
+    "DND5EH.WildMagicTableError" : "DnD5e Helper: No Wild Surge table setup",
 
     "DND5EH.WildMagicTidesOfChaos_name":"Tides of Chaos Feature Name",
     "DND5EH.WildMagicTidesOfChaos_hint":"Name of feature that represents the Sorcerer's Tides of Chaos (default: Tides of Chaos)",
-    "DND5EH.WildMagicTidesOfChaos_error": "Dnd5e Helper: Tides of Chaos feature name not setup",
+    "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helper: Tides of Chaos feature name not setup",
+    "DND5EH.WildMagicTidesOfChaosRecharge_name":"Recharge Tides of Chaos on surge",
 
     "DND5EH.WildMagicWisper_name":"Hide Wild Magic from Players",
     "DND5EH.WildMagicWisper_hint":"Whispers all rolls and table results to the GM",

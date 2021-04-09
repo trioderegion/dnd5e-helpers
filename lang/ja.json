@@ -6,7 +6,7 @@
     "DND5EH.Default_roll" : "ロール",
 
     "DND5EH.GridTemplateScaling_name": "テンプレートを5eグリッドに自動調整",
-   "DND5EH.GridTemplateScaling_hint" :"線と円錐は距離がスケーリングされます。球形は同等の面積の矩形に変換されます。これはテンプレートの対角線を5eのグリッド距離測定に沿わせるものです。",
+    "DND5EH.GridTemplateScaling_hint" :"線と円錐は距離がスケーリングされます。球形は同等の面積の矩形に変換されます。これはテンプレートの対角線を5eのグリッド距離測定に沿わせるものです。",
     "DND5EH.GridTemplateScaling_none":"スケーリング無効",
     "DND5EH.GridTemplateScaling_lineCone":"直線と円錐",
     "DND5EH.GridTemplateScaling_circle":"球形",
@@ -42,6 +42,7 @@
     "DND5EH.LoSWithTokens_hint": "無効にすると遮蔽判定時にコマが考慮されなくなります。",
     "DND5EH.LoSMaskNPCs_name": "遮蔽判定からGM向け情報を隠す",
     "DND5EH.LoSMaskNPCs_hint": "遮蔽判定にGMへの秘話を使い、またNPCの名前を「不明なクリーチャー」に置き換えます。",
+
     "DND5EH.WildMagicOptions_name":  "魔法暴走の自動検出",
     "DND5EH.WildMagicOptions_hint": "魔法暴走の自動検出を有効または無効にし、どのように処理するかを決定します。【標準（PHB）】PHB p73の記述どおりの処理です。【刺激的】「d20 <= 呪文レベル」で暴走が発生し、混沌潮流が回復します。【不安定】“刺激的”に似ていますが, 混沌潮流が消費済の場合は呪文レベルに1d4が加算されます。",
     "DND5EH.WildMagicOptions_standard": "有効 - 標準（PHB）",
@@ -67,6 +68,7 @@
     "DND5EH.WildMagicTidesOfChaos_name":"混沌潮流の機能名称",
     "DND5EH.WildMagicTidesOfChaos_hint":"ソーサラーの“混沌潮流”にあたる機能の名称を指定します（デフォルト：Tides of Chaos）。",
     "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helpers：混沌潮流の機能名称が設定されていません。",
+    "DND5EH.WildMagicTidesOfChaosRecharge_name":"[EN] Recharge Tides of Chaos on surge",
 
     "DND5EH.WildMagicWisper_name":"魔法暴走の結果をプレイヤーに隠す",
     "DND5EH.WildMagicWisper_hint":"すべてのロールと表の結果はGMへの秘話になります。",

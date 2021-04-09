@@ -163,16 +163,26 @@
   - Note: There is no toggle option for this functionality.
 - Translation updates provided by github users MS-PBS and brnmuller. We are thankful, as always.
 
-###1.11.0
+###1.10.1
 - Japanese localization provided by `togue`!
 
-###Action Managment
+###1.10.2
+- Additional Wild Magic Surge homebrew added, courtesy of `xdy`. All wild magic surge options can now optionally recharge Tides of Chaos when a surge occurs. This is added as a seperate 'Recharge Tides of Chaos on surge' option to decouple it from the Surge variations already present.
+- Translation changes/additions (denoted `[*]` and `[EN]` respectively in the packs):
+  - `DND5EH.WildMagicOptions_hint` has been updated to remove reference to recharging Tides of Chaos
+  - `DND5EH.WildMagicTidesOfChaos_name` added
+  - Several French translation strings were missing the untranslated `[EN]` flag.
+    - Note: French translation is beginning to fall behind in updates. Any help is appreciated on this front <3
+
+###1.10.3
+- Small tweak to token/tile cover calculations -- the hitbox size has been reduced by 10% of the grid square size. This should address the erroneous half cover when targeting a token diagonally due to degenerate collisions.
+
+###1.11.0
 - Action Management 
   - Updated "Reaction settings" to include all aciton types, Action, Reaction, Bonus action are all tracked through HUD elements
   - These elements are only applied to tokens currently in combat
   - Icons are "hidden" when the action is taken, and recovered upon starting a tokens turn.
--Lair Actions.
+- Lair Actions.
   - Added lair action tracking, upon adding actors to the combat tracker it will scan for actions with the `uses lair action` action type and add them to a combat-specific pool
   - This lair action pool will be given to the GM as combat advances past initiative 20, with the option to jump to the actor, or directly roll the action
-
 

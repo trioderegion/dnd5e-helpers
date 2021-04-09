@@ -6,7 +6,7 @@
     "DND5EH.Default_roll" : "Rolagem",
 
     "DND5EH.GridTemplateScaling_name": "Autoajustar modelos em grids da 5e",
-   "DND5EH.GridTemplateScaling_hint" :"Linhas e cones terão seu alcance ajustado. Círculos serão convertidos em um retângulo de área equivalente. Isso busca criar a correspondência de distância do grid da 5e quando medidas diagonais são envolvidas no posicionamento de modelos.",
+    "DND5EH.GridTemplateScaling_hint" :"Linhas e cones terão seu alcance ajustado. Círculos serão convertidos em um retângulo de área equivalente. Isso busca criar a correspondência de distância do grid da 5e quando medidas diagonais são envolvidas no posicionamento de modelos.",
     "DND5EH.GridTemplateScaling_none":"Sem ajuste de modelos",
     "DND5EH.GridTemplateScaling_lineCone":"Linhas e Cones",
     "DND5EH.GridTemplateScaling_circle":"Círculos",
@@ -68,6 +68,7 @@
     "DND5EH.WildMagicTidesOfChaos_name":"Nome da Característica Marés do Caos",
     "DND5EH.WildMagicTidesOfChaos_hint":"Nome da característica que representa as Marés do Caos do Feiticeiro (padrão: Tides of Chaos).",
     "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helpers: Nome da característica Marés do Caos não configurado",
+    "DND5EH.WildMagicTidesOfChaosRecharge_name":"[EN] Recharge Tides of Chaos on surge",
 
     "DND5EH.WildMagicWisper_name":"Ocultar Magia Selvagem de Jogadores",
     "DND5EH.WildMagicWisper_hint":"Sussurrar todas as jogadas e resultados de tabelas ao MJ.",
