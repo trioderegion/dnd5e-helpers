@@ -473,7 +473,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
         await DnDCombatUpdates.RechargeAbilities(previousToken);
       }
-      removeCover(undefined, previousToken)
+      removeCover(previousToken)
     }
 
     if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
@@ -583,7 +583,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
     for (let combatant of combat.data.combatants) {
       let token = canvas.tokens.get(combatant.tokenId)
-      await removeCover(undefined, token)
+      await removeCover(token)
     }
   }
 });
@@ -599,7 +599,7 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
   }
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
     let token = canvas.tokens.get(combatant.tokenId)
-    removeCover(undefined, token)
+    removeCover(token)
   }
 })
 
@@ -670,7 +670,8 @@ Hooks.on("targetToken", (user, target, onOff) => {
     }
       break;
     case false: {
-      removeCover(user);
+      /* @todo actuate only on hotkey, if no current token selected, message the user and do nothing */
+      removeCover(_token);
     }
       break;
   }
@@ -1952,7 +1953,9 @@ async function onTargetToken(user, target, onOff) {
           let effectData = {
             changes: [
               { key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
-              { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel }
+              { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
+              { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
+              { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel },
             ],
             disabled: false,
             icon: "icons/svg/combat.svg",
@@ -2011,9 +2014,11 @@ async function onTargetToken(user, target, onOff) {
 
 }
 
-async function removeCover(user, token) {
-  if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
-  let testToken = token !== undefined ? token : canvas.tokens.controlled[0]
+async function removeCover(coverToken) {
+
+  /* bail out if there is no provided token or if the cover functionality is disabled */
+  if (!coverToken || game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
+
   let coverEffects = testToken.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"))
   for (let effect of coverEffects) await effect.delete()
 }
