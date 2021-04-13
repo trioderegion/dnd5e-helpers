@@ -1553,7 +1553,7 @@ class DnDActionManagement {
 
       //find the current token instance that called the roll card
       let currentCombatant = getProperty(game.combats, "active.current.tokenId");
-      if (!currentCombatant) {
+      if (!currentCombatant || game.combats.active.scene.id !== canvas.scene.id) {
         return;
       }
 
