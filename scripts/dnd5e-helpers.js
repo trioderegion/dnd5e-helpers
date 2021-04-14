@@ -1946,11 +1946,13 @@ async function onTargetToken(user, target, onOff) {
       const coverSetting = game.settings.get("dnd5e-helpers", "coverApplication")
       const id = randomID()
       const coverLevel = coverData.calculateCoverBonus()
+      let coverName, activeButtonId;
       switch (coverSetting) {
         case 0: break;
         case 1: content += `
         <button id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
         <button id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters">${game.i18n.format("DND5EH.LoS_34cover")}</button>
+        <button id="5eHelpersFullCover${id}" data-some-data="-40,${coverData.SourceToken.id},Full">${game.i18n.format("DND5EH.LoS_fullcover")}</button>
         `
           break;
         case 2: {
@@ -1961,6 +1963,16 @@ async function onTargetToken(user, target, onOff) {
 
           if (coverData.SourceToken.actor.getFlag("dnd5e", "helpersIgnoreCover")) break;
           let coverLevel = coverData.calculateCoverBonus()
+          if(!coverLevel) return;
+
+          switch(coverLevel){
+            case "0": break;
+            case "-2": coverName = "Half"; activeButtonId = `5eHelpersHalfCover${id}`
+            break;
+            case "-5": coverName = "Three-Quarters";activeButtonId = `5eHelpers3/4Cover${id}`
+            break;
+            case "-40": coverName = "Full";activeButtonId = `5eHelpersFullCover${id}`
+          }
           let effectData = {
             changes: [
               { key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
@@ -1970,10 +1982,15 @@ async function onTargetToken(user, target, onOff) {
             ],
             disabled: false,
             icon: "icons/svg/combat.svg",
-            label: `DnD5e Helpers ${game.i18n.format("DND5EH.LoSCover_cover")} (${coverLevel})`,
+            label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}`,
             tint: "#747272"
           }
           coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
+          content += `
+        <button id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
+        <button id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters">${game.i18n.format("DND5EH.LoS_34cover")}</button>
+        <button id="5eHelpersFullCover${id}" data-some-data="-40,${coverData.SourceToken.id},Full">${game.i18n.format("DND5EH.LoS_fullcover")}</button>
+        `
         }
       }
       /** whisper the message if we are being a cautious GM */
@@ -1988,16 +2005,22 @@ async function onTargetToken(user, target, onOff) {
 
       ChatMessage.create({ content: content, whisper: recipients }).then((result) => {
         if (!result) return;
-        if (coverSetting === 1) {
+        if (coverSetting > 0) {
           setTimeout(() => {
             let half = document.getElementById(`5eHelpersHalfCover${id}`)
             let three = document.getElementById(`5eHelpers3/4Cover${id}`)
-            half.addEventListener("click", function () { AddCover(half, three) })
-            three.addEventListener("click", function () { AddCover(three, half) })
+            let full = document.getElementById(`5eHelpersFullCover${id}`)
+            half.addEventListener("click", function () { AddCover(half, three, full) })
+            three.addEventListener("click", function () { AddCover(three, half, full) })
+            full.addEventListener("click", function () { AddCover(full, half, three) })
+            if(activeButtonId){
+          let activeButton = document.getElementById(activeButtonId)
+          activeButton.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+        }
 
           }, 1000);
         }
-        function AddCover(d, d2) {
+        function AddCover(d, d2, d3) {
           
           let parentCard = d.parentElement
           parentCard.getElementById
@@ -2022,13 +2045,17 @@ async function onTargetToken(user, target, onOff) {
             token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
           d.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
           d2.style.background = "initial"
+          d3.style.background = "initial"
+
           }
           else {
             token.actor.createEmbeddedEntity("ActiveEffect", effectData)
             d.style.background= "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
             d2.style.background = "initial"
+            d3.style.background = "initial"
           }
         }
+        
       });
     }
   }
