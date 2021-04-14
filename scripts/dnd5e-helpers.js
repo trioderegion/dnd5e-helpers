@@ -218,6 +218,15 @@ Hooks.on('init', () => {
     default: false,
     config: true,
   });
+  game.settings.register("dnd5e-helpers", "regenBlock", {
+    name: game.i18n.format("DND5EH.regenBlock_name"),
+    hint: game.i18n.format("DND5EH.regenBlock_hint"),
+    scope: 'world',
+    type: String,
+    default: `No Regen`,
+    config: true,
+  });
+
 
   game.settings.register("dnd5e-helpers", "undeadFort", {
     name: game.i18n.format("DND5EH.UndeadFort_name"),
@@ -473,7 +482,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
         await DnDCombatUpdates.RechargeAbilities(previousToken);
       }
-      removeCover(previousToken)
+      removeCover(undefined, previousToken)
     }
 
     if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
@@ -583,7 +592,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
     for (let combatant of combat.data.combatants) {
       let token = canvas.tokens.get(combatant.tokenId)
-      await removeCover(token)
+      await removeCover(undefined, token)
     }
   }
 });
@@ -594,12 +603,12 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
     await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
   }
 
-  if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
+  if (game.settings.get('dnd5e-helpers', 'lairHelperEnable') && DnDHelpers.IsFirstGM()) {
     await DnDCombatUpdates.RemoveLairMapping(combat, combatant);
   }
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
     let token = canvas.tokens.get(combatant.tokenId)
-    removeCover(token)
+    removeCover(undefined, token)
   }
 })
 
@@ -670,8 +679,7 @@ Hooks.on("targetToken", (user, target, onOff) => {
     }
       break;
     case false: {
-      /* @todo actuate only on hotkey, if no current token selected, message the user and do nothing */
-      removeCover(_token);
+      removeCover(user);
     }
       break;
   }
@@ -698,7 +706,7 @@ Hooks.on("createCombatant", (combat, token) => {
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
 
-  if (lairHelperEnable) {
+  if (lairHelperEnable && DnDHelpers.IsFirstGM()) {
     DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
   }
 })
@@ -981,7 +989,8 @@ class DnDCombatUpdates {
     let option1 = game.i18n.format("DND5EH.AutoRegen_Regneration")
     let option2 = game.i18n.format("DND5EH.AutoRegen_SelfRepair")
     let regen = token.actor.items.find(i => i.name === option1 || i.name === option2);
-
+    let blockEffect = token.actor.effects?.find(e => e.data.label === game.settings.get("dnd5e-helpers", "regenBlock"))
+    if(!!blockEffect) return;
     let data = {
       tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
       actorMax: token.actor.data.data.attributes.hp.max,
@@ -995,7 +1004,7 @@ class DnDCombatUpdates {
     if (data.tokenHP == undefined) {
       data.tokenHP = data.actorMax
     }
-    // parse the regeration item to locate the formula to use 
+    // parse the regeneration item to locate the formula to use 
 
     const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
     let match = regen.data.data.description.value.match(regenRegExp);
@@ -1192,6 +1201,7 @@ class DnDCombatUpdates {
    * Generate lair action array
    */
   static async LairActionMapping(token, combat) {
+        if(!DnDHelpers.IsFirstGM) return;
     let tokenItems = getProperty(token, "items") || token.actor.items
     let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
     if (lairActions.length > 0) {
@@ -1210,7 +1220,7 @@ class DnDCombatUpdates {
    * @returns 
    */
   static async RemoveLairMapping(combat, combatant) {
-
+    if(!DnDHelpers.IsFirstGM) return;
     /** get the actual token */
     const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?.id;
 
@@ -1731,6 +1741,7 @@ class DnDActionManagement {
    */
   static async RemoveActionMarkers(tokenId) {
     let token = canvas.tokens.get(tokenId)
+    if (!token.owner) return;
     let actionIcons = token.children.filter(i => i.actionType)
     actionIcons.forEach(i => i.destroy())
     return token.unsetFlag('dnd5e-helpers', 'ActionManagement')
@@ -1955,7 +1966,7 @@ async function onTargetToken(user, target, onOff) {
               { key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
               { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
               { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
-              { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel },
+              { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel }
             ],
             disabled: false,
             icon: "icons/svg/combat.svg",
@@ -1980,14 +1991,16 @@ async function onTargetToken(user, target, onOff) {
         if (coverSetting === 1) {
           setTimeout(() => {
             let half = document.getElementById(`5eHelpersHalfCover${id}`)
-            half.addEventListener("click", function () { AddCover(half) })
             let three = document.getElementById(`5eHelpers3/4Cover${id}`)
-            three.addEventListener("click", function () { AddCover(three) })
+            half.addEventListener("click", function () { AddCover(half, three) })
+            three.addEventListener("click", function () { AddCover(three, half) })
 
           }, 1000);
         }
-        function AddCover(d) {
-
+        function AddCover(d, d2) {
+          
+          let parentCard = d.parentElement
+          parentCard.getElementById
           let data = d.dataset?.someData;
           const [coverLevel, sourceTokenId, coverName] = data.split(",")
           const changes = [{ key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
@@ -2001,11 +2014,19 @@ async function onTargetToken(user, target, onOff) {
           }
           let token = canvas.tokens.get(sourceTokenId)
           let oldCover = token.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
-          if (oldCover) {
+          if(oldCover?.data.label === effectData.label){
+            token.actor.deleteEmbeddedEntity("ActiveEffect", oldCover.id)
+            d.style.background = "initial"
+          }
+          else if (oldCover) {
             token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
+          d.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+          d2.style.background = "initial"
           }
           else {
             token.actor.createEmbeddedEntity("ActiveEffect", effectData)
+            d.style.background= "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+            d2.style.background = "initial"
           }
         }
       });
@@ -2014,12 +2035,11 @@ async function onTargetToken(user, target, onOff) {
 
 }
 
-async function removeCover(coverToken) {
-
-  /* bail out if there is no provided token or if the cover functionality is disabled */
-  if (!coverToken || game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
-
-  let coverEffects = testToken.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"))
+async function removeCover(user, token) {
+  if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
+  let testToken = token !== undefined ? token : canvas.tokens.controlled[0]
+  let coverEffects = testToken?.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"))
+  if(!coverEffects) return;
   for (let effect of coverEffects) await effect.delete()
 }
 
