@@ -488,7 +488,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         DnDCombatUpdates.RunLegendaryActions(LegActions, previousToken.id)
       }
     }
-    
+
     /** @todo data vs _data -- multiple updates reset changes made by previous updates */
     if (currentToken) {
       if (game.settings.get('dnd5e-helpers', 'cbtLegactEnable') == true) {
@@ -1317,7 +1317,7 @@ class DnDCombatUpdates {
         <div class="form-group">
           <div class="desc"> ${v.data.description.value}</div>
           <label>${v.name}</label>
-          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')">Use</button>
+          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')">${game.i18n.format("DND5E.Use")}</button>
         </div>` }
         , '')
       return actionList
@@ -1349,12 +1349,12 @@ class DnDCombatUpdates {
     }
 
     let d = new Dialog({
-      title: "Lair Actions",
+      title: game.i18n.format("DND5E.LairAct"),
       content: lairContents,
       
       buttons: {
         one: {
-          label: "Close",
+          label: game.i18n.format("Close"),
           callback: () => {}
         },
       },
@@ -1377,7 +1377,7 @@ class DnDCombatUpdates {
         <div class="form-group">
           <div class="desc"> ${v.data.description.value}</div>
           <label>${v.name}</label>
-          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')" ${disabled} >Uses ${v.data.activation.cost}/${available}</button>
+          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')" ${disabled} >${game.i18n.format("DND5E.Uses")} ${v.data.activation.cost}/${available}</button>
         </div>` }
         , '')
       return actionList
@@ -1411,12 +1411,12 @@ class DnDCombatUpdates {
 
 
     let d = new Dialog({
-      title: "Legendary Actions",
+      title: `${game.i18n.format("DND5E.LegAct")}`,
       content: actorList,
       
       buttons: {
         one: {
-          label: "Close",
+          label: game.i18n.format("Close"),
           callback: () => {}
         },
       },
@@ -1439,107 +1439,6 @@ class DnDCombatUpdates {
      }
   }
   
-  /**
-   * 
-   * @param {Array} legActionArray 
-   * @returns 
-   
-   static RunLegendaryActions(legActionArray, previousTokenID) {
-    if (!legActionArray) return;
-    for(let actor of legActionArray){
-      if(actor[2] === previousTokenID) return;
-    }
-    let LegContents = ``;
-
-    function addTableContents(actorName, actionArray, tokenId) {
-      let actionContents = ``;
-      for (let action of actionArray) {
-        actionContents += `
-        <tr class="row">
-        <td>${action.name}</td>
-        <td><button id=${action._id} value="${tokenId},${action._id}" >Roll</button></td>
-        </tr>
-      `
-      }
-      actionContents = actionContents.slice(4, actionContents.length)
-      return actionContents
-    }
-
-    function addLegActor(actor) {
-      let actions = addTableContents(actor[0], actor[1], actor[2])
-      let tokenImg = canvas.tokens.get(actor[2]).data.img
-      let actorActions = `
-      <tr>
-        <td class="actorColumn" rowspan="${actor[1].length+1}"><button  value="${actor[2]}"><img src="${tokenImg}" title="${actor[0]}"></button></td>
-        ${actions}
-      `
-      return actorActions;
-    }
-    for (let actor of legActionArray) {
-      LegContents += addLegActor(actor)
-    }
-    let legTable =
-      `
-      <style>
-      .legTable {
-        text-align: center;
-        align-content: center;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        flex-grow: 1
-      }
-      .legTable .actorColumn {
-        max-width: 120px;
-      }
-      .legTable button img {
-        max-width: auto;
-        max-height: auto;
-        border: none;
-      }
-      </style>
-  <div class = "legTable">
-  <script type"text/javascript">
-  $("button").click(function() {
-    var fired_button = $(this).val();
-    let [tokenID, itemID] = fired_button.split(",");
-    let token = canvas.tokens.get(tokenID)
-    if(itemID === undefined){
-      canvas.animatePan({x: token.center.x, y: token.center.y, duration: 250 })
-      token.control();
-    }
-    else{
-    let token = canvas.tokens.get(tokenID);
-    let item = token.actor.items.get(itemID);
-    item.roll();
-    }
-    });
-    </script>
-  <table height="auto">
-  <thead>
-    <tr>
-      <th> Creature</th>
-      <th> Action </th>
-      <th> Roll </th>
-    </tr>
-  </thead>
-  <tbody>
-    ${LegContents}
-    </tbody>
-  </table>
-  </div>
-  `
-    new Dialog({
-      title: "Legendary Actions",
-      content: legTable,
-      buttons: {
-        one: {
-          label: "Close",
-        },
-      }
-    }).render(true)
-  }
-  */
 }
 
 
@@ -2189,11 +2088,11 @@ async function onTargetToken(user, target, onOff) {
 
           switch (coverLevel) {
             case "0": break;
-            case "-2": coverName = "Half"; activeButtonId = `5eHelpersHalfCover${id}`
+            case "-2": coverName = `${game.i18n.format("DND5EH.LoS_halfcover")}`; activeButtonId = `5eHelpersHalfCover${id}`
               break;
-            case "-5": coverName = "Three-Quarters"; activeButtonId = `5eHelpers3/4Cover${id}`
+            case "-5": coverName = `${game.i18n.format("DND5EH.LoS_34cover")}`; activeButtonId = `5eHelpers3/4Cover${id}`
               break;
-            case "-40": coverName = "Full"; activeButtonId = `5eHelpersFullCover${id}`
+            case "-40": coverName = `${game.i18n.format("DND5EH.LoS_fullcover")}`; activeButtonId = `5eHelpersFullCover${id}`
           }
           let effectData = {
             changes: [
@@ -2203,8 +2102,9 @@ async function onTargetToken(user, target, onOff) {
               { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel }
             ],
             disabled: false,
+            duration: {rounds :1},
             icon: "icons/svg/combat.svg",
-            label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}`,
+            label: `DnD5e Helpers ${coverName}`,
             tint: "#747272"
           }
           coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
@@ -2249,10 +2149,14 @@ async function onTargetToken(user, target, onOff) {
           let data = d.dataset?.someData;
           const [coverLevel, sourceTokenId, coverName] = data.split(",")
           const changes = [{ key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
-          { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel }]
+          { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
+          { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
+          { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel },
+        ]
           let effectData = {
             changes: changes,
             disabled: false,
+            duration:{rounds: 1},
             icon: "icons/svg/combat.svg",
             label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}`,
             tint: "#747272"
@@ -2588,8 +2492,3 @@ function onPreCreateTile(_scene, tileData, _options, _id) {
     tileData.flags["dnd5e-helpers"] = { coverLevel: tileCover };
   }
 }
-
-
-
-
-
