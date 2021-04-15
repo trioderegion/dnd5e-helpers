@@ -44,6 +44,9 @@
         "path": "lang/ja.json"
       }
     ],
+    "styles": [
+      "/styles/dnd5e-helpers.css"
+    ] ,
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",

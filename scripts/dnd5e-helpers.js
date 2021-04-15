@@ -469,6 +469,26 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       console.log(game.i18n.format("DND5EH.Hooks_updateActor_updatelog", { currentTokenName: currentToken.name, regenSett: regenSett }))
     }
 
+    if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
+      let pastLair = false;
+      if (nextTurn?.initiative && previousTurn?.initiative) {
+        pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
+      }
+
+      if (pastLair) {
+        const lairActions = combat.getFlag('dnd5e-helpers', 'Lair Actions')
+        if (lairActions?.length ?? [] > 0) {
+          DnDCombatUpdates.RunLairActions(lairActions)
+        }
+      }
+    }
+    if (game.settings.get('dnd5e-helpers', 'LegendaryHelperEnable')) {
+      const LegActions = combat.getFlag('dnd5e-helpers', 'Legendary Actions')
+      if (LegActions?.length ?? [] > 0) {
+        DnDCombatUpdates.RunLegendaryActions(LegActions, previousToken.id)
+      }
+    }
+    
     /** @todo data vs _data -- multiple updates reset changes made by previous updates */
     if (currentToken) {
       if (game.settings.get('dnd5e-helpers', 'cbtLegactEnable') == true) {
@@ -495,25 +515,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       removeCover(undefined, previousToken)
     }
 
-    if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
-      let pastLair = false;
-      if (nextTurn?.initiative && previousTurn?.initiative) {
-        pastLair = (nextTurn.initiative < 20 && combat.turns.indexOf(nextTurn) === 0) ? true : (nextTurn.initiative < 20 && previousTurn.initiative > 20) ? true : false
-      }
-
-      if (pastLair) {
-        const lairActions = combat.getFlag('dnd5e-helpers', 'Lair Actions')
-        if (lairActions?.length ?? [] > 0) {
-          DnDCombatUpdates.RunLairActions(lairActions)
-        }
-      }
-    }
-    if (game.settings.get('dnd5e-helpers', 'LegendaryHelperEnable')) {
-      const LegActions = combat.getFlag('dnd5e-helpers', 'Legendary Actions')
-      if (LegActions?.length ?? [] > 0) {
-        DnDCombatUpdates.RunLegendaryActions(LegActions, previousToken.id)
-      }
-    }
+    
 
 
 
@@ -1303,93 +1305,64 @@ class DnDCombatUpdates {
    * 
    * @param {Array} lairActionArray 
    * @returns 
-   
+   */
   static RunLairActions(lairActionArray) {
     if (!lairActionArray) return;
+
     let lairContents = ``;
 
-    function addTableContents(actorName, actionArray, tokenId) {
-      let actionContents = ``;
-      for (let action of actionArray) {
-        actionContents += `
-        <tr>
-        <td>${action.name}</td>
-        <td><button id=${action._id} value="${tokenId},${action._id}" >Roll</button></td>
-        </tr
-      `
-        actionContents = actionContents.slice(4, actionContents.length)
-        return actionContents
-      }
+    function getActionList(actionArray, tokenId) {
+      let actionList = actionArray.reduce((a,v) => {
+        return a+=`
+        <div class="form-group">
+          <div class="desc"> ${v.data.description.value}</div>
+          <label>${v.name}</label>
+          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')">Use</button>
+        </div>` }
+        , '')
+      return actionList
     }
 
-    function addLairActor(actor) {
-      let actions = addTableContents(actor[0], actor[1], actor[2])
-      let tokenImg = canvas.tokens.get(actor[2]).data.img
-      let actorActions = `
-      <tr>
-        <tdclass="actorColumn" rowspan="${actor[1].length + 1}"><button value="${actor[2]}"><img src="${tokenImg}" title="${actor[0]}"></button></td>
-        ${actions}
+    for (let lairActor of lairActionArray){
+      let token = canvas.tokens.get(lairActor[2])
+      let tokenImg = token.data.img
+      let actionList = getActionList(lairActor[1], lairActor[2])
+      lairContents +=`
+      <form>
+        <div class="container">
+          <div class="row">
+            <div class="col">
+                <button type="button" class="img-button" onClick="DnDCombatUpdates.runItem('${lairActor[2]}')">
+                <img src="${tokenImg}" title="${lairActor[0]}">
+              </button>
+            </div>
+              <div class="row">
+                <div class="container">
+                  <div class="col">
+                  ${actionList}
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+        </form>`
+    }
 
-      `
-      return actorActions;
-    }
-    for (let actor of lairActionArray) {
-      lairContents += addLairActor(actor)
-    }
-    let lairTable =
-      `
-      <style>
-      .legTable {
-        text-align: center;
-      }
-      .legTable .actorColumn {
-        max-width: 120px;
-      }
-      .legTable button img {
-        max-width: auto;
-        max-height: auto;
-        border: none;
-      }
-      </style>
-  <script type"text/javascript">
-  $("button").click(function() {
-    var fired_button = $(this).val();
-    let [tokenID, itemID] = fired_button.split(",");
-    let token = canvas.tokens.get(tokenID)
-    if(itemID === undefined){
-      canvas.animatePan({x: token.center.x, y: token.center.y, duration: 250 })
-      token.control();
-    }
-    else{
-    let token = canvas.tokens.get(tokenID);
-    let item = token.actor.items.get(itemID);
-    item.roll();
-    }
-    });
-    </script>
-  <thead>
-    <tr>
-      <th> Creature</th>
-      <th> Action </th>
-      <th> Roll </th>
-    </tr>
-  </thead>
-  <tbody>
-    ${lairContents}
-    </tbody>
-  </table>
-  `
-    new Dialog({
+    let d = new Dialog({
       title: "Lair Actions",
-      content: lairTable,
+      content: lairContents,
+      
       buttons: {
         one: {
           label: "Close",
+          callback: () => {}
         },
-      }
-    }).render(true)
+      },
+      default: "one",
+      close: () => {ui.notify},
+    }, {classes: ["dnd5ehelpers legendary-action-dialog"], resizable: true})
+    d.render(true)
   }
-  */
 
   static async RunLegendaryActions(legActionArray, previousTokenID) {
     for(let actor of legActionArray){
@@ -1397,25 +1370,30 @@ class DnDCombatUpdates {
     }
     let actorList= '';
 
-    function getActionList(actionArray, tokenId) {
-      let actionList = actionArray.reduce((a,v) => a+=`
-        <div class="row action">
-          <div class="col">${v.name}</div>
-          <div class="col"><button id="${v._id}" value="${tokenId},${v._id}">Roll</button></div>
-        </div>`, '')
+    function getActionList(actionArray, tokenId, available) {
+      let actionList = actionArray.reduce((a,v) => {
+        let disabled = v.data.activation.cost > available ? 'disabled' : '';
+        return a+=`
+        <div class="form-group">
+          <div class="desc"> ${v.data.description.value}</div>
+          <label>${v.name}</label>
+          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')" ${disabled} >Uses ${v.data.activation.cost}/${available}</button>
+        </div>` }
+        , '')
       return actionList
     }
     
     for (let LegActor of legActionArray){
       let token = canvas.tokens.get(LegActor[2])
-      let actionsAvaliable = `${token.actor.data.data.resources.legact.value}/${token.actor.data.data.resources.legact.max}`
+      let actionsAvailable = token.actor.data.data.resources.legact.value
       let tokenImg = token.data.img
-      let actionList = getActionList(LegActor[1])
+      let actionList = getActionList(LegActor[1], LegActor[2], actionsAvailable)
       actorList +=`
+      <form>
         <div class="container">
           <div class="row">
             <div class="col">
-                <button class="img-button" value="${LegActor[2]}">
+                <button type="button" class=" img-button" onClick="DnDCombatUpdates.runItem('${LegActor[2]}')">
                 <img src="${tokenImg}" title="${LegActor[0]}">
               </button>
             </div>
@@ -1427,52 +1405,28 @@ class DnDCombatUpdates {
                 </div>
               </div>
             </div>
-        </div>`
+        </div>
+        </form>`
     }
 
-    let content = `
-    <style>
-    .container {
-      flex : 1;
-      width: 100%;
-    }
-      .row {
-        display: flex;
-        flex-direction: row;
-      }
-      .row>div {
-        flex: 1;
-      }
-      .col {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        height: 100%;
-        text-align: center;
-      }
 
-      .img-button {
-        padding: 0;
-        margin: 0;
-        border: none;
-        display: block;
-      }
-    
-      .row img {
-        border: none;
-        display: block;
-      }
-      .row .action {
-        flex: 1;
-      }
-      .legendary-action-dialog {
-        height: auto !important;
-      }
-    </style>
-    <script type"text/javascript">
-  $("button").click(function() {
-    var fired_button = $(this).val();
-    let [tokenID, itemID] = fired_button.split(",");
+    let d = new Dialog({
+      title: "Legendary Actions",
+      content: actorList,
+      
+      buttons: {
+        one: {
+          label: "Close",
+          callback: () => {}
+        },
+      },
+      default: "one",
+      close: () => {ui.notify},
+    }, {classes: ["dnd5ehelpers legendary-action-dialog"], resizable: true})
+    d.render(true)
+  }
+
+  static runItem(tokenID, itemID) {
     let token = canvas.tokens.get(tokenID)
     if(itemID === undefined){
       canvas.animatePan({x: token.center.x, y: token.center.y, duration: 250 })
@@ -1482,24 +1436,9 @@ class DnDCombatUpdates {
     let token = canvas.tokens.get(tokenID);
     let item = token.actor.items.get(itemID);
     item.roll();
-    }
-    });
-    </script>
-      ${actorList}
-    `
-    let d = new Dialog({
-      title: "Legendary Actions",
-      content: content,
-      
-      buttons: {
-        one: {
-          label: "Close",
-        },
-      }
-    }, {classes: ["legendary-action-dialog"]})
-    d.render(true)
+     }
   }
-
+  
   /**
    * 
    * @param {Array} legActionArray 
