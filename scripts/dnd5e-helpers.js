@@ -166,6 +166,16 @@ Hooks.on('init', () => {
     type: Boolean,
   });
 
+  /** Legendary action helper enable */
+  game.settings.register("dnd5e-helpers", "LegendaryHelperEnable", {
+    name: game.i18n.format("DND5EH.CombatLegendary_Prompt_name"),
+    hint: game.i18n.format("DND5EH.CombatLegendary_Prompt_hint"),
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
+  });
+
 
   /** enable auto legact reset */
   game.settings.register("dnd5e-helpers", "cbtLegactEnable", {
@@ -498,6 +508,12 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         }
       }
     }
+    if (game.settings.get('dnd5e-helpers', 'LegendaryHelperEnable')) {
+      const LegActions = combat.getFlag('dnd5e-helpers', 'Legendary Actions')
+      if (LegActions?.length ?? [] > 0) {
+        DnDCombatUpdates.RunLegendaryActions(LegActions, previousToken.id)
+      }
+    }
 
 
 
@@ -697,9 +713,11 @@ Hooks.on("ready", () => {
   }
 })
 
-Hooks.on("createCombatant", (combat, token) => {
+Hooks.on("createCombatant", async (combat, token) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   const lairHelperEnable = game.settings.get('dnd5e-helpers', 'lairHelperEnable');
+  const legHelperEnable = game.settings.get('dnd5e-helpers', 'LegendaryHelperEnable');
+
   let tokenInstance = canvas.tokens.get(token.tokenId)
 
   if (combat.data.active && reactMode === 1) {
@@ -707,7 +725,11 @@ Hooks.on("createCombatant", (combat, token) => {
   }
 
   if (lairHelperEnable && DnDHelpers.IsFirstGM()) {
-    DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
+    await DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
+  }
+
+  if (legHelperEnable && DnDHelpers.IsFirstGM()) {
+    await DnDCombatUpdates.LegendaryActionMapping(tokenInstance, combat)
   }
 })
 
@@ -990,7 +1012,7 @@ class DnDCombatUpdates {
     let option2 = game.i18n.format("DND5EH.AutoRegen_SelfRepair")
     let regen = token.actor.items.find(i => i.name === option1 || i.name === option2);
     let blockEffect = token.actor.effects?.find(e => e.data.label === game.settings.get("dnd5e-helpers", "regenBlock"))
-    if(!!blockEffect) return;
+    if (!!blockEffect) return;
     let data = {
       tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
       actorMax: token.actor.data.data.attributes.hp.max,
@@ -1201,7 +1223,7 @@ class DnDCombatUpdates {
    * Generate lair action array
    */
   static async LairActionMapping(token, combat) {
-        if(!DnDHelpers.IsFirstGM) return;
+    if (!DnDHelpers.IsFirstGM) return;
     let tokenItems = getProperty(token, "items") || token.actor.items
     let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
     if (lairActions.length > 0) {
@@ -1214,13 +1236,33 @@ class DnDCombatUpdates {
   }
 
   /**
+     * 
+     * @param {Object} token - token to check for Legendary actions 
+     * @param {Object} combat - combat instance to save Legendary actions array to 
+     * @returns 
+     * Generate Legendary action array
+     */
+  static async LegendaryActionMapping(token, combat) {
+    if (!DnDHelpers.IsFirstGM) return;
+    let tokenItems = getProperty(token, "items") || token.actor.items
+    let LegAction = tokenItems.filter((i) => i.data?.data?.activation?.type === "legendary");
+    if (LegAction.length > 0) {
+      let comabtLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
+      comabtLeg.push([token.data.name, LegAction, token.id])
+      return combat.setFlag('dnd5e-helpers', 'Legendary Actions', comabtLeg)
+    }
+
+    return true;
+  }
+
+  /**
    * 
    * @param {Combat} combat 
    * @param {Combatant} combatant 
    * @returns 
    */
   static async RemoveLairMapping(combat, combatant) {
-    if(!DnDHelpers.IsFirstGM) return;
+    if (!DnDHelpers.IsFirstGM) return;
     /** get the actual token */
     const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?.id;
 
@@ -1235,11 +1277,33 @@ class DnDCombatUpdates {
 
   }
 
+  static as/**
+  * 
+  * @param {Combat} combat 
+  * @param {Combatant} combatant 
+  * @returns 
+  */
+  static async RemoveLegMapping(combat, combatant) {
+    if (!DnDHelpers.IsFirstGM) return;
+    /** get the actual token */
+    const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?.id;
+
+    /** check for a removal of a lair actor */
+    const combatLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
+    const updatedList = combatLeg.filter(entry => entry[2] == tokenId);
+
+    if (combatLeg.length != updatedList.length) {
+      /** a change occured, update the flag */
+      return combat.setFlag('dnd5e-helpers', 'Lair Actions', updatedList)
+    }
+
+  }
+
   /**
    * 
    * @param {Array} lairActionArray 
    * @returns 
-   */
+   
   static RunLairActions(lairActionArray) {
     if (!lairActionArray) return;
     let lairContents = ``;
@@ -1248,21 +1312,24 @@ class DnDCombatUpdates {
       let actionContents = ``;
       for (let action of actionArray) {
         actionContents += `
+        <tr>
         <td>${action.name}</td>
         <td><button id=${action._id} value="${tokenId},${action._id}" >Roll</button></td>
+        </tr
       `
-
+        actionContents = actionContents.slice(4, actionContents.length)
         return actionContents
       }
     }
 
     function addLairActor(actor) {
       let actions = addTableContents(actor[0], actor[1], actor[2])
+      let tokenImg = canvas.tokens.get(actor[2]).data.img
       let actorActions = `
       <tr>
-        <td><button value="${actor[2]}"> ${actor[0]}</td>
+        <tdclass="actorColumn" rowspan="${actor[1].length + 1}"><button value="${actor[2]}"><img src="${tokenImg}" title="${actor[0]}"></button></td>
         ${actions}
-      </tr>
+
       `
       return actorActions;
     }
@@ -1271,7 +1338,19 @@ class DnDCombatUpdates {
     }
     let lairTable =
       `
-  <table style="width:100%">
+      <style>
+      .legTable {
+        text-align: center;
+      }
+      .legTable .actorColumn {
+        max-width: 120px;
+      }
+      .legTable button img {
+        max-width: auto;
+        max-height: auto;
+        border: none;
+      }
+      </style>
   <script type"text/javascript">
   $("button").click(function() {
     var fired_button = $(this).val();
@@ -1286,8 +1365,6 @@ class DnDCombatUpdates {
     let item = token.actor.items.get(itemID);
     item.roll();
     }
-
-
     });
     </script>
   <thead>
@@ -1307,17 +1384,223 @@ class DnDCombatUpdates {
       content: lairTable,
       buttons: {
         one: {
-          label: "test",
-          callback: () => {
-            ui.notifications.notify("test")
-            return;
-          },
+          label: "Close",
         },
       }
     }).render(true)
-
-
   }
+  */
+
+  static async RunLegendaryActions(legActionArray, previousTokenID) {
+    for(let actor of legActionArray){
+      if(actor[2] === previousTokenID) return;
+    }
+    let actorList= '';
+
+    function getActionList(actionArray, tokenId) {
+      let actionList = actionArray.reduce((a,v) => a+=`
+        <div class="row action">
+          <div class="col">${v.name}</div>
+          <div class="col"><button id="${v._id}" value="${tokenId},${v._id}">Roll</button></div>
+        </div>`, '')
+      return actionList
+    }
+    
+    for (let LegActor of legActionArray){
+      let token = canvas.tokens.get(LegActor[2])
+      let actionsAvaliable = `${token.actor.data.data.resources.legact.value}/${token.actor.data.data.resources.legact.max}`
+      let tokenImg = token.data.img
+      let actionList = getActionList(LegActor[1])
+      actorList +=`
+        <div class="container">
+          <div class="row">
+            <div class="col">
+                <button class="img-button" value="${LegActor[2]}">
+                <img src="${tokenImg}" title="${LegActor[0]}">
+              </button>
+            </div>
+              <div class="row">
+                <div class="container">
+                  <div class="col">
+                  ${actionList}
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>`
+    }
+
+    let content = `
+    <style>
+    .container {
+      flex : 1;
+      width: 100%;
+    }
+      .row {
+        display: flex;
+        flex-direction: row;
+      }
+      .row>div {
+        flex: 1;
+      }
+      .col {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+      }
+
+      .img-button {
+        padding: 0;
+        margin: 0;
+        border: none;
+        display: block;
+      }
+    
+      .row img {
+        border: none;
+        display: block;
+      }
+      .row .action {
+        flex: 1;
+      }
+      .legendary-action-dialog {
+        height: auto !important;
+      }
+    </style>
+    <script type"text/javascript">
+  $("button").click(function() {
+    var fired_button = $(this).val();
+    let [tokenID, itemID] = fired_button.split(",");
+    let token = canvas.tokens.get(tokenID)
+    if(itemID === undefined){
+      canvas.animatePan({x: token.center.x, y: token.center.y, duration: 250 })
+      token.control();
+    }
+    else{
+    let token = canvas.tokens.get(tokenID);
+    let item = token.actor.items.get(itemID);
+    item.roll();
+    }
+    });
+    </script>
+      ${actorList}
+    `
+    let d = new Dialog({
+      title: "Legendary Actions",
+      content: content,
+      
+      buttons: {
+        one: {
+          label: "Close",
+        },
+      }
+    }, {classes: ["legendary-action-dialog"]})
+    d.render(true)
+  }
+
+  /**
+   * 
+   * @param {Array} legActionArray 
+   * @returns 
+   
+   static RunLegendaryActions(legActionArray, previousTokenID) {
+    if (!legActionArray) return;
+    for(let actor of legActionArray){
+      if(actor[2] === previousTokenID) return;
+    }
+    let LegContents = ``;
+
+    function addTableContents(actorName, actionArray, tokenId) {
+      let actionContents = ``;
+      for (let action of actionArray) {
+        actionContents += `
+        <tr class="row">
+        <td>${action.name}</td>
+        <td><button id=${action._id} value="${tokenId},${action._id}" >Roll</button></td>
+        </tr>
+      `
+      }
+      actionContents = actionContents.slice(4, actionContents.length)
+      return actionContents
+    }
+
+    function addLegActor(actor) {
+      let actions = addTableContents(actor[0], actor[1], actor[2])
+      let tokenImg = canvas.tokens.get(actor[2]).data.img
+      let actorActions = `
+      <tr>
+        <td class="actorColumn" rowspan="${actor[1].length+1}"><button  value="${actor[2]}"><img src="${tokenImg}" title="${actor[0]}"></button></td>
+        ${actions}
+      `
+      return actorActions;
+    }
+    for (let actor of legActionArray) {
+      LegContents += addLegActor(actor)
+    }
+    let legTable =
+      `
+      <style>
+      .legTable {
+        text-align: center;
+        align-content: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        flex-grow: 1
+      }
+      .legTable .actorColumn {
+        max-width: 120px;
+      }
+      .legTable button img {
+        max-width: auto;
+        max-height: auto;
+        border: none;
+      }
+      </style>
+  <div class = "legTable">
+  <script type"text/javascript">
+  $("button").click(function() {
+    var fired_button = $(this).val();
+    let [tokenID, itemID] = fired_button.split(",");
+    let token = canvas.tokens.get(tokenID)
+    if(itemID === undefined){
+      canvas.animatePan({x: token.center.x, y: token.center.y, duration: 250 })
+      token.control();
+    }
+    else{
+    let token = canvas.tokens.get(tokenID);
+    let item = token.actor.items.get(itemID);
+    item.roll();
+    }
+    });
+    </script>
+  <table height="auto">
+  <thead>
+    <tr>
+      <th> Creature</th>
+      <th> Action </th>
+      <th> Roll </th>
+    </tr>
+  </thead>
+  <tbody>
+    ${LegContents}
+    </tbody>
+  </table>
+  </div>
+  `
+    new Dialog({
+      title: "Legendary Actions",
+      content: legTable,
+      buttons: {
+        one: {
+          label: "Close",
+        },
+      }
+    }).render(true)
+  }
+  */
 }
 
 
@@ -1963,15 +2246,15 @@ async function onTargetToken(user, target, onOff) {
 
           if (coverData.SourceToken.actor.getFlag("dnd5e", "helpersIgnoreCover")) break;
           let coverLevel = coverData.calculateCoverBonus()
-          if(!coverLevel) return;
+          if (!coverLevel) return;
 
-          switch(coverLevel){
+          switch (coverLevel) {
             case "0": break;
             case "-2": coverName = "Half"; activeButtonId = `5eHelpersHalfCover${id}`
-            break;
-            case "-5": coverName = "Three-Quarters";activeButtonId = `5eHelpers3/4Cover${id}`
-            break;
-            case "-40": coverName = "Full";activeButtonId = `5eHelpersFullCover${id}`
+              break;
+            case "-5": coverName = "Three-Quarters"; activeButtonId = `5eHelpers3/4Cover${id}`
+              break;
+            case "-40": coverName = "Full"; activeButtonId = `5eHelpersFullCover${id}`
           }
           let effectData = {
             changes: [
@@ -2013,15 +2296,15 @@ async function onTargetToken(user, target, onOff) {
             half.addEventListener("click", function () { AddCover(half, three, full) })
             three.addEventListener("click", function () { AddCover(three, half, full) })
             full.addEventListener("click", function () { AddCover(full, half, three) })
-            if(activeButtonId){
-          let activeButton = document.getElementById(activeButtonId)
-          activeButton.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
-        }
+            if (activeButtonId) {
+              let activeButton = document.getElementById(activeButtonId)
+              activeButton.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+            }
 
           }, 1000);
         }
         function AddCover(d, d2, d3) {
-          
+
           let parentCard = d.parentElement
           parentCard.getElementById
           let data = d.dataset?.someData;
@@ -2037,25 +2320,25 @@ async function onTargetToken(user, target, onOff) {
           }
           let token = canvas.tokens.get(sourceTokenId)
           let oldCover = token.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
-          if(oldCover?.data.label === effectData.label){
+          if (oldCover?.data.label === effectData.label) {
             token.actor.deleteEmbeddedEntity("ActiveEffect", oldCover.id)
             d.style.background = "initial"
           }
           else if (oldCover) {
             token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
-          d.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
-          d2.style.background = "initial"
-          d3.style.background = "initial"
+            d.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+            d2.style.background = "initial"
+            d3.style.background = "initial"
 
           }
           else {
             token.actor.createEmbeddedEntity("ActiveEffect", effectData)
-            d.style.background= "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+            d.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
             d2.style.background = "initial"
             d3.style.background = "initial"
           }
         }
-        
+
       });
     }
   }
@@ -2066,7 +2349,7 @@ async function removeCover(user, token) {
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
   let testToken = token !== undefined ? token : canvas.tokens.controlled[0]
   let coverEffects = testToken?.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"))
-  if(!coverEffects) return;
+  if (!coverEffects) return;
   for (let effect of coverEffects) await effect.delete()
 }
 
