@@ -31,6 +31,14 @@
     "DND5EH.LoS_providescover":"Provides Cover",
     "DND5EH.LoSMaskNPCs_sourceMask": "Another creature is in the way.",
     "DND5EH.LoSMaskNPCs_targetMask": "a creature",
+    "DND5EH.LoSKeybind_name" : "Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "Assign a keyboard shortcut to check cover when targeting.",
+
+    "DND5EH.LoSCover_name" : "Cover Application",
+    "DND5EH.LoSCover_hint" : "Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "Manual",
+    "DND5EH.LoSCover_auto" : "Automatic",
+    "DND5EH.LoSCover_cover" : "cover",
 
     "DND5EH.LoSWithTokens_name":"Consider intervening tokens as half cover",
     "DND5EH.LoSWithTokens_hint": "Unchecked results in tokens not being considered for cover calculation.",
@@ -68,17 +76,12 @@
     "DND5EH.WildMagicWisper_hint":"Whispers all rolls and table results to the GM",
 
     "DND5EH.CombatReactionEnable_name": "Reaction status automation.",
-    "DND5EH.CombatReactionEnable_hint":"Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the specified status. Remove will automatically remove this effect at the start of an actor's turn",
+    "DND5EH.CombatReactionEnable_hint":"Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
     "DND5EH.CombatReactionEnable_apply":"Only Apply",
     "DND5EH.CombatReactionEnable_remove":"Only Remove",
     "DND5EH.CombatReactionEnable_both":"Apply and Remove",
 
-    "DND5EH.CombatReactionStatus_name": "Reaction status name",
-    "DND5EH.CombatReactionStatus_hint":"As seen when hovering over the status in the token HUD (default: Weakened).",
-    "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: Could not find staus: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: Not an actors item roll",
-    "DND5EH.CombatReactionStatus_actionname" :"1 Action",
-    "DND5EH.CombatReactionStatus_reactionname": "1 Reaction",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: status effect is: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"dnd5e-helpers: could not located active effect named: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Dnd5e helpers: Could not find an active combat",
@@ -104,6 +107,9 @@
     "DND5EH.AutoRegen_hint":"Automaticly prompts for regeneration rolls for the GM",
     "DND5EH.AutoRegen_Regneration": "Regeneration",
     "DND5EH.AutoRegen_SelfRepair": "Self-Repairing",
+    "DND5EH.regenBlock_name" :"[EN]Effect Name to Block Regeneration",
+    "DND5EH.regenBlock_hint" : "[EN]What name should be checked to prevent the regeneration popup",
+    "DND5EH.regenBlock_default" : "No Regen",
     "DND5EH.AutoRegenDialog_name": "Regeneration for  {tokenName}",
     "DND5EH.AutoRegenDialog_content": "{tokenName} currently has {tokenHP}/{actorMax} Hp",
     "DND5EH.AutoRegenDialog_healingprompt": "Apply healing of {regenAmout}",
@@ -123,6 +129,9 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} dies as it rolls a {total}",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} survives with a {total}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Damage to target:",
+
+    "DND5EH.LairHelper_name" : "Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
 
     "DND5EH.GreatWoundEnable_name":"Great Wound",
     "DND5EH.GreatWoundEnable_hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow,",

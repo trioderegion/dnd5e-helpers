@@ -31,6 +31,14 @@
     "DND5EH.LoS_providescover":"遮蔽を提供",
     "DND5EH.LoSMaskNPCs_sourceMask": "何者かが射線を遮っています。",
     "DND5EH.LoSMaskNPCs_targetMask": "不明なクリーチャー",
+    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
+
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+    "DND5EH.LoSCover_cover" : "[EN] cover",
 
     "DND5EH.LoSWithTokens_name":"射線上にあるコマを1/2遮蔽とみなす",
     "DND5EH.LoSWithTokens_hint": "無効にすると遮蔽判定時にコマが考慮されなくなります。",
@@ -73,12 +81,7 @@
     "DND5EH.CombatReactionEnable_remove":"削除のみ",
     "DND5EH.CombatReactionEnable_both":"適用と削除",
 
-    "DND5EH.CombatReactionStatus_name": "リアクションの状態名",
-    "DND5EH.CombatReactionStatus_hint":"トークンHUDでステータスにカーソルを合わせると表示されます（デフォルト：Weakened）。",
-    "DND5EH.CombatReactionStatus_statuserror":"DnD5e Helpers：{reactionStatus}という名称の状態が見つかりませんでした。",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers：アクターのアイテムロールではありません。",
-    "DND5EH.CombatReactionStatus_actionname" :"1 ｱｸｼｮﾝ",
-    "DND5EH.CombatReactionStatus_reactionname": "1 ﾘｱｸｼｮﾝ",
     "DND5EH.CombatReactionStatus_statuslog":"DnD5e Helpers：状態は {statusEffect}です。",
     "DND5EH.CombatReactionStatus_effecterror":"DnD5e Helpers：{reactionStatus}という名称のアクティブ効果が見つかりません。",
     "DND5EH.CombatReactionStatus_combaterror":"DnD5e Helpers：アクティブな戦闘がありません。",
@@ -123,6 +126,9 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName}はセーヴ値：{total}で破壊されました。",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName}はセーヴ値：{total}で生き延びました。",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "対象へのダメージ：",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
 
     "DND5EH.GreatWoundEnable_name":"痛打",
     "DND5EH.GreatWoundEnable_hint":"一撃で最大hpの50％を超えるダメージを受けたときに、指定した表をロールします。",
