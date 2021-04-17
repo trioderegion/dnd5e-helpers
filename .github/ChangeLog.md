@@ -178,11 +178,16 @@
 - Small tweak to token/tile cover calculations -- the hitbox size has been reduced by 10% of the grid square size. This should address the erroneous half cover when targeting a token diagonally due to degenerate collisions.
 
 ###1.11.0
-- Action Management 
-  - Updated "Reaction settings" to include all aciton types, Action, Reaction, Bonus action are all tracked through HUD elements
-  - These elements are only applied to tokens currently in combat
-  - Icons are "hidden" when the action is taken, and recovered upon starting a tokens turn.
-- Lair Actions.
-  - Added lair action tracking, upon adding actors to the combat tracker it will scan for actions with the `uses lair action` action type and add them to a combat-specific pool
-  - This lair action pool will be given to the GM as combat advances past initiative 20, with the option to jump to the actor, or directly roll the action
+- New Features:
+  - Action Management 
+    - Updated "Reaction settings" to include all aciton types, Action, Reaction, Bonus action are all tracked through HUD elements
+    - These elements are only applied to tokens currently in combat
+    - Icons are "hidden" when the action is taken, and recovered upon starting a tokens turn.
+  - Lair Actions
+    - Added lair action tracking, upon adding actors to the combat tracker it will scan for actions with the `uses lair action` action type and add them to a combat-specific pool
+    - This lair action pool will be given to the GM as combat advances past initiative 20, with the option to jump to the actor, or directly roll the action
+  - `#84`: Regeneration prompts can now be supressed by applying a user-defined status to a given token.
+  - `#87`: Great/Open wound chat feedback can now mask token names in chat.
 
+- Bug Fixes:
+  - `#81`: `mr` roll modifier updated to not examine discarded results (ex. `1d4r<2mr2` will not force the re-rolled die to `2`) 
