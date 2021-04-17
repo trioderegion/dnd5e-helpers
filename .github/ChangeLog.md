@@ -191,3 +191,6 @@
 
 - Bug Fixes:
   - `#81`: `mr` roll modifier updated to not examine discarded results (ex. `1d4r<2mr2` will not force the re-rolled die to `2`) 
+
+- Localization:
+  - Japanese localization update provided by BrotherSharper. We are, as always, grateful for the help.
