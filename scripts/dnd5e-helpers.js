@@ -344,19 +344,19 @@ Hooks.on('init', () => {
 });
 
 Hooks.on("init", () => {
-  Die.MODIFIERS["mr"] = function minResult(modifier) {
-    const min = parseInt(modifier.match(/\d+/));
-    if (!min || !Number.isNumeric(min)) return;
-    this.results = this.results.flatMap(result => {
-      if (result.result < min) {
-        result.active = false;
-        result.discarded = true;
-        return [result, { result: min, active: true }];
-      } else {
-        return [result];
-      }
-    });
-  }
+    Die.MODIFIERS["mr"] = function minResult(modifier) {
+        const min = parseInt(modifier.match(/\d+/));
+        if (!min || !Number.isNumeric(min)) return;
+        this.results = this.results.flatMap(result => {
+            if (result.result < min && result.active) {
+                result.active = false;
+                result.discarded = true;
+                return [result, { result: min, active: true }];
+            } else {
+                return [ result ];
+            }
+        });
+    }
 })
 
 Hooks.on('ready', () => {
