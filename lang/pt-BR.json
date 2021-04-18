@@ -31,14 +31,14 @@
     "DND5EH.LoS_providescover":"Fornece Cobertura",
     "DND5EH.LoSMaskNPCs_sourceMask": "Outra criatura está no caminho.",
     "DND5EH.LoSMaskNPCs_targetMask": "uma criatura",
-    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
-    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
+    "DND5EH.LoSKeybind_name" : "Atalho para Cobertura",
+    "DND5EH.LoSKeybind_hint" : "Configura um atalho do teclado para a checagem de cobertura do alvo ao mirar",
 
-    "DND5EH.LoSCover_name" : "[EN] Cover Application",
-    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
-    "DND5EH.LoSCover_manual" : "[EN] Manual",
-    "DND5EH.LoSCover_auto" : "[EN] Automatic",
-    "DND5EH.LoSCover_cover" : "[EN] cover",
+    "DND5EH.LoSCover_name" : "Aplicação de Cobertura",
+    "DND5EH.LoSCover_hint" : "Permite aplicar bônus de cobertura. Estes são aplicados no atacante, não no alvo. E afeta somente armas ataque a distância, não salvaguarda de destreza.",
+    "DND5EH.LoSCover_manual" : "Manual",
+    "DND5EH.LoSCover_auto" : "Automática",
+    "DND5EH.LoSCover_cover" : "Cobertura",
 
     "DND5EH.LoSWithTokens_name":"Considerar tokens interpostos como cobertura parcial",
     "DND5EH.LoSWithTokens_hint": "Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
@@ -172,6 +172,10 @@
 
     "DND5EH.OpenWoundDebug_name":"Debugging",
     "DND5EH.OpenWoundDebug_hint":"Adiciona alguns logs no console para propósito de debugging.",
+
+    "DND5EH.GreatAndOpenWoundMaskNPC_name": "Ocultar informações do MJ ao relatar Dano Maciço e Lesão Persistente",
+    "DND5EH.GreatAndOpenWoundMaskNPC_hint": "Substitui nomes de PdM com \"Uma criatura\" no relato",
+    "DND5EH.GreatAndOpenWoundMaskNPC_mask": "uma criatura",
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "DnD5e Helpers: A atualização de {actorName} tem PV: {hp}, magias: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"DnD5e Helpers: A atualização de {currentTokenName} tem regen: {regenSett}",
