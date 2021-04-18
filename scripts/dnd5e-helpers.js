@@ -252,6 +252,16 @@ Hooks.on('init', () => {
     config: true,
   });
 
+  /** Great Wound and Open Wound Feature*/ 
+  game.settings.register("dnd5e-helpers", "gowMaskNPCs", {
+    name: game.i18n.format("DND5EH.GreatAndOpenWoundMaskNPC_name"),
+    hint: game.i18n.format("DND5EH.GreatAndOpenWoundMaskNPC_hint"),
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean
+  });
+
   game.settings.register("dnd5e-helpers", "gwEnable", {
     name: game.i18n.format("DND5EH.GreatWoundEnable_name"),
     hint: game.i18n.format("DND5EH.GreatWoundEnable_hint"),
@@ -359,32 +369,45 @@ Hooks.on("init", () => {
     }
 })
 
-Hooks.on('ready', () => {
-  console.log("dnd5e helpers socket setup")
-  game.socket.on(`module.dnd5e-helpers`, socketData => {
-    console.log(game.i18n.format("DND5EH.Default_SocketSetup"))
-    //Rolls Saves for owned tokens 
+Hooks.on("ready", () => {
+  console.log("dnd5e helpers socket setup");
+  game.socket.on(`module.dnd5e-helpers`, (socketData) => {
+    console.log(game.i18n.format("DND5EH.Default_SocketSetup"));
+    //Rolls Saves for owned tokens
     if (socketData.greatwound === true) {
       let actor = game.actors.get(socketData.actorId);
       for (const [key, value] of Object.entries(socketData.users)) {
-        if ((value === 3) && game.users.get(`${key}`).data.role !== 4) {
+        if (value === 3 && game.users.get(`${key}`).data.role !== 4) {
           if (game.user.data._id === `${key}`) {
             if (socketData.hp !== 0) {
               DnDWounds.DrawGreatWound(actor);
             }
-            if (socketData.hp === 0 && game.settings.get('dnd5e-helpers', 'owHp0GW') === true) {
+            if (socketData.hp === 0 && game.settings.get("dnd5e-helpers", "owHp0GW") === true) {
               const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-              DnDWounds.OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundSocketMessage", { gwFeatureName: gwFeatureName }))
+              let sanitizedTokenName = actor.data.name;
+              if (actor.data.type === "npc") {
+                sanitizedTokenName = DnDHelpers.sanitizeName(
+                  actor.data.name,
+                  "gowMaskNPCs",
+                  "DND5EH.GreatAndOpenWoundMaskNPC_mask"
+                );
+              }
+              DnDWounds.OpenWounds(
+                sanitizedTokenName,
+                game.i18n.format("DND5EH.OpenWoundSocketMessage", {
+                  gwFeatureName: gwFeatureName,
+                })
+              );
             }
           }
         }
       }
     }
     if (socketData.actionMarkers) {
-      DnDActionManagement.UpdateOpacities(socketData.tokenId)
+      DnDActionManagement.UpdateOpacities(socketData.tokenId);
     }
-  })
-})
+  });
+});
 
 
 //collate all preUpdateActor hooked functions into a single hook call
@@ -757,13 +780,12 @@ Hooks.on("controlToken", (token, state) => {
 /** helper functions */
 
 class DnDHelpers {
-
   static IsFirstGM() {
     return game.user === game.users.find((u) => u.isGM && u.active);
   }
 
   static GetKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key] === value);
+    return Object.keys(object).find((key) => object[key] === value);
   }
 
   //find status effect based on passed name
@@ -773,20 +795,20 @@ class DnDHelpers {
 
     /** find the key (will be label) from the value */
     let statusLabel = DnDHelpers.GetKeyByValue(EFFECT, statusName);
-    let statusEffect = CONFIG.statusEffects.find(st => st.label === `EFFECT.${statusLabel}`);
+    let statusEffect = CONFIG.statusEffects.find(
+      (st) => st.label === `EFFECT.${statusLabel}`
+    );
 
     if (statusEffect) {
       /** first match is core, always prefer core */
       return statusEffect;
-    }
-    else {
+    } else {
       /** cant find it, it still may be available via other modules/methods */
 
       /** CUB Compatibility -- statusName matches displayed CUB name (status.label) */
       if (!statusEffect && game.modules.get("combat-utility-belt")?.active) {
-
         /** if we find it, pick it */
-        statusEffect = CONFIG.statusEffects.find(st => st.label === statusName);
+        statusEffect = CONFIG.statusEffects.find((st) => st.label === statusName);
       }
 
       //note: other module compatibilities should check for a null statusEffect before
@@ -797,6 +819,18 @@ class DnDHelpers {
     return statusEffect;
   }
 
+  /**
+   * Return the sanatizedName of a Actor if fature enabled
+   * @param {string} name        A name string
+   * @param {string} feature     The featured to be checked enable: gowMaskNPCs
+   * @param {string} label       The i18n label to replace the creature name: DND5EH.GreatAndOpenWoundMaskNPC_mask
+   * @return {string}            Return the sanitized name.
+   * @static
+   */
+  static sanitizeName(name, feature, label) {
+    return game.settings.get("dnd5e-helpers", feature) ? game.i18n.format(label) : name;
+  }
+
   //toggle core status effects
   static async ToggleStatus(token, status) {
     return await token.toggleEffect(status);
@@ -804,12 +838,12 @@ class DnDHelpers {
 
   //apply a CUB status effect
   static async ApplyCUB(token, cubStatus) {
-    return await game.cub.addCondition(cubStatus, token)
+    return await game.cub.addCondition(cubStatus, token);
   }
 
   //remove a CUB status effect
   static async RemoveCUB(token, cubStatus) {
-    return await game.cub.removeCondition(cubStatus, token)
+    return await game.cub.removeCondition(cubStatus, token);
   }
 
   /** Prof array check */
@@ -818,7 +852,10 @@ class DnDHelpers {
     if (arr.toString() == [""]) {
       return false;
     }
-    return arr.reduce((acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc, false);
+    return arr.reduce(
+      (acc, str) => comp.toLowerCase().includes(str.toLowerCase()) || acc,
+      false
+    );
   }
 }
 
@@ -1444,51 +1481,52 @@ class DnDCombatUpdates {
 
 class DnDWounds {
   /**
-   * 
-   * @param {Object} tokenData 
-   * @param {Object} update 
+   *
+   * @param {Object} tokenData
+   * @param {Object} update
    */
   static GreatWound_preUpdateToken(tokenData, update) {
-
     //find update data and original data
-    let actor = game.actors.get(tokenData.actorId)
+    let actor = game.actors.get(tokenData.actorId);
     let data = {
       actorData: canvas.tokens.get(tokenData._id).actor.data,
       actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
       actorMax: getProperty(tokenData, "actorData.data.attributes.hp.max"),
       updateHP: update.actorData.data.attributes.hp.value,
-    }
+    };
     if (data.actorMax == undefined) {
       data.actorMax = actor.data.data.attributes.hp.max;
     }
     if (data.actorHP == undefined) {
       data.actorHP = data.actorMax;
     }
-    let hpChange = (data.actorHP - data.updateHP)
+    let hpChange = data.actorHP - data.updateHP;
     // check if the change in hp would be over 50% max hp
     if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
       const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
       new Dialog({
-        title: game.i18n.format("DND5EH.GreatWoundDialogTitle", { gwFeatureName: gwFeatureName, actorName: actor.name }),
+        title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {
+          gwFeatureName: gwFeatureName,
+          actorName: actor.name,
+        }),
         buttons: {
           one: {
             label: game.i18n.format("DND5EH.Default_roll"),
             callback: () => {
               DnDWounds.DrawGreatWound(actor);
-            }
-          }
-        }
-      }).render(true)
+            },
+          },
+        },
+      }).render(true);
     }
   }
 
   /**
-   * 
-   * @param {Object} actor 
-   * @param {Object} update 
+   *
+   * @param {Object} actor
+   * @param {Object} update
    */
   static GreatWound_preUpdateActor(actor, update) {
-
     //find update data and original data
     let data = {
       actor: actor,
@@ -1510,7 +1548,7 @@ class DnDWounds {
             label: game.i18n.format("DND5EH.Default_roll"),
             callback: () => {
               if (game.user.data.role !== 4) {
-                DnDWounds.DrawGreatWound(actor)
+                DnDWounds.DrawGreatWound(actor);
                 return;
               }
 
@@ -1530,45 +1568,78 @@ class DnDWounds {
   }
 
   /**
-   * 
-   * @param {Object} actor 
+   *
+   * @param {Object} actor
    */
   static DrawGreatWound(actor) {
     const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
     (async () => {
       let gwSave = await actor.rollAbilitySave("con");
+      let sanitizedTokenName = actor.name;
+      if (actor.data.type === "npc") {
+        sanitizedTokenName = DnDHelpers.sanitizeName(
+          actor.name,
+          "gowMaskNPCs",
+          "DND5EH.GreatAndOpenWoundMaskNPC_mask"
+        );
+      }
       if (gwSave.total < 15) {
         const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName");
-        ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogFailMessage", { actorName: actor.name, gwFeatureName: gwFeatureName }) });
+        ChatMessage.create({
+          content: game.i18n.format("DND5EH.GreatWoundDialogFailMessage", {
+            actorName: sanitizedTokenName,
+            gwFeatureName: gwFeatureName,
+          }),
+        });
         if (greatWoundTable !== "") {
-          game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
+          game.tables
+            .getName(greatWoundTable)
+            .draw({ roll: null, results: [], displayChat: true });
+        } else {
+          ChatMessage.create({
+            content: game.i18n.format("DND5EH.GreatWoundDialogError", {
+              gwFeatureName: gwFeatureName,
+            }),
+          });
         }
-        else {
-          ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogError", { gwFeatureName: gwFeatureName }) });
-        }
-      }
-      else {
-        ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogSuccessMessage", { actorName: actor.name, gwFeatureName: gwFeatureName }) });
+      } else {
+        ChatMessage.create({
+          content: game.i18n.format("DND5EH.GreatWoundDialogSuccessMessage", {
+            actorName: sanitizedTokenName,
+            gwFeatureName: gwFeatureName,
+          }),
+        });
       }
     })();
   }
 
   /**
-   * 
-   * @param {String} actorName 
-   * @param {String} woundType 
+   *
+   * @param {String} actorName
+   * @param {String} woundType
    */
   static OpenWounds(actorName, woundType) {
     const owFeatureName = game.settings.get("dnd5e-helpers", "owFeatureName");
-    const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
-    ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundFeaturename_chatoutput", { actorName: actorName, owFeatureName: owFeatureName, woundType: woundType }) })
+    const openWoundTable = game.settings.get("dnd5e-helpers", "owTable");
+    ChatMessage.create({
+      content: game.i18n.format("DND5EH.OpenWoundFeaturename_chatoutput", {
+        actorName: actorName,
+        owFeatureName: owFeatureName,
+        woundType: woundType,
+      }),
+    });
     if (openWoundTable !== "") {
-      game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
+      game.tables
+        .getName(openWoundTable)
+        .draw({ roll: null, results: [], displayChat: true });
     } else {
-      ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundTableName_error", { owFeatureName: owFeatureName }) });
+      ChatMessage.create({
+        content: game.i18n.format("DND5EH.OpenWoundTableName_error", {
+          owFeatureName: owFeatureName,
+        }),
+      });
     }
   }
-
 }
 
 class DnDProf {
@@ -1940,21 +2011,6 @@ class CoverData {
     }
   }
 
-  /** tokenCoverData = {level: number, source: string, entity: token} */
-  static SanitizeNPCNames(tokenCoverData) {
-
-    /** if we are told to hide NPC names and an NPC token is providing cover */
-    if (game.settings.get('dnd5e-helpers', 'losMaskNPCs') &&
-      tokenCoverData.level > -1 &&
-      (tokenCoverData.entity?.actor?.data.type ?? "") == "npc") {
-
-      /** change the source of the cover to be a generic "creature" */
-      tokenCoverData.source = game.i18n.format("DND5EH.LoSMaskNPCs_sourceMask");
-    }
-
-    return tokenCoverData;
-  }
-
   /**
    * 5e specific interpretation and consideration of all wall and object collisions to produce a final cover value
    * General flow: If line of sight and objects give same cover, prefer line of sight, and select the entity that gives
@@ -1980,7 +2036,9 @@ class CoverData {
     }
 
     if (tokenCoverData.level > internalCoverData.level) {
-      internalCoverData = CoverData.SanitizeNPCNames(tokenCoverData);
+      if (tokenCoverData.level > -1 && (tokenCoverData.entity?.actor?.data.type ?? "") == "npc"){
+        internalCoverData.source = DnDHelpers.sanitizeName(tokenCoverData.entity?.actor?.data.name, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask");
+      }
     }
 
     this.Summary.FinalCoverEntity = internalCoverData.entity;
@@ -2003,17 +2061,25 @@ class CoverData {
       return "";
     }
 
-    /** sanitize an NPC target */
-    const sanitizeNPC = function (token) {
-      const targetName = token.actor?.data.type === "npc" &&
-        game.settings.get('dnd5e-helpers', 'losMaskNPCs') ? game.i18n.format("DND5EH.LoSMaskNPCs_targetMask") : token.name;
-
-      return targetName;
-    }
-
     /** abuse the dice roll classes to make it look like I know how to UI ;) */
-    const sightlineTranslation = game.i18n.format("DND5EH.LoS_outputmessage");
-    const content = `<div class="dice-roll"><i>${sanitizeNPC(this.SourceToken)} ${sightlineTranslation} ${sanitizeNPC(this.TargetToken)}</i>
+    let sightlineTranslation = game.i18n.format("DND5EH.LoS_outputmessage");
+    let sanitizedSourceToken = this.SourceToken.name;
+    let sanitizedTargetToken = this.TargetToken.name;
+    if (this.SourceToken.actor?.data.type === "npc") {
+      sanitizedSourceToken = DnDHelpers.sanitizeName(
+        this.SourceToken.name,
+        "losMaskNPCs",
+        "DND5EH.LoSMaskNPCs_targetMask"
+      );
+    }
+    if (this.TargetToken?.data.type === "npc") {
+      sanitizedTargetToken = DnDHelpers.sanitizeName(
+        this.TargetToken.name,
+        "losMaskNPCs",
+        "DND5EH.LoSMaskNPCs_targetMask"
+      );
+    }
+    const content = `<div class="dice-roll"><i>${sanitizedSourceToken} ${sightlineTranslation} ${sanitizedTargetToken}</i>
                       <div class="dice-result">
                         <div class="dice-formula">${this.Summary.Text}</div>
                         <div class="dice-tooltip">
