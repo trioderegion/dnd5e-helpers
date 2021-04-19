@@ -1,9 +1,11 @@
 {
     "DND5EH.Default_disabled" : "Disabled",
+    "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "None", 
-    "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket recived",
+    "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket received",
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
+    
 
     "DND5EH.GridTemplateScaling_name": "Auto adjust templates to 5e grids",
     "DND5EH.GridTemplateScaling_hint" :"Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
@@ -39,6 +41,12 @@
     "DND5EH.LoSCover_manual" : "Manual",
     "DND5EH.LoSCover_auto" : "Automatic",
     "DND5EH.LoSCover_cover" : "cover",
+    "DND5EH.LoSTint_name" : "[EN]Cover Button Tint",
+    "DND5EH.LoSTint_hint" : "[EN]What color should be applied to the cover buttons to show which is active",
+    "DND5EH.LoSTint_red" : "[EN]Dark Red",
+    "DND5EH.LoSTint_blue" : "[EN]Light Blue",
+    "DND5EH.LoSTint_grey" : "[EN]Dim Grey",
+    "DND5EH.LoSTint_rainbow" : "[EN]Rainbow",
 
     "DND5EH.LoSWithTokens_name":"Consider intervening tokens as half cover",
     "DND5EH.LoSWithTokens_hint": "Unchecked results in tokens not being considered for cover calculation.",
@@ -75,11 +83,13 @@
     "DND5EH.WildMagicWisper_name":"Hide Wild Magic from Players",
     "DND5EH.WildMagicWisper_hint":"Whispers all rolls and table results to the GM",
 
-    "DND5EH.CombatReactionEnable_name": "Reaction status automation.",
-    "DND5EH.CombatReactionEnable_hint":"Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
-    "DND5EH.CombatReactionEnable_apply":"Only Apply",
-    "DND5EH.CombatReactionEnable_remove":"Only Remove",
-    "DND5EH.CombatReactionEnable_both":"Apply and Remove",
+    "DND5EH.CombatReactionEnable_name": "[EN]Action status automation.",
+    "DND5EH.CombatReactionEnable_hint":"[EN]Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate available actions. These will be reset at the start of an actors turn",
+    "DND5EH.CombatReactionEnable_apply":"[depreciated] Only Apply",
+    "DND5EH.CombatReactionEnable_remove":"[depreciated] Only Remove",
+    "DND5EH.CombatReactionEnable_both":"[depreciated] Apply and Remove",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Action Management",
+    "DND5EH.CombatReactionConformation" : "[EN]Confirm Action Settings",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: Not an actors item roll",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: status effect is: {statusEffect}",

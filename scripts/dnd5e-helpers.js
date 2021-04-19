@@ -141,15 +141,15 @@ Hooks.on('init', () => {
     type: Boolean,
   });
 
-  /** enable auto reaction reset */
-  game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
+   /** enable auto reaction reset */
+   game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
     name: game.i18n.format("DND5EH.CombatReactionEnable_name"),
     hint: game.i18n.format("DND5EH.CombatReactionEnable_hint"),
     scope: "world",
     type: Number,
     choices: {
       0: game.i18n.format("DND5EH.Default_none"),
-      1: game.i18n.format("DND5EH.CombatReactionEnable_both"),
+      1: game.i18n.format("DND5EH.Default_enabled"),
     },
     default: 0,
     config: true,
@@ -407,6 +407,7 @@ Hooks.on("ready", () => {
       DnDActionManagement.UpdateOpacities(socketData.tokenId);
     }
   });
+
 });
 
 
@@ -772,9 +773,15 @@ Hooks.on("updateToken", (scene, token, update) => {
 Hooks.on("controlToken", (token, state) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode === 1) {
-    let actionMarkers = token.children.filter(i => !!i.actionType)
-    actionMarkers.forEach(i => i.visible = state)
+    const actionCont = token.children.find(i => i.Helpers)
+    if(actionCont){
+      actionCont.visible = state
+    }
   }
+})
+
+Hooks.on('renderTokenHUD', (app, html, data) => {
+  DnDActionManagement.AddActionHud(app, html, data)
 })
 
 /** helper functions */
@@ -1478,7 +1485,6 @@ class DnDCombatUpdates {
   
 }
 
-
 class DnDWounds {
   /**
    *
@@ -1738,7 +1744,7 @@ class DnDProf {
 
 class DnDActionManagement {
 
-  /** apply a reaction status to the token if the item looks like it should use a reaction (requires active combat) */
+  /** Reads chat data and updates tokens Action HUD to display available actions */
   static async ReactionApply(castingActor, castingToken, itemId) {
 
     if (itemId !== undefined) {
@@ -1791,11 +1797,20 @@ class DnDActionManagement {
     return true;
   }
 
+  /**
+   * Resets Action HUD at start of turn
+   * @param {Object <token5e} currentToken 
+   */
   static async ReactionRemove(currentToken) {
 
-    let actionMarkers = currentToken.children.filter((i => !!i.actionType))
-    actionMarkers.forEach(i => i.alpha = 1)
-    await currentToken.unsetFlag('dnd5e-helpers', 'ActionManagement')
+    const container = currentToken.children.find((i => i.Helpers))
+    container.children.forEach(i => i.alpha = 1)
+    const resetActions = {
+      action: 0,
+      reaction: 0,
+      bonus: 0,
+    }
+    await currentToken.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
 
     const socketData = {
       actionMarkers: true,
@@ -1804,6 +1819,11 @@ class DnDActionManagement {
     game.socket.emit(`module.dnd5e-helpers`, socketData)
   }
 
+  /**
+   * Reads chat data and hands off to ReactionApply
+   * @param {Object} msg 
+   * @returns 
+   */
   static async ReactionDetect_preCreateChatMessage(msg) {
 
     /** Reactions are only important IF a combat is active. Bail early */
@@ -1834,55 +1854,54 @@ class DnDActionManagement {
   };
 
   /**
-   * 
+   * Add PIXI container and relevant assets to the token
    * @param {Array} tokenArray Tokens to add action markers too
    */
   static async AddActionMarkers(tokenArray) {
-    let actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Action Used.png")
-    let reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Reaction Used.png")
-    let bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Bonus Action Used.png")
+    const actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Action Used New.png")
+    const reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Reaction Used New.png")
+    const bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Bonus Action Used New.png")
 
     for (let token of tokenArray) {
-      let actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
-      let action = new PIXI.Sprite(actionTexture)
-      let reaction = new PIXI.Sprite(reactionTexture)
-      let bonus = new PIXI.Sprite(bonusTexture)
+      if(token.children.find(i => i.Helpers)) continue;
+      const actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
+      const action = new PIXI.Sprite(actionTexture)
+      const reaction = new PIXI.Sprite(reactionTexture)
+      const bonus = new PIXI.Sprite(bonusTexture)
       const textureSize = token.data.height * canvas.grid.size;
-      //calculate size based on the token size (image is 1250 pixels calculated for 800 pixel token, 1.5625 is conversion to increase to correct scaling)
-      let size = textureSize * 1.5625
-      let orig = { height: size, width: size }
-      //for some reason it places 3 pixels to the left (on 100pixel grid) this adjusts for this drift
-      let placementFix = token.data.height * (canvas.grid.size / 33.3)
-      action.orig = orig;
-      reaction.orig = orig;
-      bonus.orig = orig;
-
-      //generate scale for overlay
-      let scale = textureSize / 800
+      const textureSub = textureSize/4
+      //generate scale for overlay (total HUD width is 800 pixels)
+      const scale = 1/(800/textureSize)
       action.scale.set(scale)
       reaction.scale.set(scale)
       bonus.scale.set(scale)
 
+      let ActionCont = new PIXI.Container();
+      ActionCont.setParent(token);
+      ActionCont.Helpers = true;
+      ActionCont.visible = token._controlled;
+      let actionIcon = await ActionCont.addChild(action);
+      let reactionIcon = await ActionCont.addChild(reaction);
+      let bonusIcon = await ActionCont.addChild(bonus);
+      
 
-
-      let actionIcon = await token.addChild(action)
-      let reactionIcon = await token.addChild(reaction)
-      let bonusIcon = await token.addChild(bonus)
-
-      actionIcon.position.set((textureSize - size) / 2 + placementFix, (textureSize - size) / 2,)
+      actionIcon.position.set(textureSub, -textureSub)
       actionIcon.actionType = "action"
       actionIcon.alpha = actions?.action ? 0.2 : 1
-      actionIcon.visible = token._controlled
 
-      reactionIcon.position.set((textureSize - size) / 2 + placementFix, (textureSize - size) / 2,)
+      reactionIcon.position.set(0, -textureSub)
       reactionIcon.actionType = "reaction"
       reactionIcon.alpha = actions?.reaction ? 0.2 : 1
-      reactionIcon.visible = token._controlled
 
-      bonusIcon.position.set((textureSize - size) / 2 + placementFix, (textureSize - size) / 2,)
+      bonusIcon.position.set(textureSub*3, -textureSub)
       bonusIcon.actionType = "bonus"
       bonusIcon.alpha = actions?.bonus ? 0.2 : 1
-      bonusIcon.visible = token._controlled
+      const resetActions = {
+        action: 0,
+        reaction: 0,
+        bonus: 0,
+      }
+      await token.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
     }
   }
 
@@ -1892,9 +1911,10 @@ class DnDActionManagement {
    * @param {String} action action taken
    */
   static async UpdateActionMarkers(token, action, use) {
+    const actionCont = token.children.find(i => i.Helpers)
     switch (action) {
       case "action": {
-        let actionIcon = token.children.find(i => i.actionType === "action")
+        let actionIcon = actionCont.children.find(i => i.actionType === "action")
         actionIcon.alpha = use > 0 ? 0.2 : 1
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
@@ -1902,7 +1922,7 @@ class DnDActionManagement {
       }
         break;
       case "reaction": {
-        let reactionIcon = token.children.find(i => i.actionType === "reaction")
+        let reactionIcon = actionCont.children.find(i => i.actionType === "reaction")
         reactionIcon.alpha = use > 0 ? 0.2 : 1
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
@@ -1910,7 +1930,7 @@ class DnDActionManagement {
       }
         break;
       case "bonus": {
-        let bonusIcon = token.children.find(i => i.actionType === "bonus")
+        let bonusIcon = actionCont.children.find(i => i.actionType === "bonus")
         bonusIcon.alpha = use > 0 ? 0.2 : 1
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
@@ -1923,7 +1943,6 @@ class DnDActionManagement {
       tokenId: token.id
     }
     game.socket.emit(`module.dnd5e-helpers`, socketData)
-
   }
 
   /**
@@ -1934,21 +1953,83 @@ class DnDActionManagement {
   static async RemoveActionMarkers(tokenId) {
     let token = canvas.tokens.get(tokenId)
     if (!token.owner) return;
-    let actionIcons = token.children.filter(i => i.actionType)
-    actionIcons.forEach(i => i.destroy())
+    const actionCont = token.children.find(i => i.Helpers)
+    actionCont.children.forEach(i => i.destroy())
+    actionCont.destroy()
     return token.unsetFlag('dnd5e-helpers', 'ActionManagement')
   }
 
   static UpdateOpacities(tokenId) {
     let token = canvas.tokens.get(tokenId);
     if (!token.owner) return;
+    const actionCont = token.children.find(i => i.Helpers)
     let actions = token.getFlag('dnd5e-helpers', 'ActionManagement');
-    let actionIcon = token.children.find(i => i.actionType === "action");
-    let reactionIcon = token.children.find(i => i.actionType === "reaction");
-    let bonusIcon = token.children.find(i => i.actionType === "bonus");
+    let actionIcon = actionCont.children.find(i => i.actionType === "action");
+    let reactionIcon = actionCont.children.find(i => i.actionType === "reaction");
+    let bonusIcon = actionCont.children.find(i => i.actionType === "bonus");
     actionIcon.alpha = actions?.action ? 0.2 : 1;
     reactionIcon.alpha = actions?.reaction ? 0.2 : 1;
     bonusIcon.alpha = actions?.bonus ? 0.2 : 1;
+  }
+
+  static AddActionHud(app, html, data) {
+    let tokenId = app.object.id
+    const actionButton = `<div class="control-icon actions"title="Toggle Combat State"> <i class="fas fa-scroll"></i></div>`
+    let leftCol = html.find('.left') 
+    leftCol.append(actionButton)
+    let button = html.find('.control-icon.actions')
+    button.click((ev) => {DnDActionManagement.actionDialog(tokenId)})
+  }
+
+  static async actionDialog(tokenId){
+    const token = canvas.tokens.get(tokenId)
+    const currentActions = token.getFlag('dnd5e-helpers', 'ActionManagement')
+    let {action, reaction, bonus} = currentActions
+    const content = `
+    <form>
+      <div class="form-group">
+        <label for="action">${game.i18n.format("DND5E.Action")}: </label>
+        <input id="action" name="action" type="checkbox" ${action === 1 ? 'checked' : ''} ></input>
+      </div> 
+      <div class="form-group">
+        <label for="reaction">${game.i18n.format("DND5E.Reaction")}: </label>
+        <input id="reaction" name="reaction" type="checkbox" ${reaction === 1 ? 'checked' : ''} ></input>
+      </div>
+      <div class="form-group">
+        <label for="bonus">${game.i18n.format("DND5E.BonusAction")}: </label>
+        <input id="bonus" name="bonus" type="checkbox" ${bonus === 1 ? 'checked' : ''} ></input>
+      </div>
+    </form>
+    `
+    new Dialog({
+      title: game.i18n.format("DND5EH.CombatReactionActionDialogTitle"),
+      content : content,
+      buttons:{
+        one: {
+          label : game.i18n.format("DND5EH.CombatReactionConformation"),
+          callback: async (html) => {
+            let action = html.find("#action")[0].checked ? 1 : 0
+            let reaction = html.find("#reaction")[0].checked ? 1 : 0
+            let bonus = html.find("#bonus")[0].checked ? 1 : 0
+            let actionMapping = {
+              action: action,
+              bonus : bonus,
+              reaction : reaction
+            }
+            await token.setFlag('dnd5e-helpers', 'ActionManagement', actionMapping)
+            DnDActionManagement.UpdateOpacities(tokenId);
+            const socketData = {
+              actionMarkers: true,
+              tokenId: token.id
+            }
+            game.socket.emit(`module.dnd5e-helpers`, socketData);
+
+
+          }
+        }
+      }
+
+    }).render(true)
   }
 }
 
@@ -2114,7 +2195,19 @@ class CoverData {
  * @param {Boolean} onOff 
  * @returns 
  */
-async function onTargetToken(user, target, onOff) {
+ async function onTargetToken(user, target, onOff) {
+  let coverBackground;
+  switch(game.settings.get("dnd5e-helpers", "coverTint")){
+    case 0 : coverBackground = "DarkRed";
+    break;
+    case 1 :  coverBackground = "CadetBlue";
+    break;
+    case 2:  coverBackground = "DimGrey";
+    break;
+    case 3:  coverBackground = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)"
+    
+  }
+
   /** bail immediately if LOS calc is disabled */
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
 
@@ -2160,20 +2253,28 @@ async function onTargetToken(user, target, onOff) {
               break;
             case "-40": coverName = `${game.i18n.format("DND5EH.LoS_fullcover")}`; activeButtonId = `5eHelpersFullCover${id}`
           }
-          let effectData = {
-            changes: [
+          let changes = [
               { key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
               { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
               { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
               { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel }
-            ],
+            ]
+          let effectData = {
+            changes: changes,
             disabled: false,
             duration: {rounds :1},
             icon: "icons/svg/combat.svg",
             label: `DnD5e Helpers ${coverName}`,
             tint: "#747272"
           }
-          coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
+          let oldCover = coverData.SourceToken.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
+          if (oldCover) {
+            coverData.SourceToken.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
+          }
+          else {
+            coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
+          }
+        
           content += `
         <button id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
         <button id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters">${game.i18n.format("DND5EH.LoS_34cover")}</button>
@@ -2203,7 +2304,7 @@ async function onTargetToken(user, target, onOff) {
             full.addEventListener("click", function () { AddCover(full, half, three) })
             if (activeButtonId) {
               let activeButton = document.getElementById(activeButtonId)
-              activeButton.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+              activeButton.style.background = coverBackground;
             }
 
           }, 1000);
@@ -2235,14 +2336,14 @@ async function onTargetToken(user, target, onOff) {
           }
           else if (oldCover) {
             token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
-            d.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+            d.style.background = coverBackground;
             d2.style.background = "initial"
             d3.style.background = "initial"
 
           }
           else {
             token.actor.createEmbeddedEntity("ActiveEffect", effectData)
-            d.style.background = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)";
+            d.style.background = coverBackground;
             d2.style.background = "initial"
             d3.style.background = "initial"
           }
@@ -2251,7 +2352,6 @@ async function onTargetToken(user, target, onOff) {
       });
     }
   }
-
 }
 
 async function removeCover(user, token) {

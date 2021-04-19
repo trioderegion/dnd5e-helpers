@@ -15,21 +15,28 @@ Little helpers for little 5e tasks.
 ![WildSurge](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/surge-output.webp)
 
 ### Reaction Status Management
-- Detects when an action is taken outside of a token's turn and applies a configurable status as a visual reminder. The following details when this will be detected during combat:
-   - 1) Whenever a token uses an item with activation of "1 Reaction".
-   - 2) Whenever a token uses an item with activation of "1 Action" outside of their turn.
-   - 3) Any other item activation will be ignored. For example "0 Action" or "1 Bonus Action"
+- Action HUD added to tokens during combat, tracking their Action, Bonus Action and Reaction. 
+- The following events will be tracked and the HUD updated accordingly:
+   - 1) Whenever a token uses an item with activation of "Reaction".
+   - 2) Whenever a token uses an item with activation of "Action" outside of their turn.
+   - 3) Whenever a token uses an item with activation of "Bonus Action"
+   - 4) Negative item costs will "refund" action usage (things like Action Surge)
 - Will remove the configured status at the beginning of the token's turn.
-- This status used is configurable and should match the name when hovered over in the token hud.
-- Supports Combat Utility Belt's custom statuses.
-- If auto remove is enabled these statuses will be removed at the end of combat as well.
 
 ### Legendary Action Reset on Start of Turn
 - All legendary action uses of a creature will reset to their max on the start of their turn in combat.
 
+## Legendary Action Prompt
+- Prompts GM with available legendary actions in-between combatant turns
+- Tracks current available uses 
+
+## Lair Action Prompt
+- Prompts GM with available lair actions at initiative count 20
+
 ### Recharge Abilities on Start of Turn
 - GM only
 - For abilities with a "d6 recharge" on every turn.
+- Configurable to hide the roll, or to roll at the end of a combatants turn instead of the start.
 
 ### Diagonal Template Scaling
 - _I cast...Firesquare!_
@@ -41,9 +48,9 @@ Little helpers for little 5e tasks.
 ![Circle Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/circle_scaling.gif)
 
 ### Cover Calculator (Beta)
-- When a user with a selected token targets another token, the target's cover will be calcuated following the rules presented in DMG pg. 251
+- When a user with a selected token targets another token, the target's cover will be calculated following the rules presented in DMG pg. 251
 - A message in chat will be posted concerning the target's cover in relation to the selected token(s).
-- Prioritizes walls, specially flaged tiles, then tokens.
+- Prioritizes walls, specially flagged tiles, then tokens.
   - Tiles have a new option in their configuration dialog that sets the cover granted by them.
   - Two tiles are now included from game-icons.net that are configured automatically for half and three-quarters cover in modules/dnd5e-helpers/assets/cover-tiles.
 - Has two modes for cover in relation to walls: Center Point and Four Corner. Cover from tiles and tokens are (currently) only calculated from Center Point.
@@ -63,6 +70,10 @@ Little helpers for little 5e tasks.
 - Automatically checks actors with the Regeneration or Self-Repair features
 - Searches the these features for the phrase "X hit points", where X can be a static value or a dice formula
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
+
+## Regen Blocking
+- Feature to prevent the auto regen popup
+- Matches and active effect of the specified name (case specific)
 
 ### Undead Fortitude
 - Automatically checks actors with the Undead Fortitude feature
