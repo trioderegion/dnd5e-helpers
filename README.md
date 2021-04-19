@@ -26,11 +26,11 @@ Little helpers for little 5e tasks.
 ### Legendary Action Reset on Start of Turn
 - All legendary action uses of a creature will reset to their max on the start of their turn in combat.
 
-## Legendary Action Prompt
+### Legendary Action Prompt
 - Prompts GM with available legendary actions in-between combatant turns
 - Tracks current available uses 
 
-## Lair Action Prompt
+### Lair Action Prompt
 - Prompts GM with available lair actions at initiative count 20
 
 ### Recharge Abilities on Start of Turn
@@ -61,6 +61,13 @@ Little helpers for little 5e tasks.
 
 ![Cover Calculation](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/los_calc.gif)
 
+### Cover Application
+- When a user triggers a cover calculations (with an optional hotkey held) the result of that cover calculation can be applied to the token
+- Manual setting adds chat buttons to click to cycle between different cover effects
+- Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment
+- This cover bonus is applied onto the *targeter* not the target and is a -2,-5,-40 negative for any attack rolls.
+- Dex saves are not dealt with
+
 ### Auto Proficiency Detection
 - Will automatically mark a newly added weapon, armor or tool 'proficient' if it is part of the actor's listed proficiencies
 - Note: specific weapon or armor proficiencies should match their intended name (ex. "Dagger" proficiency for a weapon called"Dagger").
@@ -71,7 +78,7 @@ Little helpers for little 5e tasks.
 - Searches the these features for the phrase "X hit points", where X can be a static value or a dice formula
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
-## Regen Blocking
+### Regen Blocking
 - Feature to prevent the auto regen popup
 - Matches and active effect of the specified name (case specific)
 
