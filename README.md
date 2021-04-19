@@ -67,6 +67,7 @@ Little helpers for little 5e tasks.
 - Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment
 - This cover bonus is applied onto the *targeter* not the target and is a -2,-5,-40 negative for any attack rolls.
 - Dex saves are not dealt with
+- A flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects )
 
 ### Auto Proficiency Detection
 - Will automatically mark a newly added weapon, armor or tool 'proficient' if it is part of the actor's listed proficiencies
