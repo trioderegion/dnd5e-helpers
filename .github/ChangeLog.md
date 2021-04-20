@@ -177,7 +177,7 @@
 ###1.10.3
 - Small tweak to token/tile cover calculations -- the hitbox size has been reduced by 10% of the grid square size. This should address the erroneous half cover when targeting a token diagonally due to degenerate collisions.
 
-###1.11.0
+###2.0.0
 - New Features:
   - Action Management 
     - Updated "Reaction settings" to include all aciton types, Action, Reaction, Bonus action are all tracked through HUD elements
@@ -186,11 +186,14 @@
   - Lair Actions
     - Added lair action tracking, upon adding actors to the combat tracker it will scan for actions with the `uses lair action` action type and add them to a combat-specific pool
     - This lair action pool will be given to the GM as combat advances past initiative 20, with the option to jump to the actor, or directly roll the action
+  - Legendary Actions
+    - <TODO>
   - `#84`: Regeneration prompts can now be supressed by applying a user-defined status to a given token.
   - `#87`: Great/Open wound chat feedback can now mask token names in chat.
 
 - Bug Fixes:
   - `#81`: `mr` roll modifier updated to not examine discarded results (ex. `1d4r<2mr2` will not force the re-rolled die to `2`) 
+  - `#79`/`#90`: Token/tile hitboxes for cover are now correctly pulled back from grid boundaries to avoid degenerate collisions when abutted to walls and other entities.
 
 - Localization:
   - Japanese localization update provided by BrotherSharper. We are, as always, grateful for the help.

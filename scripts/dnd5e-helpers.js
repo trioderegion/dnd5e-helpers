@@ -2165,7 +2165,8 @@ class CoverData {
     /** prepare the secondary blocker information */
     const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
     const obstructionTranslation = game.i18n.format("DND5EH.LoS_obsruct")
-    const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${this.TokenCover?.name ?? ""} ${obstructionTranslation}`, entity: this.TokenCover };
+    const displayedTokenName = (this.TokenCover?.actor?.data.type ?? "") == "npc" ? DnDHelpers.sanitizeName(this.TokenCover?.name, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask") : this.TokenCover?.name;
+    const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${displayedTokenName ?? ""}`, entity: this.TokenCover };
 
     /** prefer walls -> tiles -> tokens in that order */
     if (tileCoverData.level > internalCoverData.level) {
@@ -2173,9 +2174,10 @@ class CoverData {
     }
 
     if (tokenCoverData.level > internalCoverData.level) {
-      if (tokenCoverData.level > -1 && (tokenCoverData.entity?.actor?.data.type ?? "") == "npc"){
-        internalCoverData.source = DnDHelpers.sanitizeName(tokenCoverData.entity?.actor?.data.name, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask");
-      }
+      internalCoverData = tokenCoverData;
+      //if (tokenCoverData.level > -1 && (tokenCoverData.entity?.actor?.data.type ?? "") == "npc"){
+      //  internalCoverData.source = DnDHelpers.sanitizeName(tokenCoverData.entity?.name, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask");
+      //}
     }
 
     this.Summary.FinalCoverEntity = internalCoverData.entity;
@@ -2209,7 +2211,7 @@ class CoverData {
         "DND5EH.LoSMaskNPCs_targetMask"
       );
     }
-    if (this.TargetToken?.data.type === "npc") {
+    if (this.TargetToken.actor?.data.type === "npc") {
       sanitizedTargetToken = DnDHelpers.sanitizeName(
         this.TargetToken.name,
         "losMaskNPCs",
@@ -2428,6 +2430,10 @@ async function DrawDebugRays(drawingList) {
   }
 }
 
+function getHitBoxPadding(){
+  return canvas.grid.size * 0.05;
+}
+
 /**
  * For a given token, generates two types of grid points
  * GridPoints[]: Each grid intersection point contained within the token's occupied squares (unique)
@@ -2438,8 +2444,12 @@ async function DrawDebugRays(drawingList) {
  */
 function generateTokenGrid(token) {
 
+  /** create a padding value to shrink the hitbox corners by -- total of 10% of the grid square size */
+  /** this should help with diagonals and degenerate collisions */
+  const padding = getHitBoxPadding();
+
   /** operate at the origin, then translate at the end */
-  const tokenBounds = [token.w, token.h];
+  const tokenBounds = [token.w-padding, token.h-padding];
 
   /** use token bounds as the limiter */
   let boundingBoxes = [];
@@ -2448,26 +2458,27 @@ function generateTokenGrid(token) {
   /** @todo this is hideous. I think a flatmap() or something is what i really want to do */
 
   /** stamp the points out left to right, top to bottom */
-  for (let y = 0; y < tokenBounds[1]; y += canvas.grid.size) {
-    for (let x = 0; x < tokenBounds[0]; x += canvas.grid.size) {
+  for (let y = padding; y < tokenBounds[1]; y += canvas.grid.size) {
+    for (let x = padding; x < tokenBounds[0]; x += canvas.grid.size) {
       gridPoints.push([x, y]);
 
       /** create the transformed bounding box. we dont have to do a final pass for that */
+      /** note: we are offseting the "further" points by 2*padding due to the fact that the loop vars x and y already have a positive padding added */
       boundingBoxes.push([
-        [token.x + x, token.y + y], [token.x + x + canvas.grid.size, token.y + y],
-        [token.x + x, token.y + y + canvas.grid.size], [token.x + x + canvas.grid.size, token.y + y + canvas.grid.size]]);
+        [token.x + x, token.y + y], [token.x + x + canvas.grid.size - 2*padding, token.y + y],
+        [token.x + x, token.y + y + canvas.grid.size - 2*padding], [token.x + x + canvas.grid.size - 2*padding, token.y + y + canvas.grid.size - 2*padding]]);
     }
 
-    gridPoints.push([token.width, y]);
+    gridPoints.push([token.w - padding, y]);
   }
 
   /** the final grid point row in the token bounds will not be added */
-  for (let x = 0; x < tokenBounds[0]; x += canvas.grid.size) {
-    gridPoints.push([x, token.height]);
+  for (let x = padding; x < tokenBounds[0]; x += canvas.grid.size) {
+    gridPoints.push([x, token.h-padding]);
   }
 
   /** stamp the final point, since we stopped short (handles non-integer sizes) */
-  gridPoints.push([token.width, token.height]);
+  gridPoints.push(tokenBounds);
 
   /** offset the entire grid to the token's absolute position */
   gridPoints = gridPoints.map(localPoint => {
@@ -2600,7 +2611,7 @@ function CollideAgainstObjects(ray, objectList) {
 
   /** create a padding value to shrink the hitbox corners by -- total of 10% of the grid square size */
   /** this should help with diagonals and degenerate collisions */
-  const padding = canvas.grid.size * 0.05;
+  const padding = getHitBoxPadding();
 
 
   //create an "x" based on the bounding box (cuts down on 2 collisions per blocker)
@@ -2613,6 +2624,10 @@ function CollideAgainstObjects(ray, objectList) {
       [tile.x + padding, tile.y + padding, tile.x + tile.width - padding, tile.y + tile.height - padding],
       [tile.x + tile.width - padding, tile.y + padding, tile.x + padding, tile.y + tile.height - padding],
     ]
+
+    console.log(`Padding value: ${padding}`);
+    console.log(tile.x, tile.y, tile.width, tile.height);
+    console.log(boxGroup);
 
     return !!boxGroup.find(boxRay => {
       return ray.intersectSegment(boxRay) !== false;
