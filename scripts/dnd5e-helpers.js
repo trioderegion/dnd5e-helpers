@@ -2,14 +2,25 @@ const wmFeatureDefault = "Wild Magic Surge";
 const wmToCFeatureDefault = "Tides of Chaos";
 const wmSurgeTableDefault = "Wild-Magic-Surge-Table";
 
-const MODULE = 'dnd5e-helpers';
+import {HelpersSettingsConfig, PATH, MODULE} from './modules/config-app.js'
 
 Hooks.on('init', () => {
+
+  game.settings.registerMenu(MODULE, "helpersOptions", {
+    name: "DnD5e Helpers Configuration",
+    label: "Open Configuration Menu",
+    //hint: "Player Helpers Hint",
+    icon: "fas fa-user-cog",
+    type: HelpersSettingsConfig,
+    restricted: true
+  });
+
   game.settings.register("dnd5e-helpers", "gridTemplateScaling", {
     name: game.i18n.format("DND5EH.GridTemplateScaling_name"),
     hint: game.i18n.format("DND5EH.GridTemplateScaling_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "system",
     default: 0,
     type: Number,
     choices: {
@@ -25,7 +36,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.LoSOnTarget_name"),
     hint: game.i18n.format("DND5EH.LoSOnTarget_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "system",
     default: 0,
     type: Number,
     choices: {
@@ -39,7 +51,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.LoSWithTokens_name"),
     hint: game.i18n.format("DND5EH.LoSWithTokens_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "system",
     default: false,
     type: Boolean,
   });
@@ -48,7 +61,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.LoSKeybind_name"),
     hint: game.i18n.format("DND5EH.LoSWithTokens_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "system",
     default: "",
     type: String,
   })
@@ -57,7 +71,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.LoSCover_name"),
     hint: game.i18n.format("DND5EH.LoSCover_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "system",
     default: 0,
     type: Number,
     choices: {
@@ -71,7 +86,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.LoSTint_name"),
     hint: game.i18n.format("DND5EH.LoSTint_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "system",
     default: 0,
     type: Number,
     choices: {
@@ -86,7 +102,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.LoSMaskNPCs_name"),
     hint: game.i18n.format("DND5EH.LoSMaskNPCs_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "system",
     default: false,
     type: Boolean
   });
@@ -96,7 +113,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.WildMagicOptions_name"),
     hint: game.i18n.format("DND5EH.WildMagicOptions_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "features",
     default: 0,
     type: Number,
     choices: {
@@ -112,7 +130,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.WildMagicFeatureName_name"),
     hint: game.i18n.format("DND5EH.WildMagicFeatureName_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "features",
     default: wmFeatureDefault,
     type: String,
   });
@@ -122,7 +141,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.WildMagicTableName_name"),
     hint: game.i18n.format("DND5EH.WildMagicTableName_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "features",
     default: wmSurgeTableDefault,
     type: String,
   });
@@ -132,7 +152,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.WildMagicTidesOfChaos_name"),
     hint: game.i18n.format("DND5EH.WildMagicTidesOfChaos_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "features",
     default: wmToCFeatureDefault,
     type: String,
   });
@@ -141,7 +162,8 @@ Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "wmToCRecharge", {
     name: game.i18n.format("DND5EH.WildMagicTidesOfChaosRecharge_name"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "features",
     default: false,
     type: Boolean,
   });
@@ -151,13 +173,14 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.WildMagicWisper_name"),
     hint: game.i18n.format("DND5EH.WildMagicWisper_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "features",
     default: false,
     type: Boolean,
   });
 
-   /** enable auto reaction reset */
-   game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
+  /** enable auto reaction reset */
+  game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
     name: game.i18n.format("DND5EH.CombatReactionEnable_name"),
     hint: game.i18n.format("DND5EH.CombatReactionEnable_hint"),
     scope: "world",
@@ -166,8 +189,9 @@ Hooks.on('init', () => {
       0: game.i18n.format("DND5EH.Default_none"),
       1: game.i18n.format("DND5EH.Default_enabled"),
     },
+    group: "combat",
     default: 0,
-    config: true,
+    config: false,
     onChange: () => window.location.reload()
   });
 
@@ -176,7 +200,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.LairHelper_name"),
     hint: game.i18n.format("DND5EH.LairHelper_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: false,
     type: Boolean,
   });
@@ -186,7 +211,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.CombatLegendary_Prompt_name"),
     hint: game.i18n.format("DND5EH.CombatLegendary_Prompt_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: false,
     type: Boolean,
   });
@@ -197,7 +223,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.CombatLegendary_name"),
     hint: game.i18n.format("DND5EH.CombatLegendary_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: true,
     type: Boolean,
   });
@@ -207,7 +234,6 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.CombatAbilityRecharge_name"),
     hint: game.i18n.format("DND5EH.CombatAbilityRecharge_hint"),
     scope: "world",
-    config: true,
     default: "off",
     type: String,
     choices: {
@@ -221,7 +247,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.CombatAbilityRechargeHide_name"),
     scope: game.i18n.format("DND5EH.CombatAbilityRechargeHide_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: true,
     type: Boolean,
   });
@@ -231,8 +258,9 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.AutoProf_hint"),
     scope: 'world',
     type: Boolean,
+    group: "system",
     default: true,
-    config: true,
+    config: false,
   });
 
   game.settings.register("dnd5e-helpers", "autoRegen", {
@@ -240,8 +268,9 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.AutoRegen_hint"),
     scope: 'world',
     type: Boolean,
+    group: "combat",
     default: false,
-    config: true,
+    config: false,
   });
   game.settings.register("dnd5e-helpers", "regenBlock", {
     name: game.i18n.format("DND5EH.regenBlock_name"),
@@ -249,7 +278,8 @@ Hooks.on('init', () => {
     scope: 'world',
     type: String,
     default: `No Regen`,
-    config: true,
+    config: false,
+    group: "combat",
   });
 
 
@@ -264,7 +294,7 @@ Hooks.on('init', () => {
       "2": game.i18n.format("DND5EH.UndeadFort_advanced"),
     },
     default: "0",
-    config: true,
+    config: false,
   });
 
   /** Great Wound and Open Wound Feature*/ 
@@ -272,7 +302,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.GreatAndOpenWoundMaskNPC_name"),
     hint: game.i18n.format("DND5EH.GreatAndOpenWoundMaskNPC_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: false,
     type: Boolean
   });
@@ -282,15 +313,17 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.GreatWoundEnable_hint"),
     scope: 'world',
     type: Boolean,
+    group: "combat",
     default: false,
-    config: true,
+    config: false,
   });
 
   game.settings.register("dnd5e-helpers", "gwFeatureName", {
     name: game.i18n.format("DND5EH.GreatWoundFeatureName_name"),
     hint: game.i18n.format("DND5EH.GreatWoundFeatureName_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: "Great Wound",
     type: String,
   });
@@ -299,7 +332,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.GreatWoundTableName_name"),
     hint: game.i18n.format("DND5EH.GreatWoundTableName_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: "",
     type: String,
   });
@@ -308,7 +342,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.OpenWoundFeaturename_name"),
     hint: game.i18n.format("DND5EH.OpenWoundFeaturename_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: "Open Wound",
     type: String,
   });
@@ -318,15 +353,17 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.OpenWoundDeathSave_hint"),
     scope: 'world',
     type: Boolean,
+    group: "combat",
     default: false,
-    config: true,
+    config: false,
   });
 
   game.settings.register('dnd5e-helpers', 'owCrit', {
     name: game.i18n.format("DND5EH.OpenWoundCrit_name"),
     hint: game.i18n.format("DND5EH.OpenWoundCrit_hint"),
     scope: 'world',
-    config: true,
+    config: false,
+    group: "combat",
     default: 0,
     type: Number,
   });
@@ -336,8 +373,9 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.OpenWound0HP_hint"),
     scope: 'world',
     type: Boolean,
+    group: "combat",
     default: false,
-    config: true,
+    config: false,
   });
 
   game.settings.register('dnd5e-helpers', 'owHp0GW', {
@@ -345,15 +383,17 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.OpenWound0HPGW_hint"),
     scope: 'world',
     type: Boolean,
+    group: "combat",
     default: false,
-    config: true,
+    config: false,
   });
 
   game.settings.register("dnd5e-helpers", "owTable", {
     name: game.i18n.format("DND5EH.OpenWoundTableName_name"),
     hint: game.i18n.format("DND5EH.OpenWoundTableName_hint"),
     scope: "world",
-    config: true,
+    config: false,
+    group: "combat",
     default: "",
     type: String,
   });
@@ -363,8 +403,9 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.OpenWoundDebug_hint"),
     scope: 'world',
     type: Boolean,
+    group: "system",
     default: false,
-    config: true,
+    config: false,
   });
 });
 

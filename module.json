@@ -14,7 +14,7 @@
         "url": "https://github.com/kandashi"
       }
     ],
-    "scripts": [
+    "esmodules": [
         "/scripts/dnd5e-helpers.js"
     ],
     "languages": [
