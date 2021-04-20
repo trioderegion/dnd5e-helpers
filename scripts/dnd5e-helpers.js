@@ -2636,10 +2636,6 @@ function CollideAgainstObjects(ray, objectList) {
       [tile.x + tile.width - padding, tile.y + padding, tile.x + padding, tile.y + tile.height - padding],
     ]
 
-    console.log(`Padding value: ${padding}`);
-    console.log(tile.x, tile.y, tile.width, tile.height);
-    console.log(boxGroup);
-
     return !!boxGroup.find(boxRay => {
       return ray.intersectSegment(boxRay) !== false;
     })
