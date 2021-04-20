@@ -2030,7 +2030,8 @@ class DnDActionManagement {
 
   static AddActionHud(app, html, data) {
     let tokenId = app.object.id
-    const actionButton = `<div class="control-icon actions" title="Configure Actions"> <img src="/modules/dnd5e-helpers/assets/action-markers/sword-line.svg"></div>`
+    if(!game.combat?.combatants?.find(i => i.tokenId === tokenId)) return;
+    const actionButton = `<div class="control-icon actions" title="Configure Actions"> <i class="fas fa-clipboard-list"></i></div>`
     let leftCol = html.find('.left') 
     leftCol.append(actionButton)
     let button = html.find('.control-icon.actions')
