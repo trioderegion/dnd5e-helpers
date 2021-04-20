@@ -362,10 +362,9 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.OpenWoundCrit_name"),
     hint: game.i18n.format("DND5EH.OpenWoundCrit_hint"),
     scope: 'world',
-    config: false,
-    group: "combat",
-    default: 0,
-    type: Number,
+    config: true,
+    default: false,
+    type: Boolean,
   });
 
   game.settings.register('dnd5e-helpers', 'owHp0', {
@@ -667,10 +666,13 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   }
 
 
-  if (rollType === "attack" && itemRoll !== undefined && (game.settings.get('dnd5e-helpers', 'owCrit') > 0)) {
-    let critRange = game.settings.get('dnd5e-helpers', 'owCrit');
-    let rollResult = msg.roll.match(/("result"):([0-9]{1,2})/);
-    if (parseInt(rollResult[2]) >= critRange) {
+  if (rollType === "attack" && itemRoll !== undefined && game.settings.get('dnd5e-helpers', 'owCrit')) {
+
+    let rollData = JSON.parse(msg.roll)
+    const critMin = rollData.terms[0].options.critical
+    const rollTotal = rollData.terms[0].results.find(i => i.active).result
+
+    if (rollTotal >= critMin) {
       let targetArray = game.users.get(msg.user).targets;
       for (let targets of targetArray) {
         DnDWounds.OpenWounds(targets.actor.data.name, game.i18n.format("DND5EH.OpenWoundCrit_reason"))
@@ -838,6 +840,14 @@ Hooks.on("controlToken", (token, state) => {
 
 Hooks.on('renderTokenHUD', (app, html, data) => {
   DnDActionManagement.AddActionHud(app, html, data)
+})
+
+Hooks.on("midi-qol.AttackRollComplete", (workflow) => {
+  if (game.settings.get('dnd5e-helpers', 'owCrit')) {
+    if (workflow.isCritical) {
+      DnDWounds.OpenWounds(Array.from(workflow.targets)[0], game.i18n.format("DND5EH.OpenWoundCrit_reason"))
+    }
+  }
 })
 
 /** helper functions */
@@ -2030,7 +2040,8 @@ class DnDActionManagement {
 
   static AddActionHud(app, html, data) {
     let tokenId = app.object.id
-    const actionButton = `<div class="control-icon actions"title="Toggle Combat State"> <i class="fas fa-scroll"></i></div>`
+    if(!game.combat?.combatants?.find(i => i.tokenId === tokenId)) return;
+    const actionButton = `<div class="control-icon actions" title="Configure Actions"> <i class="fas fa-clipboard-list"></i></div>`
     let leftCol = html.find('.left') 
     leftCol.append(actionButton)
     let button = html.find('.control-icon.actions')

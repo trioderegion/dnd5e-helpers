@@ -53,3 +53,7 @@
       min-height: 280px !important;
       min-width: 530px !important;
     }
+    
+.control-icon.actions img {
+  width: 90%;
+}
