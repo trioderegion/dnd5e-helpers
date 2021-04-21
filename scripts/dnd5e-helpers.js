@@ -683,7 +683,7 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
 
 Hooks.on("deleteCombat", async (combat, settings, id) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if (reactMode === 1 && DnDHelpers.IsFirstGM()) {
+  if (reactMode === 1) {
     for (let combatant of combat.data.combatants) {
       DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
     }
@@ -1929,6 +1929,7 @@ class DnDActionManagement {
     const bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Bonus Action Used New.png")
 
     for (let token of tokenArray) {
+      if(!token.owner) continue;
       if(token.children.find(i => i.Helpers)) continue;
       const actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
       const action = new PIXI.Sprite(actionTexture)
