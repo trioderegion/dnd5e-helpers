@@ -35,19 +35,16 @@
       color: #000;
       text-align: center;
       border-radius: 6px;
-      padding: 5px 0;
+      padding: 8px;
       display: none;
       position: absolute;
-      right: 260px;
+      right: -260px;
       width: 250px;
       border: 1px solid black;
       text-align: justify;
     }
     .dnd5ehelpers .form-group:hover .desc {
       display: block;
-    }
-    .dnd5ehelpers .form-group:hover {
-      position: relative;
     }
     .dnd5ehelpers.legendary-action-dialog {
       min-height: 280px !important;
