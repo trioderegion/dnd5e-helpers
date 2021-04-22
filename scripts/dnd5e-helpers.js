@@ -850,6 +850,30 @@ Hooks.on("midi-qol.AttackRollComplete", (workflow) => {
   }
 })
 
+Hooks.on("renderChatMessage", (app, html, data) => {
+  let coverBackground;
+  switch (game.settings.get("dnd5e-helpers", "coverTint")) {
+    case 0: coverBackground = "DarkRed";
+      break;
+    case 1: coverBackground = "CadetBlue";
+      break;
+    case 2: coverBackground = "DimGrey";
+      break;
+    case 3: coverBackground = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)"
+
+  }
+  html.find(".whisper-to")[0].textContent = ""
+  let half = html.find(".dnd5ehelpersHalfCover")[0]
+  let three = html.find(".dnd5ehelpersQuarterCover")[0]
+  if(!half || !three) return;
+  half.addEventListener("click", function () { AddCover(half, three) })
+  three.addEventListener("click", function () { AddCover(three, half) })
+  let active = html.find(".cover-button.active")[0]
+  active.style.background = coverBackground;
+  active.childNodes[0].style.opacity = 0.8;
+})
+
+
 /** helper functions */
 
 class DnDHelpers {
@@ -2230,11 +2254,17 @@ class CoverData {
         "DND5EH.LoSMaskNPCs_targetMask"
       );
     }
-    const content = `<div class="dice-roll"><i>${sanitizedSourceToken} ${sightlineTranslation} ${sanitizedTargetToken}</i>
-                      <div class="dice-result">
-                        <div class="dice-formula">${this.Summary.Text}</div>
-                        <div class="dice-tooltip">
-                          <div class="dice">${this.Summary.Source}</div></div>`;
+    const content = `
+    <div class="dnd5ehelpers">
+      <div class="dice-roll"><i>${sanitizedSourceToken} ${sightlineTranslation} ${sanitizedTargetToken}</i>
+        <div class="dice-result">
+          <div class="dice-formula">${this.Summary.Text}
+            <div class="desc">${this.Summary.Source}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
     return content;
   }
 
@@ -2296,13 +2326,13 @@ class CoverData {
       const coverSetting = game.settings.get("dnd5e-helpers", "coverApplication")
       const id = randomID()
       const coverLevel = coverData.calculateCoverBonus()
-      let coverName, activeButtonId, effDataIcon;
+      let coverName, effDataIcon;
       switch (coverSetting) {
         case 0: break;
         case 1: content += `
         <div class="dnd5ehelpers">
-        <button class="cover-button" id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half"><img src="modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
-        <button class="cover-button" id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters"><img src="modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg">${game.i18n.format("DND5EH.LoS_34cover")}</button>
+        <button class="cover-button dnd5ehelpersHalfCover ${coverLevel === '-2' ? "active" : ""}" data-some-data="-2,${coverData.SourceToken.id},Half"><img src="modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
+        <button class="cover-button dnd5ehelpersQuarterCover ${coverLevel === '-5' ? "active" : ""}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters"><img src="modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg">${game.i18n.format("DND5EH.LoS_34cover")}</button>
         </div>`
           break;
         case 2: {
@@ -2318,12 +2348,12 @@ class CoverData {
           switch (coverLevel) {
             case "0": break;
             case "-2": {
-              coverName = `${game.i18n.format("DND5EH.LoS_halfcover")}`; activeButtonId = `5eHelpersHalfCover${id}`
+              coverName = `${game.i18n.format("DND5EH.LoS_halfcover")}`;
               effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg";
               }
               break;
             case "-5": {
-              coverName = `${game.i18n.format("DND5EH.LoS_34cover")}`; activeButtonId = `5eHelpers3/4Cover${id}`
+              coverName = `${game.i18n.format("DND5EH.LoS_34cover")}`;
               effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg";
               }
               break;
@@ -2350,11 +2380,11 @@ class CoverData {
           else {
             coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
           }
-        
+
           content += `
           <div class="dnd5ehelpers">
-        <button class="cover-button" id="5eHelpersHalfCover${id}" data-some-data="-2,${coverData.SourceToken.id},Half"><img src="modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
-        <button class="cover-button" id="5eHelpers3/4Cover${id}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters"><img src="modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg">${game.i18n.format("DND5EH.LoS_34cover")}</button>
+        <button class="cover-button dnd5ehelpersHalfCover ${coverLevel === '-2' ? "active" : ""}" data-some-data="-2,${coverData.SourceToken.id},Half"><img src="modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
+        <button class="cover-button dnd5ehelpersQuarterCover ${coverLevel === '-5' ? "active" : ""}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters"><img src="modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg">${game.i18n.format("DND5EH.LoS_34cover")}</button>
         </div>
         `
         }
@@ -2369,72 +2399,65 @@ class CoverData {
       }
 
 
-      ChatMessage.create({ content: content, whisper: recipients }).then((result) => {
-        if (!result) return;
-        if (coverSetting > 0) {
-          setTimeout(() => {
-            let half = document.getElementById(`5eHelpersHalfCover${id}`)
-            let three = document.getElementById(`5eHelpers3/4Cover${id}`)
-            half.addEventListener("click", function () { AddCover(half, three) })
-            three.addEventListener("click", function () { AddCover(three, half) })
-            if (activeButtonId) {
-              let activeButton = document.getElementById(activeButtonId)
-              activeButton.style.background = coverBackground;
-              activeButton.childNodes[0].style.opacity = 0.8;
-            }
-
-          }, 1000);
-        }
-        function AddCover(d, d2, d3) {
-
-          let parentCard = d.parentElement
-          parentCard.getElementById
-          let data = d.dataset?.someData;
-          const [coverLevel, sourceTokenId, coverName] = data.split(",")
-          switch(coverLevel){
-            case "-2" : effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg";
-            break;
-            case "-5" : effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg";
-            break;
-          }
-          const changes = [{ key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
-          { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
-          { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
-          { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel },
-        ]
-          let effectData = {
-            changes: changes,
-            disabled: false,
-            duration:{rounds: 1},
-            icon: effDataIcon,
-            label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}`,
-            tint: "#747272"
-          }
-          let token = canvas.tokens.get(sourceTokenId)
-          let oldCover = token.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
-          if (oldCover?.data.label === effectData.label) {
-            token.actor.deleteEmbeddedEntity("ActiveEffect", oldCover.id)
-            d.style.background = "initial"
-            d.childNodes[0].style.opacity = 0.3;
-          }
-          else if (oldCover) {
-            token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, icon: effDataIcon, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
-            d.style.background = coverBackground;
-            d.childNodes[0].style.opacity = 0.8;
-            d2.style.background = "initial"
-            d2.childNodes[0].style.opacity = 0.5;
-          }
-          else {
-            token.actor.createEmbeddedEntity("ActiveEffect", effectData)
-            d.style.background = coverBackground;
-            d2.style.background = "initial";
-            d.childNodes[0].style.opacity = 0.8;
-            d2.childNodes[0].style.opacity = 0.3;
-          }
-        }
-
-      });
+      ChatMessage.create({ content: content, whisper: recipients, speaker: { alias: "Helpers Cover" } }, { dnd5ehelpersCover: true })
     }
+  }
+}
+
+function AddCover(d, d2) {
+  let coverBackground;
+  switch (game.settings.get("dnd5e-helpers", "coverTint")) {
+    case 0: coverBackground = "DarkRed";
+      break;
+    case 1: coverBackground = "CadetBlue";
+      break;
+    case 2: coverBackground = "DimGrey";
+      break;
+    case 3: coverBackground = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)"
+
+  }
+  let effDataIcon;
+  let data = d.dataset?.someData;
+  const [coverLevel, sourceTokenId, coverName] = data.split(",")
+  switch (coverLevel) {
+    case "-2": effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg";
+      break;
+    case "-5": effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg";
+      break;
+  }
+  const changes = [{ key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
+  { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
+  { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
+  { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel },
+  ]
+  let effectData = {
+    changes: changes,
+    disabled: false,
+    duration: { rounds: 1 },
+    icon: effDataIcon,
+    label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}`,
+    tint: "#747272"
+  }
+  let token = canvas.tokens.get(sourceTokenId)
+  let oldCover = token.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
+  if (oldCover?.data.label === effectData.label) {
+    token.actor.deleteEmbeddedEntity("ActiveEffect", oldCover.id)
+    d.style.background = "initial"
+    d.childNodes[0].style.opacity = 0.3;
+  }
+  else if (oldCover) {
+    token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, icon: effDataIcon, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
+    d.style.background = coverBackground;
+    d.childNodes[0].style.opacity = 0.8;
+    d2.style.background = "initial"
+    d2.childNodes[0].style.opacity = 0.5;
+  }
+  else {
+    token.actor.createEmbeddedEntity("ActiveEffect", effectData)
+    d.style.background = coverBackground;
+    d2.style.background = "initial";
+    d.childNodes[0].style.opacity = 0.8;
+    d2.childNodes[0].style.opacity = 0.3;
   }
 }
 
