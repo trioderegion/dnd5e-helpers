@@ -876,29 +876,6 @@ Hooks.on("midi-qol.AttackRollComplete", (workflow) => {
   }
 })
 
-Hooks.on("renderChatMessage", (app, html, data) => {
-  let coverBackground;
-  switch (game.settings.get("dnd5e-helpers", "coverTint")) {
-    case 0: coverBackground = "DarkRed";
-      break;
-    case 1: coverBackground = "CadetBlue";
-      break;
-    case 2: coverBackground = "DimGrey";
-      break;
-    case 3: coverBackground = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)"
-
-  }
-  html.find(".whisper-to")[0].textContent = ""
-  let half = html.find(".dnd5ehelpersHalfCover")[0]
-  let three = html.find(".dnd5ehelpersQuarterCover")[0]
-  if(!half || !three) return;
-  half.addEventListener("click", function () { AddCover(half, three) })
-  three.addEventListener("click", function () { AddCover(three, half) })
-  let active = html.find(".cover-button.active")[0]
-  active.style.background = coverBackground;
-  active.childNodes[0].style.opacity = 0.8;
-})
-
 Hooks.on("createCombat", (combat) => {
   combat.setFlag('dnd5e-helpers', 'chatLength', game.messages.size)
 })
@@ -2828,3 +2805,5 @@ function onPreCreateTile(_scene, tileData, _options, _id) {
     tileData.flags["dnd5e-helpers"] = { coverLevel: tileCover };
   }
 }
+
+globalThis.DnDCombatUpdates = DnDCombatUpdates;
