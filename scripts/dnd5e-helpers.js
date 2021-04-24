@@ -1504,10 +1504,8 @@ class DnDCombatUpdates {
     d.render(true)
   }
 
-  static async RunLegendaryActions(legActionArray, previousTokenID) {
-    for(let actor of legActionArray){
-      if(actor[2] === previousTokenID) return;
-    }
+  static async RunLegendaryActions(legActionArray, previousTokenId) {
+
     let actorList= '';
 
     function getActionList(actionArray, tokenId, available) {
@@ -1523,9 +1521,21 @@ class DnDCombatUpdates {
       return actionList
     }
     
+    let anyActions = false;
     for (let LegActor of legActionArray){
       let token = canvas.tokens.get(LegActor[2])
+
+      /** we can have multiple leg actors in the same combat -- do not allow
+       *  leg actions to be used by the token who JUST ended their turn */
+      if(token.id === previousTokenId) continue;
+
       let actionsAvailable = token.actor.data.data.resources.legact.value
+
+      /** do not add actions from an actor without remaining legendary actions to use */
+      if(actionsAvailable < 1) continue;
+
+      /** if we have gotten to here, we have some valid leg acts to show */
+      anyActions = true;
       let tokenImg = token.data.img
       let actionList = getActionList(LegActor[1], LegActor[2], actionsAvailable)
       actorList +=`
@@ -1549,6 +1559,8 @@ class DnDCombatUpdates {
         </form>`
     }
 
+    /** do not display the dialog if we have no legendary actions available to show */
+    if(!anyActions) return;
 
     let d = new Dialog({
       title: `${game.i18n.format("DND5E.LegAct")}`,
