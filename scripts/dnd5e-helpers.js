@@ -465,6 +465,31 @@ Hooks.on("ready", () => {
 
 });
 
+Hooks.on("renderChatMessage", (app, html, data) => {
+  let coverBackground;
+  switch (game.settings.get("dnd5e-helpers", "coverTint")) {
+    case 0: coverBackground = "DarkRed";
+      break;
+    case 1: coverBackground = "CadetBlue";
+      break;
+    case 2: coverBackground = "DimGrey";
+      break;
+    case 3: coverBackground = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)"
+
+  }
+  let whisperContent = html.find(".whisper-to")[0]
+  if(whisperContent) whisperContent.textContent = ""
+  let half = html.find(".dnd5ehelpersHalfCover")[0]
+  let three = html.find(".dnd5ehelpersQuarterCover")[0]
+  if(!half || !three) return;
+  half.addEventListener("click", function () { AddCover(half, three) })
+  three.addEventListener("click", function () { AddCover(three, half) })
+  let active = html.find(".cover-button.active")[0]
+  active.style.background = coverBackground;
+  active.childNodes[0].style.opacity = 0.8;
+  let message = game.messages.entries.find(m => m.id === app.id)
+  message.setFlag('dnd5e-helpers', 'coverMessage', true)
+})
 
 //collate all preUpdateActor hooked functions into a single hook call
 Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
@@ -695,6 +720,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
       await removeCover(undefined, token)
     }
   }
+  DnDCombatUpdates.cleanUpCover(combat)
 });
 
 Hooks.on("deleteCombatant", async (combat, combatant) => {
@@ -873,6 +899,9 @@ Hooks.on("renderChatMessage", (app, html, data) => {
   active.childNodes[0].style.opacity = 0.8;
 })
 
+Hooks.on("createCombat", (combat) => {
+  combat.setFlag('dnd5e-helpers', 'chatLength', game.messages.size)
+})
 
 /** helper functions */
 
@@ -1413,7 +1442,7 @@ class DnDCombatUpdates {
 
   }
 
-  static as/**
+  /**
   * 
   * @param {Combat} combat 
   * @param {Combatant} combatant 
@@ -1572,6 +1601,16 @@ class DnDCombatUpdates {
     item.roll();
      }
   }
+
+  static cleanUpCover(combat){
+    const chatLength = combat.getFlag('dnd5e-helpers', 'chatLength')
+    let chatSection = Array.from(ui.chat.collection)
+    if(chatLength > chatSection.size) return;
+    chatSection.splice(0, chatLength)
+    let oldCover = chatSection.filter(m => m.getFlag("dnd5e-helpers", "coverMessage"))
+    for ( let message of oldCover) {message.delete()}
+  }
+
   
 }
 
@@ -2296,18 +2335,6 @@ class CoverData {
  * @returns 
  */
  async function onTargetToken(user, target, onOff) {
-  let coverBackground;
-  switch(game.settings.get("dnd5e-helpers", "coverTint")){
-    case 0 : coverBackground = "DarkRed";
-    break;
-    case 1 :  coverBackground = "CadetBlue";
-    break;
-    case 2:  coverBackground = "DimGrey";
-    break;
-    case 3:  coverBackground = "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)"
-    
-  }
-
   /** bail immediately if LOS calc is disabled */
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
 
@@ -2350,25 +2377,25 @@ class CoverData {
             case "-2": {
               coverName = `${game.i18n.format("DND5EH.LoS_halfcover")}`;
               effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg";
-              }
+            }
               break;
             case "-5": {
               coverName = `${game.i18n.format("DND5EH.LoS_34cover")}`;
               effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg";
-              }
+            }
               break;
           }
 
           let changes = [
-              { key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
-              { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
-              { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
-              { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel }
-            ]
+            { key: "data.bonuses.rwak.attack", mode: 2, value: coverLevel },
+            { key: "data.bonuses.rsak.attack", mode: 2, value: coverLevel },
+            { key: "data.bonuses.mwak.attack", mode: 2, value: coverLevel },
+            { key: "data.bonuses.msak.attack", mode: 2, value: coverLevel }
+          ]
           let effectData = {
             changes: changes,
             disabled: false,
-            duration: {rounds :1},
+            duration: { rounds: 1 },
             icon: effDataIcon,
             label: `DnD5e Helpers ${coverName}`,
             tint: "#747272"
@@ -2460,6 +2487,7 @@ function AddCover(d, d2) {
     d2.childNodes[0].style.opacity = 0.3;
   }
 }
+
 
 async function removeCover(user, token) {
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
