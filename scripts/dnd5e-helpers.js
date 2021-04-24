@@ -1989,11 +1989,17 @@ class DnDActionManagement {
   static async AddActionMarkers(tokenArray) {
     const actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Action Used New.png")
     const reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Reaction Used New.png")
-    const bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Bonus Action Used New.png")
+   static async AddActionMarkers(tokenArray) {
+    const actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/ACTION2.png")
+    const reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/reaction.png")
+    const bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/bonus.png")
+    const backgroundTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/background.png")
+    let newOrig = { height: 150, width: 150, x: 0, y: 0}
+    bonusTexture.orig =newOrig;
 
     for (let token of tokenArray) {
-      if(!token.owner) continue;
-      if(token.children.find(i => i.Helpers)) continue;
+      if (!token.owner) continue;
+      if (token.children.find(i => i.Helpers)) continue;
       const actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
       const action = new PIXI.Sprite(actionTexture)
       const reaction = new PIXI.Sprite(reactionTexture)
@@ -2008,24 +2014,34 @@ class DnDActionManagement {
 
       let ActionCont = new PIXI.Container();
       ActionCont.setParent(token);
+      ActionCont.sortableChildren = true;
       ActionCont.Helpers = true;
       ActionCont.visible = token._controlled;
       let actionIcon = await ActionCont.addChild(action);
       let reactionIcon = await ActionCont.addChild(reaction);
       let bonusIcon = await ActionCont.addChild(bonus);
-      
+      let backgroundIcon = await ActionCont.addChild(background);
 
-      actionIcon.position.set(textureSub, -textureSub)
+
+
+      actionIcon.position.set(horiAlign*5, -vertiAlign)
       actionIcon.actionType = "action"
+      actionIcon.tint = 13421772
       actionIcon.alpha = actions?.action ? 0.2 : 1
 
-      reactionIcon.position.set(0, -textureSub)
+      reactionIcon.position.set(horiAlign*2, -vertiAlign)
       reactionIcon.actionType = "reaction"
+      reactionIcon.tint = 13421772
       reactionIcon.alpha = actions?.reaction ? 0.2 : 1
 
-      bonusIcon.position.set(textureSub*3, -textureSub)
+      bonusIcon.position.set(horiAlign * 8, -vertiAlign)
       bonusIcon.actionType = "bonus"
+      bonusIcon.tint = 13421772
       bonusIcon.alpha = actions?.bonus ? 0.2 : 1
+
+      backgroundIcon.position.set(horiAlign*5, -vertiAlign)
+      backgroundIcon.zIndex = -1000
+
       const resetActions = {
         action: 0,
         reaction: 0,
@@ -2034,6 +2050,7 @@ class DnDActionManagement {
       await token.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
     }
   }
+
 
   /**
    * Update
@@ -2268,7 +2285,7 @@ class CoverData {
    * @return {String} 
    * @memberof CoverData
    */
-  toMessageContent() {
+   toMessageContent() {
     /** the cover data must be fully populated and finalized before anything else can happen */
     if (this.FinalCoverLevel < 0) {
       console.error(game.i18n.format("DND5EH.LoS_coverlevelerror1"));
@@ -2278,6 +2295,7 @@ class CoverData {
     /** abuse the dice roll classes to make it look like I know how to UI ;) */
     let sightlineTranslation = game.i18n.format("DND5EH.LoS_outputmessage");
     let sanitizedSourceToken = this.SourceToken.name;
+    let sanitizedSourceTokenCap = sanitizedSourceToken.charAt(0).toUpperCase() + sanitizedSourceToken.slice(1)
     let sanitizedTargetToken = this.TargetToken.name;
     if (this.SourceToken.actor?.data.type === "npc") {
       sanitizedSourceToken = DnDHelpers.sanitizeName(
@@ -2295,7 +2313,7 @@ class CoverData {
     }
     const content = `
     <div class="dnd5ehelpers">
-      <div class="dice-roll"><i>${sanitizedSourceToken} ${sightlineTranslation} ${sanitizedTargetToken}</i>
+      <div class="dice-roll"><i>${sanitizedSourceTokenCap} ${sightlineTranslation} ${sanitizedTargetToken}</i>
         <div class="dice-result">
           <div class="dice-formula">${this.Summary.Text}
             <div class="desc">${this.Summary.Source}
