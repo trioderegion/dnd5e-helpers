@@ -1986,15 +1986,14 @@ class DnDActionManagement {
    * Add PIXI container and relevant assets to the token
    * @param {Array} tokenArray Tokens to add action markers too
    */
-  static async AddActionMarkers(tokenArray) {
-    const actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Action Used New.png")
-    const reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/Reaction Used New.png")
    static async AddActionMarkers(tokenArray) {
     const actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/ACTION2.png")
     const reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/reaction.png")
     const bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/bonus.png")
     const backgroundTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/background.png")
     let newOrig = { height: 150, width: 150, x: 0, y: 0}
+    actionTexture.orig =newOrig;
+    reactionTexture.orig =newOrig;
     bonusTexture.orig =newOrig;
 
     for (let token of tokenArray) {
@@ -2003,14 +2002,23 @@ class DnDActionManagement {
       const actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
       const action = new PIXI.Sprite(actionTexture)
       const reaction = new PIXI.Sprite(reactionTexture)
+      const background = new PIXI.Sprite(backgroundTexture)
       const bonus = new PIXI.Sprite(bonusTexture)
       const textureSize = token.data.height * canvas.grid.size;
-      const textureSub = textureSize/4
-      //generate scale for overlay (total HUD width is 800 pixels)
-      const scale = 1/(800/textureSize)
+
+      let horiAlign = token.w / 10
+      let vertiAlign = token.h / 5 
+      //generate scale for overlay (total HUD width is 600 pixels)
+      const scale = 1 / (600 / textureSize)
+      action.anchor.set(0.5)
+      reaction.anchor.set(0.5)
+      bonus.anchor.set(0.5)
+      background.anchor.set(0.5)
+
       action.scale.set(scale)
       reaction.scale.set(scale)
       bonus.scale.set(scale)
+      background.scale.set(scale)
 
       let ActionCont = new PIXI.Container();
       ActionCont.setParent(token);
