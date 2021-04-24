@@ -725,6 +725,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
 
 Hooks.on("deleteCombatant", async (combat, combatant) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+
   if (reactMode === 1) {
     await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
   }
@@ -732,6 +733,11 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
   if (game.settings.get('dnd5e-helpers', 'lairHelperEnable') && DnDHelpers.IsFirstGM()) {
     await DnDCombatUpdates.RemoveLairMapping(combat, combatant);
   }
+
+  if(game.settings.get(MODULE, 'LegendaryHelperEnable') && DnDHelpers.IsFirstGM()) {
+    await DnDCombatUpdates.RemoveLegMapping(combat, combatant)
+  }
+
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
     let token = canvas.tokens.get(combatant.tokenId)
     removeCover(undefined, token)
@@ -1390,7 +1396,9 @@ class DnDCombatUpdates {
     let LegAction = tokenItems.filter((i) => i.data?.data?.activation?.type === "legendary");
     if (LegAction.length > 0) {
       let comabtLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
+      //console.log(`Adding ${token.name}'s leg acts. Current array = ${comabtLeg}`);
       comabtLeg.push([token.data.name, LegAction, token.id])
+      //console.log(`...updated array: ${comabtLeg}`);
       return combat.setFlag('dnd5e-helpers', 'Legendary Actions', comabtLeg)
     }
 
