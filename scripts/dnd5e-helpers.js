@@ -364,7 +364,8 @@ Hooks.on('init', () => {
     name: game.i18n.format("DND5EH.OpenWoundCrit_name"),
     hint: game.i18n.format("DND5EH.OpenWoundCrit_hint"),
     scope: 'world',
-    config: true,
+    config: false,
+    group: "combat",
     default: false,
     type: Boolean,
   });
