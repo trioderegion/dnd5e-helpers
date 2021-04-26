@@ -3,6 +3,8 @@ const wmToCFeatureDefault = "Tides of Chaos";
 const wmSurgeTableDefault = "Wild-Magic-Surge-Table";
 
 import {HelpersSettingsConfig, PATH, MODULE} from './modules/config-app.js'
+import {queueEntityUpdate} from './modules/update-queue.js'
+
 
 Hooks.on('init', () => {
 
@@ -710,7 +712,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode === 1) {
     for (let combatant of combat.data.combatants) {
-      DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
+      await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
     }
   }
 
@@ -720,6 +722,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
       await removeCover(undefined, token)
     }
   }
+
   DnDCombatUpdates.cleanUpCover(combat)
 });
 
@@ -730,12 +733,12 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
     await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
   }
 
-  if (game.settings.get('dnd5e-helpers', 'lairHelperEnable') && DnDHelpers.IsFirstGM()) {
-    await DnDCombatUpdates.RemoveLairMapping(combat, combatant);
+  if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
+    DnDCombatUpdates.RemoveLairMapping(combat, combatant);
   }
 
-  if(game.settings.get(MODULE, 'LegendaryHelperEnable') && DnDHelpers.IsFirstGM()) {
-    await DnDCombatUpdates.RemoveLegMapping(combat, combatant)
+  if(game.settings.get(MODULE, 'LegendaryHelperEnable')) {
+    DnDCombatUpdates.RemoveLegMapping(combat, combatant)
   }
 
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
@@ -840,13 +843,15 @@ Hooks.on("createCombatant", async (combat, token) => {
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
 
-  if (lairHelperEnable && DnDHelpers.IsFirstGM()) {
-    await DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
+  if (lairHelperEnable) {
+    DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
   }
 
-  if (legHelperEnable && DnDHelpers.IsFirstGM()) {
-    await DnDCombatUpdates.LegendaryActionMapping(tokenInstance, combat)
+  if (legHelperEnable) {
+    DnDCombatUpdates.LegendaryActionMapping(tokenInstance, combat);
   }
+
+  
 })
 
 Hooks.on("updateToken", (scene, token, update) => {
@@ -1370,17 +1375,21 @@ class DnDCombatUpdates {
    * @returns 
    * Generate lair action array
    */
-  static async LairActionMapping(token, combat) {
+  static LairActionMapping(token, combat) {
     if (!DnDHelpers.IsFirstGM) return;
-    let tokenItems = getProperty(token, "items") || token.actor.items
-    let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
-    if (lairActions.length > 0) {
-      let combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
-      combatLair.push([token.data.name, lairActions, token.id])
-      return combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
+    const updateFn = async () => {
+      let tokenItems = getProperty(token, "items") || token.actor.items
+      let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
+      if (lairActions.length > 0) {
+        let combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
+        combatLair.push([token.data.name, lairActions, token.id])
+        return combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
+      }
+
+      return true;
     }
 
-    return true;
+    queueEntityUpdate(combat.entity, updateFn);
   }
 
   /**
@@ -1390,19 +1399,24 @@ class DnDCombatUpdates {
      * @returns 
      * Generate Legendary action array
      */
-  static async LegendaryActionMapping(token, combat) {
+  static LegendaryActionMapping(token, combat) {
     if (!DnDHelpers.IsFirstGM) return;
-    let tokenItems = getProperty(token, "items") || token.actor.items
-    let LegAction = tokenItems.filter((i) => i.data?.data?.activation?.type === "legendary");
-    if (LegAction.length > 0) {
-      let comabtLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
-      //console.log(`Adding ${token.name}'s leg acts. Current array = ${comabtLeg}`);
-      comabtLeg.push([token.data.name, LegAction, token.id])
-      //console.log(`...updated array: ${comabtLeg}`);
-      return combat.setFlag('dnd5e-helpers', 'Legendary Actions', comabtLeg)
+
+    const updateFn = async () => {
+      let tokenItems = getProperty(token, "items") || token.actor.items
+      let LegAction = tokenItems.filter((i) => i.data?.data?.activation?.type === "legendary");
+      if (LegAction.length > 0) {
+        let comabtLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
+        //console.log(`Adding ${token.name}'s leg acts. Current array = ${comabtLeg}`);
+        comabtLeg.push([token.data.name, LegAction, token.id])
+        //console.log(`...updated array: ${comabtLeg}`);
+        return combat.setFlag('dnd5e-helpers', 'Legendary Actions', comabtLeg)
+      }
+
+      return true;
     }
 
-    return true;
+    queueEntityUpdate(combat.entity, updateFn);
   }
 
   /**
@@ -1413,18 +1427,32 @@ class DnDCombatUpdates {
    */
   static async RemoveLairMapping(combat, combatant) {
     if (!DnDHelpers.IsFirstGM) return;
-    /** get the actual token */
-    const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?.id;
+    const updateFn = async () => {
+      /** get the actual token */
+      const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?._id;
 
-    /** check for a removal of a lair actor */
-    const combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
-    const updatedList = combatLair.filter(entry => entry[2] == tokenId);
+      /** error, could not find token referenced by combatant */
+      if (!tokenId) {
+        if(game.settings.get(MODULE, 'debug')) {
+          console.log(`${MODULE} | could not locate ${combatant.name} with token ID ${combatant.tokenId} in scene ${combat.scene.id}`);
+        }
 
-    if (combatLair.length != updatedList.length) {
-      /** a change occured, update the flag */
-      return combat.setFlag('dnd5e-helpers', 'Lair Actions', updatedList)
+        return;
+      }
+
+      /** check for a removal of a lair actor */
+      const combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
+      const updatedList = combatLair.filter(entry => entry[2] !== tokenId);
+
+      if (combatLair.length != updatedList.length) {
+        /** a change occured, update the flag */
+        return combat.setFlag('dnd5e-helpers', 'Lair Actions', updatedList)
+      }
+
+      return true;
     }
 
+    queueEntityUpdate(combat.entity, updateFn);
   }
 
   /**
@@ -1435,18 +1463,33 @@ class DnDCombatUpdates {
   */
   static async RemoveLegMapping(combat, combatant) {
     if (!DnDHelpers.IsFirstGM) return;
-    /** get the actual token */
-    const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?.id;
+    const updateFn = async () => {
 
-    /** check for a removal of a lair actor */
-    const combatLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
-    const updatedList = combatLeg.filter(entry => entry[2] == tokenId);
+      /** get the actual token */
+      const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?._id;
 
-    if (combatLeg.length != updatedList.length) {
-      /** a change occured, update the flag */
-      return combat.setFlag('dnd5e-helpers', 'Lair Actions', updatedList)
+      /** error, could not find token referenced by combatant */
+      if (!tokenId) {
+        if(game.settings.get(MODULE, 'debug')) {
+          console.log(`${MODULE} | could not locate ${combatant.name} with token ID ${combatant.tokenId} in scene ${combat.scene.id}`);
+        }
+
+        return;
+      }
+
+      /** check for a removal of a lair actor */
+      const combatLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
+      const updatedList = combatLeg.filter(entry => entry[2] !== tokenId);
+
+      if (combatLeg.length != updatedList.length) {
+        /** a change occured, update the flag */
+        return combat.setFlag('dnd5e-helpers', 'Legendary Actions', updatedList)
+      }
+
+      return true;
     }
 
+    queueEntityUpdate(combat.entity, updateFn);
   }
 
   /**
@@ -1599,13 +1642,15 @@ class DnDCombatUpdates {
      }
   }
 
-  static cleanUpCover(combat){
+  static async cleanUpCover(combat){
     const chatLength = combat.getFlag('dnd5e-helpers', 'chatLength')
     let chatSection = Array.from(ui.chat.collection)
     if(chatLength > chatSection.size) return;
     chatSection.splice(0, chatLength)
     let oldCover = chatSection.filter(m => m.getFlag("dnd5e-helpers", "coverMessage"))
-    for ( let message of oldCover) {message.delete()}
+
+    // @todo deleteMany?
+    for ( let message of oldCover) {await message.delete()}
   }
 
   
