@@ -1,4 +1,4 @@
-let updateQueues = new Map();
+const updateQueues = new Map();
 
 /** 
  * Safely manages concurrent updates to the provided entity type

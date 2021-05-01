@@ -1,7 +1,5 @@
-export {HelpersSettingsConfig}
-
-export const MODULE = 'dnd5e-helpers';
-export const PATH = `modules/${MODULE}`
+export const MODULE = "dnd5e-helpers";
+export const PATH = `modules/${MODULE}`;
 
 /**
  * A game settings configuration application
@@ -9,10 +7,20 @@ export const PATH = `modules/${MODULE}`
  *
  * @extends {FormApplication}
  */
-class HelpersSettingsConfig extends FormApplication {
+export class D5HSettingsConfig extends FormApplication {
+  static onInit() {
+    game.settings.registerMenu(MODULE, "helpersOptions", {
+      name: "DnD5e Helpers Configuration",
+      label: "Open Configuration Menu",
+      // hint: "Player Helpers Hint",
+      icon: "fas fa-user-cog",
+      type: this,
+      restricted: true,
+    });
+  }
 
   /** @override */
-	static get defaultOptions() {
+  static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       title: game.i18n.localize("Helpers"),
       id: "helpers-client-settings",
@@ -20,9 +28,13 @@ class HelpersSettingsConfig extends FormApplication {
       width: 600,
       height: "auto",
       tabs: [
-        {navSelector: ".tabs", contentSelector: ".content", initial: "general"}
-      ]
-    })
+        {
+          navSelector: ".tabs",
+          contentSelector: ".content",
+          initial: "general",
+        },
+      ],
+    });
   }
 
   /* -------------------------------------------- */
@@ -30,14 +42,34 @@ class HelpersSettingsConfig extends FormApplication {
   /** @override */
   getData(options) {
     const gs = game.settings;
-    const canConfigure =  game.user.can("SETTINGS_MODIFY");
+    const canConfigure = game.user.can("SETTINGS_MODIFY");
 
     // Set-up placeholder structure for system, and specific settings
     // @todo this feels like it should be a map instead of an array
     const data = {
-      tabs:[{name: "system", i18nName:"System Helpers", class: "fas fa-cog", menus: [], settings: []},
-            {name: "features", i18nName:"Feature Helpers", class: "fas fa-address-book", menus: [], settings: []},
-            {name: "combat", i18nName:"Combat Helpers", class: "fas fa-dice-d20", menus: [], settings: []}]
+      tabs: [
+        {
+          name: "system",
+          i18nName: "System Helpers",
+          class: "fas fa-cog",
+          menus: [],
+          settings: [],
+        },
+        {
+          name: "features",
+          i18nName: "Feature Helpers",
+          class: "fas fa-address-book",
+          menus: [],
+          settings: [],
+        },
+        {
+          name: "combat",
+          i18nName: "Combat Helpers",
+          class: "fas fa-dice-d20",
+          menus: [],
+          settings: [],
+        },
+      ],
     };
 
     /* @todo fully implement this if we require sub-menus
@@ -59,13 +91,12 @@ class HelpersSettingsConfig extends FormApplication {
     */
 
     // Classify all settings
-    for ( let setting of gs.settings.values() ) {
-
+    for (const setting of gs.settings.values()) {
       // Only concerned about dnd5e-helpers settings
-      if(setting.module !== MODULE) continue;
+      if (setting.module !== MODULE) continue;
 
       // Exclude settings the user cannot change
-      if ( /*!setting.config ||*/ (!canConfigure && (setting.scope !== "client")) ) continue;
+      if (!canConfigure && setting.scope !== "client") continue;
 
       // Update setting data
       const s = duplicate(setting);
@@ -75,28 +106,28 @@ class HelpersSettingsConfig extends FormApplication {
       s.type = setting.type instanceof Function ? setting.type.name : "String";
       s.isCheckbox = setting.type === Boolean;
       s.isSelect = s.choices !== undefined;
-      s.isRange = (setting.type === Number) && s.range;
+      s.isRange = setting.type === Number && s.range;
 
       // Classify setting
       const name = s.module;
-      if(name === MODULE) {
+      if (name === MODULE) {
         const group = s.group;
-        let groupTab = data.tabs.find( tab => tab.name === group ) ?? false;
-        if(groupTab) { 
+        const groupTab = data.tabs.find((tab) => tab.name === group) ?? false;
+        if (groupTab) {
           groupTab.settings.push(s);
         }
       }
     }
 
     // Sort Module headings by name
-    //data.modules = Object.values(data.modules).sort((a, b) => a.title.localeCompare(b.title));
+    // data.modules = Object.values(data.modules).sort((a, b) => a.title.localeCompare(b.title));
 
     // Return data
     return {
       user: game.user,
       canConfigure: canConfigure,
       systemTitle: game.system.data.title,
-      data: data
+      data: data,
     };
   }
 
@@ -107,7 +138,7 @@ class HelpersSettingsConfig extends FormApplication {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html.find('.submenu button').click(this._onClickSubmenu.bind(this));
+    html.find(".submenu button").click(this._onClickSubmenu.bind(this));
     html.find('button[name="reset"]').click(this._onResetDefaults.bind(this));
   }
 
@@ -121,7 +152,8 @@ class HelpersSettingsConfig extends FormApplication {
   _onClickSubmenu(event) {
     event.preventDefault();
     const menu = game.settings.menus.get(event.currentTarget.dataset.key);
-    if ( !menu ) return ui.notifications.error("No submenu found for the provided key");
+    if (!menu)
+      return ui.notifications.error("No submenu found for the provided key");
     const app = new menu.type();
     return app.render(true);
   }
@@ -137,9 +169,9 @@ class HelpersSettingsConfig extends FormApplication {
     event.preventDefault();
     const button = event.currentTarget;
     const form = button.form;
-    for ( let [k, v] of game.settings.settings.entries() ) {
-      if ( v.config ) {
-        let input = form[k];
+    for (const [k, v] of game.settings.settings.entries()) {
+      if (v.config) {
+        const input = form[k];
         if (input.type === "checkbox") input.checked = v.default;
         else if (input) input.value = v.default;
       }
@@ -150,13 +182,12 @@ class HelpersSettingsConfig extends FormApplication {
 
   /** @override */
   async _updateObject(event, formData) {
-    for ( let [k, v] of Object.entries(flattenObject(formData)) ) {
-      let s = game.settings.settings.get(k);
-      let current = game.settings.get(s.module, s.key);
-      if ( v !== current ) {
+    for (const [k, v] of Object.entries(flattenObject(formData))) {
+      const s = game.settings.settings.get(k);
+      const current = game.settings.get(s.module, s.key);
+      if (v !== current) {
         await game.settings.set(s.module, s.key, v);
       }
     }
   }
 }
-
