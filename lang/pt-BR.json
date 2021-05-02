@@ -1,5 +1,6 @@
 {
     "DND5EH.Default_disabled" : "Desabilitado",
+    "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "Nenhum", 
     "DND5EH.Default_SocketSetup" :"Socket do DnD5e Helpers recebido",
     "DND5EH.Default_SocketSend": "Socket enviado com {socketData}",
@@ -40,6 +41,13 @@
     "DND5EH.LoSCover_auto" : "Automática",
     "DND5EH.LoSCover_cover" : "Cobertura",
 
+    "DND5EH.LoSTint_name" : "[EN]Cover Button Tint",
+    "DND5EH.LoSTint_hint" : "[EN]What color should be applied to the cover buttons to show which is active",
+    "DND5EH.LoSTint_red" : "[EN]Dark Red",
+    "DND5EH.LoSTint_blue" : "[EN]Light Blue",
+    "DND5EH.LoSTint_grey" : "[EN]Dim Grey",
+    "DND5EH.LoSTint_rainbow" : "[EN]Rainbow",
+
     "DND5EH.LoSWithTokens_name":"Considerar tokens interpostos como cobertura parcial",
     "DND5EH.LoSWithTokens_hint": "Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
     "DND5EH.LoSMaskNPCs_name": "Ocultar informações do MJ ao Relatar Cobertura",
@@ -75,11 +83,13 @@
     "DND5EH.WildMagicWisper_name":"Ocultar Magia Selvagem de Jogadores",
     "DND5EH.WildMagicWisper_hint":"Sussurrar todas as jogadas e resultados de tabelas ao MJ.",
 
-    "DND5EH.CombatReactionEnable_name": "Automação de uso de Reações.",
-    "DND5EH.CombatReactionEnable_hint":"[EN] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
+    "DND5EH.CombatReactionEnable_name": "[*]Automação de uso de Reações.",
+    "DND5EH.CombatReactionEnable_hint":"[*] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
     "DND5EH.CombatReactionEnable_apply":"Apenas Aplicar",
     "DND5EH.CombatReactionEnable_remove":"Apenas Remover",
     "DND5EH.CombatReactionEnable_both":"Aplicar e Remover",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Action Management",
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm Action Settings",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "DnD5e Helpers: Não é uma rolagem de item de ator",
     "DND5EH.CombatReactionStatus_statuslog":"DnD5e Helpers: o efeito de estado é: {statusEffect}",
@@ -107,6 +117,9 @@
     "DND5EH.AutoRegen_hint":"Sugere jogadas de Regeneração automaticamente ao MJ.",
     "DND5EH.AutoRegen_Regneration": "Regeneração",
     "DND5EH.AutoRegen_SelfRepair": "Autorreparação",
+    "DND5EH.regenBlock_name" :"[EN]Effect Name to Block Regeneration",
+    "DND5EH.regenBlock_hint" : "[EN]What name should be checked to prevent the regeneration popup",
+    "DND5EH.regenBlock_default" : "[EN]No Regen",
     "DND5EH.AutoRegenDialog_name": "Regeneração para {tokenName}",
     "DND5EH.AutoRegenDialog_content": "{tokenName} atualmente tem {tokenHP}/{actorMax} PV",
     "DND5EH.AutoRegenDialog_healingprompt": "Aplicar cura de {regenAmout}",

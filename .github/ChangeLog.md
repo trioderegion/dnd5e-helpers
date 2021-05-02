@@ -197,3 +197,31 @@
 
 - Localization:
   - Japanese localization update provided by BrotherSharper. We are, as always, grateful for the help.
+  - Localization Key Changes:
+    - Additions
+      - Default_enabled
+      - LoSKeybind_name
+      - LoSKeybind_hint
+      - LoSCover_name
+      - LoSCover_hint
+      - LoSCover_manual
+      - LoSCover_auto
+      - LoSCover_cover
+      - LoSTint_name
+      - LoSTint_hint
+      - LoSTint_red
+      - LoSTint_blue
+      - LoSTint_grey
+      - LoSTint_rainbow
+      - CombatReactionConfirmation
+      - regenBlock_name
+      - regenBlock_hint
+      - regenBlock_default
+      - LairHelper_name
+      - LairHelper_hint
+      - GreatAndOpenWoundMaskNPC_name
+      - GreatAndOpenWoundMaskNPC_hint
+      - GreatAndOpenWoundMaskNPC_mask
+    - Changes
+      - CombatReactionEnable_name
+      - CombatReactionEnable_hint

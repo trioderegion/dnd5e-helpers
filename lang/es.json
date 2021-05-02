@@ -1,5 +1,6 @@
 {
     "DND5EH.Default_disabled" : "Desactivado",
+    "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "Ninguno",
     "DND5EH.Default_SocketSetup" :"Socket de dnd5e helpers recibido",
     "DND5EH.Default_SocketSend": "socket enviado con {socketData}",
@@ -40,6 +41,13 @@
     "DND5EH.LoSCover_auto" : "[EN] Automatic",
     "DND5EH.LoSCover_cover" : "[EN] cover",
 
+    "DND5EH.LoSTint_name" : "[EN]Cover Button Tint",
+    "DND5EH.LoSTint_hint" : "[EN]What color should be applied to the cover buttons to show which is active",
+    "DND5EH.LoSTint_red" : "[EN]Dark Red",
+    "DND5EH.LoSTint_blue" : "[EN]Light Blue",
+    "DND5EH.LoSTint_grey" : "[EN]Dim Grey",
+    "DND5EH.LoSTint_rainbow" : "[EN]Rainbow",
+
     "DND5EH.LoSWithTokens_name":"Considerar tokens como media cob.",
     "DND5EH.LoSWithTokens_hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",
     "DND5EH.LoSMaskNPCs_name": "No mostrar información del GM del Anuncio de Cob.",
@@ -75,11 +83,13 @@
     "DND5EH.WildMagicWisper_name":"No mostrar Magia Salvaje a los jugadores",
     "DND5EH.WildMagicWisper_hint":"Susurra todas las tiradas y resultados de la tabla al GM",
 
-    "DND5EH.CombatReactionEnable_name": "Automatización del uso de reacciones.",
-    "DND5EH.CombatReactionEnable_hint":"Activa o desactiva esta función (global). Comprueba el uso de habilidades de reacción o acciones fuera de turno y aplica el estado especificado.and applies the specified status. 'Quitar' quitará este efecto autom. al principio del turnodel actor",
+    "DND5EH.CombatReactionEnable_name": "[*]Automatización del uso de reacciones.",
+    "DND5EH.CombatReactionEnable_hint":"[*]Activa o desactiva esta función (global). Comprueba el uso de habilidades de reacción o acciones fuera de turno y aplica el estado especificado.and applies the specified status. 'Quitar' quitará este efecto autom. al principio del turnodel actor",
     "DND5EH.CombatReactionEnable_apply":"Solo aplicar",
     "DND5EH.CombatReactionEnable_remove":"Solo quitar",
     "DND5EH.CombatReactionEnable_both":"Aplicar y quitar",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Action Management",
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm Action Settings",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: No es una tirada de item de actor",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: el efecto de estado es: {statusEffect}",
@@ -107,6 +117,9 @@
     "DND5EH.AutoRegen_hint":"Ofrece automáticamente al GM las tiradas de regeneración",
     "DND5EH.AutoRegen_Regneration": "Regeneración",
     "DND5EH.AutoRegen_SelfRepair": "Autorreparación",
+    "DND5EH.regenBlock_name" :"[EN]Effect Name to Block Regeneration",
+    "DND5EH.regenBlock_hint" : "[EN]What name should be checked to prevent the regeneration popup",
+    "DND5EH.regenBlock_default" : "[EN]No Regen",
     "DND5EH.AutoRegenDialog_name": "Regeneración para {tokenName}",
     "DND5EH.AutoRegenDialog_content": "{tokenName} tiene ahora mismo {tokenHP}/{actorMax} PG",
     "DND5EH.AutoRegenDialog_healingprompt": "Aplicar sanación de {regenAmout}",
@@ -172,6 +185,10 @@
 
     "DND5EH.OpenWoundDebug_name":"Debugging",
     "DND5EH.OpenWoundDebug_hint":"Adds a few console logs for debugging purposes",
+
+    "DND5EH.GreatAndOpenWoundMaskNPC_name": "Hide GM info from Great Wound and Open Wound report",
+    "DND5EH.GreatAndOpenWoundMaskNPC_hint": "Replaces uses of the NPC's name with \"A creature\" when reporting",
+    "DND5EH.GreatAndOpenWoundMaskNPC_mask": "a creature",
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: {actorName}'s update contains hp: {hp}, spells: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: {currentTokenName}'s update contains regen: {regenSett}",
