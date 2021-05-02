@@ -34,15 +34,6 @@ Hooks.on("init", () => {
 
   // Init system extensions
   D5HDiceExtensions.onInit();
-  // game.settings.register("dnd5e-helpers", "debug", {
-  //   name: game.i18n.format("DND5EH.OpenWoundDebug_name"),
-  //   hint: game.i18n.format("DND5EH.OpenWoundDebug_hint"),
-  //   scope: 'world',
-  //   type: Boolean,
-  //   group: "system",
-  //   default: false,
-  //   config: false,
-  // });
 });
 
 Hooks.on("ready", () => {
@@ -88,16 +79,6 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   //check what property is updated to prevent unnessesary function calls
   let hp = getProperty(update, "data.attributes.hp.value");
   let spells = getProperty(update, "data.spells");
-  if (game.settings.get("dnd5e-helpers", "debug")) {
-    console.log(
-      game.i18n.format("DND5EH.Hooks_preUpdateActor_updatelog", {
-        actorName: actor.name,
-        hp: hp,
-        spells: spells,
-      })
-    );
-  }
-
   /** WM check, are we enabled for the current user? */
   const wmSelectedOption = game.settings.get("dnd5e-helpers", "wmOptions");
   if (wmSelectedOption !== 0 && spells !== undefined) {
@@ -108,18 +89,8 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
     );
   }
 
-  /** Great wound checks */
-  if (game.settings.get("dnd5e-helpers", "gwEnable") && hp !== undefined) {
-    DnDWounds.GreatWound_preUpdateActor(actor, update);
-  }
-
-  /** Open wound checks */
-  if (game.settings.get("dnd5e-helpers", "owHp0") && hp === 0) {
-    DnDWounds.OpenWounds(
-      actor.data.name,
-      game.i18n.format("DND5EH.OpenWound0HP_reason")
-    );
-  }
+  await D5HGreatWounds.onPreUpdateActor(actor, update, options, userId);
+  await D5HOpenWounds.onPreUpdateActor(actor, update, options, userId);
 });
 
 /** All preUpdateCombat hooks are managed here */
@@ -180,16 +151,6 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       (i) => i.name === option1 || i.name === option2
     );
 
-    if (game.settings.get("dnd5e-helpers", "debug")) {
-      let regenSett = !!regen;
-      console.log(
-        game.i18n.format("DND5EH.Hooks_updateActor_updatelog", {
-          currentTokenName: currentToken.name,
-          regenSett: regenSett,
-        })
-      );
-    }
-
     if (game.settings.get("dnd5e-helpers", "lairHelperEnable")) {
       let pastLair = false;
       if (nextTurn?.initiative && previousTurn?.initiative) {
@@ -249,31 +210,16 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 });
 
 /** all preUpdateToken hooks handeled here */
-Hooks.on("preUpdateToken", (_scene, tokenData, update, options) => {
+Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   let hp = getProperty(update, "actorData.data.attributes.hp.value");
-  if (
-    game.settings.get("dnd5e-helpers", "gwEnable") &&
-    hp !== (null || undefined)
-  ) {
-    DnDWounds.GreatWound_preUpdateToken(tokenData, update);
-  }
+
+  D5HGreatWounds.onPreUpdateToken(scene, tokenData, update, options);
 
   let Actor = game.actors.get(tokenData.actorId);
   let fortitudeFeature = Actor?.items.find(
     (i) => i.name === game.i18n.format("DND5EH.UndeadFort_name")
   );
   let fortSett = !!fortitudeFeature;
-
-  /** output debug information -- @todo scope by feature */
-  if (game.settings.get("dnd5e-helpers", "debug")) {
-    console.log(
-      game.i18n.format("DND5EH.Hooks_preupdateToken_updatelog", {
-        ActorName: Actor.name,
-        hp: hp,
-        fortSett: fortSett,
-      })
-    );
-  }
 
   if (game.settings.get("dnd5e-helpers", "undeadFort") === "1") {
     if (hp === 0 && fortitudeFeature !== null) {
@@ -324,10 +270,10 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   ) {
     if (parseInt(msg.content) < 6) {
       let actor = game.actors.get(msg.speaker.actor);
-      DnDWounds.OpenWounds(
+      D5HOpenWounds.applyOpenWounds(
         actor.data.name,
         game.i18n.format("DND5EH.OpenWoundDeathSave_reason")
-      );
+      )
     }
   }
 
@@ -343,10 +289,10 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
     if (rollTotal >= critMin) {
       let targetArray = game.users.get(msg.user).targets;
       for (let targets of targetArray) {
-        DnDWounds.OpenWounds(
+        D5HOpenWounds.applyOpenWounds(
           targets.actor.data.name,
           game.i18n.format("DND5EH.OpenWoundCrit_reason")
-        );
+        )
       }
     }
   }
@@ -556,7 +502,7 @@ Hooks.on("renderTokenHUD", (app, html, data) => {
 Hooks.on("midi-qol.AttackRollComplete", (workflow) => {
   if (game.settings.get("dnd5e-helpers", "owCrit")) {
     if (workflow.isCritical) {
-      DnDWounds.OpenWounds(
+      D5HOpenWounds.applyOpenWounds(
         Array.from(workflow.targets)[0],
         game.i18n.format("DND5EH.OpenWoundCrit_reason")
       );
@@ -672,9 +618,7 @@ class DnDWildMagic {
         rollMode: rollType,
       });
     } else {
-      if (game.settings.get("dnd5e-helpers", "debug")) {
-        console.log(game.i18n.format("DND5EH.WildMagicTableError"));
-      }
+      console.log("DnD5e Helpers | Wild Magic Surge - "+game.i18n.format("DND5EH.WildMagicTableError"))
     }
   }
 
@@ -1556,185 +1500,6 @@ class DnDCombatUpdates {
   }
 }
 
-class DnDWounds {
-  /**
-   *
-   * @param {Object} tokenData
-   * @param {Object} update
-   */
-  static GreatWound_preUpdateToken(tokenData, update) {
-    //find update data and original data
-    let actor = game.actors.get(tokenData.actorId);
-    let data = {
-      actorData: canvas.tokens.get(tokenData._id).actor.data,
-      actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
-      actorMax: getProperty(tokenData, "actorData.data.attributes.hp.max"),
-      updateHP: update.actorData.data.attributes.hp.value,
-    };
-    if (data.actorMax == undefined) {
-      data.actorMax = actor.data.data.attributes.hp.max;
-    }
-    if (data.actorHP == undefined) {
-      data.actorHP = data.actorMax;
-    }
-    let hpChange = data.actorHP - data.updateHP;
-    // check if the change in hp would be over 50% max hp
-    if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
-      const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-      new Dialog({
-        title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {
-          gwFeatureName: gwFeatureName,
-          actorName: actor.name,
-        }),
-        buttons: {
-          one: {
-            label: game.i18n.format("DND5EH.Default_roll"),
-            callback: () => {
-              DnDWounds.DrawGreatWound(actor);
-            },
-          },
-        },
-      }).render(true);
-    }
-  }
-
-  /**
-   *
-   * @param {Object} actor
-   * @param {Object} update
-   */
-  static GreatWound_preUpdateActor(actor, update) {
-    //find update data and original data
-    let data = {
-      actor: actor,
-      actorData: actor.data,
-      updateData: update,
-      actorHP: actor.data.data.attributes.hp.value,
-      actorMax: actor.data.data.attributes.hp.max,
-      updateHP: hasProperty(update, "data.attributes.hp.value")
-        ? update.data.attributes.hp.value
-        : 0,
-      hpChange:
-        actor.data.data.attributes.hp.value -
-        (hasProperty(update, "data.attributes.hp.value")
-          ? update.data.attributes.hp.value
-          : actor.data.data.attributes.hp.value),
-    };
-
-    const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-    // check if the change in hp would be over 50% max hp
-    if (data.hpChange >= Math.ceil(data.actorMax / 2)) {
-      new Dialog({
-        title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {
-          gwFeatureName: gwFeatureName,
-          actorName: actor.name,
-        }),
-        buttons: {
-          one: {
-            label: game.i18n.format("DND5EH.Default_roll"),
-            callback: () => {
-              if (game.user.data.role !== 4) {
-                DnDWounds.DrawGreatWound(actor);
-                return;
-              }
-
-              const socketData = {
-                users: actor._data.permission,
-                actorId: actor._id,
-                greatwound: true,
-                hp: data.updateHP,
-              };
-              console.log(
-                game.i18n.format("DND5EH.Default_SocketSend", {
-                  socketData: socketData,
-                })
-              );
-              game.socket.emit(`module.dnd5e-helpers`, socketData);
-            },
-          },
-        },
-      }).render(true);
-    }
-  }
-
-  /**
-   *
-   * @param {Object} actor
-   */
-  static DrawGreatWound(actor) {
-    const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-    (async () => {
-      let gwSave = await actor.rollAbilitySave("con");
-      let sanitizedTokenName = actor.name;
-      if (actor.data.type === "npc") {
-        sanitizedTokenName = DnDHelpers.sanitizeName(
-          actor.name,
-          "gwMaskNPCs",
-          "DND5EH.GreatAndOpenWoundMaskNPC_mask"
-        );
-      }
-      if (gwSave.total < 15) {
-        const greatWoundTable = game.settings.get(
-          "dnd5e-helpers",
-          "gwTableName"
-        );
-        ChatMessage.create({
-          content: game.i18n.format("DND5EH.GreatWoundDialogFailMessage", {
-            actorName: sanitizedTokenName,
-            gwFeatureName: gwFeatureName,
-          }),
-        });
-        if (greatWoundTable !== "") {
-          game.tables
-            .getName(greatWoundTable)
-            .draw({ roll: null, results: [], displayChat: true });
-        } else {
-          ChatMessage.create({
-            content: game.i18n.format("DND5EH.GreatWoundDialogError", {
-              gwFeatureName: gwFeatureName,
-            }),
-          });
-        }
-      } else {
-        ChatMessage.create({
-          content: game.i18n.format("DND5EH.GreatWoundDialogSuccessMessage", {
-            actorName: sanitizedTokenName,
-            gwFeatureName: gwFeatureName,
-          }),
-        });
-      }
-    })();
-  }
-
-  /**
-   *
-   * @param {String} actorName
-   * @param {String} woundType
-   */
-  static OpenWounds(actorName, woundType) {
-    const owFeatureName = game.settings.get("dnd5e-helpers", "owFeatureName");
-    const openWoundTable = game.settings.get("dnd5e-helpers", "owTable");
-    ChatMessage.create({
-      content: game.i18n.format("DND5EH.OpenWoundFeaturename_chatoutput", {
-        actorName: actorName,
-        owFeatureName: owFeatureName,
-        woundType: woundType,
-      }),
-    });
-    if (openWoundTable !== "") {
-      game.tables
-        .getName(openWoundTable)
-        .draw({ roll: null, results: [], displayChat: true });
-    } else {
-      ChatMessage.create({
-        content: game.i18n.format("DND5EH.OpenWoundTableName_error", {
-          owFeatureName: owFeatureName,
-        }),
-      });
-    }
-  }
-}
-
 class DnDProf {
   /**
    * auto prof Weapon ONLY for specific proficiencies (not covered by dnd5e 1.2.0)
@@ -1881,11 +1646,7 @@ class DnDActionManagement {
       }
 
       if (castingToken === null && castingActor === null) {
-        if (game.settings.get("dnd5e-helpers", "debug")) {
-          console.log(
-            game.i18n.format("DND5EH.CombatReactionStatus_actoritemerror")
-          );
-        }
+        console.log("DnD5e Helpers | Error on Combact Reaction" + game.i18n.format("DND5EH.CombatReactionStatus_actoritemerror"))
         return; // not a item roll message, prevents unneeded errors in console
       }
 
