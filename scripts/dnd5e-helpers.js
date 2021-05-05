@@ -833,23 +833,23 @@ Hooks.on("ready", () => {
   }
 })
 
-Hooks.on("createCombatant", async (combat, token) => {
+Hooks.on("createCombatant", async (combat, combatant) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   const lairHelperEnable = game.settings.get('dnd5e-helpers', 'lairHelperEnable');
   const legHelperEnable = game.settings.get('dnd5e-helpers', 'LegendaryHelperEnable');
 
-  let tokenInstance = canvas.tokens.get(token.tokenId)
+  let tokenInstance = canvas.tokens.get(combatant.tokenId)
 
   if (combat.data.active && reactMode === 1) {
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
 
   if (lairHelperEnable) {
-    DnDCombatUpdates.LairActionMapping(tokenInstance, combat)
+    DnDCombatUpdates.LairActionMapping(combatant, combat)
   }
 
   if (legHelperEnable) {
-    DnDCombatUpdates.LegendaryActionMapping(tokenInstance, combat);
+    DnDCombatUpdates.LegendaryActionMapping(combatant, combat);
   }
 
   
@@ -1371,19 +1371,21 @@ class DnDCombatUpdates {
 
   /**
    * 
-   * @param {Object} token - token to check for lair actions 
+   * @param {Object} combatant - combatant data (contains token id) to check for Lair actions 
    * @param {Object} combat - combat instance to save lair array to 
    * @returns 
    * Generate lair action array
    */
-  static LairActionMapping(token, combat) {
+  static LairActionMapping(combatant, combat) {
     if (!DnDHelpers.IsFirstGM) return;
+    let token = canvas.tokens.get(combatant.tokenId)
+
     const updateFn = async () => {
       let tokenItems = getProperty(token, "items") || token.actor.items
       let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
       if (lairActions.length > 0) {
         let combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
-        combatLair.push([token.data.name, lairActions, token.id])
+        combatLair.push([token.data.name, lairActions, token.id, combatant._id, combat.id])
         return combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
       }
 
@@ -1395,13 +1397,15 @@ class DnDCombatUpdates {
 
   /**
      * 
-     * @param {Object} token - token to check for Legendary actions 
+     * @param {Object} combatant - combatant data (contains token id) to check for Legendary actions 
      * @param {Object} combat - combat instance to save Legendary actions array to 
      * @returns 
      * Generate Legendary action array
      */
-  static LegendaryActionMapping(token, combat) {
+  static LegendaryActionMapping(combatant, combat) {
     if (!DnDHelpers.IsFirstGM) return;
+
+    let token = canvas.tokens.get(combatant.tokenId)
 
     const updateFn = async () => {
       let tokenItems = getProperty(token, "items") || token.actor.items
@@ -1409,7 +1413,9 @@ class DnDCombatUpdates {
       if (LegAction.length > 0) {
         let comabtLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
         //console.log(`Adding ${token.name}'s leg acts. Current array = ${comabtLeg}`);
-        comabtLeg.push([token.data.name, LegAction, token.id])
+
+        // @todo this should now be an object with better fields
+        comabtLeg.push([token.data.name, LegAction, token.id, combatant._id, combat.id])
         //console.log(`...updated array: ${comabtLeg}`);
         return combat.setFlag('dnd5e-helpers', 'Legendary Actions', comabtLeg)
       }
@@ -1515,8 +1521,17 @@ class DnDCombatUpdates {
       return actionList
     }
 
+    let anyActions = false;
     for (let lairActor of lairActionArray){
       let token = canvas.tokens.get(lairActor[2])
+
+      /** if this combatant is marked as defeated, do no add actions to list */
+      const combatantId = lairActor[3];
+      const owningCombat = lairActor[4];
+      if(!!game.combats.get(owningCombat).combatants.find( entry => entry._id == combatantId).defeated) continue;
+
+      /* if we have gotten here, we have valid lair actions to show */
+      anyActions = true;
       let tokenImg = token.data.img
       let actionList = getActionList(lairActor[1], lairActor[2])
       lairContents +=`
@@ -1539,6 +1554,9 @@ class DnDCombatUpdates {
         </div>
         </form>`
     }
+
+    /** do not display the dialog if we have no lair actions available to show */
+    if(!anyActions) return;
 
     let d = new Dialog({
       title: game.i18n.format("DND5E.LairAct"),
@@ -1580,6 +1598,11 @@ class DnDCombatUpdates {
       /** we can have multiple leg actors in the same combat -- do not allow
        *  leg actions to be used by the token who JUST ended their turn */
       if(token.id === previousTokenId) continue;
+
+      /** if this combatant is marked as defeated, do no add actions to list */
+      const combatantId = LegActor[3];
+      const owningCombat = LegActor[4];
+      if(!!game.combats.get(owningCombat).combatants.find( entry => entry._id == combatantId).defeated) continue;
 
       let actionsAvailable = token.actor.data.data.resources.legact.value
 
