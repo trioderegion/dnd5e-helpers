@@ -506,11 +506,33 @@ async function ResetTidesOfChaos(actor, wmToCFeatureName) {
 
   if (tocItem) {
       const item = await tocItem.update({ 'data.uses.value': tocItem.data.data.uses.max });
-      actor.sheet.render(false);
+
+      // DnD Importer sets Tides of Chaos as a resource too, check if it's found and reset it too
+      const resource = CheckTidesOfChaosAsResource(actor, wmToCFeatureName);
+      if (resource) {
+        const computedResource = `data.resources.${resource}.value`;
+        const newActor  = await actor.update({ [computedResource]: actor.data.data.resources[resource].max });
+        newActor.sheet.render(false);
+      } else {
+        actor.sheet.render(false);    
+      }
+
       return item;
     }    
   
   return tocItem;
+}
+
+function CheckTidesOfChaosAsResource(actor, wmToCFeatureName) {
+    if (actor.data.data.resources.primary.label === wmToCFeatureName) {
+      return 'primary';
+    } else if (actor.data.data.resources.secondary.label === wmToCFeatureName) {
+      return 'secondary';
+    } else if (actor.data.data.resources.tertiary.label === wmToCFeatureName) {
+      return 'tertiary';
+    }
+
+    return null;
 }
 
 function NeedsRecharge(recharge = { value: 0, charged: false }) {
@@ -585,7 +607,15 @@ async function WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
     } else if (selectedOption === 2) {
       promise = RollForSurge(lvl, rollMode, actor, false, rechargeToC, 0, "DND5EH.WildMagicConsoleMoreSurgeLog");
     } else if (selectedOption === 3) {
-      promise = RollForSurge(lvl, rollMode, actor, false, rechargeToC, new Roll("1d4").roll().total, "DND5EH.WildMagicConsoleVolatileSurgeLog");
+      const tocName = GetTidesOfChaosFeatureName();
+      let tocRoll = 0;
+
+      // tides of chaos has been spent, so we should add the bonus roll
+      if (IsTidesOfChaosSpent(actor, tocName)) {
+          tocRoll = new Roll("1d4").roll().total;
+      }
+
+      promise = RollForSurge(lvl, rollMode, actor, false, rechargeToC, tocRoll, "DND5EH.WildMagicConsoleVolatileSurgeLog");
     } 
   }
   
