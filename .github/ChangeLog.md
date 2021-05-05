@@ -95,3 +95,85 @@
 ###1.8.4
 - Fixed several race conditions relating to token updates on new combat turns.
 
+###1.8.5
+- Additions to Wild Magic Surge - Volatile Surges
+  - Contributed directly by Werner (https://github.com/Werner-Dohse). Big thanks.
+  - These homebrew surges will trigger similarly to the More Surges option, except when the sorcerer's Tides of Chaos feature has been expended. In this case, the spell level will be increased by 1d4 for the sake of the d20 target number (i.e. surge if ``d20 <= spell level + 1d4``).
+    - Additionally, if a Volatile Surge occurs, you will regain one use of Tides of Chaos immediately.
+  - More Surges homebrew and wild magic surge enable configuration options have been rolled into a single dropdown to select the mode or disable this helper entirely.
+- More Surges now also will recharge Tides of Chaos when a surge occurs like it always should have. Was extremely easy to implement with Werner's additions.
+
+###1.8.6
+- Regeneration fixed for linked actors
+- Added bonus reminder to cover output (ex. "Half Cover (+2)" )
+
+###1.8.7
+- Player reactions should now properly apply the status effect.
+- Properly denoted dnd5e system requirement.
+
+###1.8.8
+- Can now optionally "mask" NPC names in cover chat cards
+- Fixed noisy error when adding armor and detecting specific proficiencies (`pass_type undefined`)
+
+###1.9.0
+- Localization support! Finally! Oh yea, and you owe Kandashi a beer.
+  - `es` and `fr` translations provided by github users MS-PBS and Elfenduil (respectively). Huge thanks to both!
+  - MRs for fixes and additional languages welcome.
+
+###1.9.1
+- Missed a localization string in Wild Magic surge output. Corrected and functionality restored.
+- Brazilian Portuguese localization added! Thanks brnmuller!
+
+###1.9.2
+- Missed a localization string in Volatile Wild Magic surge output. Corrected and functionality restored. (I can see where this is going, lol)
+
+###1.9.3
+- Mask NPC names in cover output now also whispers the cover result to the GM instead of being public (i.e. hide GM info from players)
+- Localization Changes: `LoSMaskNPCs_name`, `LoSMaskNPCs_hint`
+
+###1.9.4
+- `Blind Table Draw` for wild magic surges has been expanded to hide _all_ wild magic results from the players. Initial d20 roll, flavor text, and table outputs will be whispered to the GM.
+  - KNOWN ISSUE: The message is whispered from the player's client, so the player casting the spell will be aware of its results. I need to rework some things, bear with me.
+  - This option is now called `Hide Wild Magic from Players`.
+  - Localization changes (sorry):
+    - `WildMagicWisper_name`
+    - `WildMagicWisper_hint`
+- Addressed a few async oversights. Wild magic results should be better synchronized between clients now. Surge Roll -> Surge Result -> Spell.
+
+###1.9.5
+- Korean language support added.
+  - Contributed by KLO#1490, big thanks!
+
+###1.9.6
+- Ability recharge rolls can now be whispered to the GM (i.e. hidden from players)
+- Ability recharge rolls can now be rolled at the _end_ of a creature's turn, if desired, rather than at the beginning (RAW).
+- Localization changes:
+  - `DND5EH.CombatAbilityRecharge_hint`
+  - `DND5EH.CombatAbilityRechargeHide_name`
+  - `DND5EH.CombatAbilityRechargeHide_hint`
+  - `DND5EH.CombatAbilityRecharge_Off`
+  - `DND5EH.CombatAbilityRecharge_Start`
+  - `DND5EH.CombatAbilityRecharge_End`
+
+###1.10.0
+- Rejoice! For cole has provided a solution for Elemental Adept!
+- New die roll modifier added: `mr` (minimum roll)
+  - Example: `1d6mr2` will replace any rolls less than 2 with 2s, `1d2mr10` will replace any rolls less than 10 with 10!
+  - Spell and Cantrip scaling works as expected. `1d6mr2` in the scaling field will ensure upcasting of Burning Hands will replace 1s with 2s. Cantrip scaling can be left blank in most cases (as per stock dnd5e operation) as the first damage field of the cantrip will be used as the scaling formula.
+  - Note: There is no toggle option for this functionality.
+- Translation updates provided by github users MS-PBS and brnmuller. We are thankful, as always.
+
+###1.10.1
+- Japanese localization provided by `togue`!
+
+###1.10.2
+- Additional Wild Magic Surge homebrew added, courtesy of `xdy`. All wild magic surge options can now optionally recharge Tides of Chaos when a surge occurs. This is added as a seperate 'Recharge Tides of Chaos on surge' option to decouple it from the Surge variations already present.
+- Translation changes/additions (denoted `[*]` and `[EN]` respectively in the packs):
+  - `DND5EH.WildMagicOptions_hint` has been updated to remove reference to recharging Tides of Chaos
+  - `DND5EH.WildMagicTidesOfChaos_name` added
+  - Several French translation strings were missing the untranslated `[EN]` flag.
+    - Note: French translation is beginning to fall behind in updates. Any help is appreciated on this front <3
+
+###1.10.3
+- Small tweak to token/tile cover calculations -- the hitbox size has been reduced by 10% of the grid square size. This should address the erroneous half cover when targeting a token diagonally due to degenerate collisions.
+

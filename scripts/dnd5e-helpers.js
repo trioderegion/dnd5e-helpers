@@ -1,113 +1,142 @@
-Hooks.on('init', () => {
+const wmFeatureDefault = "Wild Magic Surge";
+const wmToCFeatureDefault = "Tides of Chaos";
+const wmSurgeTableDefault = "Wild-Magic-Surge-Table";
 
+const MODULE = 'dnd5e-helpers';
+
+Hooks.on('init', () => {
   game.settings.register("dnd5e-helpers", "gridTemplateScaling", {
-    name: "Auto adjust templates to 5e grids",
-    hint: "Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
+    name: game.i18n.format("DND5EH.GridTemplateScaling_name"),
+    hint: game.i18n.format("DND5EH.GridTemplateScaling_hint"),
     scope: "world",
     config: true,
     default: 0,
     type: Number,
     choices: {
-      0: "No Template Scaling",
-      1: "Lines and Cones",
-      2: "Circles",
-      3: "All Templates"
+      0: game.i18n.format("DND5EH.GridTemplateScaling_none"),
+      1: game.i18n.format("DND5EH.GridTemplateScaling_lineCone"),
+      2: game.i18n.format("DND5EH.GridTemplateScaling_circle"),
+      3: game.i18n.format("DND5EH.GridTemplateScaling_all")
     }
   });
-
 
    /** report cover value to chat on target */
   game.settings.register("dnd5e-helpers", "losOnTarget", {
-    name: "Compute cover on target",
-    hint: "Enables or disables this feature globally (includes tile cover config option).",
+    name: game.i18n.format("DND5EH.LoSOnTarget_name"),
+    hint: game.i18n.format("DND5EH.LoSOnTarget_hint"),
     scope: "world",
     config: true,
     default: 0,
     type: Number,
     choices: {
-      0: "Disabled",
-      1: "Center Point Vision (Foundry Vision)",
-      2: "Four Corner Vision (DMG pg. 251)",
+      0: game.i18n.format("DND5EH.Default_disabled"),
+      1: game.i18n.format("DND5EH.LoSOnTarget_center"),
+      2: game.i18n.format( "DND5EH.LoSOnTarget_corner"),
     }
   });
-  
+
   game.settings.register("dnd5e-helpers", "losWithTokens", {
-    name: "Consider intervening tokens as half cover",
-    hint: "Unchecked results in tokens not being considered for cover calculation.",
+    name: game.i18n.format("DND5EH.LoSWithTokens_name"),
+    hint: game.i18n.format("DND5EH.LoSWithTokens_hint"),
     scope: "world",
     config: true,
     default: false,
     type: Boolean,
   });
-
+  
+  game.settings.register("dnd5e-helpers", "losMaskNPCs", {
+    name: game.i18n.format("DND5EH.LoSMaskNPCs_name"),
+    hint: game.i18n.format("DND5EH.LoSMaskNPCs_hint"),
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean
+  });
+  
   /** should surges be tested */
-  game.settings.register("dnd5e-helpers", "wmEnabled", {
-    name: "Wild Magic Auto-Detect",
-    hint: "Enables or disables this feature globaly",
+  game.settings.register("dnd5e-helpers", "wmOptions", {
+    name: game.i18n.format("DND5EH.WildMagicOptions_name"),
+    hint: game.i18n.format("DND5EH.WildMagicOptions_hint"),
     scope: "world",
     config: true,
-    default: false,
-    type: Boolean,
-  });
-
-  /** want more surges? you know you do */
-  game.settings.register("dnd5e-helpers", "wmMoreSurges", {
-    name: "MORE Surges (homebrew)",
-    hint: "A surge will occur on a d20 roll <= the spell level just cast, rather than only on a 1.",
-    scope: "world",
-    config: true,
-    default: false,
-    type: Boolean,
-  });
+    default: 0,
+    type: Number,
+    choices: {
+      0: game.i18n.format("DND5EH.Default_disabled"),
+      1: game.i18n.format("DND5EH.WildMagicOptions_standard"),
+      2: game.i18n.format("DND5EH.WildMagicOptions_more"),
+      3: game.i18n.format("DND5EH.WildMagicOptions_volatile"),
+    }
+  });  
 
   /** name of the feature to trigger on */
   game.settings.register("dnd5e-helpers", "wmFeatureName", {
-    name: "Wild Magic Feature Name",
-    hint: "Name of feature that represents the Sorcerer's Wild Magic Surge (default: Wild Magic Surge)",
+    name: game.i18n.format("DND5EH.WildMagicFeatureName_name"),
+    hint: game.i18n.format("DND5EH.WildMagicFeatureName_hint"),
     scope: "world",
     config: true,
-    default: "Wild Magic Surge",
+    default: wmFeatureDefault,
     type: String,
   });
 
   /** name of the table on which to roll if a surge occurs */
   game.settings.register("dnd5e-helpers", "wmTableName", {
-    name: "Wild Magic Surge Table Name",
-    hint: "Name of table that should be rolled on if a surge occurs (default: Wild-Magic-Surge-Table). Leave empty to skip this step.",
+    name: game.i18n.format("DND5EH.WildMagicTableName_name"),
+    hint: game.i18n.format("DND5EH.WildMagicTableName_hint"),
     scope: "world",
     config: true,
-    default: "Wild-Magic-Surge-Table",
+    default: wmSurgeTableDefault,
     type: String,
   });
 
-  /** toggle result gm whisper for WM */
-  game.settings.register("dnd5e-helpers", "wmWhisper", {
-    name: "Blind Table Draw",
-    hint: "Hides table results of a successful surge. Viewable by GM only.",
+  /** name of the feature to trigger on */
+  game.settings.register("dnd5e-helpers", "wmToCFeatureName", {
+    name: game.i18n.format("DND5EH.WildMagicTidesOfChaos_name"),
+    hint: game.i18n.format("DND5EH.WildMagicTidesOfChaos_hint"),
+    scope: "world",
+    config: true,
+    default: wmToCFeatureDefault,
+    type: String,
+  });
+
+  /** should tides of chaos be recharged on a surge? */
+  game.settings.register("dnd5e-helpers", "wmToCRecharge", {
+    name: game.i18n.format("DND5EH.WildMagicTidesOfChaosRecharge_name"),
     scope: "world",
     config: true,
     default: false,
     type: Boolean,
   });
+
+  /** toggle result gm whisper for WM */
+  game.settings.register("dnd5e-helpers", "wmWhisper", {
+    name: game.i18n.format("DND5EH.WildMagicWisper_name"),
+    hint: game.i18n.format( "DND5EH.WildMagicWisper_hint"),
+    scope: "world",
+    config: true,
+    default: false,
+    type: Boolean,
+  });
+
   /** enable auto reaction reset */
   game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
-    name: "Reaction status automation.",
-    hint: "Enables or disables this feature (global). Apply checks for Reaction Abilities or out-of-turn Actions and applies the specified status. Remove will automatically remove this effect at the start of an actor's turn",
+    name: game.i18n.format("DND5EH.CombatReactionEnable_name"),
+    hint: game.i18n.format("DND5EH.CombatReactionEnable_hint"),
     scope: "world",
     type: Number,
     choices: {
-      0: "None",
-      1: "Only Apply",
-      2: "Only Remove",
-      3: "Apply and Remove",
+      0: game.i18n.format("DND5EH.Default_none"),
+      1: game.i18n.format( "DND5EH.CombatReactionEnable_apply"),
+      2: game.i18n.format("DND5EH.CombatReactionEnable_remove"),
+      3: game.i18n.format("DND5EH.CombatReactionEnable_both"),
     },
     default: 0,
     config: true,
   });
 
   game.settings.register("dnd5e-helpers", "cbtReactionStatus", {
-    name: "Reaction status name",
-    hint: "As seen when hovering over the status in the token HUD (default: Weakened).",
+    name: game.i18n.format("DND5EH.CombatReactionStatus_name"),
+    hint: game.i18n.format("DND5EH.CombatReactionStatus_hint"),
     scope: "world",
     config: true,
     default: "Weakened",
@@ -116,8 +145,8 @@ Hooks.on('init', () => {
 
   /** enable auto legact reset */
   game.settings.register("dnd5e-helpers", "cbtLegactEnable", {
-    name: "Start of turn legendary action reset.",
-    hint: "Enables or disables this feature (global)",
+    name: game.i18n.format("DND5EH.CombatLegendary_name"),
+    hint: game.i18n.format("DND5EH.CombatLegendary_hint"),
     scope: "world",
     config: true,
     default: true,
@@ -126,8 +155,22 @@ Hooks.on('init', () => {
 
   /** enable auto ability charge roll */
   game.settings.register("dnd5e-helpers", "cbtAbilityRecharge", {
-    name: "Automatically roll any uncharged abilities with a d6 recharge.",
-    hint: "Enables or disables this feature (global)",
+    name: game.i18n.format("DND5EH.CombatAbilityRecharge_name"),
+    hint: game.i18n.format("DND5EH.CombatAbilityRecharge_hint"),
+    scope: "world",
+    config: true,
+    default: "off",
+    type: String,
+    choices: {
+      "off": game.i18n.format("DND5EH.CombatAbilityRecharge_Off"),
+      "start": game.i18n.format("DND5EH.CombatAbilityRecharge_Start"),
+      "end": game.i18n.format("DND5EH.CombatAbilityRecharge_End"),
+    }
+  });
+  /** hide ability recharge roll */
+  game.settings.register("dnd5e-helpers", "cbtAbilityRechargeHide", {
+    name: game.i18n.format("DND5EH.CombatAbilityRechargeHide_name"),
+    scope: game.i18n.format("DND5EH.CombatAbilityRechargeHide_hint"),
     scope: "world",
     config: true,
     default: true,
@@ -135,17 +178,17 @@ Hooks.on('init', () => {
   });
 
   game.settings.register("dnd5e-helpers", "autoProf", {
-    name: 'Auto Proficiency',
-    hint: 'Checks newly added items and labels as proficient if needed',
+    name: game.i18n.format("DND5EH.AutoProf_name"),
+    hint: game.i18n.format("DND5EH.AutoProf_hint"),
     scope: 'world',
     type: Boolean,
     default: true,
     config: true,
   });
- 
+
   game.settings.register("dnd5e-helpers", "autoRegen", {
-    name: 'Automatic regeneration ',
-    hint: 'Automaticly prompts for regeneration rolls for the GM',
+    name: game.i18n.format("DND5EH.AutoRegen_name"),
+    hint: game.i18n.format("DND5EH.AutoRegen_hint"),
     scope: 'world',
     type: Boolean,
     default: false,
@@ -153,31 +196,31 @@ Hooks.on('init', () => {
   });
 
   game.settings.register("dnd5e-helpers", "undeadFort", {
-    name: 'Undead Fortitude',
-    hint: 'Automaticly prompts for Undead Fortitude Checks for the GM',
+    name: game.i18n.format("DND5EH.UndeadFort_name"),
+    hint: game.i18n.format("DND5EH.UndeadFort_hint"),
     scope: 'world',
     type: String,
     choices: {
-      "0": "No checks",
-      "1": "Quick Saves",
-      "2": "Advanced Saves",
+      "0": game.i18n.format("DND5EH.UndeadFort_none"),
+      "1": game.i18n.format("DND5EH.UndeadFort_quick"),
+      "2": game.i18n.format("DND5EH.UndeadFort_advanced"),
     },
     default: "0",
     config: true,
   });
-  
+
   game.settings.register("dnd5e-helpers", "gwEnable", {
-    name: 'Great Wound',
-    hint: 'Rolls on a specified table when a token takes over 50% max hp in a single blow',
+    name: game.i18n.format("DND5EH.GreatWoundEnable_name"),
+    hint: game.i18n.format("DND5EH.GreatWoundEnable_hint"),
     scope: 'world',
     type: Boolean,
     default: false,
     config: true,
   });
-  
+
   game.settings.register("dnd5e-helpers", "gwFeatureName", {
-    name: "Great Wound name replacement",
-    hint: "What name to display for Great Wound functions",
+    name: game.i18n.format("DND5EH.GreatWoundFeatureName_name"),
+    hint: game.i18n.format("DND5EH.GreatWoundFeatureName_hint"),
     scope: "world",
     config: true,
     default: "Great Wound",
@@ -185,17 +228,17 @@ Hooks.on('init', () => {
   });
 
   game.settings.register("dnd5e-helpers", "gwTableName", {
-    name: "Great Wound Table",
-    hint: "Name of table that should be rolled on if a Great Wound occurs.",
+    name: game.i18n.format("DND5EH.GreatWoundTableName_name"),
+    hint: game.i18n.format("DND5EH.GreatWoundTableName_hint"),
     scope: "world",
     config: true,
     default: "",
     type: String,
   });
-  
+
   game.settings.register("dnd5e-helpers", "owFeatureName", {
-    name: "Open Wound feature name",
-    hint: "What name to display for Open Wound functions.",
+    name: game.i18n.format("DND5EH.OpenWoundFeaturename_name"),
+    hint: game.i18n.format("DND5EH.OpenWoundFeaturename_hint"),
     scope: "world",
     config: true,
     default: "Open Wound",
@@ -203,53 +246,53 @@ Hooks.on('init', () => {
   });
 
   game.settings.register('dnd5e-helpers', 'owDeathSave', {
-    name: 'Open Wound - Death Saves',
-    hint: 'Open Wounds triggered on death saves failed by 5 or more',
+    name: game.i18n.format("DND5EH.OpenWoundDeathSave_name"),
+    hint: game.i18n.format("DND5EH.OpenWoundDeathSave_hint"),
     scope: 'world',
     type: Boolean,
     default: false,
     config: true,
   });
-  
+
   game.settings.register('dnd5e-helpers', 'owCrit', {
-    name: 'Open Wound - Crits',
-    hint: 'Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank',
+    name: game.i18n.format("DND5EH.OpenWoundCrit_name"),
+    hint: game.i18n.format("DND5EH.OpenWoundCrit_hint"),
     scope: 'world',
     config: true,
     default: 0,
     type: Number,
   });
-  
+
   game.settings.register('dnd5e-helpers', 'owHp0', {
-    name: 'Open Wound - HP at 0',
-    hint: 'Open Wounds triggered on dropping to 0 HP',
+    name: game.i18n.format("DND5EH.OpenWound0HP_name"),
+    hint: game.i18n.format("DND5EH.OpenWound0HP_hint"),
     scope: 'world',
     type: Boolean,
     default: false,
     config: true,
   });
-  
+
   game.settings.register('dnd5e-helpers', 'owHp0GW', {
-    name: 'Open Wound - HP at 0 from a Great Wound',
-    hint: 'Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)',
+    name: game.i18n.format("DND5EH.OpenWound0HPGW_name"),
+    hint: game.i18n.format("DND5EH.OpenWound0HPGW_hint"),
     scope: 'world',
     type: Boolean,
     default: false,
     config: true,
   });
-  
+
   game.settings.register("dnd5e-helpers", "owTable", {
-    name: "Open Wound Table",
-    hint: "Name of table that should be rolled on if a Open Wound occurs.",
+    name: game.i18n.format("DND5EH.OpenWoundTableName_name"),
+    hint: game.i18n.format("DND5EH.OpenWoundTableName_hint"),
     scope: "world",
     config: true,
     default: "",
     type: String,
   });
-  
+
   game.settings.register("dnd5e-helpers", "debug", {
-    name: 'Debugging',
-    hint: 'Adds a few console logs for debugging purposes',
+    name: game.i18n.format("DND5EH.OpenWoundDebug_name"),
+    hint: game.i18n.format("DND5EH.OpenWoundDebug_hint"),
     scope: 'world',
     type: Boolean,
     default: false,
@@ -257,11 +300,26 @@ Hooks.on('init', () => {
   });
 });
 
+Hooks.on("init", () => {
+    Die.MODIFIERS["mr"] = function minResult(modifier) {
+        const min = parseInt(modifier.match(/\d+/));
+        if (!min || !Number.isNumeric(min)) return;
+        this.results = this.results.flatMap(result => {
+            if (result.result < min) {
+                result.active = false;
+                result.discarded = true;
+                return [result, { result: min, active: true }];
+            } else {
+                return [ result ];
+            }
+        });
+    }
+})
 
 Hooks.on('ready', () => {
   console.log("dnd5e helpers socket setup")
   game.socket.on(`module.dnd5e-helpers`, socketData => {
-    console.log("Dnd5e helpers socket recived")
+    console.log(game.i18n.format("DND5EH.Default_SocketSetup"))
     //Rolls Saves for owned tokens 
     if (socketData.greatwound === true) {
       let actor = game.actors.get(socketData.actorId);
@@ -273,7 +331,7 @@ Hooks.on('ready', () => {
             }
             if (socketData.hp === 0 && game.settings.get('dnd5e-helpers', 'owHp0GW') === true) {
               const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-              OpenWounds(actor.data.name, `from ${gwFeatureName} reduce them to 0 hp`)
+              OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundSocketMessage", {gwFeatureName: gwFeatureName}))
             }
           }
         }
@@ -282,7 +340,7 @@ Hooks.on('ready', () => {
   })
 })
 
-/** helper functions */
+  /** helper functions */
 
 function IsFirstGM() {
   return game.user === game.users.find((u) => u.isGM && u.active);
@@ -348,30 +406,111 @@ function includes_array(arr, comp) {
 }
 
 /** \helper functions */
+/** roll on the provided table */
+async function RollOnWildTable(rollType) {  
+  const wmTableName = (game.settings.get('dnd5e-helpers', 'wmTableName') !== '') 
+    ? game.settings.get('dnd5e-helpers', 'wmTableName') : wmSurgeTableDefault;
 
-function RollForSurge(spellLevel, moreSurges, rollType = null) {
+  if (wmTableName !== "") {
+    const table = game.tables.getName(wmTableName);
+    await table.draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
+  } else {
+    if (game.settings.get('dnd5e-helpers', 'debug')) {
+      console.log(game.i18n.format("DND5EH.WildMagicTableError"));
+    }    
+  }
+}
 
-  const surgeThreshold = moreSurges ? spellLevel : 1;
-  const roll = new Roll("1d20").roll();
-  const d20result = roll["result"];
-  if (d20result <= surgeThreshold) {
-    ChatMessage.create({
-      content: "<i>surges as a level " + spellLevel + " spell is cast!</i> ([[/r " + d20result + " #1d20 result]])",
-      speaker: ChatMessage.getSpeaker({ alias: "The Weave" })
-    });
+function GetTidesOfChaosFeatureName(){
+  return (game.settings.get('dnd5e-helpers', 'wmToCFeatureName') !== '') 
+    ? game.settings.get('dnd5e-helpers', 'wmToCFeatureName') : wmToCFeatureDefault;
+}
 
-    /** roll on the provided table */
-    const wmTableName = game.settings.get('dnd5e-helpers', 'wmTableName');
-    if (wmTableName !== "") {
-      game.tables.getName(wmTableName).draw({ roll: null, results: [], displayChat: true, rollMode: rollType });
+// @todo turn these parameters into a config object. Compress spellLevel and onlyLevelOne into a single "target number" field.
+/**
+ * Roll for a surge as per D&D 5e standard rules, with support for several optional rules: recharge ToC if spent, compare against spell level instead of 1, adding a bonus to spell level for comparison.
+ * @param spellLevel {number}
+ * @param rollType {string}
+ * @param actor {Actor}
+ * @param onlyLevelOne {boolean}
+ * @param rechargeToC {boolean}
+ * @param bonus {number}
+ * @param debugLog {string}
+ * @returns {Promise<void>}
+ */
+async function RollForSurge(spellLevel, rollType, actor, onlyLevelOne, rechargeToC, bonus, debugLog) {
+  let d20result = new Roll("1d20").roll().total;
+  let surges = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge")
+  let calm = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm")
+
+  if (game.settings.get('dnd5e-helpers', 'debug')) {
+    console.log(game.i18n.format(debugLog, {d20result: d20result, d4result: bonus, spellLevel: (onlyLevelOne ? 1 : spellLevel)}));
+  }
+
+  //apply the bonus as a penalty to the d20 roll (easier to parse visually)
+  d20result -= bonus;
+
+  //@todo adapt this to be more flexible for bonuses to d20 roll
+  const bonusString = bonus !== 0 ? `-1d4`:``;
+  let promise;
+
+  if (onlyLevelOne ? d20result === 1 : d20result <= (spellLevel + bonus)) {
+    await ShowSurgeResult(surges, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
+    promise = RollOnWildTable(rollType);
+
+    if (rechargeToC) {
+      /** recharge TOC if we surged */
+      const tocName = GetTidesOfChaosFeatureName();
+      if (!tocName && game.settings.get('dnd5e-helpers', 'debug')) {
+        console.log(game.i18n.format("DND5EH.WildMagicTidesOfChaos_error"));
+      }
+
+      if (IsTidesOfChaosSpent(actor, tocName)) {
+        promise = ResetTidesOfChaos(actor, tocName);
+      }
     }
+
+  } else {
+    promise = ShowSurgeResult(calm, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
   }
-  else {
-    ChatMessage.create({
-      content: "<i>remains calm as a level " + spellLevel + " spell is cast...</i> ([[/r " + d20result + " #1d20 result]])",
-      speaker: ChatMessage.getSpeaker({ alias: "The Weave" })
-    });
+  
+  return promise;
+}
+
+/** show surge result in chat (optionally whisper via module settings) */
+async function ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
+
+  const gmWhisper = game.settings.get(MODULE, 'wmWhisper');
+
+  return ChatMessage.create({
+    content: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", {action: action, spellLevel: spellLevel, extraText: extraText, resultText: resultText}),
+    speaker: ChatMessage.getSpeaker({ alias: game.i18n.format("DND5EH.WildMagicChatSpeakerName") }),
+    whisper: gmWhisper ? ChatMessage.getWhisperRecipients("GM") : false
+  });
+}
+
+/** is the tides of chaos feature used */
+function IsTidesOfChaosSpent(actor, wmToCFeatureName) {
+  const tocItem = actor.items.getName(wmToCFeatureName);
+  
+  if (tocItem) {
+    return (tocItem.data.data.uses.value === 0);
+  } else {
+    return false;
   }
+}
+
+/** reset the tides of chaose feature also reset the resource if that is also used */
+async function ResetTidesOfChaos(actor, wmToCFeatureName) {
+  const tocItem = actor?.items.getName(wmToCFeatureName);
+
+  if (tocItem) {
+      const item = await tocItem.update({ 'data.uses.value': tocItem.data.data.uses.max });
+      actor.sheet.render(false);
+      return item;
+    }    
+  
+  return tocItem;
 }
 
 function NeedsRecharge(recharge = { value: 0, charged: false }) {
@@ -390,11 +529,33 @@ async function RechargeAbilities(token) {
   const rechargeItems = CollectRechargeAbilities(token);
 
   for (item of rechargeItems) {
-    await item.rollRecharge();
+    await CustomRollRecharge(item);
   }
 }
+
+/** Custom recharge roll to allow for rollmode */
+async function CustomRollRecharge(item) {
+  const data = item.data.data;
+  if ( !data.recharge.value ) return;
+
+  // Roll the check
+  const roll = new Roll("1d6").roll();
+  const success = roll.total >= parseInt(data.recharge.value);
+  const rollMode = game.settings.get("dnd5e-helpers", "cbtAbilityRechargeHide") == true ? "selfroll" : "";
+  // Display a Chat Message
+  const promises = [roll.toMessage({
+    flavor: `${game.i18n.format("DND5E.ItemRechargeCheck", {name: item.name})} - ${game.i18n.localize(success ? "DND5E.ItemRechargeSuccess" : "DND5E.ItemRechargeFailure")}`,
+    speaker: ChatMessage.getSpeaker({actor: item.actor, token: item.actor.token}),
+    rollMode: rollMode
+  })];
+
+  // Update the Item data
+  if ( success ) promises.push(item.update({"data.recharge.charged": true}));
+  return Promise.all(promises).then(() => roll);
+}
+
 /** Wild Magic Surge Handling */
-function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
+async function WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
   const origSlots = actor.data.data.spells;
 
   /** find the spell level just cast */
@@ -405,20 +566,30 @@ function WildMagicSuge_preUpdateActor(actor, update, options, userId) {
   const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
   const bWasCast = preCastSlotCount - postCastSlotCount > 0;
 
-  const wmFeatureName = game.settings.get('dnd5e-helpers', 'wmFeatureName');
+  const wmFeatureName = (game.settings.get('dnd5e-helpers', 'wmFeatureName') !== '') 
+    ? game.settings.get('dnd5e-helpers', 'wmFeatureName') : wmFeatureDefault;
   const wmFeature = actor.items.find(i => i.name === wmFeatureName) !== null
 
   lvl++;
-  console.log("A level " + lvl + " slot was expended(" + bWasCast + ") by a user with the Wild Magic Feature(" + wmFeatureName + ")");
+  console.log(game.i18n.format("DND5EH.WildMagicChatSurgesMessage", {lvl: lvl, bWasCast: bWasCast, wmFeatureName: wmFeatureName}));
+
+  let promise = false;
   if (wmFeature && bWasCast && lvl > 0) {
     /** lets go baby lets go */
-    console.log("Rolling for surge...");
+    console.log(game.i18n.format("DND5EH.WildMagicConsoleSurgesroll" ));
 
-    const moreSurges = game.settings.get('dnd5e-helpers', 'wmMoreSurges');
-
-    const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
-    RollForSurge(lvl, moreSurges, rollMode);
+    const rollMode = game.settings.get(MODULE, 'wmWhisper') ? "blindroll" : "roll";
+    const rechargeToC = game.settings.get(MODULE, 'wmToCRecharge');
+    if (selectedOption === 1) {
+      promise = RollForSurge(lvl, rollMode, actor, true, rechargeToC, 0, "DND5EH.WildMagicConsoleNormalSurgeLog");
+    } else if (selectedOption === 2) {
+      promise = RollForSurge(lvl, rollMode, actor, false, rechargeToC, 0, "DND5EH.WildMagicConsoleMoreSurgeLog");
+    } else if (selectedOption === 3) {
+      promise = RollForSurge(lvl, rollMode, actor, false, rechargeToC, new Roll("1d4").roll().total, "DND5EH.WildMagicConsoleVolatileSurgeLog");
+    } 
   }
+  
+  return promise;
 }
 
 /** sets current legendary actions to max (or current if higher) */
@@ -430,7 +601,7 @@ async function ResetLegAct(actor, tokenName) {
   if (legact && legact.value !== null) {
     /** only reset if needed */
     if (legact.value < legact.max) {
-      ui.notifications.info(`Legendary actions restored to ${legact.max} for ${tokenName}`)
+      ui.notifications.info(game.i18n.format("DND5EH.CombatLegendary_notification", {max : legact.max, tokenName: tokenName}))
       let newActor = await actor.update({ 'data.resources.legact.value': legact.max });
       newActor.sheet.render(false);
       return newActor;
@@ -463,10 +634,10 @@ function GreatWound_preUpdateToken(scene, tokenData, update) {
   if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
     const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
     new Dialog({
-      title: `${gwFeatureName} roll for ${actor.name}`,
+      title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {gwFeatureName: gwFeatureName, actorName: actor.name}),
       buttons: {
         one: {
-          label: "Roll",
+          label: game.i18n.format("DND5EH.Default_roll"),
           callback: () => {
             DrawGreatWound(actor);
           }
@@ -495,10 +666,10 @@ function GreatWound_preUpdateActor(actor, update) {
   // check if the change in hp would be over 50% max hp
   if (data.hpChange >= Math.ceil(data.actorMax / 2)) {
     new Dialog({
-      title: `${gwFeatureName} roll for ${actor.name}`,
+      title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {gwFeatureName: gwFeatureName, actorName: actor.name}),
       buttons: {
         one: {
-          label: "Roll",
+          label: game.i18n.format("DND5EH.Default_roll"),
           callback: () => {
             if (game.user.data.role !== 4) {
               DrawGreatWound(actor)
@@ -511,7 +682,7 @@ function GreatWound_preUpdateActor(actor, update) {
               greatwound: true,
               hp: data.updateHP,
             }
-            console.log("socket send with " + socketData)
+            console.log(game.i18n.format("DND5EH.Default_SocketSend", {socketData: socketData}))
             game.socket.emit(`module.dnd5e-helpers`, socketData)
           }
         }
@@ -527,16 +698,16 @@ function DrawGreatWound(actor) {
     let gwSave = await actor.rollAbilitySave("con");
     if (gwSave.total < 15) {
       const greatWoundTable = game.settings.get("dnd5e-helpers", "gwTableName");
-      ChatMessage.create({ content: `${actor.name} failed the ${gwFeatureName} save` });
+      ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogFailMessage", {actorName: actor.name, gwFeatureName: gwFeatureName}) });
       if (greatWoundTable !== "") {
         game.tables.getName(greatWoundTable).draw({ roll: null, results: [], displayChat: true });
       }
       else {
-        ChatMessage.create({ content: `Looks like you havnt setup a table to use for ${gwFeatureName} yet` });
+        ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogError", {gwFeatureName: gwFeatureName})});
       }
     }
     else {
-      ChatMessage.create({ content: `${actor.name} passed the ${gwFeatureName} save` });
+      ChatMessage.create({ content: game.i18n.format("DND5EH.GreatWoundDialogSuccessMessage", {actorName: actor.name, gwFeatureName: gwFeatureName})});
     }
   })();
 }
@@ -558,7 +729,7 @@ function AutoProfWeapon_createOwnedItem(actor, item) {
   // update item to match prof, otherwise, leave as is (dnd5e system will handle generic profs)
   if (proficient) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
-    console.log(name + " is marked as proficient")
+    console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", {name: name}))
   } /* else {
     //Remove proficiency if actor is not proficient and the weapon has proficiency set.
     if (!proficient && item.data.proficient) {
@@ -589,9 +760,9 @@ function AutoProfArmor_createOwnedItem(actor, item) {
 
   // update item to match prof, otherwise, leave as is (dnd5e will handle generic profs)
   //For items that are not armors (trinkets, clothing) we assume prof = true 
-  if (proficient || pass_type == null) {
+  if (proficient) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": true });
-    console.log(name + " is marked as proficient")
+    console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", {name: name}))
   } 
 }
 
@@ -615,9 +786,9 @@ function AutoProfTool_createOwnedItem(actor, item) {
   //For items that are not armors (trinkets, clothing) we assume prof = true 
   if (proficient) {
     actor.updateOwnedItem({ _id: item._id, "data.proficient": 1 });
-    console.log(name + " is marked as proficient")
+    console.log(game.i18n.format("DND5EH.AutoProf_consolelogsuccess", {name: name}))
   } else {
-    ui.notifications.notify(name + " could not be matched to proficiency , please adjust manually");
+    ui.notifications.notify(game.i18n.format("DND5EH.AutoProf_consolelogfail", {name: name}));
   }
 }
 
@@ -628,12 +799,19 @@ async function Regeneration(token) {
   if (token.actor == null) {
     return;
   }
-  let regen = token.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
+  let option1 = game.i18n.format("DND5EH.AutoRegen_Regneration")
+  let option2 = game.i18n.format("DND5EH.AutoRegen_SelfRepair")
+  let regen = token.actor.items.find(i => i.name === option1 || i.name === option2);
 
   let data = {
     tokenHP: getProperty(token, "data.actorData.data.attributes.hp.value"),
     actorMax: token.actor.data.data.attributes.hp.max,
   }
+
+  if(token.data.actorLink === true){
+    data.tokenHP = token.actor.data.data.attributes.hp.value;
+  }
+  
   // if token isnt damaged, set tokenHP to max
   if (data.tokenHP == undefined) {
     data.tokenHP = data.actorMax
@@ -648,19 +826,19 @@ async function Regeneration(token) {
   //dialog choice to heal or not
   if (regenAmout !== null) {
     new Dialog({
-      title: "Regeneration for " + token.name,
-      content: token.name + ` currently has ${data.tokenHP}/${data.actorMax} Hp`,
+      title: game.i18n.format("DND5EH.AutoRegenDialog_name", {tokenName: token.name}),
+      content: game.i18n.format("DND5EH.AutoRegenDialog_content", {tokenName: token.name, tokenHP: data.tokenHP, actorMax: data.actorMax}),
       buttons: {
         one: {
-          label: `Apply healing of ${regenAmout}`,
+          label: game.i18n.format("DND5EH.AutoRegenDialog_healingprompt", {regenAmout: regenAmout}),
           callback: () => {
             let regenRoll = new Roll(regenAmout).roll().total;
             token.actor.applyDamage(- regenRoll);
-            ChatMessage.create({ content: token.name + ` was healed for ${regenRoll}`, whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) });
+            ChatMessage.create({ content: game.i18n.format( "DND5EH.AutoRegenDialog_healingmessage", {tokenName: token.name, regenRoll: regenRoll}), whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) });
           }
         },
         two: {
-          label: "Do not heal",
+          label: game.i18n.format("DND5EH.AutoRegenDialog_stopprompt"),
         }
       }
     }).render(true);
@@ -686,26 +864,26 @@ async function UndeadFortCheckQuick(tokenData, update, options) {
   let token = canvas.tokens.get(tokenData._id)
   if (!options.skipUndeadCheck) {
     new Dialog({
-      title: "Undead Fortitude Save",
-      content: "<p>What was the damage source</p>",
+      title: game.i18n.format("DND5EH.UndeadFort_dialogname"),
+      content: game.i18n.format("DND5EH.UndeadFort_quickdialogcontent"),
       buttons: {
         one: {
-          label: "Radiant Damage or Critical Hit",
+          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
           callback: () => {
             token.update({ hp: 0 }, { skipUndeadCheck: true })
-            ui.notifications.notify("The target dies outright")
+            ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
             return;
           },
         },
         two: {
-          label: "Normal Damage",
+          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt2"),
           callback: async () => {
             let { total } = await token.actor.rollAbilitySave("con")
             if (total >= (5 + hpChange)) {
-              ui.notifications.notify(`${token.name} survives with a ${total}`)
+              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", {tokenName: token.name, total: total}))
               token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
             } else if (total < (5 + hpChange)) {
-              ui.notifications.notify(`${token.name} dies as it rolls a ${total} `)
+              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", {tokenName: token.name, total: total}))
               token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
             }
           },
@@ -727,35 +905,36 @@ function UndeadFortCheckSlow(tokenData, update, options) {
   }
   let token = canvas.tokens.get(tokenData._id)
   if (!options.skipUndeadCheck) {
+    let damageQuery = game.i18n.format("DND5EH.UndeadFort_slowdialogcontentquery")
     let content = `
     <form>
             <div class="form-group">
-                <label for="num">Damage to target: </label>
+                <label for="num">${damageQuery} </label>
                 <input id="num" name="num" type="number" min="0"></input>
             </div>
         </form>`;
     new Dialog({
-      title: "Undead Fortitude Save",
+      title: game.i18n.format("DND5EH.UndeadFort_dialogname"),
       content: content,
       buttons: {
         one: {
-          label: "Radiant Damage or Critical Hit",
+          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
           callback: () => {
             token.update({ hp: 0 }, { skipUndeadCheck: true })
-            ui.notifications.notify("The target dies outright")
+            ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
             return;
           },
         },
         two: {
-          label: "Normal Damage",
+          label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt2"),
           callback: async (html) => {
             let { total } = await token.actor.rollAbilitySave("con")
             let number = Number(html.find("#num")[0].value);
             if (total >= (5 + number)) {
-              ui.notifications.notify(`${token.name} survives with a ${total}`)
+              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", {tokenName: token.name, total: total}))
               token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
             } else if (total < (5 + number)) {
-              ui.notifications.notify(`${token.name} dies as it rolls a ${total} `)
+              ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", {tokenName: token.name, total: total}))
               token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
             }
           },
@@ -768,15 +947,15 @@ function UndeadFortCheckSlow(tokenData, update, options) {
 
 /** apply a reaction status to the token if the item looks like it should use a reaction (requires active combat) */
 function ReactionApply(castingActor, castingToken, itemId) {
-  //only trigger for GM account and if an item is present, prevents multiple effects being added
-  if (IsFirstGM() && itemId !== undefined) {
+  
+  if (itemId !== undefined) {
     const reactionStatus = game.settings.get('dnd5e-helpers', 'cbtReactionStatus');
     let statusEffect = GetStatusEffect(reactionStatus);
 
     /** bail out if we can't find the status. */
     if (!statusEffect) {
       if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log("Dnd5e helpers: Could not find staus: " + reactionStatus)
+        console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuserror", {reactionStatus: reactionStatus}))
       }
       return;
     }
@@ -789,7 +968,7 @@ function ReactionApply(castingActor, castingToken, itemId) {
 
     if (castingToken === null && castingActor === null) {
       if (game.settings.get('dnd5e-helpers', 'debug')) {
-        console.log("Dnd5e helpers: Not an actors item roll")
+        console.log(game.i18n.format("DND5EH.CombatReactionStatus_actoritemerror"))
       }
       return; // not a item roll message, prevents unneeded errors in console
     }
@@ -805,8 +984,8 @@ function ReactionApply(castingActor, castingToken, itemId) {
     const { activation } = ownedItem.labels;
 
     /** strictly defined activation types. 0 action (default) will not trigger, which is by design */
-    const isAction = activation === "1 Action";
-    const isReaction = activation === "1 Reaction";
+    const isAction = activation === game.i18n.format( "DND5EH.CombatReactionStatus_actionname")
+    const isReaction = activation === game.i18n.format("DND5EH.CombatReactionStatus_reactionname")
 
     let shouldApply = isReaction || (isAction && (currentCombatant !== castingToken));
 
@@ -836,12 +1015,12 @@ async function ReactionRemove(currentToken) {
   let statusEffect = GetStatusEffect(reactionStatus);
 
   if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(`Dnd5e Helpers: status effect is: ${statusEffect}`)
+    console.log(game.i18n.format("DND5EH.CombatReactionStatus_statuslog", {statusEffect: statusEffect}))
   }
 
   /** latest version, attempt to play nice with active effects and CUB statuses */
   if (!statusEffect) {
-    console.log("dnd5e-helpers: could not located active effect named: " + reactionStatus);
+    console.log(game.i18n.format("DND5EH.CombatReactionStatus_effecterror", {reactionStatus: reactionStatus}));
     return;
   }
 
@@ -872,11 +1051,11 @@ async function ReactionRemove(currentToken) {
 function OpenWounds(actorName, woundType) {
   const owFeatureName = game.settings.get("dnd5e-helpers", "owFeatureName");
   const openWoundTable = game.settings.get('dnd5e-helpers', 'owTable')
-  ChatMessage.create({ content: `${actorName} has suffered an ${owFeatureName} ${woundType}` })
+  ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundFeaturename_chatoutput", {actorName: actorName, owFeatureName: owFeatureName, woundType: woundType})})
   if (openWoundTable !== "") {
     game.tables.getName(openWoundTable).draw({ roll: null, results: [], displayChat: true });
   } else {
-    ChatMessage.create({ content: `Looks like you havnt setup a table to use for ${owFeatureName} yet` });
+    ChatMessage.create({ content: game.i18n.format("DND5EH.OpenWoundTableName_error", {owFeatureName: owFeatureName}) });
   }
 }
 
@@ -886,22 +1065,25 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   let hp = getProperty(update, "data.attributes.hp.value");
   let spells = getProperty(update, "data.spells");
   if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(`Dnd5e Helpers: ${actor.name}'s update contains hp: ${hp}, spells: ${spells}`)
+    console.log(game.i18n.format("DND5EH.Hooks_preUpdateActor_updatelog", {actorName:actor.name, hp: hp, spells: spells}))
   }
+
   /** WM check, are we enabled for the current user? */
-  if ((game.settings.get('dnd5e-helpers', 'wmEnabled') == true) && (spells !== undefined)) {
-    WildMagicSuge_preUpdateActor(actor, update, options, userId)
+  const wmSelectedOption = game.settings.get('dnd5e-helpers', 'wmOptions');
+  if (wmSelectedOption !== 0 && spells !== undefined) {
+    await WildMagicSurge_preUpdateActor(actor, update, wmSelectedOption)
   }
-  // GW check 
+  
+  /** Great wound checks */
   if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && (hp !== undefined)) {
     GreatWound_preUpdateActor(actor, update);
   }
-  //OW check
+  
+  /** Open wound checks */
   if ((game.settings.get('dnd5e-helpers', 'owHp0')) && (hp === 0)) {
-    OpenWounds(actor.data.name, "from falling to 0hp")
+    OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWound0HP_reason"))
   }
 });
-
 
 /** All preUpdateCombat hooks are managed here */
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
@@ -926,6 +1108,8 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
     /** begin removal logic for the _next_ token */
     const nextTurn = combat.turns[changed.turn];
+    const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
+
     /** data structure for 0.6 */
     let nextTokenId = null;
     if (getProperty(nextTurn, "tokenId")) {
@@ -937,17 +1121,20 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
 
     let currentToken = canvas.tokens.get(nextTokenId);
+    let previousToken = canvas.tokens.get(previousTurn.tokenId)
+
 
     /** we dont care about tokens without actors */
     if (!currentToken.actor) {
       return;
     }
-
-    let regen = currentToken.actor.items.find(i => i.name === "Regeneration" || i.name === "Self-Repairing");
+    let option1 = game.i18n.format("DND5EH.AutoRegen_Regneration")
+    let option2 = game.i18n.format("DND5EH.AutoRegen_SelfRepair")
+    let regen = currentToken.actor.items.find(i => i.name === option1 || i.name === option2);
 
     if (game.settings.get('dnd5e-helpers', 'debug')) {
       let regenSett = !!regen
-      console.log(`Dnd5e Helpers: ${currentToken.name}'s update contains regen: ${regenSett}`)
+      console.log(game.i18n.format("DND5EH.Hooks_updateActor_updatelog", {currentTokenName: currentToken.name, regenSett: regenSett}))
     }
 
     /** @todo data vs _data -- multiple updates reset changes made by previous updates */
@@ -956,7 +1143,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
         await ResetLegAct(currentToken.actor, currentToken.name)
       }
 
-      if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') == true) {
+      if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "start") {
         await RechargeAbilities(currentToken);
       }
 
@@ -968,6 +1155,11 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
       if (reactMode == 2 || reactMode == 3) {
         await ReactionRemove(currentToken)
+      }
+    }
+    if (previousToken) {
+      if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
+        await RechargeAbilities(previousToken);
       }
     }
 
@@ -983,12 +1175,12 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   }
 
   let Actor = game.actors.get(tokenData.actorId);
-  let fortitudeFeature = Actor?.items.find(i => i.name === "Undead Fortitude");
+  let fortitudeFeature = Actor?.items.find(i => i.name === game.i18n.format("DND5EH.UndeadFort_name"));
   let fortSett = !!fortitudeFeature;
 
   /** output debug information -- @todo scope by feature */
   if (game.settings.get('dnd5e-helpers', 'debug')) {
-    console.log(`Dnd5e Helpers: ${Actor.name}'s update contains hp: ${hp}, and Fort: ${fortSett}`)
+    console.log(game.i18n.format("DND5EH.Hooks_preupdateToken_updatelog", {ActorName: Actor.name, hp: hp, fortSett: fortSett}))
   }
 
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
@@ -1028,9 +1220,9 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
 function ReactionDetect_preCreateChatMessage(msg) {
 
   /** Reactions are only important IF a combat is active. Bail early */
-  if (!game.combats.active) {
+  if (!game.combats.find(combat => combat.started)) {
     if (game.settings.get('dnd5e-helpers', 'debug')) {
-      console.log("Dnd5e helpers: Could not find an active combat")
+      console.log(game.i18n.format("DND5EH.CombatReactionStatus_combaterror"))
     }
     return;
   }
@@ -1065,7 +1257,7 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
   if (rollType === "death" && (game.settings.get('dnd5e-helpers', 'owDeathSave'))) {
     if (parseInt(msg.content) < 6) {
       let actor = game.actors.get(msg.speaker.actor);
-      OpenWounds(actor.data.name, "from a failed death saving throw");
+      OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundDeathSave_reason"));
     }
   }
 
@@ -1076,7 +1268,7 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
     if (parseInt(rollResult[2]) >= critRange) {
       let targetArray = game.users.get(msg.user).targets;
       for (let targets of targetArray) {
-        OpenWounds(targets.actor.data.name, "from a critical hit")
+        OpenWounds(targets.actor.data.name, game.i18n.format("DND5EH.OpenWoundCrit_reason"))
       }
     }
   }
@@ -1146,7 +1338,7 @@ Hooks.on("preCreateMeasuredTemplate", async (scene,template)=>{
 /**
  * Serves as a container for cover data, which is as agnostic as possible, allowing for system extensions
  * Note: Data must be "finalized" prior to chat message output. This finalization function is ripe for override.
- * @todo extract finalize and create chat message into CoverData5e to provide an example of this.
+ * @todo extract finalize and create chat message into CoverData5e to provide an example of 
  * @class CoverData
  */
 class CoverData {
@@ -1180,7 +1372,7 @@ class CoverData {
       case 2:
       case 3: return 1;
       case 4: return 0;
-      default: console.error("Could not convert visible corners to cover level!"); return null;
+      default: console.error(game.i18n.format("DND5EH.LoS_cornererror1")); return null;
     }
   }
 
@@ -1194,15 +1386,29 @@ class CoverData {
    */
   static CoverLevelToText(coverLevel) {
     switch (coverLevel) {
-      case 0: return "No cover";
-      case 1: return "Half cover";
-      case 2: return "Three-quarters cover"
-      case 3: return "Full cover";
-      default: console.error("Could not convert cover level to a string! (Cover level " + coverLevel + ")."); return "";
+      case 0: return game.i18n.format("DND5EH.LoS_nocover");
+      case 1: return game.i18n.format("DND5EH.LoS_halfcover");
+      case 2: return game.i18n.format("DND5EH.LoS_34cover");
+      case 3: return game.i18n.format("DND5EH.LoS_fullcover");
+      default: console.error(game.i18n.format("DND5EH.LoS_cornererror2", {coverLevel: coverLevel})); return "";
     }
   }
 
-   
+  /** tokenCoverData = {level: number, source: string, entity: token} */
+  static SanitizeNPCNames(tokenCoverData){
+
+    /** if we are told to hide NPC names and an NPC token is providing cover */
+    if (game.settings.get('dnd5e-helpers', 'losMaskNPCs') && 
+        tokenCoverData.level > -1 &&
+        (tokenCoverData.entity?.actor?.data.type ?? "") == "npc"){
+      
+      /** change the source of the cover to be a generic "creature" */
+      tokenCoverData.source = game.i18n.format("DND5EH.LoSMaskNPCs_sourceMask");
+    }
+    
+    return tokenCoverData;
+  }
+
   /**
    * 5e specific interpretation and consideration of all wall and object collisions to produce a final cover value
    * General flow: If line of sight and objects give same cover, prefer line of sight, and select the entity that gives
@@ -1219,7 +1425,8 @@ class CoverData {
     
     /** prepare the secondary blocker information */
     const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
-    const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${this.TokenCover?.name ?? ""} is in the way`, entity: this.TokenCover };
+    const obstructionTranslation = game.i18n.format("DND5EH.LoS_obsruct")
+    const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${this.TokenCover?.name ?? ""} ${obstructionTranslation}`, entity: this.TokenCover };
     
     /** prefer walls -> tiles -> tokens in that order */
     if (tileCoverData.level > internalCoverData.level){
@@ -1227,7 +1434,7 @@ class CoverData {
     }
     
     if (tokenCoverData.level > internalCoverData.level){
-      internalCoverData = tokenCoverData;
+      internalCoverData = CoverData.SanitizeNPCNames(tokenCoverData);
     }
     
     this.Summary.FinalCoverEntity = internalCoverData.entity;
@@ -1246,16 +1453,25 @@ class CoverData {
   toMessageContent() {
     /** the cover data must be fully populated and finalized before anything else can happen */
     if (this.FinalCoverLevel < 0) {
-      console.error("Cannot create a chat message from unfinalized cover data!");
+      console.error(game.i18n.format("DND5EH.LoS_coverlevelerror1"));
       return "";
     }
 
+    /** sanitize an NPC target */
+    const sanitizeNPC = function (token){
+      const targetName = token.actor?.data.type === "npc" &&
+                       game.settings.get('dnd5e-helpers', 'losMaskNPCs') ? game.i18n.format("DND5EH.LoSMaskNPCs_targetMask"): token.name;
+      
+      return targetName;
+    }
+
     /** abuse the dice roll classes to make it look like I know how to UI ;) */
-    const content = `<div class="dice-roll"><i>${this.SourceToken.name} checks their sightline to ${this.TargetToken.name}</i>
+    const sightlineTranslation = game.i18n.format("DND5EH.LoS_outputmessage");
+    const content = `<div class="dice-roll"><i>${sanitizeNPC(this.SourceToken)} ${sightlineTranslation} ${sanitizeNPC(this.TargetToken)}</i>
                       <div class="dice-result">
                         <div class="dice-formula">${this.Summary.Text}</div>
                         <div class="dice-tooltip">
-                          <div class="dice"><h4 class="dice-total">${this.Summary.Source}</h4></div></div>`;
+                          <div class="dice">${this.Summary.Source}</div></div>`;
     return content;
   }
 };
@@ -1278,7 +1494,17 @@ async function onTargetToken(user, target, onOff) {
     if (coverData){
       coverData.FinalizeData();
       const content = coverData.toMessageContent();
-      ChatMessage.create({ content: content });
+      /** whisper the message if we are being a cautious GM */
+      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')){
+        ChatMessage.create({
+          content: content,
+          whisper: ChatMessage.getWhisperRecipients('GM')
+        });
+      } else {
+        ChatMessage.create({
+          content: content
+        });
+      }
     }
   }
   
@@ -1319,7 +1545,7 @@ function generateTokenGrid(token){
         [token.x + x, token.y + y], [token.x + x + canvas.grid.size, token.y + y],
         [token.x + x, token.y + y + canvas.grid.size], [token.x + x + canvas.grid.size, token.y + y + canvas.grid.size]]);
     }
-     
+
     gridPoints.push([token.width,y]);
   }
   
@@ -1358,7 +1584,7 @@ Token.prototype.computeTargetCover = async function (targetToken = null,
   /** if we were not provided a target token, grab the first one the current user has targeted */
   targetToken = !!targetToken ? targetToken : game.user.targets.values().next().value;
 
-  if (!targetToken) { ui.noficiations.error("No target token selected to compute cover for!"); return false; }
+  if (!targetToken) { ui.noficiations.error(game.i18n.format("DND5EH.LoS_notargeterror")); return false; }
 
   /** dont compute cover on self */
   if(myToken.id == targetToken.id){return false;}
@@ -1460,6 +1686,10 @@ function CollideAgainstObjects(ray, objectList) {
 
   /** terrible intersectors follow */
 
+  /** create a padding value to shrink the hitbox corners by -- total of 10% of the grid square size */
+  /** this should help with diagonals and degenerate collisions */
+  const padding = canvas.grid.size * 0.05;
+
   //create an "x" based on the bounding box (cuts down on 2 collisions per blocker)
   const hitTiles = objectList.filter(tile => {
     /** looking for any collision of this tile's bounds
@@ -1467,8 +1697,8 @@ function CollideAgainstObjects(ray, objectList) {
      *  and colliding against those lines */
     //as [[x0,y0,x1,y1],...]
     const boxGroup = [
-      [tile.x, tile.y, tile.x + tile.width, tile.y + tile.height],
-      [tile.x + tile.width, tile.y, tile.x, tile.y + tile.height],
+      [tile.x+padding, tile.y+padding, tile.x + tile.width - padding, tile.y + tile.height - padding],
+      [tile.x + tile.width - padding, tile.y+padding, tile.x+padding, tile.y + tile.height-padding],
     ]
 
     return !!boxGroup.find(boxRay => {
@@ -1531,13 +1761,17 @@ function onRenderTileConfig (tileConfig, html) {
   
   /** anchor our new dropdown at the bottom of the dialog */
   const saveButton = html.find($('button[type="submit"]'));
-
-  let checkboxHTML = `<div class="form-group"><label>Provides Cover</label>
+  const coverTranslation = game.i18n.format("DND5EH.LoS_providescover");
+  const noCover = game.i18n.format("DND5EH.LoS_nocover")
+  const halfCover =game.i18n.format("DND5EH.LoS_halfcover")
+  const threeQuaterCover =game.i18n.format("DND5EH.LoS_34cover")
+  const fullCover =game.i18n.format("DND5EH.LoS_fullcover")
+  let checkboxHTML = `<div class="form-group"><label${coverTranslation}</label>
                         <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
-                          <option value="0" ${currentCoverType == 0 ? 'selected' : ''}>None</option>
-                          <option value="1" ${currentCoverType == 1 ? 'selected' : ''}>Half</option>
-                          <option value="2" ${currentCoverType == 2 ? 'selected' : ''}>Three-Quarters</option>
-                          <option value="3" ${currentCoverType == 3 ? 'selected' : ''}>Total</option>
+                          <option value="0" ${currentCoverType == 0 ? 'selected' : ''}>${noCover}</option>
+                          <option value="1" ${currentCoverType == 1 ? 'selected' : ''}>${halfCover}</option>
+                          <option value="2" ${currentCoverType == 2 ? 'selected' : ''}>${threeQuaterCover}</option>
+                          <option value="3" ${currentCoverType == 3 ? 'selected' : ''}>${fullCover}</option>
                         </select>
                       </div>`;
   

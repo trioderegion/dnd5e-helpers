@@ -2,7 +2,8 @@
     "name": "dnd5e-helpers",
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
-    "version": "1.8.4",
+    "systems": ["dnd5e"],
+    "version": "1.10.3",
     "authors": [
       {
         "name": "honeybadger",
@@ -15,6 +16,33 @@
     ],
     "scripts": [
         "/scripts/dnd5e-helpers.js"
+    ],
+    "languages": [
+      {
+        "lang": "en",
+        "name": "English",
+        "path": "lang/en.json"
+      },{
+        "lang": "es",
+        "name": "Spanish",
+        "path": "lang/es.json"
+      },{
+        "lang": "fr",
+        "name": "French",
+        "path": "lang/fr.json"
+      },{
+        "lang": "pt-BR",
+        "name": "Brazilian Portugues",
+        "path": "lang/pt-BR.json"
+      },{
+        "lang": "ko",
+        "name": "Korean",
+        "path": "lang/ko.json"
+      },{
+        "lang": "ja",
+        "name": "日本語",
+        "path": "lang/ja.json"
+      }
     ],
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",

@@ -5,8 +5,12 @@ Little helpers for little 5e tasks.
 
 ### Automatic Wild Magic Surge
 - Triggers on *any* reduction in current spell slots from a character with the indicated feature (default: Wild Magic Surge)
-- Optional homebrew: MORE Surges - a surge triggers on a roll <= spell level.
-- Blind roll surge table results (GM only)
+- Optional homebrews
+   - More Surges - a surge triggers on a roll <= spell level. Also recharges Tides of Chaos.
+   - Volatile Surges - Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended
+   - Standard Surges plus - Similar to standard, but also recharges Tides of Chaos.
+   - Note: The homebrews look for the designated Tides of Chaos feature and expects it to have "X uses per long rest"
+- Blind draw surge table results, which hides the results of the surge from the players.
 
 ![WildSurge](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/surge-output.webp)
 
@@ -79,6 +83,12 @@ Little helpers for little 5e tasks.
 - Triggers on a reduction of >50% of a token/actor's health.
 - Configurable Great Wound table to draw from.
 - This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save then roll on the table
+
+### Minimum Roll Dice Modifier
+- New die roll modifier added: `mr` (minimum roll)
+  - Example: `1d6mr2` will replace any rolls less than 2 with 2s, `1d2mr10` will replace any rolls less than 10 with 10!
+  - Spell and Cantrip scaling works as expected. `1d6mr2` in the scaling field will ensure upcasting of Burning Hands will replace 1s with 2s. Cantrip scaling can be left blank in most cases (as per stock dnd5e operation) as the first damage field of the cantrip will be used as the scaling formula.
+  - Note: There is no toggle option for this functionality.
 
 ## Debug Setting
 - Option to add debug logs for troubleshooting
