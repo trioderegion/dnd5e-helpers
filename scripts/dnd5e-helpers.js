@@ -454,7 +454,7 @@ async function RollForSurge(spellLevel, rollType, actor, onlyLevelOne, rechargeT
   const bonusString = bonus !== 0 ? `-1d4`:``;
   let promise;
 
-  if (onlyLevelOne ? d20result === 1 : d20result <= (spellLevel + bonus)) {
+  if (onlyLevelOne ? d20result === 1 : d20result <= spellLevel) {
     await ShowSurgeResult(surges, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
     promise = RollOnWildTable(rollType);
 
