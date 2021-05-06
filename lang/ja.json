@@ -6,6 +6,11 @@
     "DND5EH.Default_SocketSend": "{socketData} でソケットを送信しました。",
     "DND5EH.Default_roll" : "ロール",
 
+    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+
     "DND5EH.GridTemplateScaling_name": "テンプレートを5eグリッドに自動調整",
     "DND5EH.GridTemplateScaling_hint" :"線と円錐は距離がスケーリングされます。球形は同等の面積の矩形に変換されます。これはテンプレートの対角線を5eのグリッド距離測定に沿わせるものです。",
     "DND5EH.GridTemplateScaling_none":"スケーリング無効",

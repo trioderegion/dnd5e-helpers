@@ -6,6 +6,11 @@
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
 
+    "DND5EH.flagsNoCover" : "Ignore Cover",
+    "DND5EH.flagsNoCoverHint" : "Ignore cover is cover calculations",
+    "DND5EH.flagsWildMagic" : "Wild Magic",
+    "DND5EH.flagsWildMagicHint" : "Enables wild magic automation",
+
     "DND5EH.GridTemplateScaling_name": "Auto adjust templates to 5e grids",
     "DND5EH.GridTemplateScaling_hint" :"Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
     "DND5EH.GridTemplateScaling_none":"No Template Scaling",
@@ -40,6 +45,7 @@
     "DND5EH.LoSCover_manual" : "Manual",
     "DND5EH.LoSCover_auto" : "Automatic",
     "DND5EH.LoSCover_cover" : "cover",
+    
 
     "DND5EH.LoSTint_name" : "Cover Button Tint",
     "DND5EH.LoSTint_hint" : "What color should be applied to the cover buttons to show which is active",

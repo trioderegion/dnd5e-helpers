@@ -6,6 +6,11 @@
     "DND5EH.Default_SocketSend": "{socketData}와 소켓 전송",
     "DND5EH.Default_roll" : "굴림",
 
+    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+
     "DND5EH.GridTemplateScaling_name": "템플릿을 5E 그리드로 자동 조정",
     "DND5EH.GridTemplateScaling_hint" :"선과 원뿔의 길이가 조정된다. 원이 동일한 직사각형 영역으로 변환된다. 이것은 대각선 측정이 템플릿 배치에 포함될 때 5e 그리드 거리를 일치시키려 한다.",
     "DND5EH.GridTemplateScaling_none":"템플릿 스케일링 없음",

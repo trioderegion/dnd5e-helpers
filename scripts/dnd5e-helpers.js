@@ -425,6 +425,19 @@ Hooks.on("init", () => {
             }
         });
     }
+
+    CONFIG.DND5E.characterFlags.helpersIgnoreCover = {
+      hint: "DND5EH.flagsNoCoverHint",
+      name: "DND5EH.flagsNoCover",
+      section: "Feats",
+      type: Boolean
+    }
+    CONFIG.DND5E.characterFlags.wildMagic = {
+      hint: "DND5EH.flagsWildMagicHint",
+      name: "DND5EH.flagsWildMagic",
+      section: "Feats",
+      type: Boolean
+    }
 })
 
 Hooks.on("ready", () => {
@@ -504,8 +517,8 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   }
 
   /** WM check, are we enabled for the current user? */
-  const wmSelectedOption = game.settings.get('dnd5e-helpers', 'wmOptions');
-  if (wmSelectedOption !== 0 && spells !== undefined) {
+  const wmSelectedOption = actor.getFlag('dnd5e', 'wildMagic')
+  if (wmSelectedOption && spells !== undefined) {
     await DnDWildMagic.WildMagicSurge_preUpdateActor(actor, update, wmSelectedOption)
   }
 
@@ -1093,10 +1106,7 @@ class DnDWildMagic {
     const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
     const bWasCast = preCastSlotCount - postCastSlotCount > 0;
 
-    const wmFeatureName = (game.settings.get('dnd5e-helpers', 'wmFeatureName') !== '')
-      ? game.settings.get('dnd5e-helpers', 'wmFeatureName') : wmFeatureDefault;
-    const wmFeature = actor.items.find(i => i.name === wmFeatureName) !== null
-
+    const wmFeature = actor.getFlag('dnd5e', 'wildMagic')
     lvl++;
     console.log(game.i18n.format("DND5EH.WildMagicChatSurgesMessage", { lvl: lvl, bWasCast: bWasCast, wmFeatureName: wmFeatureName }));
 

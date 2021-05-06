@@ -6,6 +6,11 @@
     "DND5EH.Default_SocketSend": "socket envoyé avec {socketData}",
     "DND5EH.Default_roll" : "Lancer",
 
+    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+
     "DND5EH.GridTemplateScaling_name": "Ajuster automatiquement les Templates sur la grille 5e",
     "DND5EH.GridTemplateScaling_hint" :"Les lignes et les cônes auront leur longueur mise à l'échelle. Les cercles seront convertis en un rectangle de surface équivalente. Cela cherche à correspondre à la distance de grille 5e lorsque des mesures diagonales sont impliquées dans le placement du modèle.",
     "DND5EH.GridTemplateScaling_none":"Pas de mise à l'échelle du modèle",

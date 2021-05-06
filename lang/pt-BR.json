@@ -6,6 +6,11 @@
     "DND5EH.Default_SocketSend": "Socket enviado com {socketData}",
     "DND5EH.Default_roll" : "Rolagem",
 
+    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+
     "DND5EH.GridTemplateScaling_name": "Autoajustar modelos em grids da 5e",
     "DND5EH.GridTemplateScaling_hint" :"Linhas e cones terão seu alcance ajustado. Círculos serão convertidos em um retângulo de área equivalente. Isso busca criar a correspondência de distância do grid da 5e quando medidas diagonais são envolvidas no posicionamento de modelos.",
     "DND5EH.GridTemplateScaling_none":"Sem ajuste de modelos",

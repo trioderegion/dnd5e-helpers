@@ -6,6 +6,11 @@
     "DND5EH.Default_SocketSend": "socket enviado con {socketData}",
     "DND5EH.Default_roll" : "Tirada",
 
+    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+
     "DND5EH.GridTemplateScaling_name": "Auto ajustar plantillas a la cuadrícula de 5e",
     "DND5EH.GridTemplateScaling_hint" :"Se ajustará la longitud de líneas y conos. Los círculos serán convertidos a un rectángulo de área equivalente. La intención es armonizar la distancia de la cuadrícula de 5e a la hora de calcular distancias diagonales en las plantillas.",
     "DND5EH.GridTemplateScaling_none":"Ningún escalado de plantillas",
