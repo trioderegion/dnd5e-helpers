@@ -8,8 +8,8 @@
 
     "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
     "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
-    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
-    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "템플릿을 5E 그리드로 자동 조정",
     "DND5EH.GridTemplateScaling_hint" :"선과 원뿔의 길이가 조정된다. 원이 동일한 직사각형 영역으로 변환된다. 이것은 대각선 측정이 템플릿 배치에 포함될 때 5e 그리드 거리를 일치시키려 한다.",
@@ -147,6 +147,8 @@
 
     "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"심각한 부상",
     "DND5EH.GreatWoundEnable_hint":"토큰이 한 번의 피해로 최대 Hp의 절반을 넘는 손실을 입으면 지정된 굴림표에서 굴림을 한다.",

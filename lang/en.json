@@ -8,8 +8,8 @@
 
     "DND5EH.flagsNoCover" : "Ignore Cover",
     "DND5EH.flagsNoCoverHint" : "Ignore cover is cover calculations",
-    "DND5EH.flagsWildMagic" : "Wild Magic",
-    "DND5EH.flagsWildMagicHint" : "Enables wild magic automation",
+    "DND5EH.flagsWildMagic" : "Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "Auto adjust templates to 5e grids",
     "DND5EH.GridTemplateScaling_hint" :"Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
@@ -45,7 +45,6 @@
     "DND5EH.LoSCover_manual" : "Manual",
     "DND5EH.LoSCover_auto" : "Automatic",
     "DND5EH.LoSCover_cover" : "cover",
-    
 
     "DND5EH.LoSTint_name" : "Cover Button Tint",
     "DND5EH.LoSTint_hint" : "What color should be applied to the cover buttons to show which is active",
@@ -148,6 +147,8 @@
 
     "DND5EH.LairHelper_name" : "Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Great Wound",
     "DND5EH.GreatWoundEnable_hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow,",

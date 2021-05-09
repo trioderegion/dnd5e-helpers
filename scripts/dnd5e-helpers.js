@@ -127,17 +127,6 @@ Hooks.on('init', () => {
     }
   });
 
-  /** name of the feature to trigger on */
-  game.settings.register("dnd5e-helpers", "wmFeatureName", {
-    name: game.i18n.format("DND5EH.WildMagicFeatureName_name"),
-    hint: game.i18n.format("DND5EH.WildMagicFeatureName_hint"),
-    scope: "world",
-    config: false,
-    group: "features",
-    default: wmFeatureDefault,
-    type: String,
-  });
-
   /** name of the table on which to roll if a surge occurs */
   game.settings.register("dnd5e-helpers", "wmTableName", {
     name: game.i18n.format("DND5EH.WildMagicTableName_name"),
@@ -517,9 +506,9 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
   }
 
   /** WM check, are we enabled for the current user? */
-  const wmSelectedOption = actor.getFlag('dnd5e', 'wildMagic')
-  if (wmSelectedOption && spells !== undefined) {
-    await DnDWildMagic.WildMagicSurge_preUpdateActor(actor, update, wmSelectedOption)
+  const wmActorEnable = actor.getFlag('dnd5e', 'wildMagic')
+  if (wmActorEnable && spells !== undefined) {
+    await DnDWildMagic.WildMagicSurge_preUpdateActor(actor, update)
   }
 
   /** Great wound checks */
@@ -1097,7 +1086,7 @@ class DnDWildMagic {
     return tocItem;
   }
   /** Wild Magic Surge Handling */
-  static async WildMagicSurge_preUpdateActor(actor, update, selectedOption) {
+  static async WildMagicSurge_preUpdateActor(actor, update) {
     const origSlots = actor.data.data.spells;
 
     /** find the spell level just cast */
@@ -1108,23 +1097,28 @@ class DnDWildMagic {
     const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
     const bWasCast = preCastSlotCount - postCastSlotCount > 0;
 
-    const wmFeature = actor.getFlag('dnd5e', 'wildMagic')
     lvl++;
-    console.log(game.i18n.format("DND5EH.WildMagicChatSurgesMessage", { lvl: lvl, bWasCast: bWasCast, wmFeatureName: wmFeatureName }));
+    if (game.settings.get(MODULE, 'debug')) {
+      /* @todo clean up this debug log like the other, non-translated, debug logs */
+      console.log(game.i18n.format("DND5EH.WildMagicChatSurgesMessage", { lvl: lvl, bWasCast: bWasCast, wmFeatureName: "Wild Magic Surge" }));
+    }
 
     let promise = false;
-    if (wmFeature && bWasCast && lvl > 0) {
+    if (bWasCast && lvl > 0) {
       /** lets go baby lets go */
       console.log(game.i18n.format("DND5EH.WildMagicConsoleSurgesroll"));
 
       const rollMode = game.settings.get('dnd5e-helpers', 'wmWhisper') ? "blindroll" : "roll";
+      const surgeVariant = game.settings.get(MODULE, "wmOptions");
       const rechargeToC = game.settings.get('dnd5e-helpers', 'wmToCRecharge');
-      if (selectedOption === 1) {
+      if (surgeVariant === 1) {
         promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, true, rechargeToC, 0, "DND5EH.WildMagicConsoleNormalSurgeLog");
-      } else if (selectedOption === 2) {
+      } else if (surgeVariant === 2) {
         promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, 0, "DND5EH.WildMagicConsoleMoreSurgeLog");
-      } else if (selectedOption === 3) {
+      } else if (surgeVariant === 3) {
         promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, new Roll("1d4").roll().total, "DND5EH.WildMagicConsoleVolatileSurgeLog");
+      } else {
+        console.log(`${MODULE} | An actor with wild magic surge cast a spell, but we could not determine the surge type to use!`);
       }
     }
 

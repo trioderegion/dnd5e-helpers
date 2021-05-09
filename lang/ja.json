@@ -8,8 +8,8 @@
 
     "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
     "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
-    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
-    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "テンプレートを5eグリッドに自動調整",
     "DND5EH.GridTemplateScaling_hint" :"線と円錐は距離がスケーリングされます。球形は同等の面積の矩形に変換されます。これはテンプレートの対角線を5eのグリッド距離測定に沿わせるものです。",
@@ -147,6 +147,8 @@
 
     "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"痛打",
     "DND5EH.GreatWoundEnable_hint":"一撃で最大hpの50％を超えるダメージを受けたときに、指定した表をロールします。",

@@ -8,8 +8,8 @@
 
     "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
     "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
-    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
-    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "Auto ajustar plantillas a la cuadrícula de 5e",
     "DND5EH.GridTemplateScaling_hint" :"Se ajustará la longitud de líneas y conos. Los círculos serán convertidos a un rectángulo de área equivalente. La intención es armonizar la distancia de la cuadrícula de 5e a la hora de calcular distancias diagonales en las plantillas.",
@@ -147,6 +147,8 @@
 
     "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Daño Masivo",
     "DND5EH.GreatWoundEnable_hint":"Tira en una tabla específica cuando un token recibe más de un 50% de su vida máxima de daño en un solo golpe",

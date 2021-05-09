@@ -8,8 +8,8 @@
 
     "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
     "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
-    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
-    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "Ajuster automatiquement les Templates sur la grille 5e",
     "DND5EH.GridTemplateScaling_hint" :"Les lignes et les cônes auront leur longueur mise à l'échelle. Les cercles seront convertis en un rectangle de surface équivalente. Cela cherche à correspondre à la distance de grille 5e lorsque des mesures diagonales sont impliquées dans le placement du modèle.",
@@ -147,6 +147,8 @@
 
     "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Blessure grave",
     "DND5EH.GreatWoundEnable_hint":"Lance un dès sur une table spécifiée lorsqu'un jeton prend plus de 50% de HP max en un seul coup,",

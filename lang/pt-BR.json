@@ -8,8 +8,8 @@
 
     "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
     "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
-    "DND5EH.flagsWildMagic" : "[EN]Wild Magic",
-    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic automation",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "Autoajustar modelos em grids da 5e",
     "DND5EH.GridTemplateScaling_hint" :"Linhas e cones terão seu alcance ajustado. Círculos serão convertidos em um retângulo de área equivalente. Isso busca criar a correspondência de distância do grid da 5e quando medidas diagonais são envolvidas no posicionamento de modelos.",
@@ -147,6 +147,8 @@
 
     "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Dano Maciço",
     "DND5EH.GreatWoundEnable_hint":"Rola em uma tabela quando um alvo perde mais de 50% dos PV em um único golpe.",
