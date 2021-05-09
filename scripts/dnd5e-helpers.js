@@ -902,7 +902,9 @@ Hooks.on("midi-qol.AttackRollComplete", (workflow) => {
 })
 
 Hooks.on("createCombat", (combat) => {
-  combat.setFlag('dnd5e-helpers', 'chatLength', game.messages.size)
+  if (DnDHelpers.IsFirstGM()) {
+    combat.setFlag('dnd5e-helpers', 'chatLength', game.messages.size)
+  }
 })
 
 /** helper functions */
@@ -1677,6 +1679,11 @@ class DnDCombatUpdates {
   }
 
   static async cleanUpCover(combat){
+    /* only GMs can do this */
+    if (!DnDHelpers.IsFirstGM()) {
+      return;
+    }
+
     const chatLength = combat.getFlag('dnd5e-helpers', 'chatLength')
     let chatSection = Array.from(ui.chat.collection)
     if(chatLength > chatSection.size) return;
