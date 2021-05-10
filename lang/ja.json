@@ -6,8 +6,8 @@
     "DND5EH.Default_SocketSend": "{socketData} でソケットを送信しました。",
     "DND5EH.Default_roll" : "ロール",
 
-    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
-    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsNoCover" : "[EN]Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Provided by feats.",
     "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
     "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
@@ -93,8 +93,8 @@
     "DND5EH.CombatReactionEnable_apply":"適用のみ",
     "DND5EH.CombatReactionEnable_remove":"削除のみ",
     "DND5EH.CombatReactionEnable_both":"適用と削除",
-    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Action Management",
-    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm Action Settings",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers：アクターのアイテムロールではありません。",
     "DND5EH.CombatReactionStatus_statuslog":"DnD5e Helpers：状態は {statusEffect}です。",

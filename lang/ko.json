@@ -6,8 +6,8 @@
     "DND5EH.Default_SocketSend": "{socketData}와 소켓 전송",
     "DND5EH.Default_roll" : "굴림",
 
-    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
-    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsNoCover" : "[EN]Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Provided by feats.",
     "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
     "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
@@ -93,8 +93,8 @@
     "DND5EH.CombatReactionEnable_apply":"적용만",
     "DND5EH.CombatReactionEnable_remove":"제거만",
     "DND5EH.CombatReactionEnable_both":"적용 및 제거",
-    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Action Management",
-    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm Action Settings",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: 액터 아이템 굴림이 아닙니다",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: 상태 효과: {statusEffect}",

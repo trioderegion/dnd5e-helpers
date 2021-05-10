@@ -6,8 +6,8 @@
     "DND5EH.Default_SocketSend": "socket envoyé avec {socketData}",
     "DND5EH.Default_roll" : "Lancer",
 
-    "DND5EH.flagsNoCover" : "[EN]Ignore Cover",
-    "DND5EH.flagsNoCoverHint" : "[EN]Ignore cover is cover calculations",
+    "DND5EH.flagsNoCover" : "[EN]Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Provided by feats.",
     "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
     "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
@@ -93,8 +93,8 @@
     "DND5EH.CombatReactionEnable_apply":"Appliquer uniquement",
     "DND5EH.CombatReactionEnable_remove":"Retirer uniquement",
     "DND5EH.CombatReactionEnable_both":"Appliquer et retirer",
-    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Action Management",
-    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm Action Settings",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Aide Dnd5e: Not an actors item roll",
     "DND5EH.CombatReactionStatus_statuslog":"Aide Dnd5e: l'effet du statut est: {statusEffect}",

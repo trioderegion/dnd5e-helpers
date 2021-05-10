@@ -6,8 +6,8 @@
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
 
-    "DND5EH.flagsNoCover" : "Ignore Cover",
-    "DND5EH.flagsNoCoverHint" : "Ignore cover is cover calculations",
+    "DND5EH.flagsNoCover" : "Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "Provided by feats.",
     "DND5EH.flagsWildMagic" : "Wild Magic Surge",
     "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation",
 
@@ -93,8 +93,8 @@
     "DND5EH.CombatReactionEnable_apply":"[depreciated] Only Apply",
     "DND5EH.CombatReactionEnable_remove":"[depreciated] Only Remove",
     "DND5EH.CombatReactionEnable_both":"[depreciated] Apply and Remove",
-    "DND5EH.CombatReactionActionDialogTitle" : "Action Management",
-    "DND5EH.CombatReactionConfirmation" : "Confirm Action Settings",
+    "DND5EH.CombatReactionActionDialogTitle" : "Available Actions",
+    "DND5EH.CombatReactionConfirmation" : "Confirm",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: Not an actors item roll",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: status effect is: {statusEffect}",

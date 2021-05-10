@@ -2221,21 +2221,21 @@ class DnDActionManagement {
 
   static async actionDialog(tokenId){
     const token = canvas.tokens.get(tokenId)
-    const currentActions = token.getFlag('dnd5e-helpers', 'ActionManagement')
-    let {action, reaction, bonus} = currentActions
+    const usedActions = token.getFlag('dnd5e-helpers', 'ActionManagement')
+    let {action, reaction, bonus} = usedActions
     const content = `
     <form>
       <div class="form-group">
         <label for="action">${game.i18n.format("DND5E.Action")}: </label>
-        <input id="action" name="action" type="checkbox" ${action === 1 ? 'checked' : ''} ></input>
+        <input id="action" name="action" type="checkbox" ${action === 1 ? '' : 'checked'} ></input>
       </div> 
       <div class="form-group">
         <label for="reaction">${game.i18n.format("DND5E.Reaction")}: </label>
-        <input id="reaction" name="reaction" type="checkbox" ${reaction === 1 ? 'checked' : ''} ></input>
+        <input id="reaction" name="reaction" type="checkbox" ${reaction === 1 ? '' : 'checked'} ></input>
       </div>
       <div class="form-group">
         <label for="bonus">${game.i18n.format("DND5E.BonusAction")}: </label>
-        <input id="bonus" name="bonus" type="checkbox" ${bonus === 1 ? 'checked' : ''} ></input>
+        <input id="bonus" name="bonus" type="checkbox" ${bonus === 1 ? '' : 'checked'} ></input>
       </div>
     </form>
     `
@@ -2244,11 +2244,11 @@ class DnDActionManagement {
       content : content,
       buttons:{
         one: {
-          label : game.i18n.format("DND5EH.CombatReactionConformation"),
+          label : game.i18n.format("DND5EH.CombatReactionConfirmation"),
           callback: async (html) => {
-            let action = html.find("#action")[0].checked ? 1 : 0
-            let reaction = html.find("#reaction")[0].checked ? 1 : 0
-            let bonus = html.find("#bonus")[0].checked ? 1 : 0
+            let action = html.find("#action")[0].checked ? 0 : 1
+            let reaction = html.find("#reaction")[0].checked ? 0 : 1
+            let bonus = html.find("#bonus")[0].checked ? 0 : 1
             let actionMapping = {
               action: action,
               bonus : bonus,
