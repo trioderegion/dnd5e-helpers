@@ -41,7 +41,7 @@
     "DND5EH.LoSKeybind_hint" : "Assign a keyboard shortcut to check cover when targeting.",
 
     "DND5EH.LoSCover_name" : "Cover Application",
-    "DND5EH.LoSCover_hint" : "Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_hint" : "Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
     "DND5EH.LoSCover_manual" : "Manual",
     "DND5EH.LoSCover_auto" : "Automatic",
     "DND5EH.LoSCover_cover" : "cover",
@@ -148,7 +148,7 @@
     "DND5EH.LairHelper_name" : "Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
     "DND5EH.CombatLegendary_Prompt_name" : "Legendary Action Prompt",
-    "DND5EH.CombatLegendary_Prompt_hint" : "Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
+    "DND5EH.CombatLegendary_Prompt_hint" : "Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Great Wound",
     "DND5EH.GreatWoundEnable_hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow,",

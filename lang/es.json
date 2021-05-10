@@ -41,7 +41,7 @@
     "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
 
     "DND5EH.LoSCover_name" : "[EN] Cover Application",
-    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect ranged weapon attacks, not dexterity saves",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
     "DND5EH.LoSCover_manual" : "[EN] Manual",
     "DND5EH.LoSCover_auto" : "[EN] Automatic",
     "DND5EH.LoSCover_cover" : "[EN] cover",
@@ -148,7 +148,7 @@
     "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
     "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
-    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants and the end of another creature's turn.",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Daño Masivo",
     "DND5EH.GreatWoundEnable_hint":"Tira en una tabla específica cuando un token recibe más de un 50% de su vida máxima de daño en un solo golpe",

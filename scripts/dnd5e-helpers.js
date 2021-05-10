@@ -490,8 +490,13 @@ Hooks.on("renderChatMessage", (app, html, data) => {
   half.addEventListener("click", function () { AddCover(half, three) })
   three.addEventListener("click", function () { AddCover(three, half) })
   let active = html.find(".cover-button.active")[0]
-  active.style.background = coverBackground;
-  active.childNodes[0].style.opacity = 0.8;
+
+  /** only style determined cover states */
+  if (!!active) {
+    active.style.background = coverBackground;
+    active.childNodes[0].style.opacity = 0.8;
+  }
+
   let message = game.messages.entries.find(m => m.id === app.id)
   message.setFlag('dnd5e-helpers', 'coverMessage', true)
 })
@@ -2473,10 +2478,9 @@ class CoverData {
 
           if (coverData.SourceToken.actor.getFlag("dnd5e", "helpersIgnoreCover")) break;
           let coverLevel = coverData.calculateCoverBonus()
-          if (!coverLevel) return;
+          if (!coverLevel) break;
 
           switch (coverLevel) {
-            case "0": break;
             case "-2": {
               coverName = `${game.i18n.format("DND5EH.LoS_halfcover")}`;
               effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg";
