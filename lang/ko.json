@@ -1,4 +1,7 @@
 {
+    "DND5EH.ConfigOption_name": "[EN]Configure Settings",
+    "DND5EH.ConfigOption_menulabel": "[EN]Open Helpers Settings",
+
     "DND5EH.Default_disabled" : "비활성화",
     "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "없음", 

@@ -1,4 +1,3 @@
-const wmFeatureDefault = "Wild Magic Surge";
 const wmToCFeatureDefault = "Tides of Chaos";
 const wmSurgeTableDefault = "Wild-Magic-Surge-Table";
 
@@ -9,9 +8,8 @@ import {queueEntityUpdate} from './modules/update-queue.js'
 Hooks.on('init', () => {
 
   game.settings.registerMenu(MODULE, "helpersOptions", {
-    name: "DnD5e Helpers Configuration",
-    label: "Open Configuration Menu",
-    //hint: "Player Helpers Hint",
+    name: game.i18n.format("DND5EH.ConfigOption_name"),
+    label: game.i18n.format("DND5EH.ConfigOption_menulabel"),
     icon: "fas fa-user-cog",
     type: HelpersSettingsConfig,
     restricted: true

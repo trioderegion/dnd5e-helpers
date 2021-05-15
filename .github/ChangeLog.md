@@ -201,6 +201,8 @@
   - Japanese localization update provided by BrotherSharper. We are, as always, grateful for the help.
   - Localization Key Changes:
     - Additions
+      - ConfigOption_name
+      - ConfigOption_menulabel
       - Default_enabled
       - LoSKeybind_name
       - LoSKeybind_hint
