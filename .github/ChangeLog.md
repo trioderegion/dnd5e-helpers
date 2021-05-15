@@ -187,13 +187,15 @@
     - Added lair action tracking, upon adding actors to the combat tracker it will scan for actions with the `uses lair action` action type and add them to a combat-specific pool
     - This lair action pool will be given to the GM as combat advances past initiative 20, with the option to jump to the actor, or directly roll the action
   - Legendary Actions
-    - <TODO>
+    - Added legendary action reminders. At the end of each creature's turn, a list of Legendary actions and their cost and organized by actor will be shown to the GM for direct rolls.
   - `#84`: Regeneration prompts can now be supressed by applying a user-defined status to a given token.
   - `#87`: Great/Open wound chat feedback can now mask token names in chat.
+  - `#96`: Volatile surge now also looks for a sheet resource of the defined Tides of Chaos feature name and keeps charges synced. This still requires the ToC feature to have charges.
 
 - Bug Fixes:
   - `#81`: `mr` roll modifier updated to not examine discarded results (ex. `1d4r<2mr2` will not force the re-rolled die to `2`) 
   - `#79`/`#90`: Token/tile hitboxes for cover are now correctly pulled back from grid boundaries to avoid degenerate collisions when abutted to walls and other entities.
+  - `#96`: Volatile surge homebrew for wild magic surge now correctly only applies penalty to d20 roll when Tides of Chaos is uncharged.
 
 - Localization:
   - Japanese localization update provided by BrotherSharper. We are, as always, grateful for the help.

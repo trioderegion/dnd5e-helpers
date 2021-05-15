@@ -1033,7 +1033,7 @@ class DnDWildMagic {
     const bonusString = bonus !== 0 ? `-1d4` : ``;
     let promise;
 
-    if (onlyLevelOne ? d20result === 1 : d20result <= (spellLevel + bonus)) {
+    if (onlyLevelOne ? d20result === 1 : d20result <= spellLevel ) {
       await DnDWildMagic.ShowSurgeResult(surges, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
       promise = DnDWildMagic.RollOnWildTable(rollType);
 
@@ -1078,18 +1078,41 @@ class DnDWildMagic {
     }
   }
 
+  static CheckTidesOfChaosAsResource(actor, wmToCFeatureName) {
+    if (actor.data.data.resources.primary.label === wmToCFeatureName) {
+      return 'primary';
+    } else if (actor.data.data.resources.secondary.label === wmToCFeatureName) {
+      return 'secondary';
+    } else if (actor.data.data.resources.tertiary.label === wmToCFeatureName) {
+      return 'tertiary';
+    }
+
+    return null;
+  }
+
   /** reset the tides of chaose feature also reset the resource if that is also used */
   static async ResetTidesOfChaos(actor, wmToCFeatureName) {
     const tocItem = actor?.items.getName(wmToCFeatureName);
 
     if (tocItem) {
       const item = await tocItem.update({ 'data.uses.value': tocItem.data.data.uses.max });
-      actor.sheet.render(false);
+      
+      // DnD Importer sets Tides of Chaos as a resource too, check if it's found and reset it too
+      const resource = DnDWildMagic.CheckTidesOfChaosAsResource(actor, wmToCFeatureName);
+      if (resource) {
+        const computedResource = `data.resources.${resource}.value`;
+        const newActor  = await actor.update({ [computedResource]: actor.data.data.resources[resource].max });
+        newActor.sheet.render(false);
+      } else {
+        actor.sheet.render(false);    
+      }
+
       return item;
     }
 
     return tocItem;
   }
+
   /** Wild Magic Surge Handling */
   static async WildMagicSurge_preUpdateActor(actor, update) {
     const origSlots = actor.data.data.spells;
@@ -1121,7 +1144,16 @@ class DnDWildMagic {
       } else if (surgeVariant === 2) {
         promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, 0, "DND5EH.WildMagicConsoleMoreSurgeLog");
       } else if (surgeVariant === 3) {
-        promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, new Roll("1d4").roll().total, "DND5EH.WildMagicConsoleVolatileSurgeLog");
+        const tocName = DnDWildMagic.GetTidesOfChaosFeatureName();
+        let tocRoll = 0;
+
+        // tides of chaos has been spent, so we should add the bonus roll
+        if (DnDWildMagic.IsTidesOfChaosSpent(actor, tocName)) {
+          tocRoll = new Roll("1d4").roll().total;
+        }
+
+        promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, tocRoll, "DND5EH.WildMagicConsoleVolatileSurgeLog");
+
       } else {
         console.log(`${MODULE} | An actor with wild magic surge cast a spell, but we could not determine the surge type to use!`);
       }
