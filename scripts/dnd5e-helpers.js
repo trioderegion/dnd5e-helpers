@@ -2374,11 +2374,10 @@ class CoverData {
     const losCoverLevel = CoverData.VisibleCornersToCoverLevel(this.VisibleCorners);
 
     /** assume LOS will be the main blocker */
-    let internalCoverData = { level: losCoverLevel, source: `${this.VisibleCorners} visible corners`, entity: null };
+    let internalCoverData = { level: losCoverLevel, source: `${this.VisibleCorners} ${game.i18n.format("DND5EH.LoS_visiblecorners")}`, entity: null };
 
     /** prepare the secondary blocker information */
-    const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
-    const obstructionTranslation = game.i18n.format("DND5EH.LoS_obsruct")
+    const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: game.i18n.format("DND5EH.LoS_object"), entity: this.TileCover };
     const displayedTokenName = (this.TokenCover?.actor?.data.type ?? "") == "npc" ? DnDHelpers.sanitizeName(this.TokenCover?.name, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask") : this.TokenCover?.name;
     const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${displayedTokenName ?? ""}`, entity: this.TokenCover };
 
