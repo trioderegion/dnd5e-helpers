@@ -42,6 +42,11 @@
     "DND5EH.LoSMaskNPCs_targetMask": "생물",
     "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
     "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
+    "DND5EH.LoS_ignoreCover" : "[EN]Ignored",
+    "DND5EH.LoSremoveCover_name" : "[EN]Remove Cover on turn end",
+    "DND5EH.LoSremoveCover_hint" : "[EN]Removes any cover effect at the end of a combatants turn",
+    "DND5EH.LoSremoveTargets_name" : "[EN]Remove Targets on turn end",
+    "DND5EH.LoSremoveTargets_hint" : "[EN]Removes any targets at the end of a combatants turn",
 
     "DND5EH.LoSCover_name" : "[EN] Cover Application",
     "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",

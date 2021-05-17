@@ -98,6 +98,26 @@ Hooks.on('init', () => {
     }
   })
 
+  game.settings.register("dnd5e-helpers", "removeCover", {
+    name: game.i18n.format("DND5EH.LoSremoveCover_name"),
+    hint: game.i18n.format("DND5EH.LoSremoveCover_hint"),
+    scope: "world",
+    config: false,
+    group: "system",
+    default: 0,
+    type: Boolean
+  })
+
+  game.settings.register("dnd5e-helpers", "removeTargets", {
+    name: game.i18n.format("DND5EH.LoSremoveTargets_name"),
+    hint: game.i18n.format("DND5EH.LoSremoveTargets_hint"),
+    scope: "world",
+    config: false,
+    group: "system",
+    default: 0,
+    type: Boolean
+  })
+
   game.settings.register("dnd5e-helpers", "losMaskNPCs", {
     name: game.i18n.format("DND5EH.LoSMaskNPCs_name"),
     hint: game.i18n.format("DND5EH.LoSMaskNPCs_hint"),
@@ -624,13 +644,13 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
         await DnDCombatUpdates.RechargeAbilities(previousToken);
       }
-      removeCover(undefined, previousToken)
+      if(game.settings.get("dnd5e-helpers", "removeCover")) {
+        removeCover(undefined, previousToken)
+      }
+      if(game.settings.get("dnd5e-helpers", "removeTargets")) {
+        removeTargets(previousToken)
+      }
     }
-
-    
-
-
-
   }
 
 });
@@ -2400,7 +2420,7 @@ class CoverData {
     this.Summary.Text = CoverData.CoverLevelToText(internalCoverData.level);
 
     if(options?.ignoreCover) {
-      this.Summary.Text += game.i18n.format("DND5EH.LoS_ignoreCover")
+      this.Summary.Text +=` ${game.i18n.format("DND5EH.LoS_ignoreCover")}`
     }
   }
 
@@ -2492,7 +2512,8 @@ class CoverData {
 
     /** if we got valid cover data back, finalize and output results */
     if (coverData) {
-      coverData.FinalizeData();
+      let ignoreCover = coverData.SourceToken.actor.getFlag("dnd5e", "helpersIgnoreCover")
+      coverData.FinalizeData({ignoreCover});
       let content = coverData.toMessageContent();
       const coverSetting = game.settings.get("dnd5e-helpers", "coverApplication")
       const id = randomID()
@@ -2512,8 +2533,7 @@ class CoverData {
             * @todo possible add in a check for features
           */
 
-          if (coverData.SourceToken.actor.getFlag("dnd5e", "helpersIgnoreCover")) break;
-          let coverLevel = coverData.calculateCoverBonus()
+            let coverLevel = coverData.calculateCoverBonus()
 
           switch (coverLevel) {
             case "0" : break;
@@ -2544,7 +2564,7 @@ class CoverData {
             tint: "#747272"
           }
           let oldCover = coverData.SourceToken.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
-          if(coverLevel === "0"){
+          if(coverLevel === "0" || ignoreCover){
             //do no automation
           }
           else if (oldCover) {
@@ -2556,8 +2576,8 @@ class CoverData {
 
           content += `
           <div class="dnd5ehelpers">
-        <button class="cover-button dnd5ehelpersHalfCover ${coverLevel === '-2' ? "active" : ""}" data-some-data="-2,${coverData.SourceToken.id},Half"><img src="modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
-        <button class="cover-button dnd5ehelpersQuarterCover ${coverLevel === '-5' ? "active" : ""}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters"><img src="modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg">${game.i18n.format("DND5EH.LoS_34cover")}</button>
+        <button class="cover-button dnd5ehelpersHalfCover ${coverLevel === '-2' && !ignoreCover ? "active" : ""}" data-some-data="-2,${coverData.SourceToken.id},Half"><img src="modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg">${game.i18n.format("DND5EH.LoS_halfcover")}</button>
+        <button class="cover-button dnd5ehelpersQuarterCover ${coverLevel === '-5' && !ignoreCover ? "active" : ""}" data-some-data="-5,${coverData.SourceToken.id},Three-Quarters"><img src="modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg">${game.i18n.format("DND5EH.LoS_34cover")}</button>
         </div>
         `
         }
@@ -2641,6 +2661,14 @@ async function removeCover(user, token) {
   let coverEffects = testToken?.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"))
   if (!coverEffects) return;
   for (let effect of coverEffects) await effect.delete()
+}
+
+async function removeTargets(token){
+  const userArray = Object.keys(token.actor.data.permission)
+  for( let userID of userArray){
+    if(userID === "default") continue;
+    game.users.get(userID).broadcastActivity({targets: []})
+  }
 }
 
 /**
