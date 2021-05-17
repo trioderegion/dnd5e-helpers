@@ -39,6 +39,7 @@
     "DND5EH.LoSMaskNPCs_targetMask": "a creature",
     "DND5EH.LoSKeybind_name" : "Keybind for Cover",
     "DND5EH.LoSKeybind_hint" : "Assign a keyboard shortcut to check cover when targeting.",
+    "DND5EH.LoS_ignoreCover" : "Ignored due to {feature}",
 
     "DND5EH.LoSCover_name" : "Cover Application",
     "DND5EH.LoSCover_hint" : "Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",

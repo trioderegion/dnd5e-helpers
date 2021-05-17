@@ -2336,13 +2336,16 @@ class CoverData {
    *               the greatest amount of cover. Note: cover in 5e does not "sum".
    * @todo implement in CoverData5e
    * @memberof CoverData
+   * @param {Object} options optional parameters
    */
-  FinalizeData() {
+  FinalizeData(options = {}) {
     /** always prefer line of sight because its more accurate at the moment (>= instead of >) */
     const losCoverLevel = CoverData.VisibleCornersToCoverLevel(this.VisibleCorners);
 
     /** assume LOS will be the main blocker */
     let internalCoverData = { level: losCoverLevel, source: `${this.VisibleCorners} visible corners`, entity: null };
+
+
 
     /** prepare the secondary blocker information */
     const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: `an intervening object`, entity: this.TileCover };
@@ -2366,6 +2369,10 @@ class CoverData {
     this.Summary.FinalCoverLevel = internalCoverData.level;
     this.Summary.Source = internalCoverData.source;
     this.Summary.Text = CoverData.CoverLevelToText(internalCoverData.level);
+
+    if(options?.ignoreCover) {
+      this.Summary.Text += game.i18n.format("DND5EH.LoS_ignoreCover")
+    }
   }
 
   /**
@@ -2417,7 +2424,7 @@ class CoverData {
 
   calculateCoverBonus() {
     switch (this.Summary.FinalCoverLevel) {
-      case 0: return false;
+      case 0: return "0";
       case 1: return "-2";
       case 2: return "-5";
       case 3: return "-40";
@@ -2478,9 +2485,9 @@ class CoverData {
 
           if (coverData.SourceToken.actor.getFlag("dnd5e", "helpersIgnoreCover")) break;
           let coverLevel = coverData.calculateCoverBonus()
-          if (!coverLevel) break;
 
           switch (coverLevel) {
+            case "0" : break;
             case "-2": {
               coverName = `${game.i18n.format("DND5EH.LoS_halfcover")}`;
               effDataIcon = "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg";
@@ -2508,7 +2515,10 @@ class CoverData {
             tint: "#747272"
           }
           let oldCover = coverData.SourceToken.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
-          if (oldCover) {
+          if(coverLevel === "0"){
+            //do no automation
+          }
+          else if (oldCover) {
             coverData.SourceToken.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
           }
           else {
