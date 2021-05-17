@@ -1,4 +1,7 @@
 {
+    "DND5EH.ConfigOption_name": "Configure Settings",
+    "DND5EH.ConfigOption_menulabel": "Open Helpers Settings",
+
     "DND5EH.Default_disabled" : "Disabled",
     "DND5EH.Default_enabled" : "Enabled",
     "DND5EH.Default_none" : "None", 
