@@ -230,6 +230,11 @@
       - GreatAndOpenWoundMaskNPC_name
       - GreatAndOpenWoundMaskNPC_hint
       - GreatAndOpenWoundMaskNPC_mask
+      - LoS_ignoreCover
+      - LoSremoveCover_name 
+      - LoSremoveCover_hint 
+      - LoSremoveTargets_name 
+      - LoSremoveTargets_hint
     - Changes
       - CombatReactionEnable_name
       - CombatReactionEnable_hint
