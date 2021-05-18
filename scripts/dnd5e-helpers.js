@@ -244,6 +244,8 @@ Hooks.on('init', () => {
     hint: game.i18n.format("DND5EH.CombatAbilityRecharge_hint"),
     scope: "world",
     default: "off",
+    config: false,
+    group: "combat",
     type: String,
     choices: {
       "off": game.i18n.format("DND5EH.CombatAbilityRecharge_Off"),
@@ -251,6 +253,7 @@ Hooks.on('init', () => {
       "end": game.i18n.format("DND5EH.CombatAbilityRecharge_End"),
     }
   });
+
   /** hide ability recharge roll */
   game.settings.register("dnd5e-helpers", "cbtAbilityRechargeHide", {
     name: game.i18n.format("DND5EH.CombatAbilityRechargeHide_name"),
@@ -304,6 +307,7 @@ Hooks.on('init', () => {
     },
     default: "0",
     config: false,
+    group: "combat"
   });
 
   /** Great Wound and Open Wound Feature*/ 
