@@ -115,4 +115,4 @@ Little helpers for little 5e tasks.
 ## Authors:
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
-- hugeoprudente (https://github.com/hugoprudente)
+- hugoprudente (https://github.com/hugoprudente)

@@ -3,7 +3,7 @@
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
     "systems": ["dnd5e"],
-    "version": "1.10.3",
+    "version": "2.0.0",
     "authors": [
       {
         "name": "honeybadger",
@@ -12,6 +12,10 @@
       {
         "name": "Kandashi",
         "url": "https://github.com/kandashi"
+      },
+      {
+        "name": "hugoprudente",
+        "url": "https://github.com/hugoprudente"
       }
     ],
     "esmodules": [
