@@ -179,6 +179,9 @@
 
 ###2.0.0
 - New Features:
+  - New Configuration Dialog
+    - No longer shall we bloat the module settings menu! Huzzah!
+    - New menu separates our options into system, feature, and combat tabs.
   - Action Management 
     - Updated "Reaction settings" to include all aciton types, Action, Reaction, Bonus action are all tracked through HUD elements
     - These elements are only applied to tokens currently in combat
