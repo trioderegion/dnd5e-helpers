@@ -1215,7 +1215,7 @@ class DnDCombatUpdates {
   static async RechargeAbilities(token) {
     const rechargeItems = DnDCombatUpdates.CollectRechargeAbilities(token);
 
-    for (item of rechargeItems) {
+    for (let item of rechargeItems) {
       await DnDCombatUpdates.CustomRollRecharge(item);
     }
   }
