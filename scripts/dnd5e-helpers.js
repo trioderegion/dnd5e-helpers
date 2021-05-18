@@ -1438,7 +1438,7 @@ class DnDCombatUpdates {
    * Generate lair action array
    */
   static LairActionMapping(combatant, combat) {
-    if (!DnDHelpers.IsFirstGM) return;
+    if (!DnDHelpers.IsFirstGM()) return;
     let token = canvas.tokens.get(combatant.tokenId)
 
     const updateFn = async () => {
@@ -1464,7 +1464,7 @@ class DnDCombatUpdates {
      * Generate Legendary action array
      */
   static LegendaryActionMapping(combatant, combat) {
-    if (!DnDHelpers.IsFirstGM) return;
+    if (!DnDHelpers.IsFirstGM()) return;
 
     let token = canvas.tokens.get(combatant.tokenId)
 
@@ -1494,7 +1494,7 @@ class DnDCombatUpdates {
    * @returns 
    */
   static async RemoveLairMapping(combat, combatant) {
-    if (!DnDHelpers.IsFirstGM) return;
+    if (!DnDHelpers.IsFirstGM()) return;
     const updateFn = async () => {
       /** get the actual token */
       const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?._id;
@@ -1530,7 +1530,7 @@ class DnDCombatUpdates {
   * @returns 
   */
   static async RemoveLegMapping(combat, combatant) {
-    if (!DnDHelpers.IsFirstGM) return;
+    if (!DnDHelpers.IsFirstGM()) return;
     const updateFn = async () => {
 
       /** get the actual token */
@@ -1658,12 +1658,12 @@ class DnDCombatUpdates {
 
       /** we can have multiple leg actors in the same combat -- do not allow
        *  leg actions to be used by the token who JUST ended their turn */
-      if(token.id === previousTokenId) continue;
+      if(!token || token.id === previousTokenId) continue;
 
       /** if this combatant is marked as defeated, do no add actions to list */
       const combatantId = LegActor[3];
       const owningCombat = LegActor[4];
-      if(!!game.combats.get(owningCombat).combatants.find( entry => entry._id == combatantId).defeated) continue;
+      if(!!game.combats.get(owningCombat).combatants.find( entry => entry._id == combatantId)?.defeated ?? true) continue;
 
       let actionsAvailable = token.actor.data.data.resources.legact.value
 
@@ -2239,7 +2239,7 @@ class DnDActionManagement {
    */
   static async RemoveActionMarkers(tokenId) {
     let token = canvas.tokens.get(tokenId)
-    if (!token.owner) return;
+    if (!token?.owner ?? true) return;
     const actionCont = token.children.find(i => i.Helpers)
     actionCont.children.forEach(i => i.destroy())
     actionCont.destroy()
