@@ -47,7 +47,7 @@ Little helpers for little 5e tasks.
 ![Circle Scaling](.github/circle_scaling.gif)
 
 ### Cover Calculator
-- When a user with a selected token targets another token, the target's cover will be calculated following the rules presented in DMG pg. 251
+- When a user with a selected token targets another token with the designated hotkey held, the target's cover will be calculated following the rules presented in DMG pg. 251
 - A message in chat will be posted concerning the target's cover in relation to the selected token(s).
 - Prioritizes walls, specially flagged tiles, then tokens.
   - Tiles have a new option in their configuration dialog that sets the cover granted by them.
@@ -61,12 +61,13 @@ Little helpers for little 5e tasks.
 ![Cover Calculation](.github/los_calc.gif)
 
 ### Cover Application
-- When a user triggers a cover calculations (with an optional hotkey held) the result of that cover calculation can be applied to the token
-- Manual setting adds chat buttons to click to cycle between different cover effects
-- Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment
+- Manual setting adds chat buttons to click to cycle between different cover effects.
+- Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment.
 - This cover bonus is applied onto the *targeter* not the target and is a -2,-5,-40 negative for any attack rolls.
-- The cover bonus to Dexerity saves are not dealt with
-- A flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ).
+- The cover bonus to Dexerity saves are not dealt with.
+- A new special trait has been added to indicate if the actor should ignore cover (e.g. Sharpshooter or Spell Sniper)
+- Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ).
+- 
 ![Cover Report](.github/cover-report.webp)
 
 ### Auto Proficiency Detection
