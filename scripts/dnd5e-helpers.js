@@ -519,8 +519,10 @@ Hooks.on("renderChatMessage", (app, html, data) => {
     active.childNodes[0].style.opacity = 0.8;
   }
 
-  let message = game.messages.entries.find(m => m.id === app.id)
-  message.setFlag('dnd5e-helpers', 'coverMessage', true)
+  if (DnDHelpers.IsFirstGM()) {
+    let message = game.messages.entries.find(m => m.id === app.id)
+    message.setFlag('dnd5e-helpers', 'coverMessage', true)
+  }
 })
 
 //collate all preUpdateActor hooked functions into a single hook call

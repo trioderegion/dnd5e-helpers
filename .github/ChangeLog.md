@@ -245,3 +245,6 @@
 ###2.0.1
 - d6 ability recharge option was lost but now found!
 - Undead fortitude enable option wandered off as well. Who left the front door open?
+
+###2.0.2
+- Fixed benign permissions error for players when producing a cover chat card.
