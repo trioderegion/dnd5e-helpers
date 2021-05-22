@@ -4,6 +4,7 @@
     "description": "Little helpers for little tasks.",
     "systems": ["dnd5e"],
     "version": "2.0.1",
+    "author": "honeybadger, Kandashi, hugoprudente",
     "authors": [
       {
         "name": "honeybadger",

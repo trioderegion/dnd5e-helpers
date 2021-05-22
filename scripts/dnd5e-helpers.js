@@ -201,7 +201,15 @@ Hooks.on('init', () => {
     group: "combat",
     default: 0,
     config: false,
-    onChange: () => window.location.reload()
+    onChange: async (value) => {
+      if (value == 0) {
+        await DnDActionManagement.RemoveAllActionMarkers(); 
+      } else {
+        /** gather all tokens on this scene that are in combat and add markers */
+        const combatTokens = canvas.tokens.placeables.filter( token => token.inCombat );
+        await DnDActionManagement.AddActionMarkers(combatTokens);
+      }
+    }
   });
 
   /** lair action helper enable */
@@ -908,7 +916,9 @@ Hooks.on("controlToken", (token, state) => {
 })
 
 Hooks.on('renderTokenHUD', (app, html, data) => {
-  DnDActionManagement.AddActionHud(app, html, data)
+  if (game.settings.get(MODULE, "cbtReactionEnable")) {
+    DnDActionManagement.AddActionHud(app, html, data);
+  }
 })
 
 Hooks.on("midi-qol.AttackRollComplete", (workflow) => {
@@ -2238,6 +2248,16 @@ class DnDActionManagement {
     game.socket.emit(`module.dnd5e-helpers`, socketData)
   }
 
+  static async RemoveAllActionMarkers(){
+
+    const tokenIds = canvas.tokens.placeables.map(t => t.id);
+    for(const id of tokenIds) {
+      await DnDActionManagement.RemoveActionMarkers(id); 
+    }
+
+    return;
+  }
+
   /**
    * Removes action markers from specific token
    * @param {String} tokenId 
@@ -2247,9 +2267,13 @@ class DnDActionManagement {
     let token = canvas.tokens.get(tokenId)
     if (!token?.owner ?? true) return;
     const actionCont = token.children.find(i => i.Helpers)
-    actionCont.children.forEach(i => i.destroy())
-    actionCont.destroy()
-    return token.unsetFlag('dnd5e-helpers', 'ActionManagement')
+    if (!!actionCont) {
+      actionCont.children.forEach(i => i.destroy())
+      actionCont.destroy()
+      return token.unsetFlag('dnd5e-helpers', 'ActionManagement')
+    }
+
+    return true;
   }
 
   static UpdateOpacities(tokenId) {
