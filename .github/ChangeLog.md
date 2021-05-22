@@ -248,3 +248,9 @@
 
 ###2.0.2
 - Fixed benign permissions error for players when producing a cover chat card.
+- #110 - Modified version of the legacy reaction management status icon has been re-added as an optional toggle.
+- #109 - Implicitly fixed by no longer requiring a window.reload when the settings are changed
+- #106 - Action HUD will no longer be displayed if the management system is disabled
+- Localization Additions:
+  - `CombatReactionStatusApplyEnable`
+  - `CombatReactionStatusApplyHint`
