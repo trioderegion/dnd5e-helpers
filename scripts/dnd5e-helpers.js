@@ -212,6 +212,18 @@ Hooks.on('init', () => {
     }
   });
 
+  /** enable reaction status icon */
+  game.settings.register("dnd5e-helpers", "cbtReactionStatusEnable", {
+    name: game.i18n.format("DND5EH.CombatReactionStatusApplyEnable"),
+    hint: game.i18n.format("DND5EH.CombatReactionStatusApplyHint"),
+    scope: "world",
+    config: false,
+    group: "combat",
+    default: false,
+    type: Boolean,
+  });
+
+
   /** lair action helper enable */
   game.settings.register("dnd5e-helpers", "lairHelperEnable", {
     name: game.i18n.format("DND5EH.LairHelper_name"),
@@ -990,8 +1002,8 @@ class DnDHelpers {
   }
 
   //toggle core status effects
-  static async ToggleStatus(token, status) {
-    return await token.toggleEffect(status);
+  static async SetReactionStatus(token, reactionCost) {
+    return token.toggleEffect(`${PATH}/assets/action-markers/reaction.png`, {active: reactionCost > 0});
   }
 
   //apply a CUB status effect
@@ -2089,6 +2101,8 @@ class DnDActionManagement {
     }
     await currentToken.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
 
+    await DnDHelpers.SetReactionStatus(currentToken, resetActions.reaction);
+
     const socketData = {
       actionMarkers: true,
       tokenId: currentToken.id
@@ -2178,8 +2192,6 @@ class DnDActionManagement {
       let bonusIcon = await ActionCont.addChild(bonus);
       let backgroundIcon = await ActionCont.addChild(background);
 
-
-
       actionIcon.position.set(horiAlign*5, -vertiAlign)
       actionIcon.actionType = "action"
       actionIcon.tint = 13421772
@@ -2189,6 +2201,9 @@ class DnDActionManagement {
       reactionIcon.actionType = "reaction"
       reactionIcon.tint = 13421772
       reactionIcon.alpha = actions?.reaction ? 0.2 : 1
+      if(!!actions && game.settings.get(MODULE, 'cbtReactionStatusEnable')) {
+      await DnDHelpers.SetReactionStatus(token, actions.reaction);
+      }
 
       bonusIcon.position.set(horiAlign * 8, -vertiAlign)
       bonusIcon.actionType = "bonus"
@@ -2230,6 +2245,9 @@ class DnDActionManagement {
         const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
         await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
+        if(game.settings.get(MODULE, "cbtReactionStatusEnable")) {
+          await DnDHelpers.SetReactionStatus(token, use);
+        }
       }
         break;
       case "bonus": {
@@ -2276,7 +2294,7 @@ class DnDActionManagement {
     return true;
   }
 
-  static UpdateOpacities(tokenId) {
+  static async UpdateOpacities(tokenId) {
     let token = canvas.tokens.get(tokenId);
     if (!token.owner) return;
     const actionCont = token.children.find(i => i.Helpers)
@@ -2286,6 +2304,11 @@ class DnDActionManagement {
     let bonusIcon = actionCont.children.find(i => i.actionType === "bonus");
     actionIcon.alpha = actions?.action ? 0.2 : 1;
     reactionIcon.alpha = actions?.reaction ? 0.2 : 1;
+
+    if(actions && game.settings.get(MODULE, 'cbtReactionStatusEnable')) {
+      await DnDHelpers.SetReactionStatus(token, actions.reaction);
+    }
+
     bonusIcon.alpha = actions?.bonus ? 0.2 : 1;
   }
 
@@ -2335,7 +2358,7 @@ class DnDActionManagement {
               reaction : reaction
             }
             await token.setFlag('dnd5e-helpers', 'ActionManagement', actionMapping)
-            DnDActionManagement.UpdateOpacities(tokenId);
+            await DnDActionManagement.UpdateOpacities(tokenId);
             const socketData = {
               actionMarkers: true,
               tokenId: token.id

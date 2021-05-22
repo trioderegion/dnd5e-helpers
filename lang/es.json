@@ -103,6 +103,8 @@
     "DND5EH.CombatReactionEnable_both":"Aplicar y quitar",
     "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
     "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
+    "DND5EH.CombatReactionStatusApplyEnable": "[EN]Indicate Used Reaction as Status",
+    "DND5EH.CombatReactionStatusApplyHint": "[EN]Applies a status icon to a token when it has used it's reaction",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: No es una tirada de item de actor",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: el efecto de estado es: {statusEffect}",

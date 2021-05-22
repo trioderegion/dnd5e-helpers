@@ -103,6 +103,8 @@
     "DND5EH.CombatReactionEnable_both":"Appliquer et retirer",
     "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
     "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
+    "DND5EH.CombatReactionStatusApplyEnable": "[EN]Indicate Used Reaction as Status",
+    "DND5EH.CombatReactionStatusApplyHint": "[EN]Applies a status icon to a token when it has used it's reaction",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Aide Dnd5e: Not an actors item roll",
     "DND5EH.CombatReactionStatus_statuslog":"Aide Dnd5e: l'effet du statut est: {statusEffect}",
