@@ -2640,7 +2640,7 @@ class CoverData {
       }
       /** whisper the message if we are being a cautious GM */
       let recipients;
-      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')) {
+      if (game.settings.get('dnd5e-helpers', 'losMaskNPCs')) {
         recipients = ChatMessage.getWhisperRecipients('GM')
 
       } else {
