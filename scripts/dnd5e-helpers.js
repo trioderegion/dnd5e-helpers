@@ -2638,16 +2638,8 @@ class CoverData {
         `
         }
       }
-      /** whisper the message if we are being a cautious GM */
-      let recipients;
-      if (game.settings.get('dnd5e-helpers', 'losMaskNPCs')) {
-        recipients = ChatMessage.getWhisperRecipients('GM')
-
-      } else {
-        recipients = game.users.map(u => u.id)
-      }
-
-
+      /** whisper the message to GM as only this current player and the GM can use the buttons */
+      const recipients = ChatMessage.getWhisperRecipients('GM')
       ChatMessage.create({ content: content, whisper: recipients, speaker: { alias: "Helpers Cover" } }, { dnd5ehelpersCover: true })
     }
   }
