@@ -254,3 +254,6 @@
 - Localization Additions:
   - `CombatReactionStatusApplyEnable`
   - `CombatReactionStatusApplyHint`
+
+### 2.0.3
+- Second fix for Action HUD incorrectly rendering 

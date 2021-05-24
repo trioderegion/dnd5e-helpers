@@ -575,9 +575,12 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
   if (changed.round === 1 && combat.started) {
-    let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
-    let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
-    DnDActionManagement.AddActionMarkers(tokenArray)
+    const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+    if (reactMode === 1) {
+      let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
+      let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
+      DnDActionManagement.AddActionMarkers(tokenArray)
+    }
   }
 
   /** only concerned with turn changes */
