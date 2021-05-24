@@ -575,9 +575,12 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 
   if (changed.round === 1 && combat.started) {
-    let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
-    let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
-    DnDActionManagement.AddActionMarkers(tokenArray)
+    const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+    if (reactMode === 1) {
+      let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
+      let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
+      DnDActionManagement.AddActionMarkers(tokenArray)
+    }
   }
 
   /** only concerned with turn changes */
@@ -2635,16 +2638,8 @@ class CoverData {
         `
         }
       }
-      /** whisper the message if we are being a cautious GM */
-      let recipients;
-      if (game.user.isGM && game.settings.get('dnd5e-helpers', 'losMaskNPCs')) {
-        recipients = ChatMessage.getWhisperRecipients('GM')
-
-      } else {
-        recipients = game.users.map(u => u.id)
-      }
-
-
+      /** whisper the message to GM as only this current player and the GM can use the buttons */
+      const recipients = ChatMessage.getWhisperRecipients('GM')
       ChatMessage.create({ content: content, whisper: recipients, speaker: { alias: "Helpers Cover" } }, { dnd5ehelpersCover: true })
     }
   }
