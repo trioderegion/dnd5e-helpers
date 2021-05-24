@@ -257,4 +257,4 @@
 
 ### 2.0.3
 - Second fix for Action HUD incorrectly rendering 
-- `#114`: Cover reports in chat will now always be whispered to DM (and initiating player) due to potential permissions error if another player presses the cover application buttons.
+- `#114`: Cover reports in chat will now always be whispered to DM (and initiating player) due to potential permissions error if another player presses the cover application buttons. Contributed by `xdy`, thanks!
