@@ -796,9 +796,10 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
 })
 
 /** Measured template 5/5/5 scaling */
-Hooks.on("preCreateMeasuredTemplate", async (scene, templateDocument) => {
+Hooks.on("preCreateMeasuredTemplate", (templateDocument) => {
 
-  let template = templateDocument.data;
+  const template = templateDocument.data;
+  const scene = templateDocument.parent;
 
   /** range 0-3
    *  b01 = line/cone, 
@@ -816,7 +817,7 @@ Hooks.on("preCreateMeasuredTemplate", async (scene, templateDocument) => {
     /** scale rays after placement to cover the correct number of squares based on 5e diagonal distance */
     let diagonalScale = Math.abs(Math.sin(Math.toRadians(template.direction))) +
       Math.abs(Math.cos(Math.toRadians(template.direction)))
-    await template.update({distance: diagonalScale * template.distance});
+    template.update({distance: diagonalScale * template.distance});
   }
   else if (!!(templateMode & 0b10) && template.t == 'circle' &&
     !(template.distance / scene.data.gridDistance < .9)) {
