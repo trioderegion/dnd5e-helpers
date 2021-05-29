@@ -59,7 +59,7 @@ Hooks.on('init', () => {
 
   game.settings.register("dnd5e-helpers", "losKeybind", {
     name: game.i18n.format("DND5EH.LoSKeybind_name"),
-    hint: game.i18n.format("DND5EH.LoSWithTokens_hint"),
+    hint: game.i18n.format("DND5EH.LoSTokens_hint"),
     scope: "world",
     config: false,
     group: "system",
@@ -605,14 +605,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     const nextTurn = combat.turns[changed.turn];
     const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
-    /** data structure for 0.6 */
-    let nextTokenId = null;
-    if (getProperty(nextTurn, "tokenId")) {
-      nextTokenId = nextTurn.tokenId;
-    }
-    else {
-      nextTokenId = getProperty(nextTurn, "token._id");
-    }
+    let nextTokenId = nextTurn.data.tokenId;
 
     let currentToken = canvas.tokens.get(nextTokenId);
     let previousToken = canvas.tokens.get(previousTurn.tokenId)
@@ -685,10 +678,10 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 });
 
 /** all preUpdateToken hooks handeled here */
-Hooks.on("preUpdateToken", (_scene, tokenData, update, options) => {
+Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
   let hp = getProperty(update, "actorData.data.attributes.hp.value");
-  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && hp !== (null || undefined)) {
-    DnDWounds.GreatWound_preUpdateToken(tokenData, update);
+  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && !!hp) {
+    DnDWounds.GreatWound_preUpdateToken(scene, tokenData.data, update);
   }
 
   let Actor = game.actors.get(tokenData.actorId);
@@ -702,12 +695,12 @@ Hooks.on("preUpdateToken", (_scene, tokenData, update, options) => {
 
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
     if (hp === 0 && fortitudeFeature !== null) {
-      DnDCombatUpdates.UndeadFortCheckQuick(tokenData, update, options)
+      DnDCombatUpdates.UndeadFortCheckQuick(tokenData.data, update, options)
     }
   }
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "2") {
     if (hp === 0 && fortitudeFeature !== null) {
-      DnDCombatUpdates.UndeadFortCheckSlow(tokenData, update, options)
+      DnDCombatUpdates.UndeadFortCheckSlow(tokenData.data, update, options)
     }
   }
 });
@@ -803,8 +796,9 @@ Hooks.on("deleteCombatant", async (combat, combatant) => {
 })
 
 /** Measured template 5/5/5 scaling */
-Hooks.on("preCreateMeasuredTemplate", async (scene, template) => {
+Hooks.on("preCreateMeasuredTemplate", async (scene, templateDocument) => {
 
+  let template = templateDocument.data;
 
   /** range 0-3
    *  b01 = line/cone, 
@@ -822,32 +816,27 @@ Hooks.on("preCreateMeasuredTemplate", async (scene, template) => {
     /** scale rays after placement to cover the correct number of squares based on 5e diagonal distance */
     let diagonalScale = Math.abs(Math.sin(Math.toRadians(template.direction))) +
       Math.abs(Math.cos(Math.toRadians(template.direction)))
-    template.distance = diagonalScale * template.distance;
+    await template.update({distance: diagonalScale * template.distance});
   }
   else if (!!(templateMode & 0b10) && template.t == 'circle' &&
     !(template.distance / scene.data.gridDistance < .9)) {
 
     /** Convert circles to equivalent squares (e.g. fireball is square) 
      *  if the template is 1 grid unit or larger (allows for small circlar
-     *  templates as temporary "markers" of sorts
+     *  templates as temporary "markers" of sorts)
      */
-
-    /** convert to a rectangle */
-    template.t = 'rect';
 
     /** convert radius in grid units to radius in pixels */
     let radiusPx = (template.distance / scene.data.gridDistance) * scene.data.grid;
 
-    /** shift origin to top left in prep for converting to rectangle */
-    template.x -= radiusPx;
-    template.y -= radiusPx;
-
     /** convert the "distance" to the squares hypotenuse */
     const length = template.distance * 2;
-    template.distance = Math.hypot(length, length);
+    const distance = Math.hypot(length, length);
 
+    /** convert to a rectangle */
+    /** shift origin to top left in prep for converting to rectangle */
     /** always measured top left to bottom right */
-    template.direction = 45;
+    template.update({t: 'rect', x: template.x - radiusPx, y: template.y - radiusPx, distance: distance, direction: 45})
   }
 });
 
