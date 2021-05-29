@@ -678,13 +678,19 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 });
 
 /** all preUpdateToken hooks handeled here */
-Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
-  let hp = getProperty(update, "actorData.data.attributes.hp.value");
-  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && !!hp) {
-    DnDWounds.GreatWound_preUpdateToken(scene, tokenData.data, update);
+Hooks.on("updateToken", (tokenDocument, update, options/*, tokenId*/) => {
+
+  if( !DnDHelpers.IsFirstGM() ){
+    //get out of here, puny user!
+    return true;
   }
 
-  let Actor = game.actors.get(tokenData.actorId);
+  let hp = getProperty(update, "actorData.data.attributes.hp.value");
+  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && !!hp) {
+    DnDWounds.GreatWound_preUpdateToken(tokenDocument.data, update);
+  }
+
+  let Actor = game.actors.get(tokenDocument.data.actorId);
   let fortitudeFeature = Actor?.items.find(i => i.name === game.i18n.format("DND5EH.UndeadFort_name"));
   let fortSett = !!fortitudeFeature;
 
@@ -695,12 +701,12 @@ Hooks.on("preUpdateToken", (scene, tokenData, update, options) => {
 
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
     if (hp === 0 && fortitudeFeature !== null) {
-      DnDCombatUpdates.UndeadFortCheckQuick(tokenData.data, update, options)
+      DnDCombatUpdates.UndeadFortCheckQuick(tokenDocument, update, options)
     }
   }
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "2") {
     if (hp === 0 && fortitudeFeature !== null) {
-      DnDCombatUpdates.UndeadFortCheckSlow(tokenData.data, update, options)
+      DnDCombatUpdates.UndeadFortCheckSlow(tokenDocument, update, options)
     }
   }
 });
@@ -1347,13 +1353,15 @@ class DnDCombatUpdates {
 
   /**
    * 
-   * @param {Object} tokenData token.data
+   * @param {Object} tokenDocument
    * @param {Object} update hp to check
    * @param {Object} options.skipUndeadCheck  skip from previous failed check
    * @returns 
    * quick undead fort check, just checks change in np, not total damage
    */
-  static async UndeadFortCheckQuick(tokenData, update, options) {
+  static async UndeadFortCheckQuick(tokenDocument, update, options) {
+
+    const tokenData = tokenDocument.data;
 
     let data = {
       actorData: canvas.tokens.get(tokenData._id).actor.data,
@@ -1375,8 +1383,8 @@ class DnDCombatUpdates {
         buttons: {
           one: {
             label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
-            callback: () => {
-              token.update({ hp: 0 }, { skipUndeadCheck: true })
+            callback: async () => {
+              await tokenDocument.update({ hp: 0 }, { skipUndeadCheck: true })
               ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
               return;
             },
@@ -1387,10 +1395,10 @@ class DnDCombatUpdates {
               let { total } = await token.actor.rollAbilitySave("con")
               if (total >= (5 + hpChange)) {
                 ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", { tokenName: token.name, total: total }))
-                token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
+                await tokenDocument.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
               } else if (total < (5 + hpChange)) {
                 ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", { tokenName: token.name, total: total }))
-                token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
+                await tokenDocument.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
               }
             },
           },
@@ -1402,13 +1410,15 @@ class DnDCombatUpdates {
 
   /**
    * 
-   * @param {Object} tokenData - token.data 
+   * @param {Object} tokenDocument
    * @param {Object} update - change in HP 
    * @param {Object} options.skipUndeadCheck - skip check from previous failure
    * @returns 
    * undead fort check, requires manual input
    */
-  static UndeadFortCheckSlow(tokenData, update, options) {
+  static UndeadFortCheckSlow(tokenDocument, update, options) {
+
+    const tokenData = tokenDocument.data;
 
     let token = canvas.tokens.get(tokenData._id)
     if (!options.skipUndeadCheck) {
@@ -1426,8 +1436,8 @@ class DnDCombatUpdates {
         buttons: {
           one: {
             label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt1"),
-            callback: () => {
-              token.update({ hp: 0 }, { skipUndeadCheck: true })
+            callback: async () => {
+              await tokenDocument.update({ hp: 0 }, { skipUndeadCheck: true })
               ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_insantdeathmessage"))
               return;
             },
@@ -1435,14 +1445,14 @@ class DnDCombatUpdates {
           two: {
             label: game.i18n.format("DND5EH.UndeadFort_quickdialogprompt2"),
             callback: async (html) => {
-              let { total } = await token.actor.rollAbilitySave("con")
+              let { total } = await tokenDocument.actor.rollAbilitySave("con")
               let number = Number(html.find("#num")[0].value);
               if (total >= (5 + number)) {
                 ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_surivalmessage", { tokenName: token.name, total: total }))
-                token.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
+                await tokenDocument.update({ "actorData.data.attributes.hp.value": 1 }, { skipUndeadCheck: true });
               } else if (total < (5 + number)) {
                 ui.notifications.notify(game.i18n.format("DND5EH.UndeadFort_deathmessage", { tokenName: token.name, total: total }))
-                token.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
+                await tokenDocument.update({ "actorData.data.attributes.hp.value": 0 }, { skipUndeadCheck: true })
               }
             },
           },
