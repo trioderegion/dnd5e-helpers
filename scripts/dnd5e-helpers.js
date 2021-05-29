@@ -1057,7 +1057,8 @@ class DnDWildMagic {
    * @returns {Promise<void>}
    */
   static async RollForSurge(spellLevel, rollType, actor, onlyLevelOne, rechargeToC, bonus, debugLog) {
-    let d20result = new Roll("1d20").roll().total;
+    const rollObject = await new Roll("1d20").roll();
+    let d20result = rollObject.total;
     let surges = game.i18n.format("DND5EH.WildMagicConsoleSurgesSurge")
     let calm = game.i18n.format("DND5EH.WildMagicConsoleSurgesCalm")
 
@@ -1070,11 +1071,10 @@ class DnDWildMagic {
 
     //@todo adapt this to be more flexible for bonuses to d20 roll
     const bonusString = bonus !== 0 ? `-1d4` : ``;
-    let promise;
 
     if (onlyLevelOne ? d20result === 1 : d20result <= spellLevel ) {
       await DnDWildMagic.ShowSurgeResult(surges, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
-      promise = DnDWildMagic.RollOnWildTable(rollType);
+      await DnDWildMagic.RollOnWildTable(rollType);
 
       if (rechargeToC) {
         /** recharge TOC if we surged */
@@ -1084,15 +1084,15 @@ class DnDWildMagic {
         }
 
         if (DnDWildMagic.IsTidesOfChaosSpent(actor, tocName)) {
-          promise = DnDWildMagic.ResetTidesOfChaos(actor, tocName);
+          await DnDWildMagic.ResetTidesOfChaos(actor, tocName);
         }
       }
 
     } else {
-      promise = DnDWildMagic.ShowSurgeResult(calm, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
+      await DnDWildMagic.ShowSurgeResult(calm, spellLevel, `( [[/r ${d20result} #1d20${bonusString} result]] )`);
     }
 
-    return promise;
+    return true;
   }
   /** show surge result in chat (optionally whisper via module settings) */
   static async ShowSurgeResult(action, spellLevel, resultText, extraText = '') {
@@ -1102,7 +1102,7 @@ class DnDWildMagic {
     return ChatMessage.create({
       content: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", { action: action, spellLevel: spellLevel, extraText: extraText, resultText: resultText }),
       speaker: ChatMessage.getSpeaker({ alias: game.i18n.format("DND5EH.WildMagicChatSpeakerName") }),
-      whisper: gmWhisper ? ChatMessage.getWhisperRecipients("GM") : false
+      whisper: gmWhisper ? ChatMessage.getWhisperRecipients("GM") : []
     });
   }
 
@@ -1188,7 +1188,8 @@ class DnDWildMagic {
 
         // tides of chaos has been spent, so we should add the bonus roll
         if (DnDWildMagic.IsTidesOfChaosSpent(actor, tocName)) {
-          tocRoll = new Roll("1d4").roll().total;
+          const rollObject = await new Roll("1d4").roll();
+          tocRoll = rollObject.total;
         }
 
         promise = DnDWildMagic.RollForSurge(lvl, rollMode, actor, false, rechargeToC, tocRoll, "DND5EH.WildMagicConsoleVolatileSurgeLog");
@@ -1277,8 +1278,9 @@ class DnDCombatUpdates {
         buttons: {
           one: {
             label: game.i18n.format("DND5EH.AutoRegenDialog_healingprompt", { regenAmout: regenAmout }),
-            callback: () => {
-              let regenRoll = new Roll(regenAmout).roll().total;
+            callback: async () => {
+              const rollObject = await new Roll(regenAmout).roll()
+              let regenRoll = rollObject.total;
               token.actor.applyDamage(- regenRoll);
               ChatMessage.create({ content: game.i18n.format("DND5EH.AutoRegenDialog_healingmessage", { tokenName: token.name, regenRoll: regenRoll }), whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) });
             }
@@ -1303,7 +1305,7 @@ class DnDCombatUpdates {
     if (!data.recharge.value) return;
 
     // Roll the check
-    const roll = new Roll("1d6").roll();
+    const roll = await new Roll("1d6").roll();
     const success = roll.total >= parseInt(data.recharge.value);
     const rollMode = game.settings.get("dnd5e-helpers", "cbtAbilityRechargeHide") == true ? "selfroll" : "";
     // Display a Chat Message
