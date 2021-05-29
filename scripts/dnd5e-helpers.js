@@ -572,7 +572,7 @@ Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
 });
 
 /** All preUpdateCombat hooks are managed here */
-Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+Hooks.on("updateCombat", async (combat, changed/*, options, userId*/) => {
 
   if (changed.round === 1 && combat.started) {
     const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
@@ -598,17 +598,17 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
   if (firstGm && game.user === firstGm) {
 
     // early return if no combatants active 
-    let thisCombat = game.combats.get(combat.id);
-    if (thisCombat.data.combatants.length == 0) return;
+    if (combat.data.combatants.length == 0) return;
 
     /** begin removal logic for the _next_ token */
     const nextTurn = combat.turns[changed.turn];
     const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
-    let nextTokenId = nextTurn.data.tokenId;
+    let nextTokenId = nextTurn.token.id;
 
+    /* @todo cross-scene combat support */
     let currentToken = canvas.tokens.get(nextTokenId);
-    let previousToken = canvas.tokens.get(previousTurn.tokenId)
+    let previousToken = canvas.tokens.get(previousTurn.token.id)
 
     /** we dont care about tokens without actors */
     if (!currentToken?.actor) {
@@ -678,7 +678,7 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
 });
 
 /** all preUpdateToken hooks handeled here */
-Hooks.on("updateToken", (tokenDocument, update, options/*, tokenId*/) => {
+Hooks.on("updateToken", (tokenDocument, update, options/*, userId*/) => {
 
   if( !DnDHelpers.IsFirstGM() ){
     //get out of here, puny user!
@@ -883,25 +883,23 @@ Hooks.on("ready", () => {
   }
 })
 
-Hooks.on("createCombatant", async (combat, combatant) => {
+Hooks.on("createCombatant", async (combatant) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   const lairHelperEnable = game.settings.get('dnd5e-helpers', 'lairHelperEnable');
   const legHelperEnable = game.settings.get('dnd5e-helpers', 'LegendaryHelperEnable');
 
-  let tokenInstance = canvas.tokens.get(combatant.tokenId)
-
-  if (combat.data.active && reactMode === 1) {
+  if (combatant.parent.data.active && reactMode === 1) {
+    const tokenInstance = canvas.tokens.get(combatant.token.id)
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
 
   if (lairHelperEnable) {
-    DnDCombatUpdates.LairActionMapping(combatant, combat)
+    DnDCombatUpdates.LairActionMapping(combatant);
   }
 
   if (legHelperEnable) {
-    DnDCombatUpdates.LegendaryActionMapping(combatant, combat);
+    DnDCombatUpdates.LegendaryActionMapping(combatant);
   }
-
   
 })
 
@@ -1466,27 +1464,28 @@ class DnDCombatUpdates {
   /**
    * 
    * @param {Object} combatant - combatant data (contains token id) to check for Lair actions 
-   * @param {Object} combat - combat instance to save lair array to 
    * @returns 
    * Generate lair action array
    */
-  static LairActionMapping(combatant, combat) {
+  static LairActionMapping(combatant) {
     if (!DnDHelpers.IsFirstGM()) return;
-    let token = canvas.tokens.get(combatant.tokenId)
+
+    /** @todo support cross-scene combats */
+    let token = canvas.tokens.get(combatant.token.id)
 
     const updateFn = async () => {
       let tokenItems = getProperty(token, "items") || token.actor.items
       let lairActions = tokenItems.filter((i) => i.data?.data?.activation?.type === "lair");
       if (lairActions.length > 0) {
-        let combatLair = duplicate(combat.getFlag('dnd5e-helpers', 'Lair Actions') || [])
-        combatLair.push([token.data.name, lairActions, token.id, combatant._id, combat.id])
-        return combat.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
+        let combatLair = duplicate(combatant.parent.getFlag('dnd5e-helpers', 'Lair Actions') || [])
+        combatLair.push([token.data.name, lairActions, token.id, combatant.id, combatant.parent.id])
+        return combatant.parent.setFlag('dnd5e-helpers', 'Lair Actions', combatLair)
       }
 
       return true;
     }
 
-    queueEntityUpdate(combat.entity, updateFn);
+    queueEntityUpdate(combatant.parent.documentName, updateFn);
   }
 
   /**
@@ -1496,28 +1495,28 @@ class DnDCombatUpdates {
      * @returns 
      * Generate Legendary action array
      */
-  static LegendaryActionMapping(combatant, combat) {
+  static LegendaryActionMapping(combatant) {
     if (!DnDHelpers.IsFirstGM()) return;
 
-    let token = canvas.tokens.get(combatant.tokenId)
+    let token = canvas.tokens.get(combatant.token.id)
 
     const updateFn = async () => {
       let tokenItems = getProperty(token, "items") || token.actor.items
       let LegAction = tokenItems.filter((i) => i.data?.data?.activation?.type === "legendary");
       if (LegAction.length > 0) {
-        let comabtLeg = duplicate(combat.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
+        let comabtLeg = duplicate(combatant.parent.getFlag('dnd5e-helpers', 'Legendary Actions') || [])
         //console.log(`Adding ${token.name}'s leg acts. Current array = ${comabtLeg}`);
 
         // @todo this should now be an object with better fields
-        comabtLeg.push([token.data.name, LegAction, token.id, combatant._id, combat.id])
+        comabtLeg.push([token.data.name, LegAction, token.id, combatant.id, combatant.parent.id])
         //console.log(`...updated array: ${comabtLeg}`);
-        return combat.setFlag('dnd5e-helpers', 'Legendary Actions', comabtLeg)
+        return combatant.parent.setFlag('dnd5e-helpers', 'Legendary Actions', comabtLeg)
       }
 
       return true;
     }
 
-    queueEntityUpdate(combat.entity, updateFn);
+    queueEntityUpdate(combatant.parent.documentName, updateFn);
   }
 
   /**
@@ -1609,7 +1608,7 @@ class DnDCombatUpdates {
         <div class="form-group">
           <div class="desc"> ${v.data.description.value}</div>
           <label>${v.name}</label>
-          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')">${game.i18n.format("DND5E.Use")}</button>
+          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v.id}')">${game.i18n.format("DND5E.Use")}</button>
         </div>` }
         , '')
       return actionList
@@ -1696,7 +1695,7 @@ class DnDCombatUpdates {
       /** if this combatant is marked as defeated, do no add actions to list */
       const combatantId = LegActor[3];
       const owningCombat = LegActor[4];
-      if(!!game.combats.get(owningCombat).combatants.find( entry => entry._id == combatantId)?.defeated ?? true) continue;
+      if(!!game.combats.get(owningCombat).combatants.find( entry => entry.id == combatantId)?.defeated ?? true) continue;
 
       let actionsAvailable = token.actor.data.data.resources.legact.value
 
