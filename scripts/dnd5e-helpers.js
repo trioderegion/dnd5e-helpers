@@ -1608,7 +1608,7 @@ class DnDCombatUpdates {
         <div class="form-group">
           <div class="desc"> ${v.data.description.value}</div>
           <label>${v.name}</label>
-          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v.id}')">${game.i18n.format("DND5E.Use")}</button>
+          <button type="button" id="${v._id}" value="${tokenId},${v._id}" onClick="DnDCombatUpdates.runItem('${tokenId}', '${v._id}')">${game.i18n.format("DND5E.Use")}</button>
         </div>` }
         , '')
       return actionList
