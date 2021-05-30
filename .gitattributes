@@ -10,3 +10,7 @@
 *.webp binary
 *.zip binary
 
+.github/ export-ignore
+module.zip export-ignore
+README.md export-ignore
+.gitignore export-ignore
