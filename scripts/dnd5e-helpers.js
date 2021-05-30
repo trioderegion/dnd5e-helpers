@@ -540,7 +540,7 @@ Hooks.on("renderChatMessage", (app, html, data) => {
   }
 
   if (DnDHelpers.IsFirstGM()) {
-    let message = game.messages.entries.find(m => m.id === app.id)
+    let message = game.messages.find(m => m.id === app.id)
     message.setFlag('dnd5e-helpers', 'coverMessage', true)
   }
 })
@@ -1529,7 +1529,7 @@ class DnDCombatUpdates {
     if (!DnDHelpers.IsFirstGM()) return;
     const updateFn = async () => {
       /** get the actual token */
-      const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?._id;
+      const tokenId = combat.scene.getEmbeddedDocument('Token', combatant.tokenId)?._id;
 
       /** error, could not find token referenced by combatant */
       if (!tokenId) {
@@ -1566,7 +1566,7 @@ class DnDCombatUpdates {
     const updateFn = async () => {
 
       /** get the actual token */
-      const tokenId = combat.scene.getEmbeddedEntity('Token', combatant.tokenId)?._id;
+      const tokenId = combat.scene.getEmbeddedDocument('Token', combatant.tokenId)?._id;
 
       /** error, could not find token referenced by combatant */
       if (!tokenId) {
@@ -2625,10 +2625,10 @@ class CoverData {
             //do no automation
           }
           else if (oldCover) {
-            coverData.SourceToken.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
+            coverData.SourceToken.actor.updateEmbeddedDocuments("ActiveEffect", [{ _id: oldCover.id, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` }])
           }
           else {
-            coverData.SourceToken.actor.createEmbeddedEntity("ActiveEffect", effectData)
+            coverData.SourceToken.actor.createEmbeddedDocuments("ActiveEffect", [effectData])
           }
 
           content += `
@@ -2683,19 +2683,19 @@ function AddCover(d, d2) {
   let token = canvas.tokens.get(sourceTokenId)
   let oldCover = token.actor.effects.find(i => i.data.label.includes("DnD5e Helpers"))
   if (oldCover?.data.label === effectData.label) {
-    token.actor.deleteEmbeddedEntity("ActiveEffect", oldCover.id)
+    token.actor.deleteEmbeddedDocuments("ActiveEffect", [oldCover.id])
     d.style.background = "initial"
     d.childNodes[0].style.opacity = 0.3;
   }
   else if (oldCover) {
-    token.actor.updateEmbeddedEntity("ActiveEffect", { _id: oldCover.id, icon: effDataIcon, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` })
+    token.actor.updateEmbeddedDocuments("ActiveEffect", [{ _id: oldCover.id, icon: effDataIcon, changes: changes, label: `DnD5e Helpers ${coverName} ${game.i18n.format("DND5EH.LoSCover_cover")}` }])
     d.style.background = coverBackground;
     d.childNodes[0].style.opacity = 0.8;
     d2.style.background = "initial"
     d2.childNodes[0].style.opacity = 0.5;
   }
   else {
-    token.actor.createEmbeddedEntity("ActiveEffect", effectData)
+    token.actor.createEmbeddedDocuments("ActiveEffect", [effectData])
     d.style.background = coverBackground;
     d2.style.background = "initial";
     d.childNodes[0].style.opacity = 0.8;
@@ -2890,7 +2890,7 @@ function pointToSquareCover(sourcePoint, targetSquare, visualize = false) {
 
   let hitResults = sightLines.targets.map(target => {
     const ray = new Ray({ x: sightLines.source[0], y: sightLines.source[1] }, { x: target[0], y: target[1] });
-    return WallsLayer.getRayCollisions(ray, options);
+    return canvas.walls.getRayCollisions(ray, options);
   })
 
   const numCornersVisible = hitResults.reduce((total, x) => (x == false ? total + 1 : total), 0)
@@ -2950,7 +2950,7 @@ function CoverFromObjects(sourceToken, targetToken, includeTiles, includeTokens)
 
   if (includeTiles) {
     /** collect "blocker" tiles (this could be cached on preCreateTile or preUpdateTile) */
-    const coverTiles = canvas.tiles.placeables.filter(tile => tile.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0);
+    const coverTiles = canvas.tiles?.placeables.filter(tile => tile.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0) ?? [];
 
     /** hits.length is number of blocker tiles hit */
     objectHitResults.tiles = CollideAgainstObjects(ray, coverTiles);
