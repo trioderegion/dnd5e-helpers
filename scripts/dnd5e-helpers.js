@@ -1283,7 +1283,7 @@ class DnDCombatUpdates {
           one: {
             label: game.i18n.format("DND5EH.AutoRegenDialog_healingprompt", { regenAmout: regenAmout }),
             callback: async () => {
-              const rollObject = await new Roll(regenAmout).roll()
+              const rollObject = await new Roll(regenAmout).evaluate({async: true});
               let regenRoll = rollObject.total;
               token.actor.applyDamage(- regenRoll);
               ChatMessage.create({ content: game.i18n.format("DND5EH.AutoRegenDialog_healingmessage", { tokenName: token.name, regenRoll: regenRoll }), whisper: ChatMessage.getWhisperRecipients('gm').map(o => o.id) });
@@ -1309,7 +1309,7 @@ class DnDCombatUpdates {
     if (!data.recharge.value) return;
 
     // Roll the check
-    const roll = await new Roll("1d6").roll();
+    const roll = await (new Roll("1d6").evaluate({async: true}));
     const success = roll.total >= parseInt(data.recharge.value);
     const rollMode = game.settings.get("dnd5e-helpers", "cbtAbilityRechargeHide") == true ? "selfroll" : "";
     // Display a Chat Message
