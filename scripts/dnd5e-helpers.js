@@ -206,7 +206,7 @@ Hooks.on('init', () => {
         await DnDActionManagement.RemoveAllActionMarkers(); 
       } else {
         /** gather all tokens on this scene that are in combat and add markers */
-        const combatTokens = canvas.tokens.placeables.filter( token => token.inCombat );
+        const combatTokens = canvas.tokens.getDocuments().filter( token => token.inCombat );
         await DnDActionManagement.AddActionMarkers(combatTokens);
       }
     }
@@ -546,7 +546,7 @@ Hooks.on("renderChatMessage", (app, html, data) => {
 })
 
 //collate all preUpdateActor hooked functions into a single hook call
-Hooks.on("preUpdateActor", async (actor, update, options, userId) => {
+Hooks.on("preUpdateActor", async (actor, update/*, options, userId*/) => {
   //check what property is updated to prevent unnessesary function calls
   let hp = getProperty(update, "data.attributes.hp.value");
   let spells = getProperty(update, "data.spells");
@@ -731,17 +731,17 @@ Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
   }
 });
 
-Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
+Hooks.on("preCreateChatMessage", async (msgDocument, msgData/*, options, userId*/) => {
   const reactMode = game.settings.get('dnd5e-helpers', "cbtReactionEnable");
   if (reactMode === 1) {
-    await DnDActionManagement.ReactionDetect_preCreateChatMessage(msg);
+    await DnDActionManagement.ReactionDetect_preCreateChatMessage(msgData);
   }
 
-  let rollType = getProperty(msg, "flags.dnd5e.roll.type");
-  let itemRoll = getProperty(msg, "flags.dnd5e.roll.itemId");
+  let rollType = getProperty(msgData, "flags.dnd5e.roll.type");
+  let itemRoll = getProperty(msgData, "flags.dnd5e.roll.itemId");
   if (rollType === "death" && (game.settings.get('dnd5e-helpers', 'owDeathSave'))) {
-    if (parseInt(msg.content) < 6) {
-      let actor = game.actors.get(msg.speaker.actor);
+    if (parseInt(msgData.content) < 6) {
+      let actor = game.actors.get(msgData.speaker.actor);
       DnDWounds.OpenWounds(actor.data.name, game.i18n.format("DND5EH.OpenWoundDeathSave_reason"));
     }
   }
@@ -749,12 +749,12 @@ Hooks.on("preCreateChatMessage", async (msg, options, userId) => {
 
   if (rollType === "attack" && itemRoll !== undefined && game.settings.get('dnd5e-helpers', 'owCrit')) {
 
-    let rollData = JSON.parse(msg.roll)
+    let rollData = JSON.parse(msgData.roll)
     const critMin = rollData.terms[0].options.critical
     const rollTotal = rollData.terms[0].results.find(i => i.active).result
 
     if (rollTotal >= critMin) {
-      let targetArray = game.users.get(msg.user).targets;
+      let targetArray = game.users.get(msgData.user).targets;
       for (let targets of targetArray) {
         DnDWounds.OpenWounds(targets.actor.data.name, game.i18n.format("DND5EH.OpenWoundCrit_reason"))
       }
@@ -2097,13 +2097,13 @@ class DnDActionManagement {
   static async ReactionRemove(currentToken) {
 
     const container = currentToken.children.find((i => i.Helpers))
-    container.children.forEach(i => i.alpha = 1)
+    container?.children.forEach(i => i.alpha = 1)
     const resetActions = {
       action: 0,
       reaction: 0,
       bonus: 0,
     }
-    await currentToken.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
+    await currentToken.document.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
 
     await DnDHelpers.SetReactionStatus(currentToken, resetActions.reaction);
 
@@ -2165,7 +2165,7 @@ class DnDActionManagement {
     for (let token of tokenArray) {
       if (!token.owner) continue;
       if (token.children.find(i => i.Helpers)) continue;
-      const actions = await token.getFlag('dnd5e-helpers', 'ActionManagement')
+      const actions = await token.document.getFlag('dnd5e-helpers', 'ActionManagement')
       const action = new PIXI.Sprite(actionTexture)
       const reaction = new PIXI.Sprite(reactionTexture)
       const background = new PIXI.Sprite(backgroundTexture)
@@ -2222,7 +2222,7 @@ class DnDActionManagement {
         reaction: 0,
         bonus: 0,
       }
-      await token.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
+      await token.document.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
     }
   }
 
@@ -2238,17 +2238,17 @@ class DnDActionManagement {
       case "action": {
         let actionIcon = actionCont.children.find(i => i.actionType === "action")
         actionIcon.alpha = use > 0 ? 0.2 : 1
-        const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
+        const actions = duplicate(await token.document.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
-        await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
+        await token.document.setFlag('dnd5e-helpers', 'ActionManagement', actions)
       }
         break;
       case "reaction": {
         let reactionIcon = actionCont.children.find(i => i.actionType === "reaction")
         reactionIcon.alpha = use > 0 ? 0.2 : 1
-        const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
+        const actions = duplicate(await token.document.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
-        await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
+        await token.document.setFlag('dnd5e-helpers', 'ActionManagement', actions)
         if(game.settings.get(MODULE, "cbtReactionStatusEnable")) {
           await DnDHelpers.SetReactionStatus(token, use);
         }
@@ -2257,9 +2257,9 @@ class DnDActionManagement {
       case "bonus": {
         let bonusIcon = actionCont.children.find(i => i.actionType === "bonus")
         bonusIcon.alpha = use > 0 ? 0.2 : 1
-        const actions = duplicate(await token.getFlag('dnd5e-helpers', 'ActionManagement') || {})
+        const actions = duplicate(await token.document.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
-        await token.setFlag('dnd5e-helpers', 'ActionManagement', actions)
+        await token.document.setFlag('dnd5e-helpers', 'ActionManagement', actions)
       }
         break;
     }
@@ -2292,7 +2292,7 @@ class DnDActionManagement {
     if (!!actionCont) {
       actionCont.children.forEach(i => i.destroy())
       actionCont.destroy()
-      return token.unsetFlag('dnd5e-helpers', 'ActionManagement')
+      return token.document.unsetFlag('dnd5e-helpers', 'ActionManagement')
     }
 
     return true;
@@ -2302,7 +2302,7 @@ class DnDActionManagement {
     let token = canvas.tokens.get(tokenId);
     if (!token.owner) return;
     const actionCont = token.children.find(i => i.Helpers)
-    let actions = token.getFlag('dnd5e-helpers', 'ActionManagement');
+    let actions = token.document.getFlag('dnd5e-helpers', 'ActionManagement');
     let actionIcon = actionCont.children.find(i => i.actionType === "action");
     let reactionIcon = actionCont.children.find(i => i.actionType === "reaction");
     let bonusIcon = actionCont.children.find(i => i.actionType === "bonus");
@@ -2328,7 +2328,7 @@ class DnDActionManagement {
 
   static async actionDialog(tokenId){
     const token = canvas.tokens.get(tokenId)
-    const usedActions = token.getFlag('dnd5e-helpers', 'ActionManagement')
+    const usedActions = token.document.getFlag('dnd5e-helpers', 'ActionManagement')
     let {action, reaction, bonus} = usedActions
     const content = `
     <form>
@@ -2361,7 +2361,7 @@ class DnDActionManagement {
               bonus : bonus,
               reaction : reaction
             }
-            await token.setFlag('dnd5e-helpers', 'ActionManagement', actionMapping)
+            await token.document.setFlag('dnd5e-helpers', 'ActionManagement', actionMapping)
             await DnDActionManagement.UpdateOpacities(tokenId);
             const socketData = {
               actionMarkers: true,
@@ -2950,7 +2950,7 @@ function CoverFromObjects(sourceToken, targetToken, includeTiles, includeTokens)
 
   if (includeTiles) {
     /** collect "blocker" tiles (this could be cached on preCreateTile or preUpdateTile) */
-    const coverTiles = canvas.tiles?.placeables.filter(tile => tile.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0) ?? [];
+    const coverTiles = canvas.tiles?.placeables.filter(tile => tile.document.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0) ?? [];
 
     /** hits.length is number of blocker tiles hit */
     objectHitResults.tiles = CollideAgainstObjects(ray, coverTiles);
@@ -2967,7 +2967,7 @@ function CoverFromObjects(sourceToken, targetToken, includeTiles, includeTokens)
    *  so we test and early return null instead.
    */
   const maxCoverLevelTile = objectHitResults.tiles?.length ?? 0 > 0 ? objectHitResults.tiles.reduce((bestTile, currentTile) => {
-    return bestTile?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1 > currentTile?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1 ? bestTile : currentTile;
+    return bestTile?.document.getFlag('dnd5e-helpers', 'coverLevel') ?? -1 > currentTile?.document.getFlag('dnd5e-helpers', 'coverLevel') ?? -1 ? bestTile : currentTile;
   }) : null;
 
   /** at the moment, we dont care what we hit, since all creatures give 1/2 cover */
