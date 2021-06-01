@@ -3,7 +3,8 @@
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
     "systems": ["dnd5e"],
-    "version": "1.10.3",
+    "version": "2.0.3",
+    "author": "honeybadger, Kandashi, hugoprudente",
     "authors": [
       {
         "name": "honeybadger",
@@ -12,9 +13,13 @@
       {
         "name": "Kandashi",
         "url": "https://github.com/kandashi"
+      },
+      {
+        "name": "hugoprudente",
+        "url": "https://github.com/hugoprudente"
       }
     ],
-    "scripts": [
+    "esmodules": [
         "/scripts/dnd5e-helpers.js"
     ],
     "languages": [
@@ -44,6 +49,9 @@
         "path": "lang/ja.json"
       }
     ],
+    "styles": [
+      "/styles/dnd5e-helpers.css"
+    ] ,
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",

@@ -1,9 +1,18 @@
 {
+    "DND5EH.ConfigOption_name": "[EN]Configure Settings",
+    "DND5EH.ConfigOption_menulabel": "[EN]Open Helpers Settings",
+
     "DND5EH.Default_disabled" : "Désassemblé",
+    "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "Aucun", 
     "DND5EH.Default_SocketSetup" :"Prise d'Aide Dnd5e reçue",
     "DND5EH.Default_SocketSend": "socket envoyé avec {socketData}",
     "DND5EH.Default_roll" : "Lancer",
+
+    "DND5EH.flagsNoCover" : "[EN]Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Provided by feats.",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "Ajuster automatiquement les Templates sur la grille 5e",
     "DND5EH.GridTemplateScaling_hint" :"Les lignes et les cônes auront leur longueur mise à l'échelle. Les cercles seront convertis en un rectangle de surface équivalente. Cela cherche à correspondre à la distance de grille 5e lorsque des mesures diagonales sont impliquées dans le placement du modèle.",
@@ -31,6 +40,26 @@
     "DND5EH.LoS_providescover":"Fournit une couverture",
     "DND5EH.LoSMaskNPCs_sourceMask": "[EN] Another creature is in the way.",
     "DND5EH.LoSMaskNPCs_targetMask": "[EN] a creature",
+    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
+    "DND5EH.LoS_ignoreCover" : "[EN]Ignored",
+    "DND5EH.LoSremoveCover_name" : "[EN]Remove Cover on turn end",
+    "DND5EH.LoSremoveCover_hint" : "[EN]Removes any cover effect at the end of a combatants turn",
+    "DND5EH.LoSremoveTargets_name" : "[EN]Remove Targets on turn end",
+    "DND5EH.LoSremoveTargets_hint" : "[EN]Removes any targets at the end of a combatants turn",
+
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+    "DND5EH.LoSCover_cover" : "[EN] cover",
+
+    "DND5EH.LoSTint_name" : "[EN]Cover Button Tint",
+    "DND5EH.LoSTint_hint" : "[EN]What color should be applied to the cover buttons to show which is active",
+    "DND5EH.LoSTint_red" : "[EN]Dark Red",
+    "DND5EH.LoSTint_blue" : "[EN]Light Blue",
+    "DND5EH.LoSTint_grey" : "[EN]Dim Grey",
+    "DND5EH.LoSTint_rainbow" : "[EN]Rainbow",
 
     "DND5EH.LoSWithTokens_name":"Considérez les jetons comme une demi-couverture",
     "DND5EH.LoSWithTokens_hint": "Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
@@ -67,18 +96,17 @@
     "DND5EH.WildMagicWisper_name":"[EN] Hide Wild Magic from Players",
     "DND5EH.WildMagicWisper_hint":"[EN] Whispers all rolls and table results to the GM",
 
-    "DND5EH.CombatReactionEnable_name": "Automatisation du statut de réaction.",
-    "DND5EH.CombatReactionEnable_hint":"Active ou désactive cette fonctionnalité (global). Appliquez des vérifications pour les capacités de réaction ou les actions hors tour et applique le statut spécifié. Supprimera automatiquement cet effet au début du tour de l'acteur",
+    "DND5EH.CombatReactionEnable_name": "[*]Automatisation du statut de réaction.",
+    "DND5EH.CombatReactionEnable_hint":"[*]Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
     "DND5EH.CombatReactionEnable_apply":"Appliquer uniquement",
     "DND5EH.CombatReactionEnable_remove":"Retirer uniquement",
     "DND5EH.CombatReactionEnable_both":"Appliquer et retirer",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
+    "DND5EH.CombatReactionStatusApplyEnable": "[EN]Indicate Used Reaction as Status",
+    "DND5EH.CombatReactionStatusApplyHint": "[EN]Applies a status icon to a token when it has used it's reaction",
 
-    "DND5EH.CombatReactionStatus_name": "Nom du statut de réaction",
-    "DND5EH.CombatReactionStatus_hint":"Apercevoir en survolant le statut du jeton HUD (Par défaut: Affaibli).",
-    "DND5EH.CombatReactionStatus_statuserror":"Aide Dnd5e: Ne trouve pas le statut: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Aide Dnd5e: Not an actors item roll",
-    "DND5EH.CombatReactionStatus_actionname" :"1 Action",
-    "DND5EH.CombatReactionStatus_reactionname": "1 Reaction",
     "DND5EH.CombatReactionStatus_statuslog":"Aide Dnd5e: l'effet du statut est: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"Aide Dnd5e: Ne trouve pas le nom de l'effet actif: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Aide Dnd5e: Ne trouve pas un combat actif",
@@ -104,6 +132,9 @@
     "DND5EH.AutoRegen_hint":"Demande automatiquement des jets de régénération pour le MJ",
     "DND5EH.AutoRegen_Regneration": "Regeneration",
     "DND5EH.AutoRegen_SelfRepair": "Self-Repairing",
+    "DND5EH.regenBlock_name" :"[EN]Effect Name to Block Regeneration",
+    "DND5EH.regenBlock_hint" : "[EN]What name should be checked to prevent the regeneration popup",
+    "DND5EH.regenBlock_default" : "[EN]No Regen",
     "DND5EH.AutoRegenDialog_name": "Regeneration pour  {tokenName}",
     "DND5EH.AutoRegenDialog_content": "{tokenName} a actuellement {tokenHP}/{actorMax} Hp",
     "DND5EH.AutoRegenDialog_healingprompt": "Appliquer la guérison de {regenAmout}",
@@ -123,6 +154,11 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} meurt avec un jet de {total}",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} survit avec un jet de {total}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Dégâts sur la cible:",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Blessure grave",
     "DND5EH.GreatWoundEnable_hint":"Lance un dès sur une table spécifiée lorsqu'un jeton prend plus de 50% de HP max en un seul coup,",
@@ -166,6 +202,10 @@
 
     "DND5EH.OpenWoundDebug_name":"Debugging",
     "DND5EH.OpenWoundDebug_hint":"Ajoute quelques journaux de console à des fins de débogage",
+
+    "DND5EH.GreatAndOpenWoundMaskNPC_name": "[EN] Hide GM info from Great Wound and Open Wound report",
+    "DND5EH.GreatAndOpenWoundMaskNPC_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting",
+    "DND5EH.GreatAndOpenWoundMaskNPC_mask": "[EN] a creature",
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Aide Dnd5e : La mise à jour de {actorName} concerne ses PV {hp}, Sorts: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Aide Dnd5e: La mise à jour de {currentTokenName} concerne sa regénération: {regenSett}",

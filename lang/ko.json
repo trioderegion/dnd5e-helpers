@@ -1,9 +1,18 @@
 {
+    "DND5EH.ConfigOption_name": "[EN]Configure Settings",
+    "DND5EH.ConfigOption_menulabel": "[EN]Open Helpers Settings",
+
     "DND5EH.Default_disabled" : "비활성화",
+    "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "없음", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers 소켓 수신",
     "DND5EH.Default_SocketSend": "{socketData}와 소켓 전송",
     "DND5EH.Default_roll" : "굴림",
+
+    "DND5EH.flagsNoCover" : "[EN]Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Provided by feats.",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "템플릿을 5E 그리드로 자동 조정",
     "DND5EH.GridTemplateScaling_hint" :"선과 원뿔의 길이가 조정된다. 원이 동일한 직사각형 영역으로 변환된다. 이것은 대각선 측정이 템플릿 배치에 포함될 때 5e 그리드 거리를 일치시키려 한다.",
@@ -31,6 +40,26 @@
     "DND5EH.LoS_providescover":"엄폐 제공",
     "DND5EH.LoSMaskNPCs_sourceMask": "다른 생물이 막고 있습니다",
     "DND5EH.LoSMaskNPCs_targetMask": "생물",
+    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
+    "DND5EH.LoS_ignoreCover" : "[EN]Ignored",
+    "DND5EH.LoSremoveCover_name" : "[EN]Remove Cover on turn end",
+    "DND5EH.LoSremoveCover_hint" : "[EN]Removes any cover effect at the end of a combatants turn",
+    "DND5EH.LoSremoveTargets_name" : "[EN]Remove Targets on turn end",
+    "DND5EH.LoSremoveTargets_hint" : "[EN]Removes any targets at the end of a combatants turn",
+
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+    "DND5EH.LoSCover_cover" : "[EN] cover",
+
+    "DND5EH.LoSTint_name" : "[EN]Cover Button Tint",
+    "DND5EH.LoSTint_hint" : "[EN]What color should be applied to the cover buttons to show which is active",
+    "DND5EH.LoSTint_red" : "[EN]Dark Red",
+    "DND5EH.LoSTint_blue" : "[EN]Light Blue",
+    "DND5EH.LoSTint_grey" : "[EN]Dim Grey",
+    "DND5EH.LoSTint_rainbow" : "[EN]Rainbow",
 
     "DND5EH.LoSWithTokens_name":"방해 토큰을 절반 엄폐로 취급",
     "DND5EH.LoSWithTokens_hint": "비활성화 시 토큰들이 엄폐 계산에 포함되지 않는다.",
@@ -67,18 +96,17 @@
     "DND5EH.WildMagicWisper_name":"플레이어로부터 야생 마법 숨기기",
     "DND5EH.WildMagicWisper_hint":"모든 굴림 및 표 결과를 GM에게 귓속말로 알린다.",
 
-    "DND5EH.CombatReactionEnable_name": "반응행동 상태 자동화",
-    "DND5EH.CombatReactionEnable_hint":"이 기능을 활성화/비활성화 하여, 적용시 반응행동 능력 확인 및 턴 외 행동과 지정 상태를 확인할 수 있다. 제거시 액터의 턴이 시작될 때까지 이 효과를 자동적으로 제거한다.",
+    "DND5EH.CombatReactionEnable_name": "[*]반응행동 상태 자동화",
+    "DND5EH.CombatReactionEnable_hint":"[*] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
     "DND5EH.CombatReactionEnable_apply":"적용만",
     "DND5EH.CombatReactionEnable_remove":"제거만",
     "DND5EH.CombatReactionEnable_both":"적용 및 제거",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
+    "DND5EH.CombatReactionStatusApplyEnable": "[EN]Indicate Used Reaction as Status",
+    "DND5EH.CombatReactionStatusApplyHint": "[EN]Applies a status icon to a token when it has used it's reaction",
 
-    "DND5EH.CombatReactionStatus_name": "반응행동 상태 이름",
-    "DND5EH.CombatReactionStatus_hint":"토큰 HUD 상태에 호버 시 볼 수 있다. (기본값: Weakened)",
-    "DND5EH.CombatReactionStatus_statuserror":"Dnd5e helpers: 상태를 찾을 수 없습니다 {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: 액터 아이템 굴림이 아닙니다",
-    "DND5EH.CombatReactionStatus_actionname" :"1 행동",
-    "DND5EH.CombatReactionStatus_reactionname": "1 반응행동",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: 상태 효과: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"dnd5e-helpers: 다음 이름을 가진 활성화 효과를 찾을 수 없습니다: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Dnd5e helpers: 활성된 전투를 찾을 수 없습니다.",
@@ -104,6 +132,9 @@
     "DND5EH.AutoRegen_hint":"GM에게 재생 굴림을 자동으로 출력한다.",
     "DND5EH.AutoRegen_Regneration": "재생",
     "DND5EH.AutoRegen_SelfRepair": "자가 수리",
+    "DND5EH.regenBlock_name" :"[EN]Effect Name to Block Regeneration",
+    "DND5EH.regenBlock_hint" : "[EN]What name should be checked to prevent the regeneration popup",
+    "DND5EH.regenBlock_default" : "[EN]No Regen",
     "DND5EH.AutoRegenDialog_name": "{tokenName}에 대한 재생",
     "DND5EH.AutoRegenDialog_content": "{tokenName}에게 현재 {tokenHP}/{actorMax} Hp가 있습니다",
     "DND5EH.AutoRegenDialog_healingprompt": "{regenAmout}만큼의 회복을 적용합니다.",
@@ -123,6 +154,11 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} 대상이 {total}만큼을 굴려 사망했습니다.",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} 대상이 {total}만큼을 굴려 생존했습니다.",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "대상에 대한 피해:",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"심각한 부상",
     "DND5EH.GreatWoundEnable_hint":"토큰이 한 번의 피해로 최대 Hp의 절반을 넘는 손실을 입으면 지정된 굴림표에서 굴림을 한다.",
@@ -166,6 +202,10 @@
 
     "DND5EH.OpenWoundDebug_name":"디버깅",
     "DND5EH.OpenWoundDebug_hint":"디버깅을 위해 몇 개의 콘솔 로그를 추가합니다.",
+
+    "DND5EH.GreatAndOpenWoundMaskNPC_name": "[EN] Hide GM info from Great Wound and Open Wound report",
+    "DND5EH.GreatAndOpenWoundMaskNPC_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting",
+    "DND5EH.GreatAndOpenWoundMaskNPC_mask": "[EN] a creature",
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: {actorName} 액터의 업데이트에 다음이 포함되었습니다. hp: {hp}, spells: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: {currentTokenName} 대상의 업데이트에 다음이 포함되었습니다. regen: {regenSett}",

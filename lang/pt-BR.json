@@ -1,9 +1,18 @@
 {
+    "DND5EH.ConfigOption_name": "[EN]Configure Settings",
+    "DND5EH.ConfigOption_menulabel": "[EN]Open Helpers Settings",
+
     "DND5EH.Default_disabled" : "Desabilitado",
+    "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "Nenhum", 
     "DND5EH.Default_SocketSetup" :"Socket do DnD5e Helpers recebido",
     "DND5EH.Default_SocketSend": "Socket enviado com {socketData}",
     "DND5EH.Default_roll" : "Rolagem",
+
+    "DND5EH.flagsNoCover" : "[EN]Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Provided by feats.",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "Autoajustar modelos em grids da 5e",
     "DND5EH.GridTemplateScaling_hint" :"Linhas e cones terão seu alcance ajustado. Círculos serão convertidos em um retângulo de área equivalente. Isso busca criar a correspondência de distância do grid da 5e quando medidas diagonais são envolvidas no posicionamento de modelos.",
@@ -31,6 +40,26 @@
     "DND5EH.LoS_providescover":"Fornece Cobertura",
     "DND5EH.LoSMaskNPCs_sourceMask": "Outra criatura está no caminho.",
     "DND5EH.LoSMaskNPCs_targetMask": "uma criatura",
+    "DND5EH.LoSKeybind_name" : "Atalho para Cobertura",
+    "DND5EH.LoSKeybind_hint" : "Configura um atalho do teclado para a checagem de cobertura do alvo ao mirar",
+    "DND5EH.LoS_ignoreCover" : "[EN]Ignored",
+    "DND5EH.LoSremoveCover_name" : "[EN]Remove Cover on turn end",
+    "DND5EH.LoSremoveCover_hint" : "[EN]Removes any cover effect at the end of a combatants turn",
+    "DND5EH.LoSremoveTargets_name" : "[EN]Remove Targets on turn end",
+    "DND5EH.LoSremoveTargets_hint" : "[EN]Removes any targets at the end of a combatants turn",
+
+    "DND5EH.LoSCover_name" : "Aplicação de Cobertura",
+    "DND5EH.LoSCover_hint" : "Permite aplicar bônus de cobertura. Estes são aplicados no atacante, não no alvo. E afeta somente armas ataque a distância, não salvaguarda de destreza.",
+    "DND5EH.LoSCover_manual" : "Manual",
+    "DND5EH.LoSCover_auto" : "Automática",
+    "DND5EH.LoSCover_cover" : "Cobertura",
+
+    "DND5EH.LoSTint_name" : "[EN]Cover Button Tint",
+    "DND5EH.LoSTint_hint" : "[EN]What color should be applied to the cover buttons to show which is active",
+    "DND5EH.LoSTint_red" : "[EN]Dark Red",
+    "DND5EH.LoSTint_blue" : "[EN]Light Blue",
+    "DND5EH.LoSTint_grey" : "[EN]Dim Grey",
+    "DND5EH.LoSTint_rainbow" : "[EN]Rainbow",
 
     "DND5EH.LoSWithTokens_name":"Considerar tokens interpostos como cobertura parcial",
     "DND5EH.LoSWithTokens_hint": "Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
@@ -67,18 +96,17 @@
     "DND5EH.WildMagicWisper_name":"Ocultar Magia Selvagem de Jogadores",
     "DND5EH.WildMagicWisper_hint":"Sussurrar todas as jogadas e resultados de tabelas ao MJ.",
 
-    "DND5EH.CombatReactionEnable_name": "Automação de uso de Reações.",
-    "DND5EH.CombatReactionEnable_hint":"Habilita ou desabilita essa função (global). Checa habilidades de Reação ou Ações fora de turno e aplica o estado especificado. \"Remover\" vai remover esse efeito automaticamente no início do turno do ator.",
+    "DND5EH.CombatReactionEnable_name": "[*]Automação de uso de Reações.",
+    "DND5EH.CombatReactionEnable_hint":"[*] Enables or disables this feature (global). Apply checks for any abilities and will update a token UI element  to indicate avaliable actions. These will be reset at the start of an actors turn",
     "DND5EH.CombatReactionEnable_apply":"Apenas Aplicar",
     "DND5EH.CombatReactionEnable_remove":"Apenas Remover",
     "DND5EH.CombatReactionEnable_both":"Aplicar e Remover",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
+    "DND5EH.CombatReactionStatusApplyEnable": "[EN]Indicate Used Reaction as Status",
+    "DND5EH.CombatReactionStatusApplyHint": "[EN]Applies a status icon to a token when it has used it's reaction",
 
-    "DND5EH.CombatReactionStatus_name": "Nome do estado de Reação",
-    "DND5EH.CombatReactionStatus_hint":"Como visto ao colocar o mouse sobre o estado na interface do token (padrão: Weakened).",
-    "DND5EH.CombatReactionStatus_statuserror":"DnD5e Helpers: Não foi possível encontrar o estado: {reactionStatus}",
     "DND5EH.CombatReactionStatus_actoritemerror" : "DnD5e Helpers: Não é uma rolagem de item de ator",
-    "DND5EH.CombatReactionStatus_actionname" :"1 Ação",
-    "DND5EH.CombatReactionStatus_reactionname": "1 Reação",
     "DND5EH.CombatReactionStatus_statuslog":"DnD5e Helpers: o efeito de estado é: {statusEffect}",
     "DND5EH.CombatReactionStatus_effecterror":"DnD5e Helpers: Não foi possível encontrar um efeito ativo chamado: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"DnD5e Helpers: Não foi possível encontrar um combate ativo",
@@ -104,6 +132,9 @@
     "DND5EH.AutoRegen_hint":"Sugere jogadas de Regeneração automaticamente ao MJ.",
     "DND5EH.AutoRegen_Regneration": "Regeneração",
     "DND5EH.AutoRegen_SelfRepair": "Autorreparação",
+    "DND5EH.regenBlock_name" :"[EN]Effect Name to Block Regeneration",
+    "DND5EH.regenBlock_hint" : "[EN]What name should be checked to prevent the regeneration popup",
+    "DND5EH.regenBlock_default" : "[EN]No Regen",
     "DND5EH.AutoRegenDialog_name": "Regeneração para {tokenName}",
     "DND5EH.AutoRegenDialog_content": "{tokenName} atualmente tem {tokenHP}/{actorMax} PV",
     "DND5EH.AutoRegenDialog_healingprompt": "Aplicar cura de {regenAmout}",
@@ -123,6 +154,11 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} morre ao falhar com {total}",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} sobrevive com {total}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Dano no alvo:",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"Dano Maciço",
     "DND5EH.GreatWoundEnable_hint":"Rola em uma tabela quando um alvo perde mais de 50% dos PV em um único golpe.",
@@ -166,6 +202,10 @@
 
     "DND5EH.OpenWoundDebug_name":"Debugging",
     "DND5EH.OpenWoundDebug_hint":"Adiciona alguns logs no console para propósito de debugging.",
+
+    "DND5EH.GreatAndOpenWoundMaskNPC_name": "Ocultar informações do MJ ao relatar Dano Maciço e Lesão Persistente",
+    "DND5EH.GreatAndOpenWoundMaskNPC_hint": "Substitui nomes de PdM com \"Uma criatura\" no relato",
+    "DND5EH.GreatAndOpenWoundMaskNPC_mask": "uma criatura",
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "DnD5e Helpers: A atualização de {actorName} tem PV: {hp}, magias: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"DnD5e Helpers: A atualização de {currentTokenName} tem regen: {regenSett}",

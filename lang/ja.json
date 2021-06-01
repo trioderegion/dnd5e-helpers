@@ -1,9 +1,18 @@
 {
+    "DND5EH.ConfigOption_name": "[EN]Configure Settings",
+    "DND5EH.ConfigOption_menulabel": "[EN]Open Helpers Settings",
+
     "DND5EH.Default_disabled" : "無効",
+    "DND5EH.Default_enabled" : "[EN]Enabled",
     "DND5EH.Default_none" : "なし", 
     "DND5EH.Default_SocketSetup" :"DnD5e Helpersがソケットを受信しました。",
     "DND5EH.Default_SocketSend": "{socketData} でソケットを送信しました。",
     "DND5EH.Default_roll" : "ロール",
+
+    "DND5EH.flagsNoCover" : "[EN]Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCoverHint" : "[EN]Provided by feats.",
+    "DND5EH.flagsWildMagic" : "[EN]Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "[EN]Enables wild magic surge automation",
 
     "DND5EH.GridTemplateScaling_name": "テンプレートを5eグリッドに自動調整",
     "DND5EH.GridTemplateScaling_hint" :"線と円錐は距離がスケーリングされます。球形は同等の面積の矩形に変換されます。これはテンプレートの対角線を5eのグリッド距離測定に沿わせるものです。",
@@ -31,6 +40,26 @@
     "DND5EH.LoS_providescover":"遮蔽を提供",
     "DND5EH.LoSMaskNPCs_sourceMask": "何者かが射線を遮っています。",
     "DND5EH.LoSMaskNPCs_targetMask": "不明なクリーチャー",
+    "DND5EH.LoSKeybind_name" : "[EN] Keybind for Cover",
+    "DND5EH.LoSKeybind_hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
+    "DND5EH.LoS_ignoreCover" : "[EN]Ignored",
+    "DND5EH.LoSremoveCover_name" : "[EN]Remove Cover on turn end",
+    "DND5EH.LoSremoveCover_hint" : "[EN]Removes any cover effect at the end of a combatants turn",
+    "DND5EH.LoSremoveTargets_name" : "[EN]Remove Targets on turn end",
+    "DND5EH.LoSremoveTargets_hint" : "[EN]Removes any targets at the end of a combatants turn",
+
+    "DND5EH.LoSCover_name" : "[EN] Cover Application",
+    "DND5EH.LoSCover_hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
+    "DND5EH.LoSCover_manual" : "[EN] Manual",
+    "DND5EH.LoSCover_auto" : "[EN] Automatic",
+    "DND5EH.LoSCover_cover" : "[EN] cover",
+
+    "DND5EH.LoSTint_name" : "[EN]Cover Button Tint",
+    "DND5EH.LoSTint_hint" : "[EN]What color should be applied to the cover buttons to show which is active",
+    "DND5EH.LoSTint_red" : "[EN]Dark Red",
+    "DND5EH.LoSTint_blue" : "[EN]Light Blue",
+    "DND5EH.LoSTint_grey" : "[EN]Dim Grey",
+    "DND5EH.LoSTint_rainbow" : "[EN]Rainbow",
 
     "DND5EH.LoSWithTokens_name":"射線上にあるコマを1/2遮蔽とみなす",
     "DND5EH.LoSWithTokens_hint": "無効にすると遮蔽判定時にコマが考慮されなくなります。",
@@ -67,18 +96,17 @@
     "DND5EH.WildMagicWisper_name":"魔法暴走の結果をプレイヤーに隠す",
     "DND5EH.WildMagicWisper_hint":"すべてのロールと表の結果はGMへの秘話になります。",
 
-    "DND5EH.CombatReactionEnable_name": "リアクションの自動管理",
-    "DND5EH.CombatReactionEnable_hint":"リアクションの管理方法を選択します（グローバル）。「適用」はリアクション能力やターン外の行動をチェックし、指定された状態を付与します。「削除」はこの状態をターン開始時に自動で除去します。",
+    "DND5EH.CombatReactionEnable_name": "[*]リアクションの自動管理",
+    "DND5EH.CombatReactionEnable_hint":"[*]リアクションの管理方法を選択します（グローバル）。「適用」はリアクション能力やターン外の行動をチェックし、指定された状態を付与します。「削除」はこの状態をターン開始時に自動で除去します。",
     "DND5EH.CombatReactionEnable_apply":"適用のみ",
     "DND5EH.CombatReactionEnable_remove":"削除のみ",
     "DND5EH.CombatReactionEnable_both":"適用と削除",
+    "DND5EH.CombatReactionActionDialogTitle" : "[EN]Available Actions", 
+    "DND5EH.CombatReactionConfirmation" : "[EN]Confirm",
+    "DND5EH.CombatReactionStatusApplyEnable": "[EN]Indicate Used Reaction as Status",
+    "DND5EH.CombatReactionStatusApplyHint": "[EN]Applies a status icon to a token when it has used it's reaction",
 
-    "DND5EH.CombatReactionStatus_name": "リアクションの状態名",
-    "DND5EH.CombatReactionStatus_hint":"トークンHUDでステータスにカーソルを合わせると表示されます（デフォルト：Weakened）。",
-    "DND5EH.CombatReactionStatus_statuserror":"DnD5e Helpers：{reactionStatus}という名称の状態が見つかりませんでした。",
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers：アクターのアイテムロールではありません。",
-    "DND5EH.CombatReactionStatus_actionname" :"1 ｱｸｼｮﾝ",
-    "DND5EH.CombatReactionStatus_reactionname": "1 ﾘｱｸｼｮﾝ",
     "DND5EH.CombatReactionStatus_statuslog":"DnD5e Helpers：状態は {statusEffect}です。",
     "DND5EH.CombatReactionStatus_effecterror":"DnD5e Helpers：{reactionStatus}という名称のアクティブ効果が見つかりません。",
     "DND5EH.CombatReactionStatus_combaterror":"DnD5e Helpers：アクティブな戦闘がありません。",
@@ -104,6 +132,9 @@
     "DND5EH.AutoRegen_hint":"再生（リジェネレーション）を自動化し、DMにロールを促します。該当する特徴の説明欄に“X hit points”（Xは数値もしくはダイス式）という記述が必要です。",
     "DND5EH.AutoRegen_Regneration": "再生",
     "DND5EH.AutoRegen_SelfRepair": "修理",
+    "DND5EH.regenBlock_name" :"[EN]Effect Name to Block Regeneration",
+    "DND5EH.regenBlock_hint" : "[EN]What name should be checked to prevent the regeneration popup",
+    "DND5EH.regenBlock_default" : "[EN]No Regen",
     "DND5EH.AutoRegenDialog_name": "{tokenName}の自己回復",
     "DND5EH.AutoRegenDialog_content": "現在の{tokenName}のhpは{tokenHP}/{actorMax} です。",
     "DND5EH.AutoRegenDialog_healingprompt": "{regenAmout}点の回復を適用",
@@ -123,6 +154,11 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName}はセーヴ値：{total}で破壊されました。",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName}はセーヴ値：{total}で生き延びました。",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "対象へのダメージ：",
+
+    "DND5EH.LairHelper_name" : "[EN] Lair Action Prompt",
+    "DND5EH.LairHelper_hint" : "[EN] Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "DND5EH.CombatLegendary_Prompt_name" : "[EN]Legendary Action Prompt",
+    "DND5EH.CombatLegendary_Prompt_hint" : "[EN]Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "DND5EH.GreatWoundEnable_name":"痛打",
     "DND5EH.GreatWoundEnable_hint":"一撃で最大hpの50％を超えるダメージを受けたときに、指定した表をロールします。",
@@ -166,6 +202,10 @@
 
     "DND5EH.OpenWoundDebug_name":"デバッグ",
     "DND5EH.OpenWoundDebug_hint":"いくつかのコンソールログをデバッグ用に追加します。",
+
+    "DND5EH.GreatAndOpenWoundMaskNPC_name": "[EN] Hide GM info from Great Wound and Open Wound report",
+    "DND5EH.GreatAndOpenWoundMaskNPC_hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting",
+    "DND5EH.GreatAndOpenWoundMaskNPC_mask": "[EN] a creature",
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "DnD5e Helpers：{actorName}のアップデートは hp：{hp}と呪文：{spells}を含みます。",
     "DND5EH.Hooks_updateActor_updatelog" :"DnD5e Helpers：{currentTokenName}のアップデートは リジェネ：{regenSett}を含みます。",

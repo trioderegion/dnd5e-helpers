@@ -4,32 +4,38 @@ Little helpers for little 5e tasks.
 ## Current Features
 
 ### Automatic Wild Magic Surge
-- Triggers on *any* reduction in current spell slots from a character with the indicated feature (default: Wild Magic Surge)
+- Triggers on *any* reduction in current spell slots from a character with the 'Wild Magic Surge' special trait
 - Optional homebrews
    - More Surges - a surge triggers on a roll <= spell level. Also recharges Tides of Chaos.
    - Volatile Surges - Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended
-   - Standard Surges plus - Similar to standard, but also recharges Tides of Chaos.
-   - Note: The homebrews look for the designated Tides of Chaos feature and expects it to have "X uses per long rest"
+   - The homebrew variants look for the designated Tides of Chaos feature and expects it to have "X uses per long rest". Will also recharge an actor resource of the same name, if present.
 - Blind draw surge table results, which hides the results of the surge from the players.
 
-![WildSurge](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/surge-output.webp)
+![WildSurge](.github/surge-output.webp)
 
-### Reaction Status Management
-- Detects when an action is taken outside of a token's turn and applies a configurable status as a visual reminder. The following details when this will be detected during combat:
-   - 1) Whenever a token uses an item with activation of "1 Reaction".
-   - 2) Whenever a token uses an item with activation of "1 Action" outside of their turn.
-   - 3) Any other item activation will be ignored. For example "0 Action" or "1 Bonus Action"
-- Will remove the configured status at the beginning of the token's turn.
-- This status used is configurable and should match the name when hovered over in the token hud.
-- Supports Combat Utility Belt's custom statuses.
-- If auto remove is enabled these statuses will be removed at the end of combat as well.
+### Combat Action Management
+- Action HUD added to tokens during combat, tracking their Action, Bonus Action and Reaction.
+  - Positive action cost items will mark the corresponding action as used.
+  - Negative action cost items will refund the corresponding action. Ex. Action Surge configured as "-1 Action".
+- Used actions will reset at the beginning of the commbatant's turn.
+- Additional control added to the token HUD during combat to manually adjust actions.
+
+![Action Management HUD](.github/action-management.webp)
 
 ### Legendary Action Reset on Start of Turn
 - All legendary action uses of a creature will reset to their max on the start of their turn in combat.
 
+### Lair and Legendary Action Helpers
+- Prompts GM with available legendary actions in-between combatant turns
+- Prompts GM with available lair actions at initiative count 20
+- Tracks current available uses 
+
+![Lair Legendary Helper](.github/lair-legend-helpers.webp)
+
 ### Recharge Abilities on Start of Turn
 - GM only
 - For abilities with a "d6 recharge" on every turn.
+- Configurable to hide the roll, or to roll at the end of a combatants turn instead of the start.
 
 ### Diagonal Template Scaling
 - _I cast...Firesquare!_
@@ -37,13 +43,13 @@ Little helpers for little 5e tasks.
 - Line and cone scaling can be enabled independently from circle scaling.
   - Circle templates less than 1 grid unit in radius will not be converted. These small templates are often useful for creating quick token-like markers on the board or used for macros which need the centerpoint maintained.
 
-![Line Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/ray_scaling.gif)
-![Circle Scaling](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/circle_scaling.gif)
+![Line Scaling](.github/ray_scaling.gif)
+![Circle Scaling](.github/circle_scaling.gif)
 
-### Cover Calculator (Beta)
-- When a user with a selected token targets another token, the target's cover will be calcuated following the rules presented in DMG pg. 251
+### Cover Calculator
+- When a user with a selected token targets another token with the designated hotkey held, the target's cover will be calculated following the rules presented in DMG pg. 251
 - A message in chat will be posted concerning the target's cover in relation to the selected token(s).
-- Prioritizes walls, specially flaged tiles, then tokens.
+- Prioritizes walls, specially flagged tiles, then tokens.
   - Tiles have a new option in their configuration dialog that sets the cover granted by them.
   - Two tiles are now included from game-icons.net that are configured automatically for half and three-quarters cover in modules/dnd5e-helpers/assets/cover-tiles.
 - Has two modes for cover in relation to walls: Center Point and Four Corner. Cover from tiles and tokens are (currently) only calculated from Center Point.
@@ -52,7 +58,17 @@ Little helpers for little 5e tasks.
   - A more detailed discussion of this can be found on our Wiki
 - A new method has been added as ``Token#computeTargetCover``. The usage of it has been detailed in the source code, but is still a work in progress. Basic usage is calling with no arguments with both a selected and targeted token. The return value is a promise of the raw cover data from visibility tests.
 
-![Cover Calculation](https://github.com/trioderegion/dnd5e-helpers/raw/master/.github/los_calc.gif)
+![Cover Calculation](.github/los_calc.gif)
+
+### Cover Application
+- Manual setting adds chat buttons to click to cycle between different cover effects.
+- Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment.
+- This cover bonus is applied onto the *targeter* not the target and is a -2,-5,-40 negative for any attack rolls.
+- The cover bonus to Dexerity saves are not dealt with.
+- A new special trait has been added to indicate if the actor should ignore cover (e.g. Sharpshooter or Spell Sniper)
+- Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ).
+- 
+![Cover Report](.github/cover-report.webp)
 
 ### Auto Proficiency Detection
 - Will automatically mark a newly added weapon, armor or tool 'proficient' if it is part of the actor's listed proficiencies
@@ -63,6 +79,10 @@ Little helpers for little 5e tasks.
 - Automatically checks actors with the Regeneration or Self-Repair features
 - Searches the these features for the phrase "X hit points", where X can be a static value or a dice formula
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
+
+### Regen Blocking
+- Feature to prevent the auto regen popup
+- Matches and active effect of the specified name (case specific)
 
 ### Undead Fortitude
 - Automatically checks actors with the Undead Fortitude feature
@@ -96,3 +116,4 @@ Little helpers for little 5e tasks.
 ## Authors:
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
+- hugoprudente (https://github.com/hugoprudente)

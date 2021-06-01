@@ -1,0 +1,85 @@
+.dnd5ehelpers .container {
+  flex : 1;
+  width: 100%;
+}
+.dnd5ehelpers .row {
+    display: flex;
+    flex-direction: row;
+  }
+  .dnd5ehelpers .row>div {
+    flex: 1;
+  }
+  .dnd5ehelpers .col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+  }
+  .dnd5ehelpers .img-button {
+    padding: 0;
+    margin: 0;
+    border: none;
+    display: block;
+    max-width: 200px;
+  }
+  .dnd5ehelpers .row img {
+    border: none;
+    display: block;
+  }
+  .dnd5ehelpers .row .action {
+    flex: 1;
+  }
+  .dnd5ehelpers .desc {
+    background-color: rgb(189 188 181);
+    color: #000;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    display: none;
+    position: absolute;
+    right: -260px;
+    width: 250px;
+    border: 1px solid black;
+    text-align: justify;
+  }
+  .dnd5ehelpers .form-group:hover .desc {
+    display: block;
+  }
+  .dnd5ehelpers.legendary-action-dialog {
+    min-height: 280px !important;
+    min-width: 530px !important;
+  }
+  .dnd5ehelpers .dice-result .desc{
+    background-color: rgb(208 208 215);
+    color: #000;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    display: none;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0px);
+    width: fit-content;
+    top: -45px;
+    border: 1px solid black;
+    text-align: center;
+    font-size: 1.2em;
+    font-style: italic;
+  }
+  .dnd5ehelpers .dice-formula:hover .desc {
+    display: block;
+  }
+
+.control-icon.actions img {
+  width: 90%;
+}
+.dnd5ehelpers .cover-button img {
+  width: 2em;
+  margin-bottom: -10px;
+  border:  none;
+  float: left;
+  opacity: 0.3;
+  margin-right: -100%;
+}
+
