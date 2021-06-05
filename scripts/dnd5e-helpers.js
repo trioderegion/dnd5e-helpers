@@ -686,9 +686,6 @@ Hooks.on("updateToken", (tokenDocument, update, options/*, userId*/) => {
   }
 
   let hp = getProperty(update, "actorData.data.attributes.hp.value");
-  if ((game.settings.get('dnd5e-helpers', 'gwEnable')) && !!hp) {
-    DnDWounds.GreatWound_preUpdateToken(tokenDocument.data, update);
-  }
 
   let Actor = game.actors.get(tokenDocument.data.actorId);
   let fortitudeFeature = Actor?.items.find(i => i.name === game.i18n.format("DND5EH.UndeadFort_name"));
@@ -1773,47 +1770,7 @@ class DnDCombatUpdates {
 }
 
 class DnDWounds {
-  /**
-   *
-   * @param {Object} tokenData
-   * @param {Object} update
-   */
-  static GreatWound_preUpdateToken(tokenData, update) {
-    //find update data and original data
-    let actor = game.actors.get(tokenData.actorId);
-    let data = {
-      actorData: canvas.tokens.get(tokenData._id).actor.data,
-      actorHP: getProperty(tokenData, "actorData.data.attributes.hp.value"),
-      actorMax: getProperty(tokenData, "actorData.data.attributes.hp.max"),
-      updateHP: update.actorData.data.attributes.hp.value,
-    };
-    if (data.actorMax == undefined) {
-      data.actorMax = actor.data.data.attributes.hp.max;
-    }
-    if (data.actorHP == undefined) {
-      data.actorHP = data.actorMax;
-    }
-    let hpChange = data.actorHP - data.updateHP;
-    // check if the change in hp would be over 50% max hp
-    if (hpChange >= Math.ceil(data.actorMax / 2) && data.updateHP !== 0) {
-      const gwFeatureName = game.settings.get("dnd5e-helpers", "gwFeatureName");
-      new Dialog({
-        title: game.i18n.format("DND5EH.GreatWoundDialogTitle", {
-          gwFeatureName: gwFeatureName,
-          actorName: actor.name,
-        }),
-        buttons: {
-          one: {
-            label: game.i18n.format("DND5EH.Default_roll"),
-            callback: () => {
-              DnDWounds.DrawGreatWound(actor);
-            },
-          },
-        },
-      }).render(true);
-    }
-  }
-
+  
   /**
    *
    * @param {Object} actor
