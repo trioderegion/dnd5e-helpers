@@ -766,13 +766,13 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode === 1) {
     for (let combatant of combat.data.combatants) {
-      await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
+      await DnDActionManagement.RemoveActionMarkers(combatant.token.id);
     }
   }
 
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
     for (let combatant of combat.data.combatants) {
-      let token = canvas.tokens.get(combatant.tokenId)
+      let token = canvas.tokens.get(combatant.token.id)
       await removeCover(undefined, token)
     }
   }
@@ -780,19 +780,19 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   DnDCombatUpdates.cleanUpCover(combat)
 });
 
-Hooks.on("deleteCombatant", async (combat, combatant) => {
+Hooks.on("deleteCombatant", async (combatant, render) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
 
   if (reactMode === 1) {
-    await DnDActionManagement.RemoveActionMarkers(combatant.tokenId);
+    await DnDActionManagement.RemoveActionMarkers(combatant.token.id);
   }
 
   if (game.settings.get('dnd5e-helpers', 'lairHelperEnable')) {
-    DnDCombatUpdates.RemoveLairMapping(combat, combatant);
+    DnDCombatUpdates.RemoveLairMapping(combatant);
   }
 
   if(game.settings.get(MODULE, 'LegendaryHelperEnable')) {
-    DnDCombatUpdates.RemoveLegMapping(combat, combatant)
+    DnDCombatUpdates.RemoveLegMapping(combatant)
   }
 
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
@@ -873,16 +873,6 @@ Hooks.on("targetToken", (user, target, onOff) => {
 
 Hooks.on("preCreateTile", onPreCreateTile);
 
-Hooks.on("ready", () => {
-  const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if (reactMode === 1) {
-    let combat = game.combats.active
-    let tokenIds = combat?.data.combatants.reduce((a, v) => a.concat(v.tokenId), []) ?? [];
-    let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
-    DnDActionManagement.AddActionMarkers(tokenArray)
-  }
-})
-
 Hooks.on("createCombatant", async (combatant) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   const lairHelperEnable = game.settings.get('dnd5e-helpers', 'lairHelperEnable');
@@ -917,6 +907,10 @@ Hooks.on("updateToken", (scene, token, update) => {
 Hooks.on("controlToken", (token, state) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
   if (reactMode === 1) {
+
+    /** ensure a token in combat has its action markers created */
+    if (token.inCombat && state == true) { DnDActionManagement.AddActionMarkers([token]) }
+
     const actionCont = token.children.find(i => i.Helpers)
     if(actionCont){
       actionCont.visible = state
@@ -1491,14 +1485,13 @@ class DnDCombatUpdates {
   /**
      * 
      * @param {Object} combatant - combatant data (contains token id) to check for Legendary actions 
-     * @param {Object} combat - combat instance to save Legendary actions array to 
      * @returns 
      * Generate Legendary action array
      */
   static LegendaryActionMapping(combatant) {
     if (!DnDHelpers.IsFirstGM()) return;
 
-    let token = canvas.tokens.get(combatant.token.id)
+    let token = combatant.token;
 
     const updateFn = async () => {
       let tokenItems = getProperty(token, "items") || token.actor.items
@@ -1520,16 +1513,17 @@ class DnDCombatUpdates {
   }
 
   /**
-   * 
-   * @param {Combat} combat 
    * @param {Combatant} combatant 
    * @returns 
    */
-  static async RemoveLairMapping(combat, combatant) {
+  static async RemoveLairMapping(combatant) {
     if (!DnDHelpers.IsFirstGM()) return;
     const updateFn = async () => {
+
+      const combat = combatant.parent;
+
       /** get the actual token */
-      const tokenId = combat.scene.getEmbeddedDocument('Token', combatant.tokenId)?._id;
+      const tokenId = combatant.token.id;
 
       /** error, could not find token referenced by combatant */
       if (!tokenId) {
@@ -1556,17 +1550,17 @@ class DnDCombatUpdates {
   }
 
   /**
-  * 
-  * @param {Combat} combat 
   * @param {Combatant} combatant 
   * @returns 
   */
-  static async RemoveLegMapping(combat, combatant) {
+  static async RemoveLegMapping(combatant) {
     if (!DnDHelpers.IsFirstGM()) return;
     const updateFn = async () => {
 
+      const combat = combatant.parent;
+
       /** get the actual token */
-      const tokenId = combat.scene.getEmbeddedDocument('Token', combatant.tokenId)?._id;
+      const tokenId = combatant.token.id;
 
       /** error, could not find token referenced by combatant */
       if (!tokenId) {
@@ -1621,7 +1615,7 @@ class DnDCombatUpdates {
       /** if this combatant is marked as defeated, do no add actions to list */
       const combatantId = lairActor[3];
       const owningCombat = lairActor[4];
-      if(!!game.combats.get(owningCombat).combatants.find( entry => entry._id == combatantId).defeated) continue;
+      if(!!game.combats.get(owningCombat).combatants.find( entry => entry._id == combatantId)?.data.defeated) continue;
 
       /* if we have gotten here, we have valid lair actions to show */
       anyActions = true;
@@ -2037,6 +2031,11 @@ class DnDProf {
 
 class DnDActionManagement {
 
+  /** helper to check if this placeable token has the action status markers */
+  static HasActionMarkers(placeableToken) {
+      return !!placeableToken.children.find(i => i.Helpers)
+  }
+
   /** Reads chat data and updates tokens Action HUD to display available actions */
   static async ReactionApply(castingActor, castingToken, itemId) {
 
@@ -2153,6 +2152,10 @@ class DnDActionManagement {
    * @param {Array} tokenArray Tokens to add action markers too
    */
    static async AddActionMarkers(tokenArray) {
+
+    /** early out if all tokens here have an action marker already */
+    if (tokenArray.every(DnDActionManagement.HasActionMarkers)) return;
+
     const actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/ACTION2.png")
     const reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/reaction.png")
     const bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/bonus.png")
@@ -2164,7 +2167,7 @@ class DnDActionManagement {
 
     for (let token of tokenArray) {
       if (!token.owner) continue;
-      if (token.children.find(i => i.Helpers)) continue;
+      if (DnDActionManagement.HasActionMarkers(token)) continue;
       const actions = await token.document.getFlag('dnd5e-helpers', 'ActionManagement')
       const action = new PIXI.Sprite(actionTexture)
       const reaction = new PIXI.Sprite(reactionTexture)
@@ -2206,7 +2209,7 @@ class DnDActionManagement {
       reactionIcon.tint = 13421772
       reactionIcon.alpha = actions?.reaction ? 0.2 : 1
       if(!!actions && game.settings.get(MODULE, 'cbtReactionStatusEnable')) {
-      await DnDHelpers.SetReactionStatus(token, actions.reaction);
+        await DnDHelpers.SetReactionStatus(token, actions.reaction);
       }
 
       bonusIcon.position.set(horiAlign * 8, -vertiAlign)
@@ -2217,12 +2220,15 @@ class DnDActionManagement {
       backgroundIcon.position.set(horiAlign*5, -vertiAlign)
       backgroundIcon.zIndex = -1000
 
-      const resetActions = {
-        action: 0,
-        reaction: 0,
-        bonus: 0,
+      /** if this token has no action managment flags (i.e. new combat), initialize them */
+      if (!token.document.getFlag(MODULE, 'ActionManagement')) {
+        const resetActions = {
+          action: 0,
+          reaction: 0,
+          bonus: 0,
+        }
+        await token.document.setFlag(MODULE, 'ActionManagement', resetActions)
       }
-      await token.document.setFlag('dnd5e-helpers', 'ActionManagement', resetActions)
     }
   }
 
@@ -2292,6 +2298,7 @@ class DnDActionManagement {
     if (!!actionCont) {
       actionCont.children.forEach(i => i.destroy())
       actionCont.destroy()
+      await DnDHelpers.SetReactionStatus(token, 0);
       return token.document.unsetFlag('dnd5e-helpers', 'ActionManagement')
     }
 
@@ -2318,7 +2325,10 @@ class DnDActionManagement {
 
   static AddActionHud(app, html, data) {
     let tokenId = app.object.id
-    if(!game.combat?.combatants?.find(i => i.tokenId === tokenId)) return;
+
+    /** hopefully easier method of checking if token is in _a_ combat */
+    if(data.combatClass === "") return;
+
     const actionButton = `<div class="control-icon actions" title="Configure Actions"> <i class="fas fa-clipboard-list"></i></div>`
     let leftCol = html.find('.left') 
     leftCol.append(actionButton)
