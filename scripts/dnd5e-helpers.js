@@ -59,7 +59,7 @@ Hooks.on('init', () => {
 
   game.settings.register("dnd5e-helpers", "losKeybind", {
     name: game.i18n.format("DND5EH.LoSKeybind_name"),
-    hint: game.i18n.format("DND5EH.LoSTokens_hint"),
+    hint: game.i18n.format("DND5EH.LoSKeybind_hint"),
     scope: "world",
     config: false,
     group: "system",
