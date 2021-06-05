@@ -2960,7 +2960,7 @@ function CoverFromObjects(sourceToken, targetToken, includeTiles, includeTokens)
 
   if (includeTiles) {
     /** collect "blocker" tiles (this could be cached on preCreateTile or preUpdateTile) */
-    const coverTiles = canvas.tiles?.placeables.filter(tile => tile.document.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0) ?? [];
+    const coverTiles = canvas.background?.placeables.filter(tile => tile.document.getFlag('dnd5e-helpers', 'coverLevel') ?? 0 > 0) ?? [];
 
     /** hits.length is number of blocker tiles hit */
     objectHitResults.tiles = CollideAgainstObjects(ray, coverTiles);
@@ -2995,13 +2995,14 @@ function onRenderTileConfig(tileConfig, html) {
   const currentCoverType = tileConfig.object.getFlag('dnd5e-helpers', 'coverLevel');
 
   /** anchor our new dropdown at the bottom of the dialog */
-  const saveButton = html.find($('button[type="submit"]'));
+  //const saveButton = html.find($('footer[type="sheet-footer"]'));
+  const saveButton = html.find($('footer'));
   const coverTranslation = game.i18n.format("DND5EH.LoS_providescover");
   const noCover = game.i18n.format("DND5EH.LoS_nocover")
   const halfCover = game.i18n.format("DND5EH.LoS_halfcover")
   const threeQuaterCover = game.i18n.format("DND5EH.LoS_34cover")
   const fullCover = game.i18n.format("DND5EH.LoS_fullcover")
-  let checkboxHTML = `<div class="form-group"><label${coverTranslation}</label>
+  let checkboxHTML = `<div class="form-group"><label>${coverTranslation}</label>
                         <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
                           <option value="0" ${currentCoverType == 0 ? 'selected' : ''}>${noCover}</option>
                           <option value="1" ${currentCoverType == 1 ? 'selected' : ''}>${halfCover}</option>
@@ -3020,7 +3021,7 @@ function onRenderTileConfig(tileConfig, html) {
  * @param {Object} _scene 
  * @param {Object} tileData tile.data
  */
-function onPreCreateTile(_scene, tileData, _options, _id) {
+function onPreCreateTile(tileDocument, tileData/*, options, id*/) {
   const halfPath = "modules/dnd5e-helpers/assets/cover-tiles/half-cover.svg";
   const threePath = "modules/dnd5e-helpers/assets/cover-tiles/three-quarters-cover.svg";
   /** what else could it be? */
@@ -3028,11 +3029,15 @@ function onPreCreateTile(_scene, tileData, _options, _id) {
     /** its our sample tiles -- set the flag structure */
     const tileCover = tileData.img == halfPath ? 1 : 2;
 
-    if (!tileData.flags) {
-      tileData.flags = {};
+    let flags = tileData.flags ?? {};
+    flags["dnd5e-helpers"] = { coverLevel: tileCover };
+    
+    const updateFn = () => {
+      return tileDocument.data.update({flags});
     }
 
-    tileData.flags["dnd5e-helpers"] = { coverLevel: tileCover };
+    queueEntityUpdate(tileDocument.entity, updateFn);
+   
   }
 }
 
