@@ -1840,14 +1840,16 @@ class DnDWounds {
           one: {
             label: game.i18n.format("DND5EH.Default_roll"),
             callback: () => {
-              if (game.user.data.role !== 4) {
+
+              /** draw locally if we are the one prompting the change OR if not owned by any players */
+              if (game.user.data.role !== 4 || !actor.hasPlayerOwner) {
                 DnDWounds.DrawGreatWound(actor);
                 return;
               }
 
               const socketData = {
-                users: actor._data.permission,
-                actorId: actor._id,
+                users: actor.data._source.permission,
+                actorId: actor.id,
                 greatwound: true,
                 hp: data.updateHP,
               }
