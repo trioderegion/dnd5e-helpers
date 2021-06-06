@@ -266,6 +266,7 @@
 #### Known Issues
 - Tile cover only provided for background tiles (not sure how/if to handle overhead tiles)
 - Blind wild magic table draws are visible to all players. This will be addressed post-June 14th
+- Cover penalty not being removed on de-target (is removed on turn end)
 
 ##### Localization
 - Japanese translation provided by touge
