@@ -709,18 +709,17 @@ Hooks.on("updateToken", (tokenDocument, update, options/*, userId*/) => {
 });
 
 /** all createOwnedItem hooks handeled here */
-Hooks.on("createOwnedItem", (actor, item, sheet, id) => {
-  let type = item.type
-  if (game.settings.get('dnd5e-helpers', 'autoProf') && (actor.data.type === "character")) {
-    switch (type) {
+Hooks.on("createItem", (item/*, options, userid*/) => {
+  if (game.settings.get('dnd5e-helpers', 'autoProf') && (item.parent.data.type === "character")) {
+    switch (item.type) {
       case "weapon":
-        DnDProf.AutoProfWeapon_createOwnedItem(actor, item);
+        DnDProf.AutoProfWeapon_createOwnedItem(item.parent, item);
         break;
       case "equipment":
-        DnDProf.AutoProfArmor_createOwnedItem(actor, item);
+        DnDProf.AutoProfArmor_createOwnedItem(item.parent, item);
         break;
       case "tool":
-        DnDProf.AutoProfTool_createOwnedItem(actor, item);
+        DnDProf.AutoProfTool_createOwnedItem(item.parent, item);
         break;
       default:
         break;
