@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v2
 
       # Substitute the Manifest and Download URLs in the module.json
+      # Keep this branch pointed at the 0.7 manifest
       - name: Substitute Manifest and Download Links For Versioned Ones
         id: sub_manifest_link_version
         uses: microsoft/variable-substitution@v1
@@ -19,7 +20,7 @@ jobs:
         env:
           version: ${{github.event.release.tag_name}}
           url: https://github.com/${{github.repository}}
-          manifest: https://github.com/${{github.repository}}/releases/latest/download/module.json
+          manifest: https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/legacy/0.7.x/module.json
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
 
       # Create a zip file with all files required by the module to add to the release
