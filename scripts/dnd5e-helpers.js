@@ -770,7 +770,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') > 0 && DnDHelpers.IsFirstGM()) {
     for (let combatant of combat.data.combatants) {
       let token = canvas.tokens.get(combatant.token.id)
-      await removeCover(undefined, token)
+      removeCover(undefined, token)
     }
   }
 
@@ -862,7 +862,9 @@ Hooks.on("targetToken", (user, target, onOff) => {
     }
       break;
     case false: {
-      removeCover(user);
+      if (DnDHelpers.isGM) {
+        removeCover(user);
+      }
     }
       break;
   }
@@ -2424,7 +2426,7 @@ class CoverData {
 
 
     /** prepare the secondary blocker information */
-    const tileCoverData = { level: this.TileCover?.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: game.i18n.format("DND5EH.LoS_object"), entity: this.TileCover };
+    const tileCoverData = { level: this.TileCover?.document.getFlag('dnd5e-helpers', 'coverLevel') ?? -1, source: game.i18n.format("DND5EH.LoS_object"), entity: this.TileCover };
     const displayedTokenName = (this.TokenCover?.actor?.data.type ?? "") == "npc" ? DnDHelpers.sanitizeName(this.TokenCover?.name, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask") : this.TokenCover?.name;
     const tokenCoverData = { level: !!this.TokenCover ? 1 : -1, source: `${displayedTokenName ?? ""}`, entity: this.TokenCover };
 
@@ -2673,12 +2675,19 @@ function AddCover(d, d2) {
 }
 
 
-async function removeCover(user, token) {
+function removeCover(user, token) {
   if (game.settings.get('dnd5e-helpers', 'losOnTarget') < 1) { return; }
   let testToken = token !== undefined ? token : canvas.tokens.controlled[0]
-  let coverEffects = testToken?.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"))
-  if (!coverEffects) return;
-  for (let effect of coverEffects) await effect.delete()
+  const updateFn = async () => {
+    let coverEffects = testToken?.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"));
+    if (!coverEffects) return;
+    console.log("foo",coverEffects);
+    for (let effect of coverEffects) {
+        await effect.delete();
+    }
+  }
+
+  queueEntityUpdate("Actor",updateFn);
 }
 
 async function removeTargets(token){
