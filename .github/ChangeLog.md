@@ -258,3 +258,15 @@
 ### 2.0.3
 - Second fix for Action HUD incorrectly rendering 
 - `#114`: Cover reports in chat will now always be whispered to DM (and initiating player) due to potential permissions error if another player presses the cover application buttons. Contributed by `szefo09`, thanks!
+
+### 2.0.4 (0.8.x update)
+#### Features
+- Better support in Action Management for cross-scene combat
+
+#### Known Issues
+- Tile cover only provided for background tiles (not sure how/if to handle overhead tiles)
+- Blind wild magic table draws are visible to all players. This will be addressed post-June 14th
+
+##### Localization
+- Japanese translation provided by touge
+- korean translation by klo ( discord : KLO#1490 )
