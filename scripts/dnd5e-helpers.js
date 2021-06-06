@@ -697,12 +697,12 @@ Hooks.on("updateToken", (tokenDocument, update, options/*, userId*/) => {
   }
 
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "1") {
-    if (hp === 0 && fortitudeFeature !== null) {
+    if (hp === 0 && fortSett) {
       DnDCombatUpdates.UndeadFortCheckQuick(tokenDocument, update, options)
     }
   }
   if (game.settings.get('dnd5e-helpers', 'undeadFort') === "2") {
-    if (hp === 0 && fortitudeFeature !== null) {
+    if (hp === 0 && fortSett) {
       DnDCombatUpdates.UndeadFortCheckSlow(tokenDocument, update, options)
     }
   }
