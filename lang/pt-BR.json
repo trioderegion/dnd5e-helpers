@@ -4,6 +4,7 @@
 
     "DND5EH.Default_disabled" : "Desabilitado",
     "DND5EH.Default_enabled" : "[EN]Enabled",
+    "DND5EH.Default_enabled_displaySuppressed" : "[EN]Enabled (Display Suppressed)",
     "DND5EH.Default_none" : "Nenhum", 
     "DND5EH.Default_SocketSetup" :"Socket do DnD5e Helpers recebido",
     "DND5EH.Default_SocketSend": "Socket enviado com {socketData}",

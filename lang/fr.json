@@ -4,6 +4,7 @@
 
     "DND5EH.Default_disabled" : "Désassemblé",
     "DND5EH.Default_enabled" : "[EN]Enabled",
+    "DND5EH.Default_enabled_displaySuppressed" : "[EN]Enabled (Display Suppressed)",
     "DND5EH.Default_none" : "Aucun", 
     "DND5EH.Default_SocketSetup" :"Prise d'Aide Dnd5e reçue",
     "DND5EH.Default_SocketSend": "socket envoyé avec {socketData}",

@@ -4,6 +4,7 @@
 
     "DND5EH.Default_disabled" : "비활성화",
     "DND5EH.Default_enabled" : "활성화",
+    "DND5EH.Default_enabled_displaySuppressed" : "[EN]Enabled (Display Suppressed)",
     "DND5EH.Default_none" : "없음", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers 소켓 수신",
     "DND5EH.Default_SocketSend": "{socketData}와 소켓 전송",

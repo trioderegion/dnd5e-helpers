@@ -188,7 +188,7 @@ Hooks.on('init', () => {
     type: Boolean,
   });
 
-  /** enable auto reaction reset */
+  /** enable action management @todo rename option key */
   game.settings.register("dnd5e-helpers", "cbtReactionEnable", {
     name: game.i18n.format("DND5EH.CombatReactionEnable_name"),
     hint: game.i18n.format("DND5EH.CombatReactionEnable_hint"),
@@ -197,6 +197,7 @@ Hooks.on('init', () => {
     choices: {
       0: game.i18n.format("DND5EH.Default_none"),
       1: game.i18n.format("DND5EH.Default_enabled"),
+      2: game.i18n.format("DND5EH.Default_enabled_displaySuppressed")
     },
     group: "combat",
     default: 0,
@@ -576,7 +577,7 @@ Hooks.on("updateCombat", async (combat, changed/*, options, userId*/) => {
 
   if (changed.round === 1 && combat.started) {
     const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-    if (reactMode === 1) {
+    if (reactMode > 0) {
       let tokenIds = combat.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
       let tokenArray = canvas.tokens.placeables.filter(i => tokenIds.includes(i.id))
       DnDActionManagement.AddActionMarkers(tokenArray)
@@ -587,33 +588,38 @@ Hooks.on("updateCombat", async (combat, changed/*, options, userId*/) => {
   if (!("turn" in changed)) {
     return;
   }
+  
+  // early return if no combatants active 
+  if (combat.data.combatants.length == 0) return;
+
+  /** begin removal logic for the _next_ token */
+  const nextTurn = combat.turns[changed.turn];
+  const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
+
+  let nextTokenId = nextTurn.token.id;
+
+  /* @todo cross-scene combat support */
+  let currentToken = canvas.tokens.get(nextTokenId);
+  let previousToken = canvas.tokens.get(previousTurn.token.id)
+
+  /** we dont care about tokens without actors */
+  if (!currentToken?.actor) {
+    return;
+  }
+
+  /** let each client handle their own target removal */
+  if(game.settings.get("dnd5e-helpers", "removeTargets")) {
+    removeTargets()
+  } 
 
   /** just want this to run for GMs */
   /** features to be executed _only_ by the first gm:
    *  Legenadry Action reset
    *  d6 ability recharge
-   *  reaction status clear
    */
   const firstGm = game.users.find((u) => u.isGM && u.active);
   if (firstGm && game.user === firstGm) {
 
-    // early return if no combatants active 
-    if (combat.data.combatants.length == 0) return;
-
-    /** begin removal logic for the _next_ token */
-    const nextTurn = combat.turns[changed.turn];
-    const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
-
-    let nextTokenId = nextTurn.token.id;
-
-    /* @todo cross-scene combat support */
-    let currentToken = canvas.tokens.get(nextTokenId);
-    let previousToken = canvas.tokens.get(previousTurn.token.id)
-
-    /** we dont care about tokens without actors */
-    if (!currentToken?.actor) {
-      return;
-    }
     let option1 = game.i18n.format("DND5EH.AutoRegen_Regneration")
     let option2 = game.i18n.format("DND5EH.AutoRegen_SelfRepair")
     let regen = currentToken.actor.items.find(i => i.name === option1 || i.name === option2);
@@ -658,7 +664,7 @@ Hooks.on("updateCombat", async (combat, changed/*, options, userId*/) => {
       }
 
       const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable')
-      if (reactMode === 1) {
+      if (reactMode > 0) {
         await DnDActionManagement.ReactionRemove(currentToken)
       }
     }
@@ -666,12 +672,11 @@ Hooks.on("updateCombat", async (combat, changed/*, options, userId*/) => {
       if (game.settings.get('dnd5e-helpers', 'cbtAbilityRecharge') === "end") {
         await DnDCombatUpdates.RechargeAbilities(previousToken);
       }
+     
       if(game.settings.get("dnd5e-helpers", "removeCover")) {
         removeCover(undefined, previousToken)
       }
-      if(game.settings.get("dnd5e-helpers", "removeTargets")) {
-        removeTargets(previousToken)
-      }
+      
     }
   }
 
@@ -729,7 +734,7 @@ Hooks.on("createItem", (item/*, options, userid*/) => {
 
 Hooks.on("preCreateChatMessage", async (msgDocument, msgData/*, options, userId*/) => {
   const reactMode = game.settings.get('dnd5e-helpers', "cbtReactionEnable");
-  if (reactMode === 1) {
+  if (reactMode > 0) {
     await DnDActionManagement.ReactionDetect_preCreateChatMessage(msgData);
   }
 
@@ -760,7 +765,7 @@ Hooks.on("preCreateChatMessage", async (msgDocument, msgData/*, options, userId*
 
 Hooks.on("deleteCombat", async (combat, settings, id) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if (reactMode === 1) {
+  if (reactMode > 0) {
     for (let combatant of combat.data.combatants) {
       await DnDActionManagement.RemoveActionMarkers(combatant.token.id);
     }
@@ -779,7 +784,7 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
 Hooks.on("deleteCombatant", async (combatant, render) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
 
-  if (reactMode === 1) {
+  if (reactMode > 0) {
     await DnDActionManagement.RemoveActionMarkers(combatant.token.id);
   }
 
@@ -861,9 +866,9 @@ Hooks.on("targetToken", (user, target, onOff) => {
     }
       break;
     case false: {
-      if (DnDHelpers.isGM) {
+      //if (DnDHelpers.IsFirstGM()) {
         removeCover(user);
-      }
+      //}
     }
       break;
   }
@@ -876,7 +881,7 @@ Hooks.on("createCombatant", async (combatant) => {
   const lairHelperEnable = game.settings.get('dnd5e-helpers', 'lairHelperEnable');
   const legHelperEnable = game.settings.get('dnd5e-helpers', 'LegendaryHelperEnable');
 
-  if (combatant.parent.data.active && reactMode === 1) {
+  if (combatant.parent.data.active && reactMode > 0) {
     const tokenInstance = canvas.tokens.get(combatant.token.id)
     DnDActionManagement.AddActionMarkers([tokenInstance])
   }
@@ -895,8 +900,8 @@ Hooks.on("updateToken", (scene, token, update) => {
   if ("tint" in update || "width" in update || "height" in update || "img" in update) {
     const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
     let tokenIds = game.combats.active?.data.combatants.reduce((a, v) => a.concat(v.tokenId), []);
-    if (tokenIds.includes(token._id) && reactMode === 1) {
-      let tokenInstance = canvas.tokens.get(token._id)
+    if (tokenIds.includes(token.id) && reactMode > 0) {
+      let tokenInstance = canvas.tokens.get(token.id)
       DnDActionManagement.AddActionMarkers([tokenInstance])
     }
   }
@@ -904,14 +909,15 @@ Hooks.on("updateToken", (scene, token, update) => {
 
 Hooks.on("controlToken", (token, state) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
-  if (reactMode === 1) {
+  if (reactMode > 0) {
 
     /** ensure a token in combat has its action markers created */
     if (token.inCombat && state == true) { DnDActionManagement.AddActionMarkers([token]) }
 
     const actionCont = token.children.find(i => i.Helpers)
     if(actionCont){
-      actionCont.visible = state
+      /** keep invisible if we are suppressing the HUD */
+      actionCont.visible = reactMode == 2 ? false : state;
     }
   }
 })
@@ -1993,7 +1999,7 @@ class DnDActionManagement {
 
   /** helper to check if this placeable token has the action status markers */
   static HasActionMarkers(placeableToken) {
-      return !!placeableToken.children.find(i => i.Helpers)
+      return !!placeableToken.children?.find(i => i.Helpers)
   }
 
   /** Reads chat data and updates tokens Action HUD to display available actions */
@@ -2031,7 +2037,7 @@ class DnDActionManagement {
 
       let effectToken = canvas.tokens.get(castingToken);
 
-      let ownedItem = effectToken.actor.getOwnedItem(itemId);
+      let ownedItem = effectToken.actor.items.get(itemId);
       const { type, cost } = ownedItem?.data?.data?.activation;
 
       if (!type || !cost) {
@@ -2116,6 +2122,7 @@ class DnDActionManagement {
     /** early out if all tokens here have an action marker already */
     if (tokenArray.every(DnDActionManagement.HasActionMarkers)) return;
 
+    const managementMode = game.settings.get(MODULE, 'cbtReactionEnable');
     const actionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/ACTION2.png")
     const reactionTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/reaction.png")
     const bonusTexture = await loadTexture("modules/dnd5e-helpers/assets/action-markers/bonus.png")
@@ -2126,9 +2133,10 @@ class DnDActionManagement {
     bonusTexture.orig =newOrig;
 
     for (let token of tokenArray) {
-      if (!token.owner) continue;
+      if (!token.isOwner) continue;
       if (DnDActionManagement.HasActionMarkers(token)) continue;
-      const actions = await token.document.getFlag('dnd5e-helpers', 'ActionManagement')
+      if (!token.docuement) continue;
+      const actions = await token.document.getFlag('dnd5e-helpers', 'ActionManagement');
       const action = new PIXI.Sprite(actionTexture)
       const reaction = new PIXI.Sprite(reactionTexture)
       const background = new PIXI.Sprite(backgroundTexture)
@@ -2153,7 +2161,10 @@ class DnDActionManagement {
       ActionCont.setParent(token);
       ActionCont.sortableChildren = true;
       ActionCont.Helpers = true;
-      ActionCont.visible = token._controlled;
+
+      /** suppress the hud if desired */
+      ActionCont.visible = managementMode == 2 ? false : token._controlled;
+
       let actionIcon = await ActionCont.addChild(action);
       let reactionIcon = await ActionCont.addChild(reaction);
       let bonusIcon = await ActionCont.addChild(bonus);
@@ -2200,18 +2211,23 @@ class DnDActionManagement {
    */
   static async UpdateActionMarkers(token, action, use) {
     const actionCont = token.children.find(i => i.Helpers)
+    const managementMode = game.settings.get(MODULE, "cbtReactionEnable");
     switch (action) {
       case "action": {
-        let actionIcon = actionCont.children.find(i => i.actionType === "action")
-        actionIcon.alpha = use > 0 ? 0.2 : 1
+        if (managementMode == 1) {
+          let actionIcon = actionCont.children.find(i => i.actionType === "action")
+          actionIcon.alpha = use > 0 ? 0.2 : 1
+        }
         const actions = duplicate(await token.document.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
         await token.document.setFlag('dnd5e-helpers', 'ActionManagement', actions)
       }
         break;
       case "reaction": {
-        let reactionIcon = actionCont.children.find(i => i.actionType === "reaction")
-        reactionIcon.alpha = use > 0 ? 0.2 : 1
+        if (managementMode == 1) {
+          let reactionIcon = actionCont.children.find(i => i.actionType === "reaction")
+          reactionIcon.alpha = use > 0 ? 0.2 : 1
+        }
         const actions = duplicate(await token.document.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
         await token.document.setFlag('dnd5e-helpers', 'ActionManagement', actions)
@@ -2221,8 +2237,10 @@ class DnDActionManagement {
       }
         break;
       case "bonus": {
-        let bonusIcon = actionCont.children.find(i => i.actionType === "bonus")
-        bonusIcon.alpha = use > 0 ? 0.2 : 1
+        if (managementMode == 1) {
+          let bonusIcon = actionCont.children.find(i => i.actionType === "bonus")
+          bonusIcon.alpha = use > 0 ? 0.2 : 1
+        }
         const actions = duplicate(await token.document.getFlag('dnd5e-helpers', 'ActionManagement') || {})
         actions[action] = use
         await token.document.setFlag('dnd5e-helpers', 'ActionManagement', actions)
@@ -2270,17 +2288,21 @@ class DnDActionManagement {
     if (!token.owner) return;
     const actionCont = token.children.find(i => i.Helpers)
     let actions = token.document.getFlag('dnd5e-helpers', 'ActionManagement');
-    let actionIcon = actionCont.children.find(i => i.actionType === "action");
-    let reactionIcon = actionCont.children.find(i => i.actionType === "reaction");
-    let bonusIcon = actionCont.children.find(i => i.actionType === "bonus");
-    actionIcon.alpha = actions?.action ? 0.2 : 1;
-    reactionIcon.alpha = actions?.reaction ? 0.2 : 1;
+
+    /** if we are displaying the action hud, update it */
+    if (game.settings.get(MODULE, 'cbtReactionEnable') == 1) {
+      let actionIcon = actionCont.children.find(i => i.actionType === "action");
+      let reactionIcon = actionCont.children.find(i => i.actionType === "reaction");
+      let bonusIcon = actionCont.children.find(i => i.actionType === "bonus");
+      actionIcon.alpha = actions?.action ? 0.2 : 1;
+      reactionIcon.alpha = actions?.reaction ? 0.2 : 1;
+      bonusIcon.alpha = actions?.bonus ? 0.2 : 1;
+    }
 
     if(actions && game.settings.get(MODULE, 'cbtReactionStatusEnable')) {
       await DnDHelpers.SetReactionStatus(token, actions.reaction);
     }
 
-    bonusIcon.alpha = actions?.bonus ? 0.2 : 1;
   }
 
   static AddActionHud(app, html, data) {
@@ -2680,21 +2702,20 @@ function removeCover(user, token) {
   const updateFn = async () => {
     let coverEffects = testToken?.actor.effects?.filter(i => i.data.label.includes("DnD5e Helpers"));
     if (!coverEffects) return;
-    console.log("foo",coverEffects);
     for (let effect of coverEffects) {
+      try {
         await effect.delete();
+      } catch (error){
+        console.log(`${MODULE} | caught attempt to remove already removed effect.`);
+      }
     }
   }
 
   queueEntityUpdate("Actor",updateFn);
 }
 
-async function removeTargets(token){
-  const userArray = Object.keys(token.actor.data.permission)
-  for( let userID of userArray){
-    if(userID === "default") continue;
-    game.users.get(userID).broadcastActivity({targets: []})
-  }
+function removeTargets(){
+  game.user.updateTokenTargets(); 
 }
 
 /**
