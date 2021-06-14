@@ -2037,8 +2037,8 @@ class DnDActionManagement {
 
       let effectToken = canvas.tokens.get(castingToken);
 
-      let ownedItem = effectToken.actor.items.get(itemId);
-      const { type, cost } = ownedItem?.data?.data?.activation;
+      let ownedItem = effectToken.actor?.items.get(itemId);
+      const { type, cost } = ownedItem?.data?.data?.activation ?? {type:false, cost:false};
 
       if (!type || !cost) {
         return true;
@@ -2135,7 +2135,7 @@ class DnDActionManagement {
     for (let token of tokenArray) {
       if (!token.isOwner) continue;
       if (DnDActionManagement.HasActionMarkers(token)) continue;
-      if (!token.docuement) continue;
+      if (!token.document) continue;
       const actions = await token.document.getFlag('dnd5e-helpers', 'ActionManagement');
       const action = new PIXI.Sprite(actionTexture)
       const reaction = new PIXI.Sprite(reactionTexture)
@@ -2320,6 +2320,7 @@ class DnDActionManagement {
 
   static async actionDialog(tokenId){
     const token = canvas.tokens.get(tokenId)
+    /* @todo check for empty usedActions and handle destructure */
     const usedActions = token.document.getFlag('dnd5e-helpers', 'ActionManagement')
     let {action, reaction, bonus} = usedActions
     const content = `
