@@ -278,3 +278,6 @@
 - improved handling of cover removal coupled with end of turn de-target
 - i18n key added: `Default_enabled_displaySuppressed`
 
+### 2.0.6
+- Issue 131: Strengthened chat card detection
+- Issue 129: Action HUD displays again. Typo...

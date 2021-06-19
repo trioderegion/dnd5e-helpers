@@ -584,8 +584,8 @@ Hooks.on("updateCombat", async (combat, changed/*, options, userId*/) => {
     }
   }
 
-  /** only concerned with turn changes */
-  if (!("turn" in changed)) {
+  /** only concerned with turn changes during active combat that is NOT turn 1 */
+  if ( !combat.started || !("turn" in changed) || (changed.turn === 0 && changed.round === 1)) {
     return;
   }
   
@@ -596,7 +596,12 @@ Hooks.on("updateCombat", async (combat, changed/*, options, userId*/) => {
   const nextTurn = combat.turns[changed.turn];
   const previousTurn = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
 
-  let nextTokenId = nextTurn.token.id;
+  let nextTokenId = nextTurn?.token.id;
+
+  if (!nextTokenId) {
+    /** There are no turns in the tracker for some reason, bail out */
+    return;
+  }
 
   /* @todo cross-scene combat support */
   let currentToken = canvas.tokens.get(nextTokenId);
@@ -777,12 +782,11 @@ Hooks.on("deleteCombat", async (combat, settings, id) => {
       removeCover(undefined, token)
     }
   }
-
-  DnDCombatUpdates.cleanUpCover(combat)
 });
 
 Hooks.on("deleteCombatant", async (combatant, render) => {
   const reactMode = game.settings.get('dnd5e-helpers', 'cbtReactionEnable');
+
 
   if (reactMode > 0) {
     await DnDActionManagement.RemoveActionMarkers(combatant.token.id);
@@ -936,14 +940,7 @@ Hooks.on("midi-qol.AttackRollComplete", (workflow) => {
   }
 })
 
-Hooks.on("createCombat", (combat) => {
-  if (DnDHelpers.IsFirstGM()) {
-    combat.setFlag('dnd5e-helpers', 'chatLength', game.messages.size)
-  }
-})
-
 /** helper functions */
-
 class DnDHelpers {
   static IsFirstGM() {
     return game.user === game.users.find((u) => u.isGM && u.active);
@@ -1520,7 +1517,7 @@ class DnDCombatUpdates {
    * @param {Combatant} combatant 
    * @returns 
    */
-  static async RemoveLairMapping(combatant) {
+  static RemoveLairMapping(combatant) {
     if (!DnDHelpers.IsFirstGM()) return;
     const updateFn = async () => {
 
@@ -1557,7 +1554,7 @@ class DnDCombatUpdates {
   * @param {Combatant} combatant 
   * @returns 
   */
-  static async RemoveLegMapping(combatant) {
+  static RemoveLegMapping(combatant) {
     if (!DnDHelpers.IsFirstGM()) return;
     const updateFn = async () => {
 
@@ -1756,24 +1753,6 @@ class DnDCombatUpdates {
     item.roll();
      }
   }
-
-  static async cleanUpCover(combat){
-    /* only GMs can do this */
-    if (!DnDHelpers.IsFirstGM()) {
-      return;
-    }
-
-    const chatLength = combat.getFlag('dnd5e-helpers', 'chatLength')
-    let chatSection = Array.from(ui.chat.collection)
-    if(chatLength > chatSection.size) return;
-    chatSection.splice(0, chatLength)
-    let oldCover = chatSection.filter(m => m.getFlag("dnd5e-helpers", "coverMessage"))
-
-    // @todo deleteMany?
-    for ( let message of oldCover) {await message.delete()}
-  }
-
-  
 }
 
 class DnDWounds {
