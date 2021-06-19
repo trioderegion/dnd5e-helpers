@@ -4,7 +4,7 @@
     "description": "Little helpers for little tasks.",
     "systems": ["dnd5e"],
     "version": "2.0.5",
-    "author": "honeybadger, Kandashi, hugoprudente",
+    "author": "honeybadger, Kandashi, hugoprudente, kekilla",
     "authors": [
       {
         "name": "honeybadger",
@@ -17,6 +17,10 @@
       {
         "name": "hugoprudente",
         "url": "https://github.com/hugoprudente"
+      },
+      {
+          "name": "kekilla",
+          "url": "https://github.com/kekilla0"
       }
     ],
     "esmodules": [
