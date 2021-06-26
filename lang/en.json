@@ -5,7 +5,7 @@
     "DND5EH.Default_disabled" : "Disabled",
     "DND5EH.Default_enabled" : "Enabled",
     "DND5EH.Default_enabled_displaySuppressed" : "Enabled (Display Suppressed)",
-    "DND5EH.Default_none" : "None", 
+    "DND5EH.Default_none" : "None",
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket received",
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
@@ -105,7 +105,7 @@
     "DND5EH.CombatReactionActionDialogTitle" : "Available Actions",
     "DND5EH.CombatReactionConfirmation" : "Confirm",
     "DND5EH.CombatReactionStatusApplyEnable": "Indicate Used Reaction as Status",
-    "DND5EH.CombatReactionStatusApplyHint": "Applies a status icon to a token when it has used it's reaction",
+    "DND5EH.CombatReactionStatusApplyHint": "Applies a status icon to a token when it has used its reaction",
 
     "DND5EH.CombatReactionStatus_actoritemerror" : "Dnd5e helpers: Not an actors item roll",
     "DND5EH.CombatReactionStatus_statuslog":"Dnd5e Helpers: status effect is: {statusEffect}",
