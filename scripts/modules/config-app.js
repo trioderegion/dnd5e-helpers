@@ -1,3 +1,11 @@
+/* TODO: Used without permission from Foundry Network. Currently
+ * attempting to acquire permission.
+ * 
+ * This code is taken in large part from Foundry VTT v0.7.9
+ * at foundry.js:24832
+ *
+ */
+
 export {HelpersSettingsConfig}
 
 export const MODULE = 'dnd5e-helpers';
