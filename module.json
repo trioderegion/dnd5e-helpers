@@ -24,7 +24,7 @@
       }
     ],
     "esmodules": [
-        "/scripts/dnd5e-helpers.js"
+        "/scripts/helpers.js"
     ],
     "languages": [
       {
