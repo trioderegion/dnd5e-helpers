@@ -53,5 +53,4 @@ export class HelpersSettingsConfig extends SettingsConfig{
       user : game.user, canConfigure, systemTitle : game.system.data.title, data
     }
   }
-
 }
