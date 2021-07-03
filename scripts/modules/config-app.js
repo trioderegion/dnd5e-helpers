@@ -1,9 +1,27 @@
-/* TODO: Used without permission from Foundry Network. Currently
- * attempting to acquire permission.
+/*
+ * MIT License
  * 
- * This code is taken in large part from Foundry VTT v0.7.9
- * at foundry.js:24832
+ * Copyright (c) 2020-2021 DnD5e Helpers Team
  *
+ * Portions re-used with permission from Foundry Network
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 export {HelpersSettingsConfig}
@@ -49,9 +67,9 @@ class HelpersSettingsConfig extends SettingsConfig{
       if(!canConfigure && setting.scope !== "client") continue;
 
       const s = duplicate(setting);
-      s.name = MODULE.localize(s.name);
-      s.hint = MODULE.localize(s.hint);
-      s.value = MODULE.setting(s.key);
+      s.name = game.i18n.localize(s.name);
+      s.hint = game.i18n.localize(s.hint);
+      s.value = game.settings.get(s.module, s.key);
       s.type = setting.type instanceof Function ? setting.type.name : "String";
       s.isCheckbox = setting.type === Boolean;
       s.isSelect = s.choices !== undefined;
