@@ -4,7 +4,7 @@
 
     "DND5EH.Default_disabled" : "비활성화",
     "DND5EH.Default_enabled" : "활성화",
-    "DND5EH.Default_enabled_displaySuppressed" : "[EN]Enabled (Display Suppressed)",
+    "DND5EH.Default_enabled_displaySuppressed" : "활성화 (표시 억제)",
     "DND5EH.Default_none" : "없음", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers 소켓 수신",
     "DND5EH.Default_SocketSend": "{socketData}와 소켓 전송",
@@ -152,9 +152,9 @@
     "DND5EH.UndeadFort_quickdialogprompt1":"광휘 피해 or 치명타",
     "DND5EH.UndeadFort_quickdialogprompt2":"일반 피해",
     "DND5EH.UndeadFort_insantdeathmessage":"대상이 완전히 소멸했습니다.",
-    "DND5EH.UndeadFort_deathmessage":"{tokenName} 대상이 {total}만큼을 굴려 사망했습니다.",
-    "DND5EH.UndeadFort_surivalmessage":"{tokenName} 대상이 {total}만큼을 굴려 생존했습니다.",
-    "DND5EH.UndeadFort_slowdialogcontentquery" : "대상에 대한 피해:",
+    "DND5EH.UndeadFort_deathmessage":"{tokenName} 크리처가 {total}만큼을 굴려 사망했습니다.",
+    "DND5EH.UndeadFort_surivalmessage":"{tokenName} 크리처가 {total}만큼을 굴려 생존했습니다.",
+    "DND5EH.UndeadFort_slowdialogcontentquery" : "크리처에 대한 피해:",
 
     "DND5EH.LairHelper_name" : "소굴 행동 출력",
     "DND5EH.LairHelper_hint" : "GM의 우선권 굴림이 20일 시 소굴 행동을 출력한다.",
