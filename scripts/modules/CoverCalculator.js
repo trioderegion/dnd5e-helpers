@@ -28,12 +28,6 @@ export class CoverCalculator{
           1 : [0,0,0,1,1],
         },
       },
-      wallCoverValue : 3,
-      wallCover : {
-        3 : [0,1,1,2,3],
-        2 : [0,1,1,2,2],
-        1 : [0,0,0,1,1],
-      },
       tile : {
         default : 0,
         flag : "coverLevel",
@@ -43,12 +37,6 @@ export class CoverCalculator{
           1 : [0,0,0,1,1],
         },
       },
-      tileFlag : "coverLevel",
-      tileCover : {
-        3 : [0,1,1,2,3],
-        2 : [0,1,1,2,2],
-        1 : [0,0,0,1,1],
-      },
       token : {
         default : 1,
         flag : "coverLevel",
@@ -57,12 +45,6 @@ export class CoverCalculator{
           2 : [0,1,1,2,2],
           1 : [0,1,1,1,1],
         }
-      },
-      tokenCoverValue : 1,
-      tokenCover : { 
-        3 : [0,1,1,2,3],
-        2 : [0,1,1,2,2],
-        1 : [0,1,1,1,1],
       },
     }
   }
@@ -176,11 +158,8 @@ export class CoverCalculator{
         if(confirmCover && onOff && MODULE.setting("losOnTarget")){
           for(const selected of canvas.tokens.controlled){
             let cover = new Cover(selected, target);
-
             cover.toMessage();
           }
-
-          ///return CoverCalculator.onTargetToken(user, target, onOff);
         }          
     }
 
@@ -254,207 +233,6 @@ export class CoverCalculator{
       const d = MODULE[NAME].wall;
       const s = this.data.sense;
       return this.document.getFlag(MODULE.data.name, d.flag) ?? (s >= CONST.WALL_SENSE_TYPES.NORMAL ? d.default : 0);
-    }
-  }
-
-  /*
-    Class Specific Functions
-  */
-
-  /**
-   * _getSquares accepts a token class document and returns an array of squares.
-   * @param {Placeable} p
-   * @returns [[{x: Number, y: Number},...],...]
-   */
-  static _getSquares(p){
-    const grid=canvas.grid.size,
-          padding=grid*0.05,
-          width=Math.round(p.width/grid),
-          height=Math.round(p.height/grid);
-
-    return Array(Math.round(width)).fill(0).reduce((t,e,a) => {
-      return t.concat(Array(Math.round(height)).fill(0).map((e,b) =>{
-        return [
-          [(a * grid ) + p.x + padding, (b * grid ) + p.y + padding,],
-          [(a * grid ) + p.x + grid - padding, (b * grid ) + p.y + padding,],
-          [(a * grid ) + p.x + grid - padding, (b * grid ) + p.y + grid - padding,],
-          [(a * grid ) + p.x + padding, (b * grid ) + p.y + grid - padding,],
-        ]
-      }));
-    }, []);
-  }
-
-  /**
-   * _getPoints accepts a token class document and returns an array of points depending.
-   * @param {Placeable} p 
-   * @returns [[x : Number,y : Number], ...]
-   */
-  static _getPoints(p){
-    if(MODULE.setting('losOnTarget') === 1) return [[p.center.x, p.center.y]];
-    const grid=canvas.grid.size,
-          width=Math.round(p.width/grid),
-          height=Math.round(p.height/grid);    
-    
-    const points = [];
-
-    Array(Math.round(width)).fill(0).forEach((e,a) => {
-      Array(Math.round(height)).fill(0).forEach((e,b) => {
-        const square = [
-          [(a * grid ) + p.x, (b * grid ) + p.y],
-          [(a * grid ) + p.x + grid, (b * grid ) + p.y],
-          [(a * grid ) + p.x + grid, (b * grid ) + p.y + grid],
-          [(a * grid ) + p.x, (b * grid ) + p.y + grid],
-        ];
-
-        square.forEach(point => {
-          if(!points.find(e => e[0] === point[0] && e[1] === point[1])) points.push(point);
-        });
-      });
-    });
-
-    return points;
-  }
-
-  /**
-   * _getX accepts a placeable and returns an Array of Rays in the Form of an X
-   * @param {Placeable} p 
-   * @returns {Array} [[x0,y0,x1,y1], ...]
-   */
-  static _getX(p){
-    const grid=canvas.grid.size,
-          padding=grid*0.05,
-          width=Math.round(p.width/grid)*grid,
-          height=Math.round(p.height/grid)*grid;
-
-    const p0 = [p.x + padding, p.y + padding];
-    const p1 = [p.x + padding, p.y + height- padding];
-    const p2 = [p.x + width - padding,  p.y + height - padding ];
-    const p3 = [p.x + width - padding,  p.y + padding];
-
-    return [
-      [...p0, ...p2], [...p1, ... p3]
-    ];
-  }
-
-  /**
-   * _getRay accepts 4 coords [x0,y0,x1,y1] and returns a ray.
-   * @param {Number} x0
-   * @param {Number} y0
-   * @param {Number} x1
-   * @param {Number} y1
-   * @returns {Ray}
-   */
-  static _getRay(x0,y0,x1,y1){
-    return new Ray({ x : x0, y : y0 }, { x : x1, y : y1 });
-  }
-
-  /**
-   * _pointSquareCover accepts one point, square and a boolean for visualization
-   * @param {Array} point [x : Number, y : Number]
-   * @param {Array} square [[x : Number, y : Number], ...]
-   * @returns {Number} value is equal to the maximum cover gained.
-   */
-  static _pointSquareCover(point, square, ignore, visualize){
-    const sourcePoint = { x : point[0], y : point[1] };
-    const squarePoints = square.map(point => ({x : point[0], y : point[1]}));
-
-    let rayResults = squarePoints
-      .map(point => {
-        const ray = new Ray(sourcePoint, point);
-
-        let walls = getWallCollisions(ray);
-        let tiles = getTileCollisions(ray);  
-        let tokens = getTokenCollisions(ray);
-
-        if(visualize)
-          CoverCalculator._drawRay(ray, 1, MODULE[NAME].rayColor[Math.max(walls, tiles, tokens)]);
-
-        return {walls,tiles,tokens,ray};
-      });
-    
-    logger.debug(`_pointSquareCover | hitResults | `, rayResults);
-
-    const wallResult = getResult(MODULE[NAME].wallCover, rayResults.map(r => r.walls)) ?? 0;
-    const tileResult = getResult(MODULE[NAME].tileCover, rayResults.map(r => r.tiles)) ?? 0;
-    const tokenResult = getResult(MODULE[NAME].tokenCover, rayResults.map(r => r.tokens)) ?? 0;
-
-    logger.debug(`_pointSquareCover | Wall Result  | `, wallResult);
-    logger.debug(`_pointSquareCover | Tile Result  | `, tileResult);
-    logger.debug(`_pointSquareCover | Token Result | `, tokenResult);
-    logger.debug(`_pointSquareCover | Max Cover    | `, Math.max(wallResult,tileResult,tokenResult));
-
-    return Math.max(wallResult, tileResult, tokenResult);
-
-    function getWallCollisions(ray){
-      let COLLISION = canvas.walls.getRayCollisions(ray, { blockMovement : false, blockSenses : true, mode : 'any', });
-      const COVER_VALUE = 3;
-      return COLLISION === true ? COVER_VALUE : 0;
-    }
-    function getTileCollisions(ray){
-      if(!MODULE.setting("losWithTiles")) return 0;
-
-      const valid_tiles = canvas.background.placeables.filter(tile => !ignore.includes(tile.id)) ?? [];
-      let COLLISIONS = valid_tiles
-        .filter(tile => {
-          const x = CoverCalculator._getX(tile);
-          if(visualize) x.forEach(s => CoverCalculator._drawRay(CoverCalculator._getRay(...s), 2, "0x000000"));
-          return x.reduce((a,v) => a || !!ray.intersectSegment(v), false);
-        })
-        .sort((a,b) => b.coverValue() - a.coverValue())
-      
-      return COLLISIONS.length !== 0 ? COLLISIONS[0].coverValue() : 0;
-    }
-    function getTokenCollisions(ray){
-      if(!MODULE.setting("losWithTokens")) return 0;
-      
-      const COVER_VALUE = 1;
-      const valid_tokens = canvas.tokens.placeables.filter(token => !ignore.includes(token.id)) ?? [];
-      const COLLISION = valid_tokens.find(token => {
-        const x = CoverCalculator._getX(token);
-        if(visualize) x.forEach(s => CoverCalculator._drawRay(CoverCalculator._getRay(...s), 2, "0x000000"));
-        return x.reduce((a,v) => a || !!ray.intersectSegment(v) ,false);
-      });
-
-      return !!COLLISION ? COVER_VALUE : 0;
-    }
-
-    function getResult(data, arr){
-      return Math.max(...Object.entries(data).map(([key, coverArr]) => coverArr[arr.count(key)]));
-    }
-  }
-
-  /**
-   * _drawRay
-   * @param {Ray} ray 
-   * @param {Number} thickness 
-   * @param {String} color 
-   */
-  static _drawRay(ray, thickness = 1, color = "0xffffff"){
-    const {x0, y0, dx,dy} = ray;
-    const line = new PIXI.Graphics();
-
-    line.position.set(x0,y0);
-    line.lineStyle(thickness, color).moveTo(0,0).lineTo(dx,dy);
-    canvas.foreground.addChild(line);
-  }
-
-  /*
-    _removeRays - removes all rays that were drawn to the canvas.
-  */
-  static _removeRays(){
-    for(let child of canvas.foreground.children.filter(c => c.constructor.name === "r"))
-      canvas.foreground.removeChild(child);
-  }
-
-  static onTargetToken(user, target, onOff){
-    if(MODULE.setting("losOnTarget") === 0 || !onOff || user.id !== game.userId) return;
-    
-    for(const selected of canvas.tokens.controlled){
-      let cover = selected.computeTargetCover(target);
-
-      ChatMessage.create({
-        content : `${target.name} has ${MODULE[NAME].coverData[cover].label}`
-      });
     }
   }
 }
