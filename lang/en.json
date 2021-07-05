@@ -58,10 +58,10 @@
 
     "setting.coverTint.name" : "Cover Button Tint",
     "setting.coverTint.hint" : "What color should be applied to the cover buttons to show which is active",
-    "option.coverTink.red" : "Dark Red",
-    "option.coverTink.blue" : "Light Blue",
-    "option.coverTink.grey" : "Dim Grey",
-    "option.coverTink.rainbow" : "Rainbow",
+    "option.coverTint.red" : "Dark Red",
+    "option.coverTint.blue" : "Light Blue",
+    "option.coverTint.grey" : "Dim Grey",
+    "option.coverTint.rainbow" : "Rainbow",
 
     "setting.losWithTokens.name": "Consider intervening tokens as half cover",
     "setting.losWithTokens.hint": "Unchecked results in tokens not being considered for cover calculation.",

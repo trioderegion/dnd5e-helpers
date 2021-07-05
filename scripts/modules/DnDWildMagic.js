@@ -22,9 +22,9 @@ export class DnDWildMagic{
     const config = false;
     const settingsData = {
       wmOptions : {
-        scope: "world", config, group: "features", default: 0, type: Number,
+        scope: "world", config, group: "pc-features", default: 0, type: Number,
         choices: {
-          0: MODULE.localize("option.losOnTarget.disabled"),
+          0: MODULE.localize("option.default.disabled"),
           1: MODULE.localize("option.wmOptions.standard"),
           2: MODULE.localize("option.wmOptions.more"),
           3: MODULE.localize("option.wmOptions.volatile"),
@@ -35,16 +35,16 @@ export class DnDWildMagic{
         }
       },
       wmTableName : {
-        scope: "world", config, group: "features", default: MODULE[NAME].table, type: String,
+        scope: "world", config, group: "pc-features", default: MODULE[NAME].table, type: String,
       },
       wmToCFeatureName : {
-        scope: "world", config, group: "features", default: MODULE[NAME].feature, type: String,
+        scope: "world", config, group: "pc-features", default: MODULE[NAME].feature, type: String,
       },
       wmToCRecharge : {
-        scope: "world", config, group: "features", default: false, type: Boolean,
+        scope: "world", config, group: "pc-features", default: false, type: Boolean,
       },
       wmWhisper : {
-        scope: "world", config, group: "features", default: false, type: Boolean,
+        scope: "world", config, group: "pc-features", default: false, type: Boolean,
       },
 
     };

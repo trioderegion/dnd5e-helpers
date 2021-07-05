@@ -57,10 +57,10 @@
 
     "setting.coverTint.name" : "[EN]Cover Button Tint",
     "setting.coverTint.hint" : "[EN]What color should be applied to the cover buttons to show which is active",
-    "option.coverTink.red" : "[EN]Dark Red",
-    "option.coverTink.blue" : "[EN]Light Blue",
-    "option.coverTink.grey" : "[EN]Dim Grey",
-    "option.coverTink.rainbow" : "[EN]Rainbow",
+    "option.coverTint.red" : "[EN]Dark Red",
+    "option.coverTint.blue" : "[EN]Light Blue",
+    "option.coverTint.grey" : "[EN]Dim Grey",
+    "option.coverTint.rainbow" : "[EN]Rainbow",
 
     "setting.losWithTokens.name":"Considerar tokens como media cob.",
     "setting.losWithTokens.hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",

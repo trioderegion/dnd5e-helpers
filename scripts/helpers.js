@@ -2,7 +2,7 @@ import { MODULE } from './module.js';
 import { logger } from './logger.js';
 import { DnDWildMagic } from './modules/DnDWildMagic.js';
 import { RestEffects } from './modules/RestEffects.js';
-import { CoverCalculator } from './modules/CoverCalculator.js';
+import { CoverCalculator, Cover } from './modules/CoverCalculator.js';
 
 const SUB_MODULES = {
   MODULE,
@@ -25,4 +25,5 @@ Hooks.on(`setup`, () => {
 
   //GlobalTesting
   Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
+  window["Cover"] = Cover;
 });

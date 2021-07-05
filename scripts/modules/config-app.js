@@ -1,6 +1,19 @@
 import { MODULE } from "../module.js";
 import { logger } from "../logger.js";
 
+/**
+ * HelpersSettingConfig extends {SettingsConfig}
+ * 
+ * Additional window for 5e Helper specific settings
+ * Allows for Settings to be organized in 4 categories
+ *  System Helpers
+ *  NPC Features
+ *  PC Features
+ *  Combat Helpers
+ * 
+ * @todo "display" value which is true or false based on some other setting
+ * @todo "reRender" grabs (possibly saves) values and rerenders the Config to change what is displayed dynamically
+ */
 export class HelpersSettingsConfig extends SettingsConfig{
   /**@override */
   static get defaultOptions(){
@@ -23,28 +36,25 @@ export class HelpersSettingsConfig extends SettingsConfig{
 
     const data = {
       tabs : [
-        {name: "system",   i18nName:"System Helpers",  class: "fas fa-cog",          menus: [], settings: []},
-        {name: "features", i18nName:"Feature Helpers", class: "fas fa-address-book", menus: [], settings: []},
-        {name: "combat",   i18nName:"Combat Helpers",  class: "fas fa-dice-d20",     menus: [], settings: []},
+        {name: "system",       i18nName:"System Helpers",      class: "fas fa-cog",          menus: [], settings: []},
+        {name: "npc-features", i18nName:"NPC Feature Helpers", class: "fas fa-address-book", menus: [], settings: []},
+        {name: "pc-features",  i18nName:"PC Feature Helpers",  class: "fas fa-address-book", menus: [], settings: []},
+        {name: "combat",       i18nName:"Combat Helpers",      class: "fas fa-dice-d20",     menus: [], settings: []},
       ],
     };
 
-    for(let [mapIterator, setting] of settings.filter(([mapIterator, setting]) => mapIterator.includes(MODULE.data.name))){
-      logger.debug("GET DATA | SETTING | ", setting);
+    for(let [k, setting] of settings.filter(([k, setting]) => k.includes(MODULE.data.name))){
       if(!canConfigure && setting.scope !== "client") continue;
 
-      const s = duplicate(setting);
-      s.name = MODULE.localize(s.name);
-      s.hint = MODULE.localize(s.hint);
-      s.value = MODULE.setting(s.key);
-      s.type = setting.type instanceof Function ? setting.type.name : "String";
-      s.isCheckbox = setting.type === Boolean;
-      s.isSelect = s.choices !== undefined;
-      s.isRange = (setting.type === Number) && s.range;
-
-      const group = s.group;
-      let groupTab = data.tabs.find(tab => tab.name === group) ?? false;
-      if(groupTab) groupTab.settings.push(s);
+      let groupTab = data.tabs.find(tab => tab.name === setting.group) ?? false;
+      if(groupTab) groupTab.settings.push({
+        ...setting,
+        type : setting.type instanceof Function ? setting.type.name : "String",
+        isCheckbox : setting.type === Boolean,
+        isSelect : setting.choices !== undefined,
+        isRange : setting.type === Number && setting.range,
+        value : MODULE.setting(setting.key),
+      });
     }
 
     logger.debug("GET DATA | DATA | ", data);
@@ -53,4 +63,8 @@ export class HelpersSettingsConfig extends SettingsConfig{
       user : game.user, canConfigure, systemTitle : game.system.data.title, data
     }
   }
+
+  /*
+    Need to add a "reRender" state based onChange of specific elements
+  */
 }

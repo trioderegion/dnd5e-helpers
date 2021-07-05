@@ -57,10 +57,10 @@
 
     "setting.coverTint.name" : "遮蔽ボタンの色合い",
     "setting.coverTint.hint" : "遮蔽ボタンがアクティブなときの色を指定します。",
-    "option.coverTink.red" : "ダークレッド",
-    "option.coverTink.blue" : "ライトブルー",
-    "option.coverTink.grey" : "ディムグレー",
-    "option.coverTink.rainbow" : "レインボー",
+    "option.coverTint.red" : "ダークレッド",
+    "option.coverTint.blue" : "ライトブルー",
+    "option.coverTint.grey" : "ディムグレー",
+    "option.coverTint.rainbow" : "レインボー",
 
     "setting.losWithTokens.name":"射線上のコマを1/2遮蔽とみなす",
     "setting.losWithTokens.hint": "無効にすると遮蔽判定時にコマが考慮されなくなります。",

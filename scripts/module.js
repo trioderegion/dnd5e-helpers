@@ -53,8 +53,8 @@ export class MODULE{
 
   static settings(){
     game.settings.registerMenu(MODULE.data.name, "helperOptions", {
-      name : MODULE.format("DND5EH.ConfigOption_name"),
-      label : MODULE.format("DND5EH.ConfigOption_menulabel"),
+      name : MODULE.format("setting.ConfigOption.name"),
+      label : MODULE.format("setting.ConfigOption.label"),
       icon : "fas fa-user-cog",
       type : HelpersSettingsConfig,
       restricted : true,
