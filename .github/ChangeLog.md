@@ -285,3 +285,8 @@
 ### 2.0.7
 - We welcome kekilla into our development group! We are excited for the expertise that he brings.
 - Issue 130: Further strengthened combat state detection logic to suppress unnecessary combat entity updates. Additionally, (temporarily) removed functionality to erase Helpers cover messages from the chat log as we chase document update/deletion race conditions. Please report any remaining emebedded document errors related to starting/stopping combat.
+
+### 2.0.8
+- Properly licensed under MIT
+- japanese, korean, and spanish localization updates for 2.0.7 changes
+- Reworked helpers settings config to reduce foundry network code duplication
