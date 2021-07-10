@@ -88,6 +88,9 @@ export class CoverCalculator{
           1 : MODULE.format("option.coverApplication.manual"),
           2 : MODULE.format("option.coverApplication.auto"),
         }
+      },
+      losMaskNPCs : {
+        scope : "world", config, group : "system", default : false, type : Boolean,
       }
     };
 
@@ -103,8 +106,8 @@ export class CoverCalculator{
 
   static hooks(){
     Hooks.on(`renderTileConfig`, CoverCalculator._renderTileConfig);
-    //renderTokenConfig
-    //renderWallConfig
+    Hooks.on(`renderTokenConfig`, CoverCalculator._renderTokenConfig);
+    Hooks.on(`renderWallConfig`, CoverCalculator._renderWallConfig);
     Hooks.on(`targetToken`, CoverCalculator._targetToken);
   }
 
@@ -134,9 +137,26 @@ export class CoverCalculator{
 
   static _renderTileConfig(app, html){
     if(MODULE.setting("losOnTarget") === 0 || !MODULE.setting("losWithTiles") || app.object.data.overhead ) return;
-    const status = app.document.object.coverValue() ?? 0;
     const tab = html.find('[data-tab="basic"]')[1];
-    const checkBoxHTML = `<label>${MODULE.localize("DND5EH.LoS_providescover")}</label>
+    CoverCalculator._addToConfig(app, html, tab);
+  }
+
+  static _renderTokenConfig(app, html){
+
+    if(MODULE.setting("losOnTarget") === 0 || !MODULE.setting("losWithTokens")) return;
+    const tab = html.find('[data-tab="vision"]')[1];
+    CoverCalculator._addToConfig(app, html, tab);
+  }
+
+  static _renderWallConfig(app, html){
+    if(MODULE.setting("losOnTarget") === 0) return;
+    const ele = html.find('[name="ds"]')[0].parentElement;
+    CoverCalculator._addToConfig(app, html, ele);
+  }
+
+  static _addToConfig(app, html, ele){
+    const status = app.object._object.coverValue() ?? 0;
+    const selectHTML = `<label>${MODULE.localize("DND5EH.LoS_providescover")}</label>
                           <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
                             ${
                               Object.entries(MODULE[NAME].coverData).reduce((acc, [key,{label}]) => acc+=`<option value="${key}" ${key == status ? 'selected' : ''}>${label}</option>`, ``)
@@ -144,11 +164,10 @@ export class CoverCalculator{
                           </select>`;
 
     html.css("height", "auto");
-    tab.append(MODULE.stringToDom(checkBoxHTML, "form-group"));
+    ele.insertAdjacentElement('afterend',MODULE.stringToDom(selectHTML, "form-group"));
   }
 
   static _targetToken(user, target, onOff){
-    logger.debug("_targetToken | DATA | ", user, target, onOff);
     if(game.user !== user) return;
 
     const keyBind = MODULE.setting("losKeyBind");
@@ -157,6 +176,7 @@ export class CoverCalculator{
     if(user.targets.size == 1 && confirmCover){
         if(confirmCover && onOff && MODULE.setting("losOnTarget")){
           for(const selected of canvas.tokens.controlled){
+            if(selecte == target) return;
             let cover = new Cover(selected, target);
             cover.toMessage();
           }
@@ -178,40 +198,13 @@ export class CoverCalculator{
     Prototype patch functions
   */
   static _patchToken(){
-    Token.prototype.computeTargetCover = function(target = null, visualize = false){
-      target = target instanceof Token ? target : Array.from(game.user.targets)[0];
-      if(!target) return logger.error(MODULE.localize("DND5EH.LoS_notargeterror"));
-      if(target.id === this.id) return logger.error("Targeting Yourself.");
-
-      const points = CoverCalculator._getPoints(this);
-      const squares = CoverCalculator._getSquares(target);
-      const ignore = [
-        this.id, 
-        target.id, 
-        ...canvas.background.placeables
-          .filter(tile => (tile.coverValue() ?? 0) == 0)
-          .map(tile => tile.id),
-      ];
-
-      const results = points.map(point => squares.map(square => {
-        return CoverCalculator._pointSquareCover(point, square, ignore, visualize);
-      }));
-
-      const result = Math.min(...results.map(arr => Math.min(...arr)));
-
-      logger.debug(`Token Prototype | computeTargetCover | Results |  `, results);
-      logger.debug(`Token Prototype | computeTargetCover | Result  |  `, result);
-
-      return this.ignoresCover() && result < 3 ? 0 : result;
-    }
-
     Token.prototype.ignoresCover = function(){
-      return this.actor.getFlag("dnd5e", "helpersIgnoreCover");
+      return !!this.actor.getFlag("dnd5e", "helpersIgnoreCover");
     }
 
     Token.prototype.coverValue = function(){
-      const d = MODULE[NAME].token;
-      return this.document.getFlag(MODULE.data.name, d.flag) ?? d.default;
+      const data = MODULE[NAME].token;
+      return this.document.getFlag(MODULE.data.name, data.flag) ?? data.default;
     }
   }
 
@@ -223,16 +216,16 @@ export class CoverCalculator{
 
   static _patchTile(){
     Tile.prototype.coverValue = function(){
-      const d = MODULE[NAME].tile;
-      return this.document.getFlag(MODULE.data.name, d.flag) ?? d.default;
+      const data = MODULE[NAME].tile;
+      return this.document.getFlag(MODULE.data.name, data.flag) ?? data.default;
     }
   }
 
   static _patchWall(){
     Wall.prototype.coverValue = function(){
-      const d = MODULE[NAME].wall;
-      const s = this.data.sense;
-      return this.document.getFlag(MODULE.data.name, d.flag) ?? (s >= CONST.WALL_SENSE_TYPES.NORMAL ? d.default : 0);
+      const data = MODULE[NAME].wall;
+      const sense = this.data.sense;
+      return this.document.getFlag(MODULE.data.name, data.flag) ?? (sense >= CONST.WALL_SENSE_TYPES.NORMAL ? data.default : 0);
     }
   }
 }
@@ -245,16 +238,20 @@ export class Cover{
     tiles : {},
     walls : {},
     results : {},
+    calculations : 0,
   };
 
-  constructor(origin, target){
+  constructor(origin, target, padding = 5){
     this.data.origin.object = origin;
     this.data.target.object = target;
-    this.data.padding = canvas.grid.size * 0.05;
+    this.data.padding = canvas.grid.size * padding / 100;
     this.calculate();
   }
 
   calculate(){
+    if(MODULE.setting("debugDrawing"))
+      Cover._removeRays();
+
     this.buildTokenData();
     this.buildTileData();
     this.buildWallData();
@@ -354,23 +351,20 @@ export class Cover{
           .map(p => {
             let s = new Segment({ points : [point, p]});
 
-            //getting the max # of hits a specific segment gets for each type
             let r = {
-              tiles : Math.max(...this.data.tiles.shapes.map(shape => shape.checkIntersection(s))),
-              tokens : Math.max(...this.data.tokens.shapes.map(shape => shape.checkIntersection(s))),
-              walls : Math.max(...this.data.walls.shapes.map(shape => shape.checkIntersection(s))),
+              tiles : Math.max(...this.data.tiles.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
+              tokens : Math.max(...this.data.tokens.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
+              walls : Math.max(...this.data.walls.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
             };
 
             r.total = Math.max(r.tiles, r.tokens, r.walls);
 
-            if(MODULE.setting("debugDrawing")){
+            if(MODULE.setting("debugDrawing"))
               s.draw({ color : MODULE[NAME].coverData[r.total].color });
-            }
 
             return r;
         });
 
-        //get results here
         let results = {
           tiles : getResult(
             MODULE[NAME].tile.cover,
@@ -396,7 +390,10 @@ export class Cover{
     });
 
     this.data.results.raw = results;
+    this.data.results.ignore = this.data.origin.object.ignoresCover();
+    this.data.results.corners = 0;
     this.data.results.cover = results.reduce((a,b) => Math.min(a, b.reduce((c,d) => Math.min(c, d.total), 3)),3);
+    this.data.results.cover = this.data.results.cover < 3 && this.data.results.ignore ? 0 : this.data.results.cover;
     this.data.results.label = MODULE[NAME].coverData[this.data.results.cover ?? 0].label;
     this.data.results.value = MODULE[NAME].coverData[this.data.results.cover ?? 0].value;
 
@@ -406,10 +403,27 @@ export class Cover{
   }
 
   async toMessage({ speaker = {}, whisper = []} = {}){
+    this.data.origin.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask");
+    this.data.target.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPCs", "DND5EH.LoSMaskNPCs_targetMask");
+
+    const content = `
+    <div class="dnd5ehelpers">
+      <div class="dice-roll">
+        <i>${this.data.origin.name} ${MODULE.localize("DND5EH.LoS_outputmessage")} ${this.data.target.name}</i>
+        <div class="dice-result">
+          <div class="dice-formula">
+            ${this.data.results.label}
+            <div class="desc">
+              ${this.data.results.corners} ${MODULE.localize("DND5EH.LoS_visiblecorners")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+
     ChatMessage.create({
-      content : `${this.data.target.object.name} has ${this.data.results.label} from ${this.data.origin.object.name}'s attacks.`,
-      speaker : speaker !== {} ? speaker : ChatMessage.getSpeaker(),
-      whisper,
+      whisper, content ,speaker : speaker !== {} ? speaker : ChatMessage.getSpeaker(),
     });
   }
 

@@ -32,6 +32,14 @@ export class MODULE{
     return game.i18n.format(...args);
   }
 
+  static sanitizeActorName(actor, feature, label){
+    return ((MODULE.setting(feature) && actor.data.type === "npc") ? MODULE.format(label) : actor.data.name).capitalize();
+  }
+
+  static sanitizeTokenName(token, feature, label){
+    return ((MODULE.setting(feature) && token.actor.data.type === "npc") ? MODULE.format(label) : token.data.name).capitalize();
+  }
+
   static applySettings(settingsData){
     Object.entries(settingsData).forEach(([key, data])=> {
       game.settings.register(
