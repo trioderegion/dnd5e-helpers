@@ -7,7 +7,7 @@ export class RestEffects{
   static register(){
     logger.info("Registering Rest Effect Deletion");
     RestEffects.defaults();
-    //RestEffects.settings();
+    RestEffects.settings();
     RestEffects.hooks();
     RestEffects.patch();
   }

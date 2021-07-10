@@ -177,6 +177,8 @@ export class CoverCalculator{
       for(const selected of canvas.tokens.controlled){
         let cover = new Cover(selected, target);
         cover.toMessage();
+
+        if(MODULE.setting("coverApplication") == 2) cover.addEffect();
       }         
     }
 
@@ -445,9 +447,44 @@ class Cover{
     });
   }
 
+  async addEffect(){
+    await Cover._addEffect(
+      this.data.origin.object,
+      this.data.results
+    );
+  }
+
+  async removeEffect(){
+    await Cover._removeEffect(
+      this.data.origin.object,
+    );
+  }
+
   static _removeRays(){
     for(let child of canvas.foreground.children.filter(c => c.constructor.name === "r"))
       canvas.foreground.removeChild(child);
+  }
+
+  static async _addEffect(token, coverResults){
+    const { cover, label, value } = coverResults;
+
+    if(value == 0) return;
+
+    const effectData = {
+      changes : ["rwak", "rsak", "mwak", "msak"].map(s => ({ key : `data.bonuses.${s}.attack`, mode : 2, value })),
+      icon : cover > 1 ? "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg" : cover === 1 ? "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg" : "",
+      label : `DnD5e Helpers - ${label}`,
+      flags : { [MODULE.data.name] : { ["cover"] : true }},
+      disabled : false, duration : { rounds : 1}, tint : "#747272",
+    };
+
+    await Cover._removeEffect(token);
+    await token.actor.createEmbeddedDocuments("ActiveEffect", effectData);
+  }
+
+  static async _removeEffect(token){
+    const effects = token.actor.effects.filter(effect => effect.getFlag(MODULE.data.name, "cover"));
+    await token.actor.deleteEmbeddedDocuments("ActiveEffect", effects.map(e => e.id));
   }
 }
 
