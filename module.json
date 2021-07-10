@@ -3,8 +3,8 @@
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
     "systems": ["dnd5e"],
-    "version": "2.0.3",
-    "author": "honeybadger, Kandashi, hugoprudente",
+    "version": "2.0.5",
+    "author": "honeybadger, Kandashi, hugoprudente, kekilla",
     "authors": [
       {
         "name": "honeybadger",
@@ -17,6 +17,10 @@
       {
         "name": "hugoprudente",
         "url": "https://github.com/hugoprudente"
+      },
+      {
+          "name": "kekilla",
+          "url": "https://github.com/kekilla0"
       }
     ],
     "esmodules": [
@@ -55,7 +59,7 @@
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",
-    "download": "https://github.com/trioderegion/dnd5e-helpers/raw/master/module.zip",
-    "minimumCoreVersion": "0.7.5",
-    "compatibleCoreVersion": "0.7.9"
+    "download": "https://github.com/trioderegion/dnd5e-helpers/releases/latest/download/module.zip",
+    "minimumCoreVersion": "0.8.5",
+    "compatibleCoreVersion": "0.8.6"
 }

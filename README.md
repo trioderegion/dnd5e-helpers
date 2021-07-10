@@ -1,9 +1,15 @@
 # DnD5e Helpers
 Little helpers for little 5e tasks.
 
+## Known Issues
+- Automatic proficiency for *specific* items (such as "Daggers" or "Clubs") has not been fully upgraded for 0.8.
+
 ## Current Features
 
 ### Automatic Wild Magic Surge
+- To enable, select a Surge option from the Feature Helpers config tab and then set the special trait for actors that should surge on casting a spell.
+ 
+ ![HelpersSpecialTraits](.github/helpers_special_traits.webp)
 - Triggers on *any* reduction in current spell slots from a character with the 'Wild Magic Surge' special trait
 - Optional homebrews
    - More Surges - a surge triggers on a roll <= spell level. Also recharges Tides of Chaos.
@@ -17,7 +23,7 @@ Little helpers for little 5e tasks.
 - Action HUD added to tokens during combat, tracking their Action, Bonus Action and Reaction.
   - Positive action cost items will mark the corresponding action as used.
   - Negative action cost items will refund the corresponding action. Ex. Action Surge configured as "-1 Action".
-- Used actions will reset at the beginning of the commbatant's turn.
+- Used actions will reset at the beginning of the combatant's turn.
 - Additional control added to the token HUD during combat to manually adjust actions.
 
 ![Action Management HUD](.github/action-management.webp)
@@ -117,3 +123,4 @@ Little helpers for little 5e tasks.
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
 - hugoprudente (https://github.com/hugoprudente)
+- kekilla (https://github.com/kekilla0)
