@@ -211,5 +211,7 @@
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: {actorName}'s update contains hp: {hp}, spells: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: {currentTokenName}'s update contains regen: {regenSett}",
-    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName}'s update contains hp: {hp}, and Fort: {fortSett}"
+    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName}'s update contains hp: {hp}, and Fort: {fortSett}",
+
+    "error.token.missing": "[EN]Requested token no longer exists." 
 }

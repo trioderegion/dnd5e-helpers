@@ -32,6 +32,32 @@ export class MODULE{
     return game.i18n.format(...args);
   }
 
+  static async wait(ms){
+    return new Promise((resolve)=> setTimeout(resolve, ms))
+  }
+
+  static async waitFor(fn, max = 200){
+    let iterations = 0;
+    while(!fn() && iterations < max){
+      iterations++;
+      await MODULE.wait(100);
+      logger.debug("waitFor | Iterations | ", iterations);
+    }
+    return true;
+  }
+
+  static isTurnChange(combat, changed){
+    return (combat.started || ("turn" in changed) || !(changed.turn === 0 && changed.round === 1) || combat.data.combatants.length !== 0);
+  }
+
+  static firstGM(){
+    return game.users.find(u => u.isGM && u.active);
+  }
+
+  static isFirstGM(){
+    return game.user.id === MODULE.firstGM()?.id;
+  }
+
   static sanitizeActorName(actor, feature, label){
     return ((MODULE.setting(feature) && actor.data.type === "npc") ? MODULE.format(label) : actor.data.name).capitalize();
   }

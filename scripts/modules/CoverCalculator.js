@@ -14,10 +14,10 @@ export class CoverCalculator{
   static defaults(){
     MODULE[NAME] = {
       coverData : {
-        0 : { label : MODULE.localize("DND5EH.LoS_nocover"), value : 0, color : "0xff0000"},
-        1 : { label : MODULE.localize("DND5EH.LoS_halfcover"), value : -2, color : "0xffa500" },
-        2 : { label : MODULE.localize("DND5EH.LoS_34cover"), value : -5, color : "0xffff00" },
-        3 : { label : MODULE.localize("DND5EH.LoS_fullcover"), value : -1000, color : "0x008000"},
+        0 : { name : "", label : MODULE.localize("DND5EH.LoS_nocover"), value : 0, color : "0xff0000", icon : "" },
+        1 : { name : "", label : MODULE.localize("DND5EH.LoS_halfcover"), value : -2, color : "0xffa500", icon : "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg" },
+        2 : { name : "", label : MODULE.localize("DND5EH.LoS_34cover"), value : -5, color : "0xffff00", icon : "modules/dnd5e-helpers/assets/cover-icons/ThreeQ_Cover.svg" },
+        3 : { name : "", label : MODULE.localize("DND5EH.LoS_fullcover"), value : -1000, color : "0x008000", icon : "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg"},
       },
       wall : {
         default : 3, 
@@ -89,7 +89,10 @@ export class CoverCalculator{
           2 : MODULE.format("option.coverApplication.auto"),
         }
       },
-      losMaskNPCs : {
+      losMaskNPC : {
+        scope : "world", config, group : "system", default : false, type : Boolean,
+      },
+      removeCover : {
         scope : "world", config, group : "system", default : false, type : Boolean,
       }
     };
@@ -109,6 +112,8 @@ export class CoverCalculator{
     Hooks.on(`renderTokenConfig`, CoverCalculator._renderTokenConfig);
     Hooks.on(`renderWallConfig`, CoverCalculator._renderWallConfig);
     Hooks.on(`targetToken`, CoverCalculator._targetToken);
+    Hooks.on(`renderChatMessage`, CoverCalculator._renderChatMessage);
+    Hooks.on(`updateCombat`, CoverCalculator._updateCombat);
   }
 
   static patch(){
@@ -129,10 +134,18 @@ export class CoverCalculator{
 
   }
   
-  static _renderChatMessage(app, html, data){
-    //add buttons?
+  static async _renderChatMessage(app, html, data){
+    if(app.getFlag(MODULE.data.name, 'coverMessage') && MODULE.setting("coverApplication") > 0 ){
+      await MODULE.waitFor(() => !!canvas?.ready);
+      const token = (await fromUuid(app.getFlag(MODULE.data.name, 'tokenUuid')))?.object;
 
-    //firstGM stuff?
+      if(!token) return new Error(MODULE.localize("error.token.missing"));
+      
+      //add listeners
+      html.find('#half')[0].onclick =  (...args) => Cover._toggleEffect(token, 1);
+      html.find('#34')[0].onclick = (...args) => Cover._toggleEffect(token, 2);
+      html.find('#full')[0].onclick = (...args) => Cover._toggleEffect(token, 3);
+    }
   }
 
   static _renderTileConfig(app, html){
@@ -142,7 +155,6 @@ export class CoverCalculator{
   }
 
   static _renderTokenConfig(app, html){
-
     if(MODULE.setting("losOnTarget") === 0 || !MODULE.setting("losWithTokens")) return;
     const tab = html.find('[data-tab="vision"]')[1];
     CoverCalculator._addToConfig(app, html, tab);
@@ -167,7 +179,7 @@ export class CoverCalculator{
     ele.insertAdjacentElement('afterend',MODULE.stringToDom(selectHTML, "form-group"));
   }
 
-  static _targetToken(user, target, onOff){
+  static async _targetToken(user, target, onOff){
     if(game.user !== user) return;
 
     const keyBind = MODULE.setting("losKeyBind");
@@ -176,9 +188,11 @@ export class CoverCalculator{
     if(user.targets.size == 1 && confirmCover && onOff && MODULE.setting("losOnTarget")){
       for(const selected of canvas.tokens.controlled){
         let cover = new Cover(selected, target);
-        cover.toMessage();
 
-        if(MODULE.setting("coverApplication") == 2) cover.addEffect();
+        //apply cover bonus automatically if requested
+        if(MODULE.setting("coverApplication") == 2) await cover.addEffect();
+
+        await cover.toMessage();
       }         
     }
 
@@ -187,10 +201,14 @@ export class CoverCalculator{
       return;
   }
 
-  static async _updateCombat(combat, change /*, options, userId */){
-    if(MODULE.setting("removeCover"))
-      //remove cover
-      return;
+  static async _updateCombat(combat, changed /*, options, userId */){
+    /** only concerned with turn changes during active combat that is NOT turn 1 */  
+    if(MODULE.setting("removeCover") && MODULE.isFirstGM() && MODULE.isTurnChange(combat, changed)){
+      const token = combat.combatants.get(combat.previous.combatantId)?.token?.object;
+
+      if(token)
+        Cover._removeEffect(token);
+    }
   } 
 
   /*
@@ -204,6 +222,14 @@ export class CoverCalculator{
     Token.prototype.coverValue = function(){
       const data = MODULE[NAME].token;
       return this.document.getFlag(MODULE.data.name, data.flag) ?? data.default;
+    }
+
+    Token.prototype.getCoverEffect = function(){
+      return this?.getCoverEffects()[0] ?? undefined;
+    }
+
+    Token.prototype.getCoverEffects = function(){
+      return this.actor.effects.filter(e => e.getFlag(MODULE.data.name, "cover"));
     }
   }
 
@@ -422,11 +448,12 @@ class Cover{
     }
   }
 
-  async toMessage({ speaker = {}, whisper = []} = {}){
+  async toMessage(){
     this.data.origin.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask");
-    this.data.target.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPCs", "DND5EH.LoSMaskNPCs_targetMask");
+    this.data.target.name = MODULE.sanitizeTokenName(this.data.target.object, "losMaskNPCs", "DND5EH.LoSMaskNPCs_targetMask");
 
-    const content = `
+    const appliedCover = this.data.origin.object.getCoverEffect()?.getFlag(MODULE.data.name, "level") ?? 0;
+    let content = `
     <div class="dnd5ehelpers">
       <div class="dice-roll">
         <i>${this.data.origin.name} ${MODULE.localize("DND5EH.LoS_outputmessage")} ${this.data.target.name}</i>
@@ -442,22 +469,40 @@ class Cover{
     </div>
     `;
 
-    ChatMessage.create({
-      whisper, content ,speaker : speaker !== {} ? speaker : ChatMessage.getSpeaker(),
+    
+    if(MODULE.setting("coverApplication") > 0){
+      content += `
+        <div class="dnd5ehelpers">
+          <button class="cover-button half ${appliedCover == 1 ? "active" : ""} " id="half">
+            <img src="${MODULE[NAME].coverData[1].icon}">${MODULE.localize("DND5EH.LoS_halfcover")}
+          </button>
+          <button class="cover-button quarters ${appliedCover == 2 ? "active" : ""} " id="34">
+            <img src="${MODULE[NAME].coverData[2].icon}">${MODULE.localize("DND5EH.LoS_34cover")}
+          </button>
+          <button class="cover-button full ${appliedCover == 3 ? "active" : ""} " id="full">
+            <img src="${MODULE[NAME].coverData[3].icon}">${MODULE.localize("DND5EH.LoS_fullcover")}
+          </button>
+        </div>
+      `;
+    }
+
+    return await ChatMessage.create({
+      whisper : ChatMessage.getWhisperRecipients("GM"),
+      speaker : { alias : MODULE.localize("setting.coverApplication.name") },
+      flags : {[MODULE.data.name] : { 
+        ["coverMessage"] : true,
+        ["tokenUuid"] : this.data.origin.object.document.uuid,
+      }},
+      content,
     });
   }
 
   async addEffect(){
-    await Cover._addEffect(
-      this.data.origin.object,
-      this.data.results
-    );
+    await Cover._addEffect( this.data.origin.object, this.data.results.cover );
   }
 
   async removeEffect(){
-    await Cover._removeEffect(
-      this.data.origin.object,
-    );
+    await Cover._removeEffect(this.data.origin.object,);
   }
 
   static _removeRays(){
@@ -465,26 +510,33 @@ class Cover{
       canvas.foreground.removeChild(child);
   }
 
-  static async _addEffect(token, coverResults){
-    const { cover, label, value } = coverResults;
+  static async _addEffect(token, cover){
+    const { label, value } = MODULE[NAME].coverData[cover];
+
+    await Cover._removeEffect(token);
 
     if(value == 0) return;
 
     const effectData = {
-      changes : ["rwak", "rsak", "mwak", "msak"].map(s => ({ key : `data.bonuses.${s}.attack`, mode : 2, value })),
-      icon : cover > 1 ? "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg" : cover === 1 ? "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg" : "",
+      changes : ["rwak", "rsak", "mwak", "msak"].map(s => ({ key : `data.bonuses.${s}.attack`, mode : CONST.ACTIVE_EFFECT_MODES.ADD , value })),
+      icon : MODULE[NAME].coverData[cover].icon,
       label : `DnD5e Helpers - ${label}`,
-      flags : { [MODULE.data.name] : { ["cover"] : true }},
-      disabled : false, duration : { rounds : 1}, tint : "#747272",
+      flags : { [MODULE.data.name] : { ["cover"] : true, ["level"] : cover }},
+      disabled : false, duration : {rounds : 1}, tint : "#747272",
     };
 
-    await Cover._removeEffect(token);
-    await token.actor.createEmbeddedDocuments("ActiveEffect", effectData);
+    await token.actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
   }
 
   static async _removeEffect(token){
-    const effects = token.actor.effects.filter(effect => effect.getFlag(MODULE.data.name, "cover"));
-    await token.actor.deleteEmbeddedDocuments("ActiveEffect", effects.map(e => e.id));
+    const effects = token.getCoverEffects();
+    return effects.length === 0 ? false : await token.actor.deleteEmbeddedDocuments("ActiveEffect", effects.map(e => e.id));
+  }
+
+  static async _toggleEffect(token, cover){
+    let removed = await Cover._removeEffect(token);
+    if(!removed || removed.reduce((a,b) => a || b.getFlag(MODULE.data.name, 'level') !== cover, false))
+      Cover._addEffect(token, cover);
   }
 }
 

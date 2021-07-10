@@ -211,5 +211,7 @@
     
     "DND5EH.Hooks_preUpdateActor_updatelog" : "DnD5e Helpers：{actorName}のアップデートは hp：{hp}と呪文：{spells}を含みます。",
     "DND5EH.Hooks_updateActor_updatelog" :"DnD5e Helpers：{currentTokenName}のアップデートは リジェネ：{regenSett}を含みます。",
-    "DND5EH.Hooks_preupdateToken_updatelog" : "DnD5e Helpers：{ActorName}のアップデートは hp：{hp} と しぶとさ：{fortSett}を含みます。"
+    "DND5EH.Hooks_preupdateToken_updatelog" : "DnD5e Helpers：{ActorName}のアップデートは hp：{hp} と しぶとさ：{fortSett}を含みます。",
+
+    "error.token.missing": "[EN]Requested token no longer exists." 
 }

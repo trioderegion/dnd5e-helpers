@@ -211,5 +211,7 @@
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Aide Dnd5e : La mise à jour de {actorName} concerne ses PV {hp}, Sorts: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Aide Dnd5e: La mise à jour de {currentTokenName} concerne sa regénération: {regenSett}",
-    "DND5EH.Hooks_preupdateToken_updatelog" : "Aide Dnd5e: La mise à jour de {ActorName} concerne ses PV : {hp}, and Fort: {fortSett}"
+    "DND5EH.Hooks_preupdateToken_updatelog" : "Aide Dnd5e: La mise à jour de {ActorName} concerne ses PV : {hp}, and Fort: {fortSett}",
+
+    "error.token.missing": "[EN]Requested token no longer exists." 
 }

@@ -211,5 +211,7 @@
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: {actorName} 액터의 업데이트에 다음이 포함되었습니다. hp: {hp}, spells: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: {currentTokenName} 대상의 업데이트에 다음이 포함되었습니다. regen: {regenSett}",
-    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName} 액터의 업데이트에 다음이 포함되었습니다. hp: {hp}, and Fort: {fortSett}"
+    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName} 액터의 업데이트에 다음이 포함되었습니다. hp: {hp}, and Fort: {fortSett}",
+
+    "error.token.missing": "[EN]Requested token no longer exists." 
 }

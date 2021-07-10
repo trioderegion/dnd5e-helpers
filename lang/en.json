@@ -55,7 +55,7 @@
     "option.coverApplication.manual" : "Manual",
     "option.coverApplication.auto" : "Automatic",
     "DND5EH.LoSCover_cover" : "cover",
-
+    
     "setting.coverTint.name" : "Cover Button Tint",
     "setting.coverTint.hint" : "What color should be applied to the cover buttons to show which is active",
     "option.coverTint.red" : "Dark Red",
@@ -216,5 +216,7 @@
 
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: {actorName}'s update contains hp: {hp}, spells: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: {currentTokenName}'s update contains regen: {regenSett}",
-    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName}'s update contains hp: {hp}, and Fort: {fortSett}"
+    "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName}'s update contains hp: {hp}, and Fort: {fortSett}",
+
+    "error.token.missing": "Requested token no longer exists." 
 }
