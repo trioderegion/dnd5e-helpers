@@ -173,14 +173,11 @@ export class CoverCalculator{
     const keyBind = MODULE.setting("losKeyBind");
     const confirmCover = game.keyboard._downKeys.has(keyBind) || keyBind == "";
 
-    if(user.targets.size == 1 && confirmCover){
-        if(confirmCover && onOff && MODULE.setting("losOnTarget")){
-          for(const selected of canvas.tokens.controlled){
-            if(selecte == target) return;
-            let cover = new Cover(selected, target);
-            cover.toMessage();
-          }
-        }          
+    if(user.targets.size == 1 && confirmCover && onOff && MODULE.setting("losOnTarget")){
+      for(const selected of canvas.tokens.controlled){
+        let cover = new Cover(selected, target);
+        cover.toMessage();
+      }         
     }
 
     if(user.targets.size != 1)
@@ -228,9 +225,28 @@ export class CoverCalculator{
       return this.document.getFlag(MODULE.data.name, data.flag) ?? (sense >= CONST.WALL_SENSE_TYPES.NORMAL ? data.default : 0);
     }
   }
+
+  /*
+    Accessors
+  */
+  static _Cover(...args){
+    return new Cover(...args);
+  }
+
+  static _Shape(...args){
+    return new Shape(...args);
+  }
+
+  static _Segment(...args){
+    return new Segment(...args);
+  }
+
+  static _Point(...args){
+    return new Point(...args);
+  }
 }
 
-export class Cover{
+class Cover{
   data = {
     origin : {},
     target : {},
@@ -242,6 +258,8 @@ export class Cover{
   };
 
   constructor(origin, target, padding = 5){
+    if(origin.id === target.id) return new Error("Token Error");
+
     this.data.origin.object = origin;
     this.data.target.object = target;
     this.data.padding = canvas.grid.size * padding / 100;
