@@ -4,6 +4,7 @@
 
     "DND5EH.Default_disabled" : "無効",
     "DND5EH.Default_enabled" : "有効",
+    "DND5EH.Default_enabled_displaySuppressed" : "有効（表示はしない）",
     "DND5EH.Default_none" : "なし", 
     "DND5EH.Default_SocketSetup" :"DnD5e Helpersがソケットを受信しました。",
     "DND5EH.Default_SocketSend": "{socketData} でソケットを送信しました。",
