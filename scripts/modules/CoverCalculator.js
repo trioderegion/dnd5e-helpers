@@ -1,4 +1,7 @@
 import { MODULE } from "../module.js";
+import { Shape } from "./Shape.js";
+import { Segment } from "./Segment.js";
+import { Point } from "./Point.js";
 import { logger } from "../logger.js";
 
 const NAME = "CoverCalculator";
@@ -263,9 +266,9 @@ export class CoverCalculator{
     }
   } 
 
-  /*
-    Prototype patch functions
-  */
+  /**
+   * Prototype Patch Functions
+   */
   static _patchToken(){
     Token.prototype.ignoresCover = function(){
       return !!this.actor.getFlag("dnd5e", "helpersIgnoreCover");
@@ -306,9 +309,9 @@ export class CoverCalculator{
     }
   }
 
-  /*
-    Accessors
-  */
+  /**
+   * Global Accessors for Cover, Shape, Segment, and Point
+   */
   static _Cover(...args){
     return new Cover(...args);
   }
@@ -596,201 +599,6 @@ class Cover{
       button.style.background = "";
     }
 
-  }
-}
-
-class Point {
-  constructor(...args) {
-    if (args[0] instanceof Array) this._buildFromArray(args[0]);
-    else if (args[0] instanceof Object) this._buildFromObject(args[0]);
-    else if (typeof args[0] == "number") this._buildFromArray(args);
-    else throw new Error("Invalid Arguments");
-  }
-
-  _buildFromObject({ x, y }) {
-    this.x = x;
-    this.y = y;
-  }
-
-  _buildFromArray([x, y]) {
-    this.x = x;
-    this.y = y;
-  }
-
-  get Object() {
-    return { x: this.x, y: this.y };
-  }
-
-  get Array() {
-    return [this.x, this.y];
-  }
-
-  is(p){
-    if(p instanceof Point)
-      return this.x === p.x && this.y === p.y;
-    throw new Error("Point is not an instance of Point");
-  }
-
-  draw({ thickness = 5, color = "0xffffff" } = {}){
-    const graphics = new PIXI.Graphics();
-    graphics.beginFill(color);
-    graphics.drawCircle(this.x, this.y, thickness);
-    graphics.endFill();
-    canvas.foreground.addChild(graphics);
-  }
-}
-
-class Segment {
-  points = [];
-  options = {};
-
-  constructor({ points = [] , numbers = []} = {}, options = {}) {
-    for(let point of points){
-      if(point instanceof Point) this._buildFromPoint(point);
-      else this._buildFromOther(point);
-    }
-    if(numbers.length === 4) this._buildFromNumber(numbers);
-    if(this.points.length !== 2) throw new Error("Invalid Arguments");
-
-    this.options = options;
-  }
-
-  _buildFromPoint(p) {
-    if(!this.points.reduce((a,e) => a || e.is(p), false))
-      return this.points.push(p);
-    throw new Error("Invalid Arguments");
-  }
-
-  _buildFromOther(o) {
-    this._buildFromPoint(new Point(o));
-  }
-
-  _buildFromNumber(args) {
-    if (args.reduce((a,b) => a || typeof b !== "number", false)) throw new Error("Invalid Arguments");
-    this._buildFromOther([args[0], args[1]]);
-    this._buildFromOther([args[2], args[3]]);
-  }
-
-  get Length() {
-    let [p1, p2] = this.points;
-    return Math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
-  }
-
-  get Ray() {
-    return new Ray(...this.points.map(p => p.Object));
-  }
-
-  get options() {
-    return this.options;
-  }
-
-  is(s){
-    if(!(s instanceof Segment)) return;
-    return s.points.reduce((a, s_point) => a && this.points.reduce((b, t_point) => b || s_point.is(t_point), false) , true);
-  }
-
-  draw({ thickness = 1, color = "0xfffffff" } = {}) {
-    const [p1, p2] = this.points;
-    const line = new PIXI.Graphics();
-
-    line.position.set(p1.x, p1.y);
-    line.lineStyle(thickness, color).moveTo(0, 0).lineTo(p2.x - p1.x, p2.y - p1.y);
-    canvas.foreground.addChild(line);
-
-    for(let p of this.points)
-      p.draw({ thickness : thickness + 3, color });
-  }
-
-  checkIntersection(s, draw = false) {
-    if(!(s instanceof Segment)) throw new Error("Invalid argument");
-    const [p1, p2] = this.points, [p3, p4] = s.points;
-    let det, gam, lam, result;
-    det = (p2.x - p1.x) * (p4.y - p3.y) - (p4.x - p3.x) * (p2.y - p1.y);
-    if (det !== 0) {
-      lam = ((p4.y - p3.y) * (p4.x - p1.x) + (p3.x - p4.x) * (p4.y - p1.y)) / det;
-      gam = ((p1.y - p2.y) * (p4.x - p1.x) + (p2.x - p1.x) * (p4.y - p1.y)) / det;
-      result = (0 < lam && lam < 1) && (0 < gam && gam < 1);
-    } else {
-      result = false;
-    }
-
-    if (result && draw) { this.draw(); s.draw(); }
-
-    return result ? this.options : result;
-  }
-}
-
-class Shape {
-  segments = [];
-  options = {};
-  points = [];
-
-  constructor({ points = [], segments = []} = {}, options = {}) {
-    this.options = options;
-
-    for(let s of segments)
-      this.addSegment(s);
-
-    if(points instanceof Array){
-      points.forEach((element, index, array) => {
-        let p = index + 1 !== array.length ? [element, array[index + 1]] : [element, array[0]];
-        this.addSegment(new Segment({ points : p}), options);
-      });
-    }   
-  }
-
-  addSegment(s){
-    if(s instanceof Segment && !this.segments.reduce((a,b) => a || b.is(s), false)){
-      this.segments.push(s);
-      for(let p of s.points){
-        if(p instanceof Point && !this.points.reduce((a,b) => a || b.is(p), false)){
-          this.points.push(p);
-        }
-      }
-    }   
-  }
-
-  removeSegment(s){
-    let index = this.segments.reduce((a,b,i) =>{
-      if(b.is(s))
-        return i;
-      return a;
-    }, null);
-
-    if(index) this.segments.splice(index, 1);
-  }
-
-  draw({ thickness = 1, color = "0xfffffff" } = {}){
-    for(let s of this.segments)
-      s.draw({ thickness, color });
-  }
-
-  checkIntersection(s){
-    let r = this.options !== {} ? this.options.cover : 3;
-    return this.segments.reduce((a,v) => a || s.checkIntersection(v), false) ? r : 0;
-  } 
-
-  static buildRectangle({x, y, w, h} = {}, p = 0, o){
-    let points = [
-      new Point(x + p, y + p),
-      new Point(x + w - p, y + p),
-      new Point(x + w - p, y + h - p),
-      new Point(x + p, y + h - p)
-    ];
-
-    return new Shape({points}, o);
-  }
-
-  static buildX({x, y, w, h} = {}, p = 0, o){
-    let segments = [
-      new Segment({ numbers : [x + p , y + p, x + w - p, y + h - p]}),
-      new Segment({ numbers : [x + w - p, y + p, x + p, y + h - p]}),
-    ];
-    return new Shape({segments}, o);
-  }
-
-  static buildWall(wall, o){
-    return new Shape({ segments : [new Segment({ numbers : wall.data.c }, o)] }, o);
   }
 }
 

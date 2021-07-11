@@ -24,5 +24,5 @@ Hooks.on(`setup`, () => {
   Object.values(SUB_MODULES).forEach(cl => cl.register());
 
   //GlobalTesting
-  Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
+  //Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
 });
