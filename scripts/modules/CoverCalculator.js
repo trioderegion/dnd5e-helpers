@@ -9,15 +9,36 @@ export class CoverCalculator{
     CoverCalculator.settings();
     CoverCalculator.hooks();
     CoverCalculator.patch();
+    CoverCalculator.globals();
   }
 
   static defaults(){
     MODULE[NAME] = {
       coverData : {
-        0 : { name : "", label : MODULE.localize("DND5EH.LoS_nocover"), value : 0, color : "0xff0000", icon : "" },
-        1 : { name : "", label : MODULE.localize("DND5EH.LoS_halfcover"), value : -2, color : "0xffa500", icon : "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg" },
-        2 : { name : "", label : MODULE.localize("DND5EH.LoS_34cover"), value : -5, color : "0xffff00", icon : "modules/dnd5e-helpers/assets/cover-icons/ThreeQ_Cover.svg" },
-        3 : { name : "", label : MODULE.localize("DND5EH.LoS_fullcover"), value : -1000, color : "0x008000", icon : "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg"},
+        0 : { 
+          label : MODULE.localize("DND5EH.LoS_nocover"), 
+          value : 0, 
+          color : "0xff0000", 
+          icon : "" 
+        },
+        1 : { 
+          label : MODULE.localize("DND5EH.LoS_halfcover"), 
+          value : -2, 
+          color : "0xffa500", 
+          icon : "modules/dnd5e-helpers/assets/cover-icons/Half_Cover.svg" 
+        },
+        2 : { 
+          label : MODULE.localize("DND5EH.LoS_34cover"), 
+          value : -5, 
+          color : "0xffff00", 
+          icon : "modules/dnd5e-helpers/assets/cover-icons/ThreeQ_Cover.svg" 
+        },
+        3 : { 
+          label : MODULE.localize("DND5EH.LoS_fullcover"), 
+          value : -40, 
+          color : "0x008000", 
+          icon : "modules/dnd5e-helpers/assets/cover-icons/Full_Cover.svg"
+        },
       },
       wall : {
         default : 3, 
@@ -70,7 +91,7 @@ export class CoverCalculator{
         scope : "world", config, group : "system", default : false, type : Boolean,
       },
       coverTint : {
-        scope : "world", config, group : "system", default : 0, type : Number, 
+        scope : "world", config, group : "system", default : 0, type : String, 
         choices : {
           "DarkRed" : MODULE.localize("option.coverTint.red"),
           "CadetBlue" : MODULE.localize("option.coverTint.blue"),
@@ -123,6 +144,15 @@ export class CoverCalculator{
     CoverCalculator._patchWall();
   }
 
+  static globals(){
+    window[NAME] = {
+      Cover : CoverCalculator._Cover,
+      Shape : CoverCalculator._Shape,
+      Segment : CoverCalculator._Segment,
+      Point : CoverCalculator._Point,
+    };
+  }
+
   /**
    * Hook Functions
    */
@@ -150,11 +180,22 @@ export class CoverCalculator{
       const token = (await fromUuid(app.getFlag(MODULE.data.name, 'tokenUuid')))?.object;
 
       if(!token) return new Error(MODULE.localize("error.token.missing"));
-      
+
+      const a = html.find('#half')[0];
+      const b = html.find('#34')[0];
+      const c = html.find('#full')[0];
+      const l = token.getCoverEffect()?.getFlag(MODULE.data.name, "level");
+
+      if(l == 1) a.style.background = MODULE.setting("coverTint");
+      else 
+      if(l == 2) b.style.background = MODULE.setting("coverTint");
+      else 
+      if(l == 3) c.style.background = MODULE.setting("coverTint");
+
       //add listeners
-      html.find('#half')[0].onclick =  (...args) => Cover._toggleEffect(token, 1);
-      html.find('#34')[0].onclick = (...args) => Cover._toggleEffect(token, 2);
-      html.find('#full')[0].onclick = (...args) => Cover._toggleEffect(token, 3);
+      a.onclick =  (...args) => Cover._toggleEffect(token, a, [b,c], 1);
+      b.onclick = (...args) => Cover._toggleEffect(token, b, [a,c], 2);
+      c.onclick = (...args) => Cover._toggleEffect(token, c, [a,b], 3);
     }
   }
 
@@ -523,16 +564,17 @@ class Cover{
 
   static async _addEffect(token, cover){
     const { label, value } = MODULE[NAME].coverData[cover];
-
-    await Cover._removeEffect(token);
-
-    if(value == 0) return;
+    await Cover._removeEffect(token);    
+    if(cover == 0) return;
 
     const effectData = {
       changes : ["rwak", "rsak", "mwak", "msak"].map(s => ({ key : `data.bonuses.${s}.attack`, mode : CONST.ACTIVE_EFFECT_MODES.ADD , value })),
       icon : MODULE[NAME].coverData[cover].icon,
       label : `DnD5e Helpers - ${label}`,
-      flags : { [MODULE.data.name] : { ["cover"] : true, ["level"] : cover }},
+      flags : { [MODULE.data.name] : { 
+        ["cover"] : true, 
+        ["level"] : cover 
+      }},
       disabled : false, duration : {rounds : 1}, tint : "#747272",
     };
 
@@ -544,10 +586,16 @@ class Cover{
     return effects.length === 0 ? false : await token.actor.deleteEmbeddedDocuments("ActiveEffect", effects.map(e => e.id));
   }
 
-  static async _toggleEffect(token, cover){
+  static async _toggleEffect(token, button, otherButtons, cover){
     let removed = await Cover._removeEffect(token);
-    if(!removed || removed.reduce((a,b) => a || b.getFlag(MODULE.data.name, 'level') !== cover, false))
+    if(!removed || removed.reduce((a,b) => a || b.getFlag(MODULE.data.name, 'level') !== cover, false)){
       Cover._addEffect(token, cover);
+      button.style.background = MODULE.setting("coverTint");
+      otherButtons.forEach(b => b.style.background = "");
+    }else{
+      button.style.background = "";
+    }
+
   }
 }
 
@@ -745,3 +793,7 @@ class Shape {
     return new Shape({ segments : [new Segment({ numbers : wall.data.c }, o)] }, o);
   }
 }
+
+/*
+  target switching 
+*/

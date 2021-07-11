@@ -9,6 +9,8 @@ export class DnDWildMagic{
     DnDWildMagic.defaults();
     DnDWildMagic.settings();
     DnDWildMagic.hooks();
+    DnDWildMagic.patch();
+    DnDWildMagic.globals();
   }
 
   static defaults(){
@@ -64,6 +66,10 @@ export class DnDWildMagic{
   }
 
   static patch(){
+    
+  }
+
+  static globals(){
     
   }
   /*
