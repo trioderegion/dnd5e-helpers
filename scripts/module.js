@@ -36,14 +36,12 @@ export class MODULE{
     return new Promise((resolve)=> setTimeout(resolve, ms))
   }
 
-  static async waitFor(fn, max = 200){
-    let iterations = 0;
-    while(!fn() && iterations < max){
-      iterations++;
-      await MODULE.wait(100);
-      logger.debug("waitFor | Iterations | ", iterations);
+  static async waitFor(fn, m = 200, w = 100, i = 0){
+    while(!fn(i, ((i*w)/100)) && i < m){
+      i++;
+      await MODULE.wait(w);
     }
-    return true;
+    return i === m ? false : true;
   }
 
   static isTurnChange(combat, changed){

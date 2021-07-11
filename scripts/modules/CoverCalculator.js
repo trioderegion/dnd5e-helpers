@@ -53,7 +53,7 @@ export class CoverCalculator{
     const config = false;
     const settingsData = {
       debugDrawing : {
-        scope : "client", config, default : true, type : Boolean,
+        scope : "client", config, default : false, type : Boolean,
       },
       losOnTarget : {
         scope : "world", config, group : "system", default : 0, type : Number,
@@ -126,12 +126,22 @@ export class CoverCalculator{
   /**
    * Hook Functions
    */
-  static _deleteCombat(combat, settings, id){
-
+  static async _deleteCombat(combat, /*settings, id*/){
+    if(MODULE.setting("losOnTarget") > 0 && MODULE.isFirstGM()){
+      for(let combatant of combat.combatants){
+        const token = combatant?.token?.object;
+        if(token)
+          await Cover._removeEffect(token);
+      }
+    }
   }
 
-  static _deleteCombatant(combatant, render){
-
+  static async _deleteCombatant(combatant, /*render*/){
+    if(MODULE.setting("losOnTarget") > 0 && MODULE.isFirstGM()){
+      const token = combatant?.token?.object;
+      if(token)
+        await Cover._removeEffect(token);
+    }
   }
   
   static async _renderChatMessage(app, html, data){
@@ -187,6 +197,7 @@ export class CoverCalculator{
 
     if(user.targets.size == 1 && confirmCover && onOff && MODULE.setting("losOnTarget")){
       for(const selected of canvas.tokens.controlled){
+        if(selected.id === target.id) continue;
         let cover = new Cover(selected, target);
 
         //apply cover bonus automatically if requested
@@ -197,8 +208,8 @@ export class CoverCalculator{
     }
 
     if(user.targets.size != 1)
-      //remove cover
-      return;
+      for(const selected of canvas.tokens.controlled)
+        await Cover._removeEffect(selected);
   }
 
   static async _updateCombat(combat, changed /*, options, userId */){
@@ -449,8 +460,8 @@ class Cover{
   }
 
   async toMessage(){
-    this.data.origin.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPCs", "DND5EH.LoSMaskNPCs_sourceMask");
-    this.data.target.name = MODULE.sanitizeTokenName(this.data.target.object, "losMaskNPCs", "DND5EH.LoSMaskNPCs_targetMask");
+    this.data.origin.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPC", "DND5EH.LoSMaskNPCs_sourceMask");
+    this.data.target.name = MODULE.sanitizeTokenName(this.data.target.object, "losMaskNPC", "DND5EH.LoSMaskNPCs_targetMask");
 
     const appliedCover = this.data.origin.object.getCoverEffect()?.getFlag(MODULE.data.name, "level") ?? 0;
     let content = `
