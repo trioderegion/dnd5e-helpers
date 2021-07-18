@@ -3,6 +3,7 @@ import { logger } from './logger.js';
 import { DnDWildMagic } from './modules/DnDWildMagic.js';
 import { RestEffects } from './modules/RestEffects.js';
 import { CoverCalculator } from './modules/CoverCalculator.js';
+import { ActionManagement } from './modules/ActionManagement.js';
 
 const SUB_MODULES = {
   MODULE,
@@ -10,6 +11,7 @@ const SUB_MODULES = {
   DnDWildMagic,
   RestEffects,
   CoverCalculator,
+  ActionManagement,
 };
 
 /*
