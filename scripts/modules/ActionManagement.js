@@ -1,5 +1,5 @@
 import { MODULE } from '../module.js';
-import { logger } from '../module.js';
+import { logger } from '../logger.js';
 
 const NAME = "ActionManagement";
 
