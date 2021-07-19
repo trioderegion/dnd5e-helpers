@@ -70,6 +70,7 @@ export class ActionManagement{
   static hooks(){
     Hooks.on(`updateCombat`, ActionManagement._updateCombat);
     Hooks.on(`controlToken`, ActionManagement._controlToken);
+    Hooks.on(`updateToken`, ActionManagement._updateToken);
   }
 
   static patch(){
@@ -91,10 +92,15 @@ export class ActionManagement{
   }
 
   static _controlToken(token, state){
-    if(MODULE.setting('cbtReactionEnable') == 0) return;
+    const mode = MODULE.setting('cbtReactionEnable');
+    if(mode == 0) return;
 
-    if(token.inCombat && state == true)
+    if(token.inCombat){
       ActionManagement._renderActionMarkers([token]);
+
+      const actionContainer = token.children.find(i => i[NAME]);
+      if(actionContainer) actionContainer.visible = (mode == 2 || !state) ? false : true;
+    }
   }
 
   static _updateToken(tokenDocument, update, options, id){
@@ -156,7 +162,7 @@ export class ActionManagement{
   static async _loadTextures(obj = {}){
     for(let [k,v] of Object.entries(MODULE[NAME].textures)){
       let t = await loadTexture(v);
-      t.orig = MODULE[NAME].orig;
+      if(k !== "background") t.orig = MODULE[NAME].orig;
       obj[k] = t;
     }
     return obj;
