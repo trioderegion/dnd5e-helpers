@@ -48,6 +48,10 @@ export class MODULE{
     return (combat.started || ("turn" in changed) || !(changed.turn === 0 && changed.round === 1) || combat.data.combatants.length !== 0);
   }
 
+  static isFirstTurn(combat, changed){
+    return combat.started && changed.round === 1;
+  }
+
   static firstGM(){
     return game.users.find(u => u.isGM && u.active);
   }
