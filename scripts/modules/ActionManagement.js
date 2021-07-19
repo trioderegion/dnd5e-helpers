@@ -169,7 +169,7 @@ export class ActionManagement{
   }
 
   static async _renderSprites(textures, token){
-    const mode = MODULE.setting("cbtReactionEnable")
+    const mode = MODULE.setting("cbtReactionEnable");
     const actions = ActionManagement._getActionMarker(token.document);
     const actionContainer = new PIXI.Container();
     const size = token.data.height * canvas.grid.size
