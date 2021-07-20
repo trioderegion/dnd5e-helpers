@@ -17,14 +17,14 @@ export class ActionManagement{
     this.globals();
   }
 
-  static defaults(){
+  static async defaults(){
     MODULE[NAME] = {
       /* Sub Module Constant Values */
       flagKey : "ActionManagement",
       default : {
         action : 0, reaction : 0, bonus : 0
       },
-      textures : {
+      img : {
         action : "modules/dnd5e-helpers/assets/action-markers/ACTION2.png",
         reaction : "modules/dnd5e-helpers/assets/action-markers/reaction.png",
         bonus : "modules/dnd5e-helpers/assets/action-markers/bonus.png",
@@ -68,13 +68,13 @@ export class ActionManagement{
   }
 
   static hooks(){
-    Hooks.on(`updateCombat`, ActionManagement._updateCombat);
+    //Hooks.on(`updateCombat`, ActionManagement._updateCombat);
     Hooks.on(`controlToken`, ActionManagement._controlToken);
     Hooks.on(`updateToken`, ActionManagement._updateToken);
   }
 
   static patch(){
-
+    this._patchToken();
   }
 
   static globals(){
@@ -84,7 +84,7 @@ export class ActionManagement{
   /**
    * Hook Functions
    */
-  static _updateCombat(combat, changed, /** options, userid */){
+  static _updateCombat(combat, changed, /*options, userid*/){
     if(MODULE.setting('cbtReactionEnable') == 0) return;
 
     if(MODULE.isFirstTurn(combat, changed) || MODULE.isTurnChange(combat, changed))
@@ -96,21 +96,64 @@ export class ActionManagement{
     if(mode == 0) return;
 
     if(token.inCombat){
-      ActionManagement._renderActionMarkers([token]);
-
-      const actionContainer = token.children.find(i => i[NAME]);
-      if(actionContainer) actionContainer.visible = (mode == 2 || !state) ? false : true;
+      if(token.hasActionContainer()) token.toggleActionContainer(mode === 2 || !state ? false : true);
+      else ActionManagement._renderActionContainer(token, mode === 2 || !state ? false : true);
     }
   }
 
-  static _updateToken(tokenDocument, update, options, id){
-    if(MODULE.setting('cbtReactionEnable') == 0 || !tokenDocument.inCombat) return;
-    if("tint" in update || "width" in update || "height" in update || "img" in update || "flags" in update)
-      ActionManagement._renderActionMarkers([tokenDocument.object]);
+  static _updateToken(tokenDocument, update, /* options, id */){
+    const mode = MODULE.setting('cbtReactionEnable');
+    if(mode == 0 || !tokenDocument.inCombat) return;
+
+    if("width" in update || "height" in update || "scale" in update){
+      //tokenDocument.object.removeActionContainer();
+      //tokenDocument.object.renderActionContainer(mode == 2 || tokenDocument.object._controlled ? false : true); 
+    }
+
+    if("tint" in update || "img" in update || "flags" in update){
+      //ActionManagement._renderActionMarkers([tokenDocument.object]);
+    }
   }
+
   /**
    * Patching Functions
    */
+  static _patchToken(){
+    Token.prototype.hasActionContainer = function(){
+      return !!this.children?.find(i => i[NAME]);
+    }
+
+    Token.prototype.toggleActionContainer = function(state){
+      let container = this.getActionContainer();
+      if(container) container.visible = state === undefined ? !container.visible : state;
+    }
+
+    Token.prototype.getActionContainer = function(){
+      return this.children?.find(i => i[NAME]);
+    }
+
+    Token.prototype.toggleActionMarker = function(type){
+      const container = this.getActionContainer();
+      if(container){
+        const element = container.children.find(e => e.actionType == type);
+        element.alpha = element.alpha == 1 ? 0.2 : 1; 
+      }
+    }
+
+    Token.prototype.getActionFlag = function(){
+      return this.document.getFlag(MODULE.data.name, MODULE[NAME].flagKey);
+    }
+
+    Token.prototype.iterateActionFlag = async function(type){
+      let flag = this.getActionFlag() ?? MODULE[NAME].default;
+      flag[type] += 1;
+      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, flag);
+    }
+
+    Token.prototype.resetActionFlag = async function(){
+      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, MODULE[NAME].default);
+    }
+  }
 
   /**
    * Global Accessor Functions
@@ -119,92 +162,50 @@ export class ActionManagement{
   /**
    * Module Specific Functions
    */
-  static async _addActionMarker(tokenDocument){
-    if(!tokenDocument || !(tokenDocument instanceof TokenDocument5e)) return new Error("Token Error");
-    return await tokenDocument.setFlag(MODULE.data.name, MODULE[NAME].flagKey, MODULE[NAME].default);
-  }
-
-  static async _removeActionMarker(tokenDocument){
-    if(!tokenDocument || !(tokenDocument instanceof TokenDocument5e)) return new Error("Token Error");
-    return await tokenDocument.unsetFlag(MODULE.data.name, MODULE[NAME].flagKey);
-  }
-  
-  static async _resetActionMarker(tokenDocument){
-    await ActionManagement._removeActionMarker(tokenDocument);
-    return await ActionManagement._addActionMarker(tokenDocument);
-  }
-
-  static _getActionMarker(tokenDocument){
-    return tokenDocument.getFlag(MODULE.data.name, MODULE[NAME].flagKey) ?? MODULE[NAME].default;
-  }
-
-  static async _removeAllActionMarkers(tokenIds = []){
-    let updates = tokenIds.map(id => ({ _id : id, [`flags.${MODULE.data.name}`] : `-=${MODULE[NAME].flagKey}`}));
-    return await canvas.updateEmbeddedDocuments("Token", updates);
-  }
-
-  static async _addAllActionMarkers(tokenIds = []){
-    let updates = tokenIds.map(id =>({ _id : id, [`flags.${MODULE.data.name}.${MODULE[NAME].flagKey}`] : MODULE[NAME].default }));
-    return await canvas.updateEmbeddedDocuments("Token", updates);
-  }
-
-  static async _renderActionMarkers(tokens = []){
-    const mode = MODULE.setting("cbtReactionEnable");
-    if(tokens.every(ActionManagement.hasActionMarker) || mode == 0) return;
-    const textures = await ActionManagement._loadTextures();
-
-    for(let token of tokens){
-      if(!token.isOwner || ActionManagement.hasActionMarker(token) || !token.document) continue;
-      await ActionManagement._renderSprites(textures, token);
-    }
-  }
-
-  static async _loadTextures(obj = {}){
-    for(let [k,v] of Object.entries(MODULE[NAME].textures)){
+  static async _loadTextures(orig, obj = {}){
+    const textures = {};
+    for(let [k,v] of Object.entries(obj)){
       let t = await loadTexture(v);
-      if(k !== "background") t.orig = MODULE[NAME].orig;
-      obj[k] = t;
+      if(k !== "background") t.orig = orig;
+      textures[k] = t;
     }
-    return obj;
+    return textures;
   }
 
-  static async _renderSprites(textures, token){
-    const mode = MODULE.setting("cbtReactionEnable");
-    const actions = ActionManagement._getActionMarker(token.document);
-    const actionContainer = new PIXI.Container();
-    const size = token.data.height * canvas.grid.size
-    const hAlign = token.w / 10;
-    const vAlign = token.h / 5
-    const scale = 1/ (600/size);
-    
-    actionContainer.setParent(token);
-    actionContainer.sortableChildren = true;
-    actionContainer[NAME] = true;
-    actionContainer.visible = mode == 2 ? true : token._controlled;
+  static async _renderActionContainer(token, state){
+    /* Define Constants */
+    const actions = token.getActionFlag() ?? MODULE[NAME].default;
+    const container = new PIXI.Container();
+    const size = token.h, hAlign = token.w / 10, vAlign = token.h / 5, scale = 1/ (600/size);
 
-    const sprites = {}, icons = {};
+    /* Build Textures, Sprites, Icons, and Container */
+    container.setParent(token);
+    container.sortableChildren = true;
+    container[NAME] = true;
+    container.visible = state;
+
+    const textures = await ActionManagement._loadTextures(MODULE[NAME].orig, MODULE[NAME].img)
+
     for(let [k, v] of Object.entries(textures)){
       let s = new PIXI.Sprite(v);
       s.anchor.set(0.5);
       s.scale.set(scale);
       
-      let i = await actionContainer.addChild(s);
+      let i = await container.addChild(s);
       i.position.set(hAlign * MODULE[NAME].offset[k].h, vAlign * MODULE[NAME].offset[k].v);
       if(k !== "background"){
         i.actionType = k;
         i.tint = 13421772;
-        i.alpha = actions[k] ? 0.2 : 1;
+        i.alpha = actions[k] === 0 ? 1 : 0.2;
       }else
         i.zIndex = -1000;
-
-      sprites[k] = s;
-      icons[k] = i;
     }
-    
-    return { textures, sprites, icons };
+
+    /* return Container*/
+    return container;
   }
 
-  static hasActionMarker(tokenPlaceable){
-    return !!tokenPlaceable.children?.find(i => i[NAME]);
+  static _removeActionContainer(token){
+    if(token.hasActionContainer()) return token.removeChild(token.getActionContainer());
   }
 }
