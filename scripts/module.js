@@ -60,6 +60,22 @@ export class MODULE{
     return game.user.id === MODULE.firstGM()?.id;
   }
 
+  static firstOwner(doc){
+    const gmOwners = Object.entries(doc.data.permission)
+      .filter(([id,level]) => (game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
+      .map(([id, level]) => id);
+    const otherOwners = Object.entries(doc.data.permission)
+      .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
+      .map(([id, level])=> id);
+
+    if(otherOwners.length > 0) return game.users.get(otherOwners[0]);
+    else return game.users.get(gmOwners[0]);
+  }
+
+  static isFirstOwner(doc){
+    return game.user.id === MODULE.firstOwner(doc).id;
+  }
+
   static sanitizeActorName(actor, feature, label){
     return ((MODULE.setting(feature) && actor.data.type === "npc") ? MODULE.format(label) : actor.data.name).capitalize();
   }

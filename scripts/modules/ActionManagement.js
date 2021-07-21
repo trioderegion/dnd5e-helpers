@@ -68,9 +68,10 @@ export class ActionManagement{
   }
 
   static hooks(){
-    //Hooks.on(`updateCombat`, ActionManagement._updateCombat);
+    Hooks.on(`updateCombat`, ActionManagement._updateCombat);
     Hooks.on(`controlToken`, ActionManagement._controlToken);
     Hooks.on(`updateToken`, ActionManagement._updateToken);
+    Hooks.on(`preCreateChatMessage`, ActionManagement._preCreateChatMessage);
   }
 
   static patch(){
@@ -84,11 +85,27 @@ export class ActionManagement{
   /**
    * Hook Functions
    */
-  static _updateCombat(combat, changed, /*options, userid*/){
+  static async _updateCombat(combat, changed, /*options, userid*/){
     if(MODULE.setting('cbtReactionEnable') == 0) return;
 
-    if(MODULE.isFirstTurn(combat, changed) || MODULE.isTurnChange(combat, changed))
-      ActionManagement._resetActionMarker(combat?.combatant?.token);
+    logger.debug("_updateCombat | DATA | ", { 
+      isFirstTurn : MODULE.isFirstTurn(combat,changed),
+      isTurnChange : MODULE.isTurnChange(combat, changed),
+      isFirstGM : MODULE.isFirstGM(),
+      isFirstOwner : MODULE.isFirstOwner(combat.combatant.token.actor),
+      combat,
+      changed,
+    });
+
+    if(MODULE.isFirstTurn(combat, changed) && MODULE.isFirstGM())
+      for(let combatant of combat.combatants){
+        await combatant.token.object.resetActionFlag();
+        await ActionManagement._renderActionContainer(combatant.token.object, combatant.token.object._controlled);
+      }
+    
+    if(MODULE.isTurnChange(combat, changed) && MODULE.isFirstOwner(combat.combatant.token.actor)){
+      await combat.combatant.token.object.resetActionFlag();
+    }
   }
 
   static _controlToken(token, state){
@@ -108,11 +125,47 @@ export class ActionManagement{
     if("width" in update || "height" in update || "scale" in update){
       //tokenDocument.object.removeActionContainer();
       //tokenDocument.object.renderActionContainer(mode == 2 || tokenDocument.object._controlled ? false : true); 
+
+      /* When the token is resized or changed in scale, the actionContainer will hide itself for some reason*/
     }
 
-    if("tint" in update || "img" in update || "flags" in update){
-      //ActionManagement._renderActionMarkers([tokenDocument.object]);
-    }
+    if("tint" in update || "img" in update || "flags" in update)
+      tokenDocument.object.updateActionMarkers();  
+  }
+
+  static async _preCreateChatMessage(messageDocument, messageData, options, userId){
+    const types = Object.keys(MODULE[NAME].default);
+    const speaker = messageData.speaker;
+
+    logger.debug("_preCreateChatMessage | DATA | ", {
+      types, speaker, messageData,
+    });
+
+    if(!speaker.scene || !speaker.token || !game.combats.reduce((a,c) => a || c.started, false)) return;
+
+    const item_id = $(messageData.content).attr("data-item-id");
+    const token = await fromUuid(`Scene.${speaker.scene}.Token.${speaker.token}`);
+
+    logger.debug("_preCreateChatMessage | DATA | ", {
+      item_id, token,
+    });
+
+    if(!item_id || !token || !MODULE.isFirstOwner(token.actor)) return;
+
+    const item = token.actor.items.get(item_id);
+
+    logger.debug("_preCreateChatMessage | DATA | ", {
+      item,
+    });
+
+    if(!item || !types.includes(item.data.data.activation.type)) return;
+    const type = item.data.data.activation.type;
+    
+    logger.debug("_preCreateChatMessage | DATA | ", {
+      type,
+    });
+
+    await token.object.iterateActionFlag(type);
   }
 
   /**
@@ -132,11 +185,18 @@ export class ActionManagement{
       return this.children?.find(i => i[NAME]);
     }
 
-    Token.prototype.toggleActionMarker = function(type){
+    Token.prototype.updateActionMarkers = function(){
+      const flag = this.getActionFlag();
       const container = this.getActionContainer();
-      if(container){
+
+      if(!container || !flag) return;
+
+      for(const type of Object.keys(MODULE[NAME].default)){
         const element = container.children.find(e => e.actionType == type);
-        element.alpha = element.alpha == 1 ? 0.2 : 1; 
+        if(flag[type] > 0)
+          element.alpha = 0.2;
+        else
+          element.alpha = 1;
       }
     }
 
@@ -147,10 +207,19 @@ export class ActionManagement{
     Token.prototype.iterateActionFlag = async function(type){
       let flag = this.getActionFlag() ?? MODULE[NAME].default;
       flag[type] += 1;
+
+      logger.debug("iterateActionFlag | DATA | ", {
+        type, flag, token : this, scope : MODULE.data.name, key : MODULE[NAME].flagKey,
+      });
+
       return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, flag);
     }
 
     Token.prototype.resetActionFlag = async function(){
+      logger.debug("resetActionFlag | DATA | ", {
+        token : this, default : MODULE[NAME].default,
+      });
+
       return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, MODULE[NAME].default);
     }
   }
@@ -200,6 +269,10 @@ export class ActionManagement{
       }else
         i.zIndex = -1000;
     }
+
+    logger.debug("_rednerActionContainer | DATA | ", {
+      actions, container, textures, token, state, size, hAlign, vAlign, scale
+    });
 
     /* return Container*/
     return container;

@@ -70,6 +70,7 @@ export class RestEffects{
           if(status === "Short Rest" || status === "Long Rest")
             await effect.delete();
         }
+      return result;
     }
 
     //patch short rest
@@ -83,6 +84,7 @@ export class RestEffects{
             await effect.delete();
         }
       }
+      return result;
     }
   }
 }
