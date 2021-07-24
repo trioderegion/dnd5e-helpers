@@ -123,17 +123,18 @@ export class ActionManagement{
     if(mode == 0 || !tokenDocument.inCombat) return;
 
     if("width" in update || "height" in update || "scale" in update){
-      //tokenDocument.object.removeActionContainer();
-      //tokenDocument.object.renderActionContainer(mode == 2 || tokenDocument.object._controlled ? false : true); 
-
-      /* When the token is resized or changed in scale, the actionContainer will hide itself for some reason*/
+      ActionManagement._renderActionContainer(tokenDocument.object, mode === 2 || !tokenDocument.object._controlled ? false : true );
     }
 
     if("tint" in update || "img" in update || "flags" in update)
-      tokenDocument.object.updateActionMarkers();  
+      tokenDocument.object.updateActionMarkers();
+      
+    logger.debug("_updateToken | Data | ", {
+      tokenDocument, mode, update, container : tokenDocument.object.getActionContainer(),
+    });
   }
 
-  static async _preCreateChatMessage(messageDocument, messageData, options, userId){
+  static async _preCreateChatMessage(messageDocument, messageData, /*options, userId*/){
     const types = Object.keys(MODULE[NAME].default);
     const speaker = messageData.speaker;
 
@@ -204,9 +205,10 @@ export class ActionManagement{
       return this.document.getFlag(MODULE.data.name, MODULE[NAME].flagKey);
     }
 
-    Token.prototype.iterateActionFlag = async function(type){
+    Token.prototype.iterateActionFlag = async function(type, value){
       let flag = this.getActionFlag() ?? MODULE[NAME].default;
-      flag[type] += 1;
+      if(value === undefined) flag[type] += 1;
+      else flag[type] = value;
 
       logger.debug("iterateActionFlag | DATA | ", {
         type, flag, token : this, scope : MODULE.data.name, key : MODULE[NAME].flagKey,
@@ -259,18 +261,32 @@ export class ActionManagement{
       let s = new PIXI.Sprite(v);
       s.anchor.set(0.5);
       s.scale.set(scale);
-      
-      let i = await container.addChild(s);
-      i.position.set(hAlign * MODULE[NAME].offset[k].h, vAlign * MODULE[NAME].offset[k].v);
+      s.position.set(hAlign * MODULE[NAME].offset[k].h, vAlign * MODULE[NAME].offset[k].v);
+    
       if(k !== "background"){
-        i.actionType = k;
-        i.tint = 13421772;
-        i.alpha = actions[k] === 0 ? 1 : 0.2;
-      }else
-        i.zIndex = -1000;
+        s.interactive = true;
+        s.buttonMode = true;
+        s.actionType = k;
+        s.tint = 13421772;
+        s.alpha = actions[k] === 0 ? 1 : 0.2;
+        s.on("mousedown", (event) => {
+          logger.debug("_MouseDown | Sprite |", event, token, container);
+          const actions = token.getActionFlag();
+          if(actions)
+            token.iterateActionFlag(k, actions[k] == 0 ? 1 : 0);
+        });
+      }else{
+        s.zIndex = -1000;
+      }
+      
+      let i = container.addChild(s);
+
+      logger.debug("_renderAction Container", {
+        s, i, k, v
+      });
     }
 
-    logger.debug("_rednerActionContainer | DATA | ", {
+    logger.debug("_renderActionContainer | DATA | ", {
       actions, container, textures, token, state, size, hAlign, vAlign, scale
     });
 
