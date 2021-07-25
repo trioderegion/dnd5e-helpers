@@ -11,7 +11,7 @@
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
 
-    "DND5EH.flagsNoCover" : "Ignore half and three-quaters cover",
+    "DND5EH.flagsNoCover" : "Ignore half and three-quarters cover",
     "DND5EH.flagsNoCoverHint" : "Provided by feats.",
     "DND5EH.flagsWildMagic" : "Wild Magic Surge",
     "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation",
