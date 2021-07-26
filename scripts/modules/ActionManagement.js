@@ -261,7 +261,7 @@ export class ActionManagement{
       let s = new PIXI.Sprite(v);
       s.anchor.set(0.5);
       s.scale.set(scale);
-      s.position.set(hAlign * MODULE[NAME].offset[k].h, vAlign * MODULE[NAME].offset[k].v);
+      s.position.set(hAlign * MODULE[NAME].offset[k].h, vAlign /* MODULE[NAME].offset[k].v*/);
     
       if(k !== "background"){
         s.interactive = true;
@@ -270,10 +270,11 @@ export class ActionManagement{
         s.tint = 13421772;
         s.alpha = actions[k] === 0 ? 1 : 0.2;
         s.on("mousedown", (event) => {
-          logger.debug("_MouseDown | Sprite |", event, token, container);
           const actions = token.getActionFlag();
-          if(actions)
+          const container = token.getActionContainer();
+          if(actions && container.visible)
             token.iterateActionFlag(k, actions[k] == 0 ? 1 : 0);
+          logger.debug("_MouseDown | DATA |", { event, token, container, actions });
         });
       }else{
         s.zIndex = -1000;
