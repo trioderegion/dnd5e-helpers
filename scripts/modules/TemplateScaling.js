@@ -53,7 +53,7 @@ export class TemplateScaling {
      *  b10 = circles,
      *  b11 = both 
      */
-    const templateMode = game.settings.get('dnd5e-helpers', 'gridTemplateScaling');
+    const templateMode = MODULE.setting('gridTemplateScaling');
 
     /** if template adjusting is not enabled, bail out */
     if (templateMode == 0) {
