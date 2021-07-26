@@ -5,6 +5,7 @@ import { RestEffects } from './modules/RestEffects.js';
 import { CoverCalculator } from './modules/CoverCalculator.js';
 import { ActionManagement } from './modules/ActionManagement.js';
 import { TemplateScaling } from './modules/TemplateScaling.js';
+import { AbilityRecharge } from './modules/AbilityRecharge.js';
 
 const SUB_MODULES = {
   MODULE,
@@ -13,7 +14,8 @@ const SUB_MODULES = {
   RestEffects,
   CoverCalculator,
   ActionManagement,
-  TemplateScaling
+  TemplateScaling,
+  AbilityRecharge
 };
 
 /*
