@@ -58,6 +58,10 @@ export class ActionManagement{
            */
         },
       }
+      /**
+       * @todo add new setting to handle container location
+       * @todo add new setting for click handler (and dialog availability)
+       */
     };
 
     MODULE.applySettings(settingData);
@@ -72,6 +76,7 @@ export class ActionManagement{
     Hooks.on(`controlToken`, ActionManagement._controlToken);
     Hooks.on(`updateToken`, ActionManagement._updateToken);
     Hooks.on(`preCreateChatMessage`, ActionManagement._preCreateChatMessage);
+    Hooks.on(`deleteCombat`, ActionManagement._deleteCombat);
   }
 
   static patch(){
@@ -99,12 +104,25 @@ export class ActionManagement{
 
     if(MODULE.isFirstTurn(combat, changed) && MODULE.isFirstGM())
       for(let combatant of combat.combatants){
-        await combatant.token.object.resetActionFlag();
-        await ActionManagement._renderActionContainer(combatant.token.object, combatant.token.object._controlled);
+        const token = combatant.token.object;
+        await token.resetActionFlag();
+        await token.renderActionContainer(combatant.token.object._controlled);
       }
     
     if(MODULE.isTurnChange(combat, changed) && MODULE.isFirstOwner(combat.combatant.token.actor)){
       await combat.combatant.token.object.resetActionFlag();
+    }
+  }
+
+  static async _deleteCombat(combat, /* options, userId */){
+    const mode = MODULE.setting('cbtReactionEnable');
+    if(mode == 0) return;
+
+    for(const combatant of combat.combatants){
+      const token = combatant.token.object;
+
+      if(token.hasActionContainer()) await token.removeActionContainer();
+      if(token.hasActionFlag()) await token.removeActionFlag();
     }
   }
 
@@ -205,6 +223,10 @@ export class ActionManagement{
       return this.document.getFlag(MODULE.data.name, MODULE[NAME].flagKey);
     }
 
+    Token.prototype.hasActionFlag = function(){
+      return !!this.getActionFlag();
+    }
+
     Token.prototype.iterateActionFlag = async function(type, value){
       let flag = this.getActionFlag() ?? MODULE[NAME].default;
       if(value === undefined) flag[type] += 1;
@@ -223,6 +245,21 @@ export class ActionManagement{
       });
 
       return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, MODULE[NAME].default);
+    }
+
+    Token.prototype.removeActionContainer = function(){
+      if(this.hasActionContainer()) return this.removeChild(this.getActionContainer());
+    }
+
+    Token.prototype.removeActionFlag = async function(){
+      if(!!this.getActionFlag()) return this.document.update({[`flags.${MODULE.data.name}.-=${MODULE[NAME].flagKey}`] : null });
+    }
+
+    Token.prototype.renderActionContainer = function(state){
+      if(this.hasActionContainer())
+        return this.toggleActionContainer(state);
+      else
+        return ActionManagement._renderActionContainer(this, state);
     }
   }
 
@@ -274,7 +311,9 @@ export class ActionManagement{
           const container = token.getActionContainer();
           if(actions && container.visible)
             token.iterateActionFlag(k, actions[k] == 0 ? 1 : 0);
-          logger.debug("_MouseDown | DATA |", { event, token, container, actions });
+          logger.debug("_MouseDown | DATA |", { 
+            event, token, container, actions
+          });
         });
       }else{
         s.zIndex = -1000;
@@ -293,9 +332,5 @@ export class ActionManagement{
 
     /* return Container*/
     return container;
-  }
-
-  static _removeActionContainer(token){
-    if(token.hasActionContainer()) return token.removeChild(token.getActionContainer());
   }
 }
