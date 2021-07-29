@@ -45,11 +45,12 @@ export class AbilityRecharge {
     if (!MODULE.isTurnChange(combat, changed) || !MODULE.isFirstGM()) return;
 
     /** get the turn of interest */
-    const {next, previous} = MODULE.getChangedTurns(combat, changed);
+    const next = combat.combatants.get(combat.current.combatantId);
+    const previous = combat.combatants.get(combat.previous.combatantId);
 
     const turn = setting === 1 ? next : setting === 2 ? previous : null;
 
-    const token = !!turn?.token ? canvas.tokens.get(turn.token?.id) : null;
+    const token = turn?.token?.object;
 
     if (token) AbilityRecharge._recharge(token);
   }
