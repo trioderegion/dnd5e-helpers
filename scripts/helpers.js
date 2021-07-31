@@ -6,6 +6,7 @@ import { CoverCalculator } from './modules/CoverCalculator.js';
 import { ActionManagement } from './modules/ActionManagement.js';
 import { TemplateScaling } from './modules/TemplateScaling.js';
 import { AbilityRecharge } from './modules/AbilityRecharge.js';
+import { Regeneration } from './modules/Regeneration.js';
 
 const SUB_MODULES = {
   MODULE,
@@ -15,7 +16,8 @@ const SUB_MODULES = {
   CoverCalculator,
   ActionManagement,
   TemplateScaling,
-  AbilityRecharge
+  AbilityRecharge,
+  Regeneration
 };
 
 /*

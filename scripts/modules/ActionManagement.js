@@ -160,7 +160,7 @@ export class ActionManagement{
       types, speaker, messageData,
     });
 
-    if(!speaker.scene || !speaker.token || !game.combats.reduce((a,c) => a || c.started, false)) return;
+    if(!speaker || !speaker.scene || !speaker.token || !game.combats.reduce((a,c) => a || c.started, false)) return;
 
     const item_id = $(messageData.content).attr("data-item-id");
     const token = await fromUuid(`Scene.${speaker.scene}.Token.${speaker.token}`);
