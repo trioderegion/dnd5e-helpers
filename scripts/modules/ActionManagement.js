@@ -1,5 +1,6 @@
 import { MODULE } from '../module.js';
 import { logger } from '../logger.js';
+import { queueUpdate } from './update-queue.js'
 
 const NAME = "ActionManagement";
 
@@ -131,8 +132,13 @@ export class ActionManagement{
     if(mode == 0) return;
 
     if(token.inCombat){
-      if(token.hasActionContainer()) token.toggleActionContainer(mode === 2 || !state ? false : true);
-      else ActionManagement._renderActionContainer(token, mode === 2 || !state ? false : true);
+
+      queueUpdate( async () => {
+        if(token.hasActionContainer()) token.toggleActionContainer(mode === 2 || !state ? false : true);
+        else await ActionManagement._renderActionContainer(token, mode === 2 || !state ? false : true);
+        return token.drawEffects();
+      });
+
     }
   }
 
@@ -260,6 +266,28 @@ export class ActionManagement{
         return this.toggleActionContainer(state);
       else
         return ActionManagement._renderActionContainer(this, state);
+    }
+
+    //from foundry.js:44998 as of v0.8.8.
+    Token.prototype._drawEffect = async function (src, index, bg, w, tint) {
+      let tex = await loadTexture(src);
+      let icon = this.effects.addChild(new PIXI.Sprite(tex));
+      icon.width = icon.height = w;
+      
+      //BEGIN D5H
+      /* if the action hud is visible, offset the start offset
+       * of the icons */
+      const actionHeight = this.getActionContainer()?.visible ? this.getActionContainer().getLocalBounds().bottom : 0;
+
+      const numColumns = Math.floor(this.data.width * 5);
+      icon.x = (index % numColumns) * w;
+      
+      icon.y = actionHeight + Math.floor(index/numColumns) * icon.height;
+      //END D5H
+
+      if ( tint ) icon.tint = tint;
+      bg.drawRoundedRect(icon.x + 1, icon.y + 1, w - 2, w - 2, 2);
+      this.effects.addChild(icon);
     }
   }
 
