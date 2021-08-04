@@ -7,6 +7,10 @@ import { ActionManagement } from './modules/ActionManagement.js';
 import { TemplateScaling } from './modules/TemplateScaling.js';
 import { AbilityRecharge } from './modules/AbilityRecharge.js';
 import { Regeneration } from './modules/Regeneration.js';
+import { LegendaryActionManagement } from './modules/LegendaryActionManagement.js';
+
+// @todo delete
+import { ActionDialog } from './apps/action-dialog.js'
 
 const SUB_MODULES = {
   MODULE,
@@ -17,7 +21,8 @@ const SUB_MODULES = {
   ActionManagement,
   TemplateScaling,
   AbilityRecharge,
-  Regeneration
+  Regeneration,
+  LegendaryActionManagement,
 };
 
 /*
@@ -33,4 +38,5 @@ Hooks.on(`setup`, () => {
 
   //GlobalTesting
   Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
+  window["ActionDialog"] = ActionDialog;
 });

@@ -1,0 +1,37 @@
+        <div class="container">
+          <div class="row">
+            <div class="col">
+                <button type="button" class="img-button">
+                  <!-- <img src="${tokenImg}" title="${lairActor[0]}"> -->
+              </button>
+            </div>
+              <div class="row">
+                <div class="container">
+                  <div class="col">
+                    {{#each renderData as |rdata id|}}
+                    {{rdata.tokenId}}
+                    {{rdata.name}} </br>
+                    {{rdata.img}} </br>
+                    {{rdata.charges}} </br>
+                    Items </br>
+                    {{#each rdata.actions as |action id|}}
+                    {{action.id}}
+                    {{action.name}}
+                    {{action.cost}} </br>
+                    {{action.description}} </br> </br>
+                    {{/each}}
+                    {{/each}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+        </div>
+        <div class="dialog-buttons">
+          {{#each buttons as |button id|}}
+          <button class="dialog-button {{cssClass}}" data-button="{{id}}">
+            {{{button.icon}}}
+            {{{button.label}}}
+          </button>
+          {{/each}}
+        </div>
