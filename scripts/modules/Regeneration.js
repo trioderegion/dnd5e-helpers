@@ -88,14 +88,16 @@ export class Regeneration {
     return actorHP;
   }
 
+  /* @private */
   static _parseRegenFeature(item) {
 
     /* @todo localize 'hit points'! */
-    const regenRegExp = new RegExp("([0-9]+|[0-9]*d0*[1-9][0-9]*) hit points");
+    const hitPointsString = MODULE.localize("DND5EH.AutoRegen_HP");
+    const regenRegExp = new RegExp(`([0-9]+|[0-9]*d0*[1-9][0-9]*) ${hitPointsString}`);
     let match = item.data.data.description.value.match(regenRegExp);
 
     if (!match) {
-      logger.debug(`Could not parse ${item.name}'s description for a regeneration value`);
+      logger.debug(`Could not parse ${item.name}'s description for a regeneration value containing ${hitPointsString}`);
       return null;
     }
 

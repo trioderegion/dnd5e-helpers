@@ -139,6 +139,7 @@
     "setting.autoRegen.hint":"Automaticly prompts for regeneration rolls for the GM",
     "DND5EH.AutoRegen_Regneration": "Regeneration",
     "DND5EH.AutoRegen_SelfRepair": "Self-Repairing",
+    "DND5EH.AutoRegen_HP": "hit points",
     "setting.regenBlock.name" :"Effect Name to Block Regeneration",
     "setting.regenBlock.hint" : "What name should be checked to prevent the regeneration popup",
     "DND5EH.regenBlock_default" : "No Regen",
