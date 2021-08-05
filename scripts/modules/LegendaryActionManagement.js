@@ -55,7 +55,7 @@ export class LegendaryActionManagement{
       combatId : combatant.parent.id,
       itemIds : legendaryActions.map( item => item.id ),
     };
-
+    logger.debug(`Legendary action data for ${combatant.token.name}`, data);
     return data;
   }
 }

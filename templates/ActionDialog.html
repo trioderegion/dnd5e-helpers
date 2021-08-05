@@ -1,37 +1,32 @@
-        <div class="container">
-          <div class="row">
+<div class="container">
+  {{#each renderData as |rdata id|}}
+  <div class="row">
+    <div class="col">
+      <button type="button" class="img-button">
+        <img src="{{rdata.img}}" title="{{rdata.name}}">
+      </button>
+    </div>
+        <div class="col">
+          {{#each rdata.actions as |action id|}}
+          <div class="row form-group">
+            <div class="desc">{{{action.description}}}</div>
             <div class="col">
-                <button type="button" class="img-button">
-                  <!-- <img src="${tokenImg}" title="${lairActor[0]}"> -->
-              </button>
+              <label>{{action.name}}</label>
             </div>
-              <div class="row">
-                <div class="container">
-                  <div class="col">
-                    {{#each renderData as |rdata id|}}
-                    {{rdata.tokenId}}
-                    {{rdata.name}} </br>
-                    {{rdata.img}} </br>
-                    {{rdata.charges}} </br>
-                    Items </br>
-                    {{#each rdata.actions as |action id|}}
-                    {{action.id}}
-                    {{action.name}}
-                    {{action.cost}} </br>
-                    {{action.description}} </br> </br>
-                    {{/each}}
-                    {{/each}}
-                  </div>
-                </div>
-              </div>
+            <div class="col">
+              <button type="button" id="{{action.id}}" value="{tokenId},${v._id}">{{localize "DND5E.Uses"}} {{action.cost}}/{{rdata.charges}}</button>
             </div>
-            
-        </div>
-        <div class="dialog-buttons">
-          {{#each buttons as |button id|}}
-          <button class="dialog-button {{cssClass}}" data-button="{{id}}">
-            {{{button.icon}}}
-            {{{button.label}}}
-          </button>
+          </div>
           {{/each}}
         </div>
+  </div>
+  {{/each}}
+</div>
+<div class="dialog-buttons">
+  {{#each buttons as |button id|}}
+  <button class="dialog-button {{cssClass}}" data-button="{{id}}">
+    {{{button.icon}}}
+    {{{button.label}}}
+  </button>
+  {{/each}}
+</div>

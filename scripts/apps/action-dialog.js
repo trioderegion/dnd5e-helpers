@@ -19,9 +19,11 @@ export class ActionDialog extends Dialog {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       template : `modules/${MODULE.data.name}/templates/ActionDialog.html`,
-      classes : ["ActionDialog"],
+      classes: ["dnd5ehelpers legendary-action-dialog"], 
+      resizable: true,
       jQuery : true,
       width : 600,
+      close: () => {ui.notify}
     });
   }
 
@@ -48,14 +50,14 @@ export class ActionDialog extends Dialog {
         const actor = combatant.actor;
 
         const actions = actionData.itemIds.map( (id) => {
-          const item = actor.items.get(id);
+            const item = actor.items.get(id);
 
-          return {
-            id : id,
-            name : item.name,
-            cost : getProperty(item, 'data.data.activation.cost'),
-            description : getProperty(item, 'data.data.description.value')
-          }
+            return {
+              id : id,
+              name : item.name,
+              cost : getProperty(item, 'data.data.activation.cost'),
+              description : getProperty(item, 'data.data.description.value')
+            }
         });
 
         return {

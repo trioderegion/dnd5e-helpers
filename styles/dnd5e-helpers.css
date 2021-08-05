@@ -1,10 +1,13 @@
 .dnd5ehelpers .container {
   flex : 1;
   width: 100%;
+  height: auto;
 }
 .dnd5ehelpers .row {
     display: flex;
     flex-direction: row;
+    justify-content: space-evenly;
+    text-align: center;
   }
   .dnd5ehelpers .row>div {
     flex: 1;
@@ -12,8 +15,7 @@
   .dnd5ehelpers .col {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    height: 100%;
+    justify-content: space-evenly;
     text-align: center;
   }
   .dnd5ehelpers .img-button {
@@ -41,7 +43,7 @@
     right: -260px;
     width: 250px;
     border: 1px solid black;
-    text-align: justify;
+    text-align: left;
   }
   .dnd5ehelpers .form-group:hover .desc {
     display: block;
