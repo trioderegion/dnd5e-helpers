@@ -25,15 +25,33 @@ export class LegendaryActionManagement{
     Hooks.on('updateCombat', LegendaryActionManagement._updateCombat);
   }
 
+  /**
+   * Check Combatant for Legendary Actions, store information on the combat.
+   *  actorid, [itemid], 
+   * 
+   * @param {*} combatant 
+   * @returns 
+   */
   static _createCombatant(combatant) {
     if (!MODULE.isFirstGM()) return;
   }
 
+  /**
+   * 
+   * @param {*} combatant 
+   * @returns 
+   */
   static _deleteCombatant(combatant) {
     if (!MODULE.isFirstGM()) return;
 
   }
 
+  /**
+   * 
+   * @param {*} combat 
+   * @param {*} changed 
+   * @returns 
+   */
   static _updateCombat(combat, changed) {
     if (!MODULE.isFirstGM()) return;
 

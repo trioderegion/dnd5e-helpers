@@ -1,5 +1,12 @@
+/**
+ * Main Module Organizational Tools
+ */
 import { MODULE } from './module.js';
 import { logger } from './logger.js';
+
+/**
+ * Sub Modules
+ */
 import { DnDWildMagic } from './modules/DnDWildMagic.js';
 import { RestEffects } from './modules/RestEffects.js';
 import { CoverCalculator } from './modules/CoverCalculator.js';
@@ -9,7 +16,9 @@ import { AbilityRecharge } from './modules/AbilityRecharge.js';
 import { Regeneration } from './modules/Regeneration.js';
 import { LegendaryActionManagement } from './modules/LegendaryActionManagement.js';
 
-// @todo delete
+/**
+ * Sub Apps
+ */
 import { ActionDialog } from './apps/action-dialog.js'
 
 const SUB_MODULES = {
@@ -25,6 +34,10 @@ const SUB_MODULES = {
   LegendaryActionManagement,
 };
 
+const SUB_APPS = {
+  ActionDialog,
+}
+
 /*
   Initialize Module
 */
@@ -38,5 +51,5 @@ Hooks.on(`setup`, () => {
 
   //GlobalTesting
   Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
-  window["ActionDialog"] = ActionDialog;
+  Object.entries(SUB_APPS).forEach(([key, cl])=> window[key] = cl);
 });

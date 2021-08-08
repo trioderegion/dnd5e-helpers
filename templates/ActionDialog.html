@@ -1,26 +1,30 @@
 <div class="container">
-  {{#each renderData as |rdata id|}}
   <div class="row">
-    <div class="col">
-      <button type="button" class="img-button">
-        <img src="{{rdata.img}}" title="{{rdata.name}}">
-      </button>
+    <div class="combatant-img col">
+      <label>{{combatant.name}}</label>
+      <img id="{{combatant.id}}" src="{{combatant.img}}" title="{{combatant.name}}">
     </div>
+    {{#each combatant.items}}
+      {{#if this}}
         <div class="col">
-          {{#each rdata.actions as |action id|}}
-          <div class="row form-group">
-            <div class="desc">{{{action.description}}}</div>
-            <div class="col">
-              <label>{{action.name}}</label>
+          <label><b>{{@key}}</b></label>
+          {{#each this}}
+            <div class="desc">{{this.description}}</div>
+            <div class="button">
+              <button type="button" id="{{this.id}}" value="{{this.uuid}}">
+                <label>{{this.name}}</label>
+                <label>
+                  {{#if action.cost}}
+                    {{localize "DND5E.Uses"}} [{{action.cost}}/] 
+                  {{/if}}
+                </label>
+              </button>
             </div>
-            <div class="col">
-              <button type="button" id="{{action.id}}" value="{tokenId},${v._id}">{{localize "DND5E.Uses"}} {{action.cost}}/{{rdata.charges}}</button>
-            </div>
-          </div>
           {{/each}}
         </div>
+      {{/if}}
+    {{/each}}
   </div>
-  {{/each}}
 </div>
 <div class="dialog-buttons">
   {{#each buttons as |button id|}}
