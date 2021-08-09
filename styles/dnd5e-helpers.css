@@ -97,10 +97,11 @@
 
 .action-dialog .combatant-img {
   display: flex;
-}
-
-.action-dialog .button {
-  display: flex;
+  width: 75px;
+  height: auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
 }
 
 .action-dialog .col {
@@ -108,6 +109,8 @@
   flex-direction: column;
   justify-content: flex-start;
   text-align: center;
+  width: 25px;
+  height: auto;
 }
 
 .action-dialog .row {
@@ -120,4 +123,24 @@
   display: flex;
   text-align: center;
   padding: 1px;
+}
+
+.action-dialog .dialog-buttons {
+  display: flex;
+  text-align: center;
+  justify-content: flex-end;
+}
+
+.action-dialog .desc {
+  background-color: rgb(189 188 181);
+  color: #000;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  display: none;
+  position: absolute;
+  right: -260px;
+  width: 250px;
+  border: 1px solid black;
+  text-align: left;
 }

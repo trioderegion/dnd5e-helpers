@@ -30,13 +30,14 @@ export class ActionDialog extends Dialog {
       id : combatant.id,
       img : combatant.actor.img,
       name : combatant.actor.name,
+      economy : this.getCombatantItemData(combatant),
       items : {
-        actions : this.options?.action ? this.getCombatantData(combatant, "action") : undefined,
-        bonus : this.options?.bonus ? this.getCombatantData(combatant, "bonus") : undefined,
-        reaction : this.options?.reaction ? this.getCombatantData(combatant, "reaction"): undefined,
-        legendary : this.options?.legendary ? this.getCombatantData(combatant, "legendary") : undefined,
-        lair : this.options?.lair ? this.getCombatantData(combatant, "lair") : undefined,
-        special : this.options?.special ? this.getCombatantData(combatant, "special") : undefined,
+        action : this.options?.action ? this.getCombatantItemData(combatant, "action") : undefined,
+        bonus : this.options?.bonus ? this.getCombatantItemData(combatant, "bonus") : undefined,
+        reaction : this.options?.reaction ? this.getCombatantItemData(combatant, "reaction"): undefined,
+        legendary : this.options?.legendary ? this.getCombatantItemData(combatant, "legendary") : undefined,
+        lair : this.options?.lair ? this.getCombatantItemData(combatant, "lair") : undefined,
+        special : this.options?.special ? this.getCombatantItemData(combatant, "special") : undefined,
       }
     }
   }
@@ -57,12 +58,27 @@ export class ActionDialog extends Dialog {
     return this.data.tile;
   }
 
-  getCombatantData(combatant, type){
+  getCombatantItemData(combatant, type){
     return combatant.actor.items
       .filter(item => item?.data?.data?.activation?.type === type)
       .map(item => ({
-        name : item.name, id : item.id, cost : getProperty(item,'data.data.activation.cost'), description : getProperty(item ,'data.data.description.value'), img : item.img, uuid : item.uuid,
+        name : item.name, 
+        id : item.id,
+        activation : getProperty(item,'data.data.activation'), 
+        description : getProperty(item ,'data.data.description.value'), 
+        img : item.img, 
+        uuid : item.uuid,
       }));
+  }
+
+  getCombatantEconomyData(combatant){
+    return {
+      action : 1,
+      bonus : 1,
+      reaction : 1,
+      legendary : combatant.actor.data.data.resources?.legact,
+      lair : combatant.actor.data.data.resources?.lair
+    }
   }
 
   getData(options) {
@@ -77,7 +93,7 @@ export class ActionDialog extends Dialog {
   activateListeners(html){
     super.activateListeners(html);
     html.find(`#${this.data.combatant.id}`).on('click', this._onImgClick);
-    for(const item of Object.values(d.data.combatant.items).reduce((a,v) => a.concat(v.map(e => e.id)), [])){
+    for(const item of Object.values(d.data.combatant.items).reduce((a,v) => a.concat(v?.map(e => e.id) ?? []), [])){
       html.find(`#${item}`).on('click', this._onButtonClick);
     }
   }

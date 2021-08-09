@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="combatant-img col">
+    <div class="combatant-img">
       <label>{{combatant.name}}</label>
       <img id="{{combatant.id}}" src="{{combatant.img}}" title="{{combatant.name}}">
     </div>
@@ -14,8 +14,8 @@
               <button type="button" id="{{this.id}}" value="{{this.uuid}}">
                 <label>{{this.name}}</label>
                 <label>
-                  {{#if action.cost}}
-                    {{localize "DND5E.Uses"}} [{{action.cost}}/] 
+                  {{#if this.activation.cost}}
+                    [{{localize "DND5E.Uses"}} {{this.activation.cost}}]
                   {{/if}}
                 </label>
               </button>
@@ -26,6 +26,7 @@
     {{/each}}
   </div>
 </div>
+<hr>
 <div class="dialog-buttons">
   {{#each buttons as |button id|}}
   <button class="dialog-button {{cssClass}}" data-button="{{id}}">
