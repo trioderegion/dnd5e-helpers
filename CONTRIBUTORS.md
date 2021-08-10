@@ -14,4 +14,4 @@
 - brnmuller <70756628+brnmuller@users.noreply.github.com> - Brazilian-Portugese localization
 - MS-PBS <68601994+MS-PBS@users.noreply.github.com> - Spanish localization
 - xdy <xdy@users.noreply.github.com> - Wild Magic refactor; ToC recharge on surge
-- vtt-lair <werner.dohse@britehouse.co.za> - Wild Magic refactor; Volatile surge homebrew
+- vtt-lair <wdohse@gmail.com> - Wild Magic refactor; Volatile surge homebrew
