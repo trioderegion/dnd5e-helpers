@@ -1,6 +1,7 @@
 import { logger } from '../logger.js';
 import { MODULE } from '../module.js';
 import { queueUpdate } from './update-queue.js';
+import { OpenWounds } from './OpenWounds.js';
 
 const NAME = "GreatWounds";
 
@@ -30,7 +31,7 @@ export class GreatWound {
                 scope: "world", config, group: "combat", default: 15, type: Number,
             },
             GreatWoundItemSetting: {
-                scope: "world", config, group: "combat", default: false, type: String,
+                scope: "world", config, group: "combat", default: 0, type: String,
                 choices: {
                     0: MODULE.localize("option.GreatWoundItemSetting.none"),
                     1: MODULE.localize("option.GreatWoundItemSetting.item"),
@@ -68,6 +69,7 @@ export class GreatWound {
             updateHP: (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : 0),
             hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
         };
+        logger.debug("Great Wound update Data", { data });
 
         const gwFeatureName = MODULE.setting("GreatWoundFeatureName");
         // check if the change in hp would be over 50% max hp
@@ -133,10 +135,11 @@ export class GreatWound {
                 }),
             });
         }
+
     }
 
     static greatWoundSocket(socketData) {
-        if (!socketData.greatwound) return
+        if (!socketData.greatwound && socketData.hp > 0) return
         //Rolls Saves for owned tokens
         let actor = game.actors.get(socketData.actorId);
         for (const [key, value] of Object.entries(socketData.users)) {
@@ -147,8 +150,14 @@ export class GreatWound {
             }
 
         }
-        if (socketData.actionMarkers) {
-            DnDActionManagement.UpdateOpacities(socketData.tokenId);
+        if (socketData.hp === 0 && MODULE.setting("OpenWounds0HPGW")) {
+            const gwFeatureName = MODULE.setting("GreatWoundFeatureName");
+            DnDWounds.OpenWounds(
+                actor,
+                MODULE.format("DND5EH.OpenWoundSocketMessage", {
+                    gwFeatureName: gwFeatureName,
+                })
+            );
         }
     }
 
@@ -156,12 +165,12 @@ export class GreatWound {
         let roll = results[0].data
         const item = await MODULE.getItem(roll.collection, roll.resultId)
         queueUpdate(async () => {
-        switch(MODULE.setting("GreatWoundItemSetting")){
-            case "1": actor.createEmbeddedDocuments("Item", [item.data])
-            break;
-            case "2" : actor.createEmbeddedDocuments("ActiveEffect", [item.effects.contents[0].data])
-        }
-    })
+            switch (MODULE.setting("GreatWoundItemSetting")) {
+                case "1": await actor.createEmbeddedDocuments("Item", [item.data])
+                    break;
+                case "2": await actor.createEmbeddedDocuments("ActiveEffect", [item.effects.contents[0].data])
+            }
+        })
     }
 
 }

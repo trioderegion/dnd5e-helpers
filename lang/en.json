@@ -186,37 +186,40 @@
     "setting.GreatWoundSaveValue.name" : "Great Wound Save DC",
     "setting.GreatWoundSaveValue.hint" : "The save DC for preventing Great Wounds, set to 0 for no save",
 
-    "setting.GreatWoundItemSetting.name": "Apply effects to failed saves",
+    "setting.GreatWoundItemSetting.name": "Apply effects to Great Wounds",
     "setting.GreatWoundItemSetting.hint": "Applies Active Effects or Items from the table result to an actor",
     "option.GreatWoundItemSetting.none" : "Disabled",
     "option.GreatWoundItemSetting.item" : "Add Item to inventory",
     "option.GreatWoundItemSetting.effect" : "Add Item's Active Effect to Actor",
 
-    "DND5EH.OpenWoundFeaturename_name":"Open Wound feature name",
-    "DND5EH.OpenWoundFeaturename_hint":"What name to display for Open Wound functions.",
+    "setting.OpenWoundsFeatureName.name":"Open Wound feature name",
+    "setting.OpenWoundsFeatureName.hint":"What name to display for Open Wound functions.",
     "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} has suffered an {owFeatureName} {woundType}",
 
     "DND5EH.OpenWoundSocketMessage": "from {gwFeatureName} reduce them to 0 hp",
 
-    "DND5EH.OpenWoundDeathSave_name" :"Open Wound - Death Saves",
-    "DND5EH.OpenWoundDeathSave_hint" :"Open Wounds triggered on death saves failed by 5 or more",
+    "setting.OpenWoundDeathSave.name" :"Open Wound - Death Saves",
+    "setting.OpenWoundDeathSave.hint" :"[*]Open Wounds triggered on death saves lower than this value",
     "DND5EH.OpenWoundDeathSave_reason" :"from a failed death saving throw",
 
-    "DND5EH.OpenWoundCrit_name":"Open Wound - Crits",
-    "DND5EH.OpenWoundCrit_hint":"Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank",
+    "setting.OpenWoundCrit.name":"Open Wound - Crits",
+    "setting.OpenWoundCrit.hint":"Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank",
     "DND5EH.OpenWoundCrit_reason":"from a critical hit",
 
-    "DND5EH.OpenWound0HP_name":"Open Wound - HP at 0",
-    "DND5EH.OpenWound0HP_hint":"Open Wounds triggered on dropping to 0 HP",
+    "setting.OpenWound0HP.name":"Open Wound - HP at 0",
+    "setting.OpenWound0HP.hint":"Open Wounds triggered on dropping to 0 HP",
     "DND5EH.OpenWound0HP_reason":"from falling to 0hp",
 
-    "DND5EH.OpenWound0HPGW_name":"Open Wound - HP at 0 from a Great Wound",
-    "DND5EH.OpenWound0HPGW_hint":"Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)",
+    "setting.OpenWound0HPGW.name":"Open Wound - HP at 0 from a Great Wound",
+    "setting.OpenWound0HPGW.hint":"Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)",
 
 
     "DND5EH.OpenWoundTableName_name":"Open Wound Table",
     "DND5EH.OpenWoundTableName_hint":"Name of table that should be rolled on if a Open Wound occurs.",
     "DND5EH.OpenWoundTableName_error":"Looks like you haven't setup a table to use for {owFeatureName} yet",
+
+    "setting.OpenWoundItemSetting.name": "Apply effects to Open Wounds",
+    "setting.OpenWoundItemSetting.hint": "Applies Items from the table result to an actor",
 
     "DND5EH.OpenWoundDebug_name":"Debugging",
     "DND5EH.OpenWoundDebug_hint":"Adds a few console logs for debugging purposes",
