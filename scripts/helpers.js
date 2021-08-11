@@ -15,6 +15,7 @@ import { TemplateScaling } from './modules/TemplateScaling.js';
 import { AbilityRecharge } from './modules/AbilityRecharge.js';
 import { Regeneration } from './modules/Regeneration.js';
 import { LegendaryActionManagement } from './modules/LegendaryActionManagement.js';
+import { GreatWound } from './modules/GreatWounds.js';
 
 /**
  * Sub Apps
@@ -32,6 +33,7 @@ const SUB_MODULES = {
   AbilityRecharge,
   Regeneration,
   LegendaryActionManagement,
+  GreatWound
 };
 
 const SUB_APPS = {

@@ -118,4 +118,9 @@ export class MODULE{
       restricted : true,
     })
   }
+  static async getItem(key, id){
+    if(key === "Item") return game.items.get(id)
+    let pack = game.packs.get(key)
+    return await pack.getDocument(id)
+  }
 }
