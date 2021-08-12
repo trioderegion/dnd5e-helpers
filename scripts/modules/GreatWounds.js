@@ -103,9 +103,10 @@ export class GreatWound {
 
     static async DrawGreatWound(actor) {
         const gwFeatureName = MODULE.setting("GreatWoundFeatureName");
-        let gwSave = await actor.rollAbilitySave("con");
+        const saveTest = MODULE.setting("GreatWoundSaveValue");
+        let gwSave = saveTest > 0 ? await actor.rollAbilitySave("con") : {total: -5};
         let sanitizedTokenName = MODULE.sanitizeTokenName(actor, "GreatAndOpenWoundMaskNPC", "gwFeatureName")
-        if (gwSave.total < (MODULE.setting("GreatWoundSaveValue") ?? 100)) {
+        if (gwSave.total < saveTest) {
             const greatWoundTable = MODULE.setting("GreatWoundTableName");
             ChatMessage.create({
                 content: MODULE.format("DND5EH.GreatWoundDialogFailMessage", {
