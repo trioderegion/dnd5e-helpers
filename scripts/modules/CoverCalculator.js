@@ -138,6 +138,8 @@ export class CoverCalculator{
     Hooks.on(`targetToken`, CoverCalculator._targetToken);
     Hooks.on(`renderChatMessage`, CoverCalculator._renderChatMessage);
     Hooks.on(`updateCombat`, CoverCalculator._updateCombat);
+    Hooks.on(`deleteCombat`, CoverCalculator._deleteCombat);
+    Hooks.on(`deleteCombatant`, CoverCalculator._deleteCombatant);
   }
 
   static patch(){
@@ -164,7 +166,9 @@ export class CoverCalculator{
       for(let combatant of combat.combatants){
         const token = combatant?.token?.object;
         if(token)
-          await Cover._removeEffect(token);
+          queueUpdate( () => {
+            return Cover._removeEffect(token);
+          });
       }
     }
   }
@@ -173,7 +177,9 @@ export class CoverCalculator{
     if(MODULE.setting("losOnTarget") > 0 && MODULE.isFirstGM()){
       const token = combatant?.token?.object;
       if(token)
-        await Cover._removeEffect(token);
+        queueUpdate( () => {
+          return Cover._removeEffect(token);
+        });
     }
   }
   
