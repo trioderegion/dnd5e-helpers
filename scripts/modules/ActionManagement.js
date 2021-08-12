@@ -58,11 +58,15 @@ export class ActionManagement{
            * @todo deal with updates based on rapid changes.
            */
         },
-      }
+      },
+      hoverShow : {
+        scope : "client", type : Boolean, group : "combat", default : false, config,
+      },
       /**
        * @todo add new setting to handle container location
        * @todo add new setting for click handler (and dialog availability)
        */
+
     };
 
     MODULE.applySettings(settingData);
@@ -78,6 +82,7 @@ export class ActionManagement{
     Hooks.on(`updateToken`, ActionManagement._updateToken);
     Hooks.on(`preCreateChatMessage`, ActionManagement._preCreateChatMessage);
     Hooks.on(`deleteCombat`, ActionManagement._deleteCombat);
+    Hooks.on('hoverToken', ActionManagement._hoverToken);
   }
 
   static patch(){
@@ -191,6 +196,16 @@ export class ActionManagement{
     });
 
     await token.object.iterateActionFlag(type);
+  }
+
+  static async _hoverToken(token, state){
+    const setting = MODULE.setting('hoverShow');
+    const mode = MODULE.setting('cbtReactionEnable');
+
+    if(setting && mode !== 0 && token.inCombat){
+      token.renderActionContainer(state);
+      token.drawEffects();
+    }
   }
 
   /**
