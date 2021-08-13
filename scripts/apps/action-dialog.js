@@ -93,7 +93,7 @@ export class ActionDialog extends Dialog {
   activateListeners(html){
     super.activateListeners(html);
     html.find(`#${this.data.combatant.id}`).on('click', this._onImgClick);
-    for(const item of Object.values(d.data.combatant.items).reduce((a,v) => a.concat(v?.map(e => e.id) ?? []), [])){
+    for(const item of Object.values(this.data.combatant.items).reduce((a,v) => a.concat(v?.map(e => e.id) ?? []), [])){
       html.find(`#${item}`).on('click', this._onButtonClick);
     }
   }

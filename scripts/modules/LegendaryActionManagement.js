@@ -4,6 +4,19 @@ import { ActionDialog } from '../apps/action-dialog.js'
 
 const NAME = "LegendaryActionManagement";
 
+/** @todo need to support an array of actors, not just a single one */
+class LegendaryActionDialog extends ActionDialog {
+
+  /** @override */
+  constructor(combatant) {
+
+    /* construct an action dialog using only legendary actions */
+    super(combatant, {legendary: true});
+  }
+
+}
+
+
 /**
  * LegendaryActionManagement
  *  This Module strictly manages Legendary action economy per the dnd5e rules.
@@ -59,21 +72,10 @@ export class LegendaryActionManagement{
 
   /** @private */
   /*
-   * Generates the object containing all relevant
-   * information to render and run an Action Dialog
+   * Generates the action dialog for legendary actions 
    * @param {Object} combatant
    */
-  static _legendaryActionData(combatant) {
-
-    /* collect item list of legendary actions */
-    const legendaryActions = combatant.token.actor.items.filter( item => item.data?.data?.activation?.type === "legendary" );
-
-    let data = {
-      combatantId : combatant.id,
-      combatId : combatant.parent.id,
-      itemIds : legendaryActions.map( item => item.id ),
-    };
-    logger.debug(`Legendary action data for ${combatant.token.name}`, data);
-    return data;
+  static showLegendaryActions(combatant) {
+    new LegendaryActionDialog(combatant).render(true);
   }
 }
