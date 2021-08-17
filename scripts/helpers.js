@@ -17,6 +17,7 @@ import { Regeneration } from './modules/Regeneration.js';
 import { LegendaryActionManagement } from './modules/LegendaryActionManagement.js';
 import { GreatWound } from './modules/GreatWounds.js';
 import { OpenWounds } from './modules/OpenWounds.js';
+import { UndeadFort } from './modules/Undead Fortitude.js';
 
 /**
  * Sub Apps
@@ -35,7 +36,8 @@ const SUB_MODULES = {
   Regeneration,
   LegendaryActionManagement,
   GreatWound,
-  OpenWounds
+  OpenWounds,
+  UndeadFort
 };
 
 const SUB_APPS = {
