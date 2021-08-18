@@ -8,10 +8,12 @@ const NAME = "LegendaryActionManagement";
 class LegendaryActionDialog extends ActionDialog {
 
   /** @override */
-  constructor(combatant) {
+  constructor(combatants) {
 
     /* construct an action dialog using only legendary actions */
-    super(combatant, {legendary: true});
+
+    /** @todo parent class needs to accept array of combatants */
+    super(combatants, {legendary: true});
   }
 
 }
@@ -29,12 +31,22 @@ export class LegendaryActionManagement{
   }
 
   static settings(){
+    const config = false;
+    const settingsData = {
+      legendaryActionHelper : {
+        scope : "world", config, group: "combat", default: 0, type: Boolean,
+      }
+    };
 
+    MODULE.applySettings(settingsData);
   }
 
   static hooks() {
     Hooks.on('createCombatant', LegendaryActionManagement._createCombatant);
-    Hooks.on('deleteCombatant', LegendaryActionManagement._deleteCombatant);
+    
+    //not needed as the flag for identification is now stored on the combatant itself
+    //Hooks.on('deleteCombatant', LegendaryActionManagement._deleteCombatant);
+
     Hooks.on('updateCombat', LegendaryActionManagement._updateCombat);
   }
 
@@ -42,20 +54,20 @@ export class LegendaryActionManagement{
    * Check Combatant for Legendary Actions, store information on the combat.
    *  actorid, [itemid], 
    * 
-   * @param {*} combatant 
+   * @param {Combatant} combatant 
    * @returns 
    */
   static _createCombatant(combatant) {
-    if (!MODULE.isFirstGM()) return;
-  }
 
-  /**
-   * 
-   * @param {*} combatant 
-   * @returns 
-   */
-  static _deleteCombatant(combatant) {
-    if (!MODULE.isFirstGM()) return;
+    /* do not run if not the first GM or the feature is not enabled */
+    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+
+    const hasLegendary = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "legendary")
+
+    /* flag this combatant as a legendary actor for quick filtering */
+    if (hasLegendary){
+      queueUpdate( async () => await combatant.setFlag(MODULE.data.name, 'hasLegendary', true) )
+    }
 
   }
 
@@ -66,16 +78,28 @@ export class LegendaryActionManagement{
    * @returns 
    */
   static _updateCombat(combat, changed) {
-    if (!MODULE.isFirstGM()) return;
+
+    /* do not run if not the first GM or the feature is not enabled */
+    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+
+    /* only trigger legendary actions on a legit turn change */
+    if (!isTurnChange(combat, changed)) return;
+
+    /* Collect legendary combatants (but not the combatant whose turn just ended) */
+    const previousId = combat.previous?.combatantId;
+    const legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
+
+    /* send list of combantants to the action dialog subclass */
+    LegendaryActionManagement.showLegendaryActions(legendaryCombatants);
 
   }
 
   /** @private */
   /*
    * Generates the action dialog for legendary actions 
-   * @param {Object} combatant
+   * @param {Array of Object} combatants
    */
-  static showLegendaryActions(combatant) {
-    new LegendaryActionDialog(combatant).render(true);
+  static showLegendaryActions(combatants) {
+    new LegendaryActionDialog(combatants).render(true);
   }
 }

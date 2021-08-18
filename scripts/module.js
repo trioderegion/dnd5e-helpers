@@ -60,11 +60,13 @@ export class MODULE{
     return game.user.id === MODULE.firstGM()?.id;
   }
 
+  /* can use 'combat.current.combatantId' and 'combat.previous.combatantId' instead 
   static getChangedTurns(combat, changed) {
     const next = combat.turns[changed.turn];
     const previous = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
     return {next, previous};
   }
+  */
 
   static firstOwner(doc){
     const gmOwners = Object.entries(doc.data.permission)

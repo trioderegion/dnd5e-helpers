@@ -165,8 +165,8 @@
 
     "DND5EH.LairHelper_name" : "Lair Action Prompt",
     "DND5EH.LairHelper_hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
-    "DND5EH.CombatLegendary_Prompt_name" : "Legendary Action Prompt",
-    "DND5EH.CombatLegendary_Prompt_hint" : "Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
+    "setting.legendaryActionHelper.name" : "Legendary Action Prompt",
+    "setting.legendaryActionHelper.hint" : "Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "setting.GreatWoundEnable.name":"Great Wound",
     "setting.GreatWoundEnable.hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow,",
