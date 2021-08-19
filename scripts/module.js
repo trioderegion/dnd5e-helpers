@@ -1,5 +1,5 @@
 import { logger } from './logger.js';
-import { HelpersSettingsConfig } from './modules/config-app.js';
+import { HelpersSettingsConfig } from './apps/config-app.js';
 
 const NAME = "dnd5e-helpers";
 const PATH = `/modules/${NAME}`;
@@ -89,6 +89,18 @@ export class MODULE{
 
   static isFirstOwner(doc){
     return game.user.id === MODULE.firstOwner(doc).id;
+  }
+
+  static parseRollString(formula, data = {}){
+    let dataRgx = new RegExp(/@([a-z.0-9_\-]+)/gi);
+    return formula.replace(dataRgx, (match, term) => {
+      let value = foundry.utils.getProperty(data, term);
+      if ( value == null ) {
+        if ( ui.notifications ) logger.error("Unable to contruct string", {match, term});
+        return (missing !== undefined) ? String(missing) : match;
+      }
+      return String(value).trim();
+    });
   }
 
   static sanitizeActorName(actor, feature, label){
