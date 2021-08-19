@@ -3,6 +3,7 @@ import { Shape } from "./Shape.js";
 import { Segment } from "./Segment.js";
 import { Point } from "./Point.js";
 import { logger } from "../logger.js";
+import { queueUpdate } from "./update-queue.js"
 
 const NAME = "CoverCalculator";
 

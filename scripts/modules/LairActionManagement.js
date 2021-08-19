@@ -2,10 +2,10 @@ import { MODULE } from '../module.js';
 import { logger } from '../logger.js';
 import { ActionDialog } from '../apps/action-dialog.js'
 
-const NAME = "ActionManagement";
+const NAME = "LairActionManagement";
 
 /** @todo need to support an array of actors, not just a single one */
-class LegendaryActionDialog extends ActionDialog {
+class LairActionDialog extends ActionDialog {
 
   /** @override */
   constructor(combatants) {
@@ -13,7 +13,7 @@ class LegendaryActionDialog extends ActionDialog {
     /* construct an action dialog using only legendary actions */
 
     /** @todo parent class needs to accept array of combatants */
-    super(combatants, {legendary: true});
+    super(combatants, {lair: true});
   }
 
 }
@@ -23,7 +23,7 @@ class LegendaryActionDialog extends ActionDialog {
  * LegendaryActionManagement
  *  This Module strictly manages Legendary action economy per the dnd5e rules.
  */
-export class LegendaryActionManagement{
+export class LairActionManagement{
 
   static register(){
     this.settings();
@@ -33,7 +33,7 @@ export class LegendaryActionManagement{
   static settings(){
     const config = false;
     const settingsData = {
-      legendaryActionHelper : {
+      lairActionHelper : {
         scope : "world", config, group: "combat", default: 0, type: Boolean,
       }
     };
@@ -42,12 +42,12 @@ export class LegendaryActionManagement{
   }
 
   static hooks() {
-    Hooks.on('createCombatant', LegendaryActionManagement._createCombatant);
+    Hooks.on('createCombatant', LairActionManagement._createCombatant);
     
     //not needed as the flag for identification is now stored on the combatant itself
     //Hooks.on('deleteCombatant', LegendaryActionManagement._deleteCombatant);
 
-    Hooks.on('updateCombat', LegendaryActionManagement._updateCombat);
+    Hooks.on('updateCombat', LairActionManagement._updateCombat);
   }
 
   /**
@@ -60,13 +60,13 @@ export class LegendaryActionManagement{
   static _createCombatant(combatant) {
 
     /* do not run if not the first GM or the feature is not enabled */
-    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+    if (!MODULE.isFirstGM() || !MODULE.setting('lairActionHelper')) return;
 
-    const hasLegendary = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "legendary")
+    const hasLair = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "lair")
 
     /* flag this combatant as a legendary actor for quick filtering */
-    if (hasLegendary){
-      queueUpdate( async () => await combatant.setFlag(MODULE.data.name, 'hasLegendary', true) )
+    if (hasLair){
+      queueUpdate( async () => await combatant.setFlag(MODULE.data.name, 'hasLair', true) )
     }
 
   }
@@ -80,17 +80,19 @@ export class LegendaryActionManagement{
   static _updateCombat(combat, changed) {
 
     /* do not run if not the first GM or the feature is not enabled */
-    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+    if (!MODULE.isFirstGM() || !MODULE.setting('lairActionHelper')) return;
 
     /* only trigger legendary actions on a legit turn change */
     if (!isTurnChange(combat, changed)) return;
 
     /* Collect legendary combatants (but not the combatant whose turn just ended) */
     const previousId = combat.previous?.combatantId;
-    const legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
+
+    /** @todo create logic for crossing a combatant's defined lair init */
+    const lairCombatants = [] //combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLair') && combatant.id != previousId );
 
     /* send list of combantants to the action dialog subclass */
-    LegendaryActionManagement.showLegendaryActions(legendaryCombatants);
+    LairActionManagement.showLairActions(lairCombatants);
 
   }
 
@@ -99,7 +101,7 @@ export class LegendaryActionManagement{
    * Generates the action dialog for legendary actions 
    * @param {Array of Object} combatants
    */
-  static showLegendaryActions(combatants) {
-    new LegendaryActionDialog(combatants).render(true);
+  static showLairActions(combatants) {
+    new LairActionDialog(combatants).render(true);
   }
 }

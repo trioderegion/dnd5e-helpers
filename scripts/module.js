@@ -45,7 +45,11 @@ export class MODULE{
   }
 
   static isTurnChange(combat, changed){
-    return (combat.started || ("turn" in changed) || !(changed.turn === 0 && changed.round === 1) || combat.data.combatants.length !== 0);
+    const liveCombat = !!combat.started && ("turn" in changed)
+    const anyCombatants = (combat.data.combatants.length ?? 0) !== 0;
+    const notFirstTurn = !((changed.turn ?? undefined === 0) && (changed.round ?? 0) === 1)
+
+    return liveCombat && anyCombatants && notFirstTurn;
   }
 
   static isFirstTurn(combat, changed){
@@ -69,6 +73,9 @@ export class MODULE{
   */
 
   static firstOwner(doc){
+    /* null docs could mean an empty lookup, null docs are not owned by anyone */
+    if (!doc) return false;
+
     const gmOwners = Object.entries(doc.data.permission)
       .filter(([id,level]) => (game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
       .map(([id, level]) => id);

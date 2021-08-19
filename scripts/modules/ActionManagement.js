@@ -103,7 +103,7 @@ export class ActionManagement{
       isFirstTurn : MODULE.isFirstTurn(combat,changed),
       isTurnChange : MODULE.isTurnChange(combat, changed),
       isFirstGM : MODULE.isFirstGM(),
-      isFirstOwner : MODULE.isFirstOwner(combat.combatant.token.actor),
+      isFirstOwner : MODULE.isFirstOwner(combat.combatant?.token?.actor),
       combat,
       changed,
     });
