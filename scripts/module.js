@@ -46,7 +46,7 @@ export class MODULE{
 
   static isTurnChange(combat, changed){
     const liveCombat = !!combat.started && ("turn" in changed)
-    const anyCombatants = (combat.data.combatants.length ?? 0) !== 0;
+    const anyCombatants = (combat.data.combatants.size ?? 0) !== 0;
     const notFirstTurn = !((changed.turn ?? undefined === 0) && (changed.round ?? 0) === 1)
 
     return liveCombat && anyCombatants && notFirstTurn;

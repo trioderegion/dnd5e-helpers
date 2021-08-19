@@ -1,8 +1,9 @@
 import { MODULE } from '../module.js';
 import { logger } from '../logger.js';
 import { ActionDialog } from '../apps/action-dialog.js'
+import { queueUpdate } from './update-queue.js'
 
-const NAME = "ActionManagement";
+const NAME = "LegendaryActionManagement";
 
 /** @todo need to support an array of actors, not just a single one */
 class LegendaryActionDialog extends ActionDialog {
@@ -83,14 +84,16 @@ export class LegendaryActionManagement{
     if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
 
     /* only trigger legendary actions on a legit turn change */
-    if (!isTurnChange(combat, changed)) return;
+    if (!MODULE.isTurnChange(combat, changed)) return;
 
     /* Collect legendary combatants (but not the combatant whose turn just ended) */
     const previousId = combat.previous?.combatantId;
     const legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
 
     /* send list of combantants to the action dialog subclass */
-    LegendaryActionManagement.showLegendaryActions(legendaryCombatants);
+    if (legendaryCombatants.length > 0) {
+      LegendaryActionManagement.showLegendaryActions(legendaryCombatants);
+    }
 
   }
 
@@ -100,6 +103,9 @@ export class LegendaryActionManagement{
    * @param {Array of Object} combatants
    */
   static showLegendaryActions(combatants) {
-    new LegendaryActionDialog(combatants).render(true);
+    
+    ui.notifications.info(`Placeholder for ${combatants.length} legendary actors`);
+
+    //new LegendaryActionDialog(combatants).render(true);
   }
 }
