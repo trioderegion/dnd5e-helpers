@@ -123,10 +123,6 @@ export class LairActionManagement{
    * @param {Array of Object} combatants
    */
   static showLairActions(combatants) {
-    
-    ui.notifications.info(`Placeholder for ${combatants.length} number of lair actors`);
-
-    //new LairActionDialog(combatants).render(true);
-
+    new LairActionDialog(combatants).render(true);
   }
 }
