@@ -11,10 +11,11 @@ class LairActionDialog extends ActionDialog {
   /** @override */
   constructor(combatants) {
 
-    /* construct an action dialog using only legendary actions */
+    /* Localize title */
+    const title = MODULE.format("DND5E.LairActionLabel");
 
-    /** @todo parent class needs to accept array of combatants */
-    super(combatants, {lair: true});
+    /* construct an action dialog using only legendary actions */
+    super(combatants, {lair: true, title});
   }
 
 }

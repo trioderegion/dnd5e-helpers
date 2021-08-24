@@ -56,7 +56,7 @@ export class ActionDialog extends Dialog {
   }
 
   get title() {
-    return this.data.tile;
+    return this.data.title;
   }
 
   getCombatantItemData(combatant, type){

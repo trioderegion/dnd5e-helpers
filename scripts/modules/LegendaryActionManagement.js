@@ -10,11 +10,12 @@ class LegendaryActionDialog extends ActionDialog {
 
   /** @override */
   constructor(combatants) {
+    
+    /* Localize title */
+    const title = MODULE.format("DND5E.LegAct");
 
     /* construct an action dialog using only legendary actions */
-
-    /** @todo parent class needs to accept array of combatants */
-    super(combatants, {legendary: true});
+    super(combatants, {legendary: true, title});
   }
 
 }
