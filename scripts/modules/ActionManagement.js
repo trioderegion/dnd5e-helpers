@@ -62,6 +62,13 @@ export class ActionManagement{
       hoverShow : {
         scope : "client", type : Boolean, group : "combat", default : false, config,
       },
+      /** @todo localize */
+      effectIconScale : {
+        scope : "client", type : Number, group : "system", default : 1, config,
+        onChange : () => {
+          canvas?.tokens.placeables.forEach( token => token.drawEffects() );
+        }
+      }
       /**
        * @todo add new setting to handle container location
        * @todo add new setting for click handler (and dialog availability)
@@ -233,10 +240,13 @@ export class ActionManagement{
 
       for(const type of Object.keys(MODULE[NAME].default)){
         const element = container.children.find(e => e.actionType == type);
-        if(flag[type] > 0)
+        if(flag[type] > 0) {
+          /* has been used */
           element.alpha = 0.2;
-        else
+        } else {
+          /* has been restored */
           element.alpha = 1;
+        }
       }
     }
 
@@ -248,7 +258,7 @@ export class ActionManagement{
       return !!this.getActionFlag();
     }
 
-    Token.prototype.iterateActionFlag = async function(type, value){
+    Token.prototype.iterateActionFlag = function(type, value){
       let flag = this.getActionFlag() ?? MODULE[NAME].default;
       if(value === undefined) flag[type] += 1;
       else flag[type] = value;
@@ -257,7 +267,13 @@ export class ActionManagement{
         type, flag, token : this, scope : MODULE.data.name, key : MODULE[NAME].flagKey,
       });
 
-      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, flag);
+      queueUpdate( async () => {
+        /* update any needed status icons for this change */
+        await this.toggleEffect( MODULE[NAME].img[type] , {active: value == 1 ? true : false} );
+
+        return this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, flag);
+      });
+      
     }
 
     Token.prototype.resetActionFlag = async function(){
@@ -287,21 +303,22 @@ export class ActionManagement{
     Token.prototype._drawEffect = async function (src, index, bg, w, tint) {
       let tex = await loadTexture(src);
       let icon = this.effects.addChild(new PIXI.Sprite(tex));
-      icon.width = icon.height = w;
       
       //BEGIN D5H
+      const scale = MODULE.setting('effectIconScale');
+      icon.width = icon.height = w * scale;
       /* if the action hud is visible, offset the start offset
        * of the icons */
       const actionHeight = this.getActionContainer()?.visible ? this.getActionContainer().getLocalBounds().bottom : 0;
 
-      const numColumns = Math.floor(this.data.width * 5);
-      icon.x = (index % numColumns) * w;
+      const numColumns = Math.floor(this.data.width/scale * 5);
+      icon.x = (index % numColumns) * icon.width;
       
       icon.y = actionHeight + Math.floor(index/numColumns) * icon.height;
       //END D5H
 
       if ( tint ) icon.tint = tint;
-      bg.drawRoundedRect(icon.x + 1, icon.y + 1, w - 2, w - 2, 2);
+      bg.drawRoundedRect(icon.x + 1, icon.y + 1, icon.width - 2, icon.height - 2, 2);
       this.effects.addChild(icon);
     }
   }
@@ -352,8 +369,9 @@ export class ActionManagement{
         s.on("mousedown", (event) => {
           const actions = token.getActionFlag();
           const container = token.getActionContainer();
-          if(actions && container.visible)
+          if(actions && container.visible) {
             token.iterateActionFlag(k, actions[k] == 0 ? 1 : 0);
+          }
           logger.debug("_MouseDown | DATA |", { 
             event, token, container, actions
           });
