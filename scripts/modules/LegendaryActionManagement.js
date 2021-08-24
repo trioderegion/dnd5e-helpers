@@ -106,6 +106,6 @@ export class LegendaryActionManagement{
     
     ui.notifications.info(`Placeholder for ${combatants.length} legendary actors`);
 
-    //new LegendaryActionDialog(combatants).render(true);
+    new LegendaryActionDialog(combatants).render(true);
   }
 }
