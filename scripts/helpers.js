@@ -15,6 +15,7 @@ import { TemplateScaling } from './modules/TemplateScaling.js';
 import { AbilityRecharge } from './modules/AbilityRecharge.js';
 import { Regeneration } from './modules/Regeneration.js';
 import { LegendaryActionManagement } from './modules/LegendaryActionManagement.js';
+import { LairActionManagement } from './modules/LairActionManagement.js';
 import { GreatWound } from './modules/GreatWounds.js';
 import { OpenWounds } from './modules/OpenWounds.js';
 import { UndeadFort } from './modules/Undead Fortitude.js';
@@ -35,6 +36,7 @@ const SUB_MODULES = {
   AbilityRecharge,
   Regeneration,
   LegendaryActionManagement,
+  LairActionManagement,
   GreatWound,
   OpenWounds,
   UndeadFort

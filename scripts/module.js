@@ -1,5 +1,5 @@
 import { logger } from './logger.js';
-import { HelpersSettingsConfig } from './modules/config-app.js';
+import { HelpersSettingsConfig } from './apps/config-app.js';
 
 const NAME = "dnd5e-helpers";
 const PATH = `/modules/${NAME}`;
@@ -45,7 +45,12 @@ export class MODULE{
   }
 
   static isTurnChange(combat, changed){
-    return (combat.started || ("turn" in changed) || !(changed.turn === 0 && changed.round === 1) || combat.data.combatants.length !== 0);
+    /* we need a turn change or a round change to consider this a live combat */
+    const liveCombat = !!combat.started && (("turn" in changed) || ('round' in changed));
+    const anyCombatants = (combat.data.combatants.size ?? 0) !== 0;
+    const notFirstTurn = !((changed.turn ?? undefined === 0) && (changed.round ?? 0) === 1)
+
+    return liveCombat && anyCombatants && notFirstTurn;
   }
 
   static isFirstTurn(combat, changed){
@@ -60,13 +65,18 @@ export class MODULE{
     return game.user.id === MODULE.firstGM()?.id;
   }
 
+  /* can use 'combat.current.combatantId' and 'combat.previous.combatantId' instead 
   static getChangedTurns(combat, changed) {
     const next = combat.turns[changed.turn];
     const previous = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
     return {next, previous};
   }
+  */
 
   static firstOwner(doc){
+    /* null docs could mean an empty lookup, null docs are not owned by anyone */
+    if (!doc) return false;
+
     const gmOwners = Object.entries(doc.data.permission)
       .filter(([id,level]) => (game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
       .map(([id, level]) => id);
@@ -80,6 +90,18 @@ export class MODULE{
 
   static isFirstOwner(doc){
     return game.user.id === MODULE.firstOwner(doc).id;
+  }
+
+  static parseRollString(formula, data = {}){
+    let dataRgx = new RegExp(/@([a-z.0-9_\-]+)/gi);
+    return formula.replace(dataRgx, (match, term) => {
+      let value = foundry.utils.getProperty(data, term);
+      if ( value == null ) {
+        if ( ui.notifications ) logger.error("Unable to contruct string", {match, term});
+        return (missing !== undefined) ? String(missing) : match;
+      }
+      return String(value).trim();
+    });
   }
 
   static sanitizeActorName(actor, feature, label){

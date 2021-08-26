@@ -53,10 +53,6 @@
   text-align: left;
 }
 
-.dnd5ehelpers .form-group:hover .desc {
-  display: block;
-}
-
 .dnd5ehelpers .dice-result .desc {
   background-color: rgb(208 208 215);
   color: #000;
@@ -74,6 +70,7 @@
   font-size: 1.2em;
   font-style: italic;
 }
+
 .dnd5ehelpers .dice-formula:hover .desc {
   display: block;
 }
@@ -143,4 +140,8 @@
   width: 250px;
   border: 1px solid black;
   text-align: left;
+}
+
+.action-dialog .hover-group:hover .desc {
+  display: block;
 }

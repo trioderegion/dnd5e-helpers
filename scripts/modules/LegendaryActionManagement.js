@@ -1,6 +1,7 @@
 import { MODULE } from '../module.js';
 import { logger } from '../logger.js';
 import { ActionDialog } from '../apps/action-dialog.js'
+import { queueUpdate } from './update-queue.js'
 
 const NAME = "LegendaryActionManagement";
 
@@ -8,10 +9,13 @@ const NAME = "LegendaryActionManagement";
 class LegendaryActionDialog extends ActionDialog {
 
   /** @override */
-  constructor(combatant) {
+  constructor(combatants) {
+    
+    /* Localize title */
+    const title = MODULE.format("DND5E.LegAct");
 
     /* construct an action dialog using only legendary actions */
-    super(combatant, {legendary: true});
+    super(combatants, {legendary: true, title});
   }
 
 }
@@ -23,18 +27,30 @@ class LegendaryActionDialog extends ActionDialog {
  */
 export class LegendaryActionManagement{
 
+  /** @public */
   static register(){
     this.settings();
     this.hooks();
   }
 
+  /** @public */
   static settings(){
+    const config = false;
+    const settingsData = {
+      legendaryActionRecharge : {
+        scope : "world", config, group: "npc-features", default: false, type: Boolean,
+      },
+      legendaryActionHelper : {
+        scope : "world", config, group: "npc-features", default: false, type: Boolean,
+      }
+    };
 
+    MODULE.applySettings(settingsData);
   }
 
+  /** @public */
   static hooks() {
     Hooks.on('createCombatant', LegendaryActionManagement._createCombatant);
-    Hooks.on('deleteCombatant', LegendaryActionManagement._deleteCombatant);
     Hooks.on('updateCombat', LegendaryActionManagement._updateCombat);
   }
 
@@ -42,40 +58,104 @@ export class LegendaryActionManagement{
    * Check Combatant for Legendary Actions, store information on the combat.
    *  actorid, [itemid], 
    * 
-   * @param {*} combatant 
+   * @param {Combatant} combatant 
    * @returns 
    */
   static _createCombatant(combatant) {
-    if (!MODULE.isFirstGM()) return;
+
+    /* do not run if not the first GM or the feature is not enabled */
+    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+
+    const hasLegendary = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "legendary")
+
+    /* flag this combatant as a legendary actor for quick filtering */
+    if (hasLegendary){
+      queueUpdate( async () => await combatant.setFlag(MODULE.data.name, 'hasLegendary', true) )
+    }
+
   }
 
-  /**
-   * 
-   * @param {*} combatant 
-   * @returns 
-   */
-  static _deleteCombatant(combatant) {
-    if (!MODULE.isFirstGM()) return;
-
-  }
-
-  /**
-   * 
+  /** @private */
+  /* 
    * @param {*} combat 
    * @param {*} changed 
    * @returns 
    */
   static _updateCombat(combat, changed) {
-    if (!MODULE.isFirstGM()) return;
+
+    /* do not run if not the first GM or the feature is not enabled */
+    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+
+    /* only trigger legendary actions on a legit turn change */
+    if (!MODULE.isTurnChange(combat, changed)) return;
+
+    /* Collect legendary combatants (but not the combatant whose turn just ended) */
+    const previousId = combat.previous?.combatantId;
+    const legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
+
+    /* send list of combantants to the action dialog subclass */
+    if (legendaryCombatants.length > 0) {
+      LegendaryActionManagement.showLegendaryActions(legendaryCombatants);
+    }
+
+    /* once the dialog for the "in-between" turn has been rendered, recharge legendary actions
+     * for the creature whose turn just ended. This is not entirely RAW, but due to order
+     * of operations it must be done 'late'. Since a creature cannot use a legendary
+     * action at the end of its own turn, nor on its own turn, recharging at end of turn
+     * rather than beginning of turn is functionally equivalent. */
+    if (previousId) {
+
+      /* does the previous combatant have legendary actions? */
+      const previousCombatant = combat.combatants.get(previousId);
+      if(!!previousCombatant?.getFlag(MODULE.data.name, 'hasLegendary')) {
+        LegendaryActionManagement.rechargeLegendaryActions(previousCombatant);
+      }
+
+
+    }
 
   }
 
   /** @private */
   /*
    * Generates the action dialog for legendary actions 
-   * @param {Object} combatant
+   * @param {Array of Object} combatants
    */
-  static showLegendaryActions(combatant) {
-    new LegendaryActionDialog(combatant).render(true);
+  static showLegendaryActions(combatants) {
+    new LegendaryActionDialog(combatants).render(true);
   }
+
+  /** @private */
+  /*
+   * @param {Combatant} combatant
+   *
+   * @return {Actor5e} modified actor document
+   */
+  static rechargeLegendaryActions(combatant) {
+
+    if (!combatant.actor || !combatant.token) {
+      return;
+    }
+
+    let legact = getProperty(combatant.actor, 'data.data.resources.legact');
+
+    /* does this creature have the legendary action counter? */
+    if (!!legact && legact.value !== null) {
+
+      /* only reset if needed */
+      if (legact.value < legact.max) {
+        ui.notifications.info(game.i18n.format("DND5EH.CombatLegendary_notification", {max: legact.max, tokenName: combatant.token.name}))
+
+        /* send the reset update and sheet refresh */
+        queueUpdate( async () => {
+          const newActor = await combatant.actor.update({'data.resources.legact.value': legact.max});
+          newActor.sheet.render(false);
+        });
+
+      }
+    }
+
+    return;
+  }
+
 }

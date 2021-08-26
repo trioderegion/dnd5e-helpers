@@ -62,6 +62,13 @@ export class ActionManagement{
       hoverShow : {
         scope : "client", type : Boolean, group : "combat", default : false, config,
       },
+      /** @todo localize */
+      effectIconScale : {
+        scope : "client", type : Number, group : "system", default : 1, config,
+        onChange : () => {
+          canvas?.tokens.placeables.forEach( token => token.drawEffects() );
+        }
+      }
       /**
        * @todo add new setting to handle container location
        * @todo add new setting for click handler (and dialog availability)
@@ -82,6 +89,7 @@ export class ActionManagement{
     Hooks.on(`updateToken`, ActionManagement._updateToken);
     Hooks.on(`preCreateChatMessage`, ActionManagement._preCreateChatMessage);
     Hooks.on(`deleteCombat`, ActionManagement._deleteCombat);
+    Hooks.on(`deleteCombatant`, ActionManagement._deleteCombatant);
     Hooks.on('hoverToken', ActionManagement._hoverToken);
   }
 
@@ -103,7 +111,7 @@ export class ActionManagement{
       isFirstTurn : MODULE.isFirstTurn(combat,changed),
       isTurnChange : MODULE.isTurnChange(combat, changed),
       isFirstGM : MODULE.isFirstGM(),
-      isFirstOwner : MODULE.isFirstOwner(combat.combatant.token.actor),
+      isFirstOwner : MODULE.isFirstOwner(combat.combatant?.token?.actor),
       combat,
       changed,
     });
@@ -125,10 +133,25 @@ export class ActionManagement{
     if(mode == 0) return;
 
     for(const combatant of combat.combatants){
-      const token = combatant.token.object;
+      ActionManagement._deleteCombatant(combatant);
+    }
+  }
 
-      if(token.hasActionContainer()) await token.removeActionContainer();
-      if(token.hasActionFlag()) await token.removeActionFlag();
+  static _deleteCombatant(combatant, /* options, userId */){
+    const token = combatant.token?.object;
+
+    if(token?.hasActionContainer()) {
+      queueUpdate( async () => {
+        await token.removeActionContainer();
+      });
+    }
+    if(token?.hasActionFlag()) {
+      /* reset its flags to 0 to update status effect icons */
+      queueUpdate( async () => {
+        await token.resetActionFlag();
+        await token.updateActionMarkers();
+        await token.removeActionFlag();
+      });
     }
   }
 
@@ -171,10 +194,12 @@ export class ActionManagement{
       types, speaker, messageData,
     });
 
-    if(!speaker || !speaker.scene || !speaker.token || !game.combats.reduce((a,c) => a || c.started, false)) return;
+    const token = await fromUuid(`Scene.${speaker.scene}.Token.${speaker.token}`);
+
+    //if(!speaker || !speaker.scene || !speaker.token || !game.combats.reduce((a,c) => a || c.started, false)) return;
+    if(!speaker || !speaker.scene || !speaker.token || (token.combatant?.combat.started ?? false) == false) return;
 
     const item_id = $(messageData.content).attr("data-item-id");
-    const token = await fromUuid(`Scene.${speaker.scene}.Token.${speaker.token}`);
 
     logger.debug("_preCreateChatMessage | DATA | ", {
       item_id, token,
@@ -189,13 +214,26 @@ export class ActionManagement{
     });
 
     if(!item || !types.includes(item.data.data.activation.type)) return;
-    const type = item.data.data.activation.type;
+    let type = item.data.data.activation.type;
     
     logger.debug("_preCreateChatMessage | DATA | ", {
       type,
     });
 
-    await token.object.iterateActionFlag(type);
+    type = ActionManagement._checkForReaction(type, token.combatant);
+    token.object.iterateActionFlag(type);
+  }
+
+  static _checkForReaction(actionType, combatant){
+
+    if (!combatant) return actionType;
+
+    /* if this is an action not on your turn, interpret as a reaction */
+    if(actionType === 'action' && combatant.id !== combatant.combat.current.combatantId) {
+      return 'reaction';
+    }
+
+    return actionType;
   }
 
   static async _hoverToken(token, state){
@@ -233,10 +271,18 @@ export class ActionManagement{
 
       for(const type of Object.keys(MODULE[NAME].default)){
         const element = container.children.find(e => e.actionType == type);
-        if(flag[type] > 0)
+        if(flag[type] > 0) {
+          /* has been used */
           element.alpha = 0.2;
-        else
+        } else {
+          /* has been restored */
           element.alpha = 1;
+        }
+
+        /* update any needed status icons for this change */
+        queueUpdate( async () => {
+          await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
+        });
       }
     }
 
@@ -248,8 +294,18 @@ export class ActionManagement{
       return !!this.getActionFlag();
     }
 
-    Token.prototype.iterateActionFlag = async function(type, value){
-      let flag = this.getActionFlag() ?? MODULE[NAME].default;
+    /** @return {Promise<TokenDocument>} */
+    Token.prototype.iterateActionFlag = function(type, value){
+
+      /* dont mess with flags if I am not in combat */
+      if (!this.combatant) return;
+
+      /* check current combat turn to see if we should treat an 
+       * action as a reaction 
+       */
+      //type = ActionManagement._checkForReaction(type, this.combatant);
+
+      let flag = this.getActionFlag() ?? duplicate(MODULE[NAME].default);
       if(value === undefined) flag[type] += 1;
       else flag[type] = value;
 
@@ -257,7 +313,8 @@ export class ActionManagement{
         type, flag, token : this, scope : MODULE.data.name, key : MODULE[NAME].flagKey,
       });
 
-      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, flag);
+      return this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, flag);
+      
     }
 
     Token.prototype.resetActionFlag = async function(){
@@ -265,7 +322,7 @@ export class ActionManagement{
         token : this, default : MODULE[NAME].default,
       });
 
-      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, MODULE[NAME].default);
+      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, duplicate(MODULE[NAME].default));
     }
 
     Token.prototype.removeActionContainer = function(){
@@ -287,21 +344,22 @@ export class ActionManagement{
     Token.prototype._drawEffect = async function (src, index, bg, w, tint) {
       let tex = await loadTexture(src);
       let icon = this.effects.addChild(new PIXI.Sprite(tex));
-      icon.width = icon.height = w;
       
       //BEGIN D5H
+      const scale = MODULE.setting('effectIconScale');
+      icon.width = icon.height = w * scale;
       /* if the action hud is visible, offset the start offset
        * of the icons */
       const actionHeight = this.getActionContainer()?.visible ? this.getActionContainer().getLocalBounds().bottom : 0;
 
-      const numColumns = Math.floor(this.data.width * 5);
-      icon.x = (index % numColumns) * w;
+      const numColumns = Math.floor(this.data.width/scale * 5);
+      icon.x = (index % numColumns) * icon.width;
       
       icon.y = actionHeight + Math.floor(index/numColumns) * icon.height;
       //END D5H
 
       if ( tint ) icon.tint = tint;
-      bg.drawRoundedRect(icon.x + 1, icon.y + 1, w - 2, w - 2, 2);
+      bg.drawRoundedRect(icon.x + 1, icon.y + 1, icon.width - 2, icon.height - 2, 2);
       this.effects.addChild(icon);
     }
   }
@@ -325,7 +383,7 @@ export class ActionManagement{
 
   static async _renderActionContainer(token, state){
     /* Define Constants */
-    const actions = token.getActionFlag() ?? MODULE[NAME].default;
+    const actions = token.getActionFlag() ?? duplicate(MODULE[NAME].default);
     const container = new PIXI.Container();
     const size = token.h, hAlign = token.w / 10, vAlign = token.h / 5, scale = 1/ (600/size);
 
@@ -349,11 +407,12 @@ export class ActionManagement{
         s.actionType = k;
         s.tint = 13421772;
         s.alpha = actions[k] === 0 ? 1 : 0.2;
-        s.on("mousedown", (event) => {
-          const actions = token.getActionFlag();
+        s.on("mousedown", async (event) => {
+          const actions = token.getActionFlag() ?? (duplicate(MODULE[NAME].default));
           const container = token.getActionContainer();
-          if(actions && container.visible)
-            token.iterateActionFlag(k, actions[k] == 0 ? 1 : 0);
+          if(container.visible) {
+            await token.iterateActionFlag(k, actions[k] > 0 ? 0 : 1);
+          }
           logger.debug("_MouseDown | DATA |", { 
             event, token, container, actions
           });
