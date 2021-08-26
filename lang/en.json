@@ -201,6 +201,8 @@
     "setting.OpenWoundsFeatureName.name":"Open Wound feature name",
     "setting.OpenWoundsFeatureName.hint":"What name to display for Open Wound functions.",
     "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} has suffered an {owFeatureName} {woundType}",
+    "setting.OpenWoundPcOnlyName.name" : "Open Wounds for PC's only",
+    "setting.OpenWoundPcOnlyName.hint" : "Only trigger the Open Wound process for actors owned by players",
 
     "DND5EH.OpenWoundSocketMessage": "from {gwFeatureName} reduce them to 0 hp",
 

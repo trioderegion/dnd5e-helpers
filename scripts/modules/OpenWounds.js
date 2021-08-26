@@ -17,6 +17,9 @@ export class OpenWounds {
             OpenWoundFeatureName: {
                 scope: "world", config, group: "combat", default: "Great Wound", type: String,
             },
+            OpenWoundPcOnlyName: {
+                scope: "world", config, group: "combat", default: false, type: Boolean
+            },
             OpenWoundTableName: {
                 scope: "world", config, group: "combat", default: "", type: String,
             },
@@ -89,6 +92,7 @@ export class OpenWounds {
     }
 
     static async OpenWounds(actor, woundType) {
+        if(MODULE.setting("OpenWoundPcOnlyName") && !actor.hasPlayerOwner) return
         logger.debug("Open Wounds info", { actor: actor, woundType: woundType })
         const owFeatureName = MODULE.setting("OpenWoundFeatureName");
         const openWoundTable = MODULE.setting("OpenWoundTableName");
