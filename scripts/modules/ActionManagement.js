@@ -194,10 +194,12 @@ export class ActionManagement{
       types, speaker, messageData,
     });
 
+    /* check validity of message */
+    if(!speaker || !speaker.scene || !speaker.token)  return;
     const token = await fromUuid(`Scene.${speaker.scene}.Token.${speaker.token}`);
 
-    //if(!speaker || !speaker.scene || !speaker.token || !game.combats.reduce((a,c) => a || c.started, false)) return;
-    if(!speaker || !speaker.scene || !speaker.token || (token.combatant?.combat.started ?? false) == false) return;
+    /* check that the token is in combat */
+    if ( (token.combatant?.combat.started ?? false) == false) return;
 
     const item_id = $(messageData.content).attr("data-item-id");
 
