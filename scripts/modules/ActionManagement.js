@@ -243,8 +243,16 @@ export class ActionManagement{
     const mode = MODULE.setting('cbtReactionEnable');
 
     if(setting && mode !== 0 && token.inCombat){
-      token.renderActionContainer(state);
-      token.drawEffects();
+      if(!state) {
+        setTimeout(function() {
+          token.renderActionContainer(state);
+          token.drawEffects();
+        }, 100)}
+      setTimeout(function() {
+        if(!token._hover && state) return;
+        token.renderActionContainer(state);
+        token.drawEffects();
+      }, 500)
     }
   }
 
