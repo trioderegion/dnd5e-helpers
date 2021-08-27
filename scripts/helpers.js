@@ -18,7 +18,7 @@ import { LegendaryActionManagement } from './modules/LegendaryActionManagement.j
 import { LairActionManagement } from './modules/LairActionManagement.js';
 import { GreatWound } from './modules/GreatWounds.js';
 import { OpenWounds } from './modules/OpenWounds.js';
-import { UndeadFort } from './modules/Undead Fortitude.js';
+import { UndeadFortitude } from './modules/UndeadFortitude.js'
 
 /**
  * Sub Apps
@@ -39,7 +39,7 @@ const SUB_MODULES = {
   LairActionManagement,
   GreatWound,
   OpenWounds,
-  UndeadFort
+  UndeadFortitude,
 };
 
 const SUB_APPS = {
