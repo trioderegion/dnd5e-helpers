@@ -73,6 +73,11 @@
     "setting.losWithTiles.name": "Tile Cover",
     "setting.losWithTiles.hint": "Allow Tiles to be factored into cover calculation",
 
+    "setting.actionMgmtEnable.name": "Enable Combat Action Management",
+    "setting.actionMgmtEnable.hint": "Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
+    "setting.hoverShow.name": "Show Action HUD on Hover",
+    "setting.hoverShow.hint": "Displays the action HUD on hover with a half second delay, instead of when controlled.",
+
     "setting.wmOptions.name":  "Wild Magic Auto-Detect",
     "setting.wmOptions.hint": "Enables or disables auto detection of Wild Magic and how it should be handled. Standard (PHB): as seen on PHB pg. 103. More: surges on d20 <= spell level. Volatile: Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended.",
     "option.wmOptions.standard": "Enabled - Standard (PHB)",

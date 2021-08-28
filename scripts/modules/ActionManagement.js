@@ -46,12 +46,12 @@ export class ActionManagement{
   static settings(){
     const config = false;
     const settingData = {
-      cbtReactionEnable : {
+      actionMgmtEnable : {
         scope : "world", type : Number, group : "combat", default : 0, config,
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
-          2 : MODULE.localize("option.displaySuppressed"),
+          2 : MODULE.localize("option.default.displaySuppressed"),
         },
         onChange : async (v) =>{
           /**
@@ -105,7 +105,7 @@ export class ActionManagement{
    * Hook Functions
    */
   static async _updateCombat(combat, changed, /*options, userid*/){
-    if(MODULE.setting('cbtReactionEnable') == 0) return;
+    if(MODULE.setting('actionMgmtEnable') == 0) return;
 
     logger.debug("_updateCombat | DATA | ", { 
       isFirstTurn : MODULE.isFirstTurn(combat,changed),
@@ -129,7 +129,7 @@ export class ActionManagement{
   }
 
   static async _deleteCombat(combat, /* options, userId */){
-    const mode = MODULE.setting('cbtReactionEnable');
+    const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0) return;
 
     for(const combatant of combat.combatants){
@@ -156,7 +156,7 @@ export class ActionManagement{
   }
 
   static _controlToken(token, state){
-    const mode = MODULE.setting('cbtReactionEnable');
+    const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0) return;
 
     if(token.inCombat){
@@ -171,7 +171,7 @@ export class ActionManagement{
   }
 
   static _updateToken(tokenDocument, update, /* options, id */){
-    const mode = MODULE.setting('cbtReactionEnable');
+    const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0 || !tokenDocument.inCombat) return;
 
     if("width" in update || "height" in update || "scale" in update){
@@ -244,9 +244,12 @@ export class ActionManagement{
      */
     if(!token.isOwner) return;
     const setting = MODULE.setting('hoverShow');
-    const mode = MODULE.setting('cbtReactionEnable');
+    const mode = MODULE.setting('actionMgmtEnable');
 
-    if(setting && mode !== 0 && token.inCombat){
+    /* main hover option must be enabled, and we must be in combat
+     * and we cannot have action mgmt disabled or suppressed
+     */
+    if(setting && mode !== 0 && mode !== 2 && token.inCombat){
       if(!state) {
         setTimeout(function() {
           token.renderActionContainer(state);
