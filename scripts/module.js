@@ -137,7 +137,7 @@ export class MODULE{
       label : MODULE.format("setting.ConfigOption.label"),
       icon : "fas fa-user-cog",
       type : HelpersSettingsConfig,
-      restricted : true,
+      restricted : false,
     })
   }
   static async getItem(key, id){

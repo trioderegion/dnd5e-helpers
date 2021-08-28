@@ -3,12 +3,15 @@
     "setting.ConfigOption.label": "Open Helpers Settings",
 
     "option.default.disabled" : "Disabled",
-    "DND5EH.Default_enabled" : "Enabled",
-    "DND5EH.Default_enabled_displaySuppressed" : "Enabled (Display Suppressed)",
+    "option.default.enabled" : "Enabled",
+    "option.default.displaySuppressed" : "Enabled (Display Suppressed)",
     "DND5EH.Default_none" : "None", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket received",
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
+
+    "setting.effectIconScale.name": "Status Effect Scale",
+    "setting.effectIconScale.hint": "Multiplier applied to the default icon size of 20px",
 
     "DND5EH.flagsNoCover" : "Ignore half and three-quarters cover",
     "DND5EH.flagsNoCoverHint" : "Provided by feats.",
@@ -117,8 +120,8 @@
     "DND5EH.CombatReactionStatus_effecterror":"dnd5e-helpers: could not located active effect named: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Dnd5e helpers: Could not find an active combat",
 
-    "DND5EH.CombatLegendary_name":"Start of turn legendary action reset.",
-    "DND5EH.CombatLegendary_hint":"Enables or disables this feature (global)",
+    "setting.legendaryActionRecharge.name":"Start of turn legendary action reset.",
+    "setting.legendaryActionRecharge.hint":"Enables or disables this feature (global)",
     "DND5EH.CombatLegendary_notification":"Legendary actions restored to {max} for {tokenName}",
 
     "setting.abilityRecharge.name":"Automatically roll any uncharged abilities with a d6 recharge.",
@@ -156,9 +159,9 @@
     "setting.undeadFortDamageTypes.hint" : "Damage types that will bypass the Undead Fortitude Check, split with `,`",
     "setting.undeadFortDC.name" : "Undead Fortitude - DC",
     "setting.undeadFortDC.hint" : "Base DC of the check, X + damage for total DC",
-    "DND5EH.UndeadFort_none":"No checks",
-    "DND5EH.UndeadFort_quick":"Quick Saves",
-    "DND5EH.UndeadFort_advanced":"Advanced Saves",
+    "option.undeadFort.none":"No checks",
+    "option.undeadFort.quick":"Quick Saves",
+    "option.undeadFort.advanced":"Advanced Saves",
     "DND5EH.UndeadFort_dialogname":"Undead Fortitude Save",
     "DND5EH.UndeadFort_quickdialogcontent":"<p>What was the damage source</p>",
     "DND5EH.UndeadFort_quickdialogprompt1":"{types} Damage or Critical Hit",
@@ -220,8 +223,8 @@
     "setting.OpenWound0HPGW.name":"Open Wound - HP at 0 from a Great Wound",
     "setting.OpenWound0HPGW.hint":"Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)",
 
-    "DND5EH.OpenWoundTableName_name":"Open Wound Table",
-    "DND5EH.OpenWoundTableName_hint":"Name of table that should be rolled on if a Open Wound occurs.",
+    "setting.OpenWoundTableName.name":"Open Wound Table",
+    "setting.OpenWoundTableName.hint":"Name of table that should be rolled on if a Open Wound occurs.",
     "DND5EH.OpenWoundTableName_error":"Looks like you haven't setup a table to use for {owFeatureName} yet",
 
     "setting.OpenWoundItemSetting.name": "Apply effects to Open Wounds",

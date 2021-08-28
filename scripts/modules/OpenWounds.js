@@ -1,6 +1,5 @@
 import { logger } from '../logger.js';
 import { MODULE } from '../module.js';
-import { GreatWound } from './GreatWounds.js';
 import { queueUpdate } from './update-queue.js';
 
 const NAME = "OpenWounds";
@@ -14,7 +13,7 @@ export class OpenWounds {
     static settings() {
         const config = false;
         const settingsData = {
-            OpenWoundFeatureName: {
+            OpenWoundsFeatureName: {
                 scope: "world", config, group: "combat", default: "Great Wound", type: String,
             },
             OpenWoundPcOnlyName: {

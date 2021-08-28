@@ -16,7 +16,7 @@ export class UndeadFortitude {
   static settings() {
     const config = false;
     const settingsData = {
-      undeadFort: {
+      undeadFortEnable: {
         scope: "world", config, group: "npc-features", default: 0, type: Number,
         choices: {
           0: game.i18n.format("option.undeadFort.none"),

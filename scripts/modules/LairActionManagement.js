@@ -36,7 +36,7 @@ export class LairActionManagement{
     const config = false;
     const settingsData = {
       lairActionHelper : {
-        scope : "world", config, group: "combat", default: 0, type: Boolean,
+        scope : "world", config, group: "npc-features", default: 0, type: Boolean,
       }
     };
 

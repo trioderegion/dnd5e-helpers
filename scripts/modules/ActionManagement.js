@@ -49,9 +49,9 @@ export class ActionManagement{
       cbtReactionEnable : {
         scope : "world", type : Number, group : "combat", default : 0, config,
         choices : {
-          0 : MODULE.localize("option.default.none"),
+          0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
-          2 : MODULE.localize("option.enabled.displaySuppressed"),
+          2 : MODULE.localize("option.displaySuppressed"),
         },
         onChange : async (v) =>{
           /**
@@ -60,7 +60,7 @@ export class ActionManagement{
         },
       },
       hoverShow : {
-        scope : "client", type : Boolean, group : "combat", default : false, config,
+        scope : "client", type : Boolean, group : "combat", default : true, config,
       },
       /** @todo localize */
       effectIconScale : {
