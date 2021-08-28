@@ -119,7 +119,10 @@ export class CoverCalculator{
       },
       removeCover : {
         scope : "world", config, group : "system", default : false, type : Boolean,
-      }
+      },
+      clearTargets : {
+        scope : "world", config, group : "system", default : false, type : Boolean,
+      },
     };
 
     MODULE.applySettings(settingsData);
@@ -270,6 +273,11 @@ export class CoverCalculator{
 
       if(token)
         Cover._removeEffect(token);
+    }
+
+    /* clear targets for all users on a turn change */
+    if(MODULE.setting('clearTargets') && MODULE.isTurnChange(combat,changed)){
+      game.user.updateTokenTargets();
     }
   } 
 
