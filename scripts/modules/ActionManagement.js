@@ -239,6 +239,10 @@ export class ActionManagement{
   }
 
   static async _hoverToken(token, state){
+    /* users can hover anything, but only 
+     * should display on owned tokens 
+     */
+    if(!token.isOwner) return;
     const setting = MODULE.setting('hoverShow');
     const mode = MODULE.setting('cbtReactionEnable');
 
