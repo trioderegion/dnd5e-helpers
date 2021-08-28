@@ -54,7 +54,8 @@
       }
     ],
     "styles": [
-      "/styles/dnd5e-helpers.css"
+      "/styles/dnd5e-helpers.css",
+      "/styles/action-dialog-app.css"
     ] ,
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",

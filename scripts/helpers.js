@@ -22,7 +22,8 @@ import { OpenWounds } from './modules/OpenWounds.js';
 /**
  * Sub Apps
  */
-import { ActionDialog } from './apps/action-dialog.js'
+import { ActionDialog } from './apps/action-dialog.js';
+import { AD } from './apps/action-dialog-app.js';
 
 const SUB_MODULES = {
   MODULE,
@@ -42,6 +43,7 @@ const SUB_MODULES = {
 
 const SUB_APPS = {
   ActionDialog,
+  AD,
 }
 
 /*
