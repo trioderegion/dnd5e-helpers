@@ -293,6 +293,11 @@ export class CoverCalculator{
     Token.prototype.getCoverEffects = function(){
       return this.actor.effects.filter(e => e.getFlag(MODULE.data.name, "cover"));
     }
+
+    Token.prototype.setCoverValue = function(value){
+      const data = MODULE[NAME].token;
+      return this.document.setFlag(MODULE.data.name, data.flag, value);
+    }
   }
 
   static _patchArray(){
