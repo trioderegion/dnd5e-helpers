@@ -55,7 +55,7 @@ export class UndeadFortitude {
   static _preUpdateActor(actor, update, options/*, userId*/) {
     
     /* bail if not enabled */
-    if(!MODULE.setting('undeadFort') > 0) return;
+    if(!MODULE.setting('undeadFortEnable') > 0) return;
 
     /* bail if this actor does not have undead fortitude feature */
     if(!actor.items.getName(MODULE.setting("undeadFortName"))) return;
@@ -97,7 +97,7 @@ export class UndeadFortitude {
     }
 
     /* get the DC */
-    const mode = MODULE.setting('undeadFort')
+    const mode = MODULE.setting('undeadFortEnable')
 
     queueUpdate( async () => {
       const saveInfo = await UndeadFortitude._getUndeadFortSave(data, mode === 2 ? true : false ); 
