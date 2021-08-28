@@ -13,6 +13,10 @@ export class logger {
     ui.notifications.error(`${MODULE?.data?.title || "" } | ERROR | ${args[0]}`);
   }
 
+  static notify(...args) {
+    ui.notifications.notify(`${args[0]}`);
+  }
+
   static register(){
     this.settings()
   }

@@ -1,6 +1,5 @@
 import { logger } from '../logger.js';
 import { MODULE } from '../module.js';
-import { GreatWound } from './GreatWounds.js';
 import { queueUpdate } from './update-queue.js';
 
 const NAME = "OpenWounds";
@@ -14,8 +13,11 @@ export class OpenWounds {
     static settings() {
         const config = false;
         const settingsData = {
-            OpenWoundFeatureName: {
+            OpenWoundsFeatureName: {
                 scope: "world", config, group: "combat", default: "Great Wound", type: String,
+            },
+            OpenWoundPcOnlyName: {
+                scope: "world", config, group: "combat", default: false, type: Boolean
             },
             OpenWoundTableName: {
                 scope: "world", config, group: "combat", default: "", type: String,
@@ -89,6 +91,7 @@ export class OpenWounds {
     }
 
     static async OpenWounds(actor, woundType) {
+        if(MODULE.setting("OpenWoundPcOnlyName") && !actor.hasPlayerOwner) return
         logger.debug("Open Wounds info", { actor: actor, woundType: woundType })
         const owFeatureName = MODULE.setting("OpenWoundFeatureName");
         const openWoundTable = MODULE.setting("OpenWoundTableName");

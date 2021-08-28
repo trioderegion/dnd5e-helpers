@@ -1,15 +1,17 @@
 {
-    "Comment Section" : "SETTINGS CHANGE",
     "setting.ConfigOption.name": "Configure Settings",
     "setting.ConfigOption.label": "Open Helpers Settings",
 
     "option.default.disabled" : "Disabled",
-    "DND5EH.Default_enabled" : "Enabled",
-    "DND5EH.Default_enabled_displaySuppressed" : "Enabled (Display Suppressed)",
+    "option.default.enabled" : "Enabled",
+    "option.default.displaySuppressed" : "Enabled (Display Suppressed)",
     "DND5EH.Default_none" : "None", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket received",
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
+
+    "setting.effectIconScale.name": "Status Effect Scale",
+    "setting.effectIconScale.hint": "Multiplier applied to the default icon size of 20px",
 
     "DND5EH.flagsNoCover" : "Ignore half and three-quarters cover",
     "DND5EH.flagsNoCoverHint" : "Provided by feats.",
@@ -45,31 +47,39 @@
     "setting.losKeyBind.name" : "Keybind for Cover",
     "setting.losKeyBind.hint" : "Assign a keyboard shortcut to check cover when targeting.",
     "DND5EH.LoS_ignoreCover" : "Ignored",
-    "setting.removeCover.name" : "Remove Cover on turn end",
+    "setting.removeCover.name" : "Remove Cover on Turn End",
     "setting.removeCover.hint" : "Removes any cover effect at the end of a combatants turn",
-    "setting.removeTargets.name" : "Remove Targets on turn end",
+    "setting.removeTargets.name" : "Remove Targets on Turn End",
     "setting.removeTargets.hint" : "Removes any targets at the end of a combatants turn",
 
     "setting.coverApplication.name" : "Cover Application",
-    "setting.coverApplication.hint" : "Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
+    "setting.coverApplication.hint" : "Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves.",
     "option.coverApplication.manual" : "Manual",
     "option.coverApplication.auto" : "Automatic",
     "DND5EH.LoSCover_cover" : "cover",
-    
+
     "setting.coverTint.name" : "Cover Button Tint",
-    "setting.coverTint.hint" : "What color should be applied to the cover buttons to show which is active",
+    "setting.coverTint.hint" : "What color should be applied to the cover buttons to show which is active.",
     "option.coverTint.red" : "Dark Red",
     "option.coverTint.blue" : "Light Blue",
     "option.coverTint.grey" : "Dim Grey",
     "option.coverTint.rainbow" : "Rainbow",
 
-    "setting.losWithTokens.name": "Consider intervening tokens as half cover",
-    "setting.losWithTokens.hint": "Unchecked results in tokens not being considered for cover calculation.",
+    "setting.losWithTokens.name": "[*]Token Cover",
+    "setting.losWithTokens.hint": "[*]Allow tokens to be factored into cover calculation.",
     "setting.losMaskNPC.name": "Hide GM info from Cover Report",
     "setting.losMaskNPC.hint": "Replaces uses of the NPC's name with \"A creature\" when reporting cover and whispers GM prompted cover checks.",
 
     "setting.losWithTiles.name": "Tile Cover",
-    "setting.losWithTiles.hint": "Allow Tiles to be factored into cover calculation",
+    "setting.losWithTiles.hint": "Allow Tiles to be factored into cover calculation.",
+
+    "setting.clearTargets.name": "Clear Targets on Turn Change",
+    "setting.clearTargets.hint": "Removes targets from all users on a turn change in combat.",
+
+    "setting.actionMgmtEnable.name": "Enable Combat Action Management",
+    "setting.actionMgmtEnable.hint": "Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
+    "setting.hoverShow.name": "Show Action HUD on Hover",
+    "setting.hoverShow.hint": "Displays the action HUD on hover with a half second delay, instead of when controlled.",
 
     "setting.wmOptions.name":  "Wild Magic Auto-Detect",
     "setting.wmOptions.hint": "Enables or disables auto detection of Wild Magic and how it should be handled. Standard (PHB): as seen on PHB pg. 103. More: surges on d20 <= spell level. Volatile: Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended.",
@@ -118,8 +128,8 @@
     "DND5EH.CombatReactionStatus_effecterror":"dnd5e-helpers: could not located active effect named: {reactionStatus}",
     "DND5EH.CombatReactionStatus_combaterror":"Dnd5e helpers: Could not find an active combat",
 
-    "DND5EH.CombatLegendary_name":"Start of turn legendary action reset.",
-    "DND5EH.CombatLegendary_hint":"Enables or disables this feature (global)",
+    "setting.legendaryActionRecharge.name":"Start of turn legendary action reset.",
+    "setting.legendaryActionRecharge.hint":"Enables or disables this feature (global)",
     "DND5EH.CombatLegendary_notification":"Legendary actions restored to {max} for {tokenName}",
 
     "setting.abilityRecharge.name":"Automatically roll any uncharged abilities with a d6 recharge.",
@@ -149,22 +159,28 @@
     "DND5EH.AutoRegenDialog_healingmessage": "{tokenName} was healed for {regenRoll}",
     "DND5EH.AutoRegenDialog_stopprompt":"Do not heal",
 
-    "DND5EH.UndeadFort_name":"Undead Fortitude",
-    "DND5EH.UndeadFort_hint":"Automaticly prompts for Undead Fortitude Checks for the GM",
-    "DND5EH.UndeadFort_none":"No checks",
-    "DND5EH.UndeadFort_quick":"Quick Saves",
-    "DND5EH.UndeadFort_advanced":"Advanced Saves",
+    "setting.undeadFortEnable.name":"Undead Fortitude Checks",
+    "setting.undeadFortEnable.hint":"Automatically prompts for Undead Fortitude Checks for the GM",
+    "setting.undeadFortName.name" : "Undead Fortitude Name",
+    "setting.undeadFortName.hint" : "What item name to check to trigger checks",
+    "setting.undeadFortDamageTypes.name" : "Undead Fortitude - Damage Type",
+    "setting.undeadFortDamageTypes.hint" : "Damage types that will bypass the Undead Fortitude Check, split with `,`",
+    "setting.undeadFortDC.name" : "Undead Fortitude - DC",
+    "setting.undeadFortDC.hint" : "Base DC of the check, X + damage for total DC",
+    "option.undeadFort.none":"No checks",
+    "option.undeadFort.quick":"Quick Saves",
+    "option.undeadFort.advanced":"Advanced Saves",
     "DND5EH.UndeadFort_dialogname":"Undead Fortitude Save",
     "DND5EH.UndeadFort_quickdialogcontent":"<p>What was the damage source</p>",
-    "DND5EH.UndeadFort_quickdialogprompt1":"Radiant Damage or Critical Hit",
+    "DND5EH.UndeadFort_quickdialogprompt1":"{types} Damage or Critical Hit",
     "DND5EH.UndeadFort_quickdialogprompt2":"Normal Damage",
-    "DND5EH.UndeadFort_insantdeathmessage":"The target dies outright",
-    "DND5EH.UndeadFort_deathmessage":"{tokenName} dies as it rolls a {total}",
-    "DND5EH.UndeadFort_surivalmessage":"{tokenName} survives with a {total}",
+    "DND5EH.UndeadFort_insantdeathmessage":"{tokenName} dies outright.",
+    "DND5EH.UndeadFort_deathmessage":"{tokenName} dies as it rolls a {total}.",
+    "DND5EH.UndeadFort_surivalmessage":"{tokenName} survives with a {total}.",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Damage to target:",
 
-    "DND5EH.LairHelper_name" : "Lair Action Prompt",
-    "DND5EH.LairHelper_hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
+    "setting.lairActionHelper.name" : "Lair Action Prompt",
+    "setting.lairActionHelper.hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
     "setting.legendaryActionHelper.name" : "Legendary Action Prompt",
     "setting.legendaryActionHelper.hint" : "Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
@@ -195,11 +211,13 @@
     "setting.OpenWoundsFeatureName.name":"Open Wound feature name",
     "setting.OpenWoundsFeatureName.hint":"What name to display for Open Wound functions.",
     "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} has suffered an {owFeatureName} {woundType}",
+    "setting.OpenWoundPcOnlyName.name" : "Open Wounds for PC's only",
+    "setting.OpenWoundPcOnlyName.hint" : "Only trigger the Open Wound process for actors owned by players",
 
     "DND5EH.OpenWoundSocketMessage": "from {gwFeatureName} reduce them to 0 hp",
 
     "setting.OpenWoundDeathSave.name" :"Open Wound - Death Saves",
-    "setting.OpenWoundDeathSave.hint" :"[*]Open Wounds triggered on death saves lower than this value",
+    "setting.OpenWoundDeathSave.hint" :"Open Wounds triggered on death saves lower than this value",
     "DND5EH.OpenWoundDeathSave_reason" :"from a failed death saving throw",
 
     "setting.OpenWoundCrit.name":"Open Wound - Crits",
@@ -213,9 +231,8 @@
     "setting.OpenWound0HPGW.name":"Open Wound - HP at 0 from a Great Wound",
     "setting.OpenWound0HPGW.hint":"Open Wounds triggered on dropping to 0 HP from a damage source dealing over half the actors max HP (requires Great Wounds active)",
 
-
-    "DND5EH.OpenWoundTableName_name":"Open Wound Table",
-    "DND5EH.OpenWoundTableName_hint":"Name of table that should be rolled on if a Open Wound occurs.",
+    "setting.OpenWoundTableName.name":"Open Wound Table",
+    "setting.OpenWoundTableName.hint":"Name of table that should be rolled on if a Open Wound occurs.",
     "DND5EH.OpenWoundTableName_error":"Looks like you haven't setup a table to use for {owFeatureName} yet",
 
     "setting.OpenWoundItemSetting.name": "Apply effects to Open Wounds",

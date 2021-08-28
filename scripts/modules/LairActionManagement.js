@@ -11,10 +11,11 @@ class LairActionDialog extends ActionDialog {
   /** @override */
   constructor(combatants) {
 
-    /* construct an action dialog using only legendary actions */
+    /* Localize title */
+    const title = MODULE.format("DND5E.LairActionLabel");
 
-    /** @todo parent class needs to accept array of combatants */
-    super(combatants, {lair: true});
+    /* construct an action dialog using only legendary actions */
+    super(combatants, {lair: true, title});
   }
 
 }
@@ -35,7 +36,7 @@ export class LairActionManagement{
     const config = false;
     const settingsData = {
       lairActionHelper : {
-        scope : "world", config, group: "combat", default: 0, type: Boolean,
+        scope : "world", config, group: "npc-features", default: 0, type: Boolean,
       }
     };
 
@@ -123,10 +124,6 @@ export class LairActionManagement{
    * @param {Array of Object} combatants
    */
   static showLairActions(combatants) {
-    
-    ui.notifications.info(`Placeholder for ${combatants.length} number of lair actors`);
-
-    //new LairActionDialog(combatants).render(true);
-
+    new LairActionDialog(combatants).render(true);
   }
 }

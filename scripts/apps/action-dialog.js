@@ -10,7 +10,7 @@ import { MODULE } from '../module.js';
  */
 export class ActionDialog extends Dialog {
   /** @override */
-  constructor(combatant, options = { action : true, bonus : true, reaction : true, legendary : true, lair : true, special : true }){
+  constructor(combatants, options = { action : true, bonus : true, reaction : true, legendary : true, lair : true, special : true }){
     /*
       Build Options
     */
@@ -26,7 +26,7 @@ export class ActionDialog extends Dialog {
       close: { label: MODULE.format("Close"), callback: () => {}}
     };
     this.data.default = "close";
-    this.data.combatant = {
+    this.data.combatants = combatants.map((combatant) => {return {
       id : combatant.id,
       img : combatant.actor.img,
       name : combatant.actor.name,
@@ -40,6 +40,7 @@ export class ActionDialog extends Dialog {
         special : this.options?.special ? this.getCombatantItemData(combatant, "special") : undefined,
       }
     }
+    });
   }
 
   /** @inheritdoc */
@@ -55,20 +56,32 @@ export class ActionDialog extends Dialog {
   }
 
   get title() {
-    return this.data.tile;
+    return this.data.title;
   }
 
   getCombatantItemData(combatant, type){
     return combatant.actor.items
       .filter(item => item?.data?.data?.activation?.type === type)
-      .map(item => ({
-        name : item.name, 
-        id : item.id,
-        activation : getProperty(item,'data.data.activation'), 
-        description : getProperty(item ,'data.data.description.value'), 
-        img : item.img, 
-        uuid : item.uuid,
-      }));
+      .map( (item) => {
+        /* common data */
+        let data = {
+          name : item.name, 
+          id : item.id,
+          activation : getProperty(item,'data.data.activation'), 
+          description : getProperty(item ,'data.data.description.value'), 
+          img : item.img, 
+          uuid : item.uuid,
+        }
+
+        /* special case data */
+        switch(type){
+          case 'legendary':
+            mergeObject(data.activation, { available : getProperty(combatant.actor, 'data.data.resources.legact.value') } ); 
+            break;
+        }
+
+        return data;
+      });
   }
 
   getCombatantEconomyData(combatant){
@@ -83,7 +96,7 @@ export class ActionDialog extends Dialog {
 
   getData(options) {
     let data = super.getData(options);  
-    data.combatant = this.data.combatant;
+    data.combatants = this.data.combatants;
     return data;
   }
 
@@ -92,10 +105,14 @@ export class ActionDialog extends Dialog {
   */
   activateListeners(html){
     super.activateListeners(html);
-    html.find(`#${this.data.combatant.id}`).on('click', this._onImgClick);
-    for(const item of Object.values(this.data.combatant.items).reduce((a,v) => a.concat(v?.map(e => e.id) ?? []), [])){
-      html.find(`#${item}`).on('click', this._onButtonClick);
-    }
+
+    /* register img and item clicks for each combatant */
+    this.data.combatants.forEach( (combatant) => {
+      html.find(`#${combatant.id}`).on('click', this._onImgClick);
+      for(const item of Object.values(combatant.items).reduce((a,v) => a.concat(v?.map(e => e.id) ?? []), [])){
+        html.find(`#${item}`).on('click', this._onButtonClick);
+      }
+    });
   }
 
   update(combat){
