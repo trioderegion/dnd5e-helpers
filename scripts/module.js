@@ -3,6 +3,8 @@ import { HelpersSettingsConfig } from './apps/config-app.js';
 
 const NAME = "dnd5e-helpers";
 const PATH = `/modules/${NAME}`;
+const TITLE = "DnD5e Helpers";
+
 
 export class MODULE{
   static async register(){
@@ -11,13 +13,9 @@ export class MODULE{
   }
 
   static async build(){
-    try{
-      MODULE.data = await (await fetch(`${PATH}/module.json`)).json() ?? {};
-    }catch(err){
-      logger.error(`Error getting Module ${PATH} data`, err);
-    }
-    MODULE.data.path = PATH;
-    logger.info("Module Data Built");
+    MODULE.data = {
+      name : NAME, path : PATH, title : TITLE
+    };
   }
 
   static setting(key){
@@ -171,7 +169,7 @@ export class MODULE{
         title: data.title,
         content: data.content,
         buttons,
-        close: () => resolve(true)
+        close: () => resolve("Exit, No Button Click")
       }, {
         /*width: '100%',*/ height: '100%' 
       });

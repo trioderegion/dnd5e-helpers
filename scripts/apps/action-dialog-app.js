@@ -47,31 +47,18 @@ export class AD extends Application{
     const data = this.getData();
 
     for(const ele of data.actors)
-      this._executeActorClick(html.find(`#${ele}`));
+      this._executeActorClick(html.find(`#${ele}`)[0]);
     
     for(const ele of data.actions)
-      this._executeActionClick(html.find(`#${ele}`));
+      this._executeActionClick(html.find(`#${ele}`)[0]);
 
-    for(const ele of data.actor.items)
-      this._executeItemClick(html.find(`#${ele.uuid}`));
+    for(const ele of Array.from(html.find(`[data-tab="${this.selectedAction}"]`)[0].children))
+      this._executeItemClick(ele);
   }
 
   update(){
     this._update();
   }
-
-  /*
-  async render(force=false, options={}){
-    super.render(force, options);
-
-    //wait?
-    await MODULE.waitFor(() => !!$(`#app-${this.appId}`)[0]);
-
-
-
-    return this;
-  }
-  */
 
   _getActors(){
     this.actors = this.items.reduce((a,b) => a.includes(b.actor) ? a : a.concat(b.actor), []);
@@ -157,6 +144,9 @@ export class AD extends Application{
 
   _executeItemClick(html){
     logger.debug("Item Click | ", html);
+    html.onclick = async (event) => {
+      const item = await fromUuid(html.id);
+      await item.roll();
+    }
   }
-
 }

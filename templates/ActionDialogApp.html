@@ -28,11 +28,13 @@
       <!-- Item Selection Information-->
       <div class="col items center">
         {{#each actor.items}}
-          <div class="col tab item pad" data-tab="{{@key}}">
-            {{#each this}}
-              <button class="button" id="{{this.uuid}}" value="{{this.uuid}}">{{this.label}}</button>
-            {{/each}}
-          </div>
+          {{#if this}}
+            <div class="col tab item pad" data-tab="{{@key}}">
+              {{#each this}}
+                <button class="button" id="{{this.uuid}}">{{this.label}}</button>
+              {{/each}}
+            </div>
+          {{/if}}
         {{/each}}
       </div>
 
