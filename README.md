@@ -31,6 +31,8 @@ Little helpers for little 5e tasks.
 - When the action HUD is visible, clicking on an action icon will consume that action, clicking a used action will restore it for use.
 - Note: This management is for display purposes only and will not interfere with item use.
 
+https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4
+
 ### Legendary Action Reset on End of Turn
 
 - All legendary action uses of a creature will reset to their max on the end of their turn in combat.
@@ -73,6 +75,8 @@ Little helpers for little 5e tasks.
   - A more detailed discussion of this can be found on our Wiki
 - Added `Token#setCoverValue` which accepts 0-3 (no, half, 3/4, and full cover, respectively). Can be used to change a token's provided cover; e.g. when prone or dead.
 
+https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4
+
 ### Cover Application
 
 - Manual setting adds chat buttons to click to cycle between different cover effects.
@@ -82,12 +86,13 @@ Little helpers for little 5e tasks.
 - A new special trait has been added to indicate if the actor should ignore cover (e.g. Sharpshooter or Spell Sniper)
 - Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ).
 - Cover penalties can be optionally removed at the end of the token's turn.
-- ![Cover Report](.github/cover-report.webp)
+
+![Cover Report](.github/cover-report.webp)
 
 ### Rest Effects
 - Adds an additional option to Active Effects that allows removal of effect on a short or long rest.
 
-- ![Rest Effects](.github/rest_effects.webp)
+![Rest Effects](.github/rest_effects.webp)
 
 ### Auto Regeneration
 
