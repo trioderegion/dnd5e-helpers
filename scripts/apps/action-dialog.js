@@ -110,7 +110,7 @@ export class ActionDialog extends Dialog {
     this.data.combatants.forEach( (combatant) => {
       html.find(`#${combatant.id}`).on('click', this._onImgClick);
       for(const item of Object.values(combatant.items).reduce((a,v) => a.concat(v?.map(e => e.id) ?? []), [])){
-        html.find(`#${item}`).on('click', this._onButtonClick);
+        html.find(`#${item}`).on('click', this._onButtonClick.bind(this));
       }
     });
   }
@@ -137,7 +137,9 @@ export class ActionDialog extends Dialog {
 
     if(!item || !(item instanceof Item)) return;
 
-    await item.roll();
+    const promise = item.roll();
     logger.debug("onButtonClick | DATA | ", { event, itemUUID, item });
+    this.close();
+    return promise;
   }
 }
