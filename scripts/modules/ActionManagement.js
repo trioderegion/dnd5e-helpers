@@ -60,6 +60,14 @@ export class ActionManagement{
            */
         },
       },
+      actionsAsStatus : {
+        scope : "world", type : Number, group : "combat", default : 2, config,
+        choices : {
+          0 : MODULE.localize("option.default.disabled"),
+          1 : MODULE.localize("option.default.enabled"),
+          2 : MODULE.localize("option.actionsAsStatus.onlyReaction"),
+        }
+      },
       /** @todo localize */
       effectIconScale : {
         scope : "client", type : Number, group : "system", default : 1, config,
@@ -293,9 +301,11 @@ export class ActionManagement{
         }
 
         /* update any needed status icons for this change */
-        queueUpdate( async () => {
-          await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
-        });
+        if (ActionManagement._shouldAddEffect(type)) {
+          queueUpdate( async () => {
+            await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
+          });
+        }
       }
     }
 
@@ -384,6 +394,12 @@ export class ActionManagement{
   /**
    * Module Specific Functions
    */
+  static _shouldAddEffect(type) {
+    const preDefAnswers = [false, true, type == 'reaction' ? true : false];
+    const mode = MODULE.setting('actionsAsStatus');
+    return preDefAnswers[mode];
+  }
+
   static async _loadTextures(orig, obj = {}){
     const textures = {};
     for(let [k,v] of Object.entries(obj)){

@@ -101,6 +101,9 @@
 
     "setting.actionMgmtEnable.name": "Enable Combat Action Management",
     "setting.actionMgmtEnable.hint": "Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
+    "setting.actionsAsStatus.name": "Display Used Actions as Status Effect",
+    "setting.actionsAsStatus.hint": "Displaying used actions in this way allows non-owners to see which actions an actor has used this round.",
+    "option.actionsAsStatus.onlyReaction": "Only Reactions",
 
     "setting.legendaryActionRecharge.name":"Start of turn legendary action reset.",
     "setting.legendaryActionRecharge.hint":"Enables or disables this feature (global)",
