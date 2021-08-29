@@ -255,15 +255,18 @@ export class CoverCalculator{
         let cover = new Cover(selected, target);
 
         //apply cover bonus automatically if requested
-        if(MODULE.setting("coverApplication") == 2) await cover.addEffect();
-
-        await cover.toMessage();
+        queueUpdate( async () => {
+          if(MODULE.setting("coverApplication") == 2) await cover.addEffect();
+          await cover.toMessage();
+        });
       }         
     }
 
     if(user.targets.size != 1)
       for(const selected of canvas.tokens.controlled)
-        await Cover._removeEffect(selected);
+        queueUpdate( async () => {
+          await Cover._removeEffect(selected);
+        });
   }
 
   static async _updateCombat(combat, changed /*, options, userId */){
@@ -272,12 +275,14 @@ export class CoverCalculator{
       const token = combat.combatants.get(combat.previous.combatantId)?.token?.object;
 
       if(token)
-        Cover._removeEffect(token);
+        queueUpdate( async () => {
+          await Cover._removeEffect(token);
+        });
     }
 
     /* clear targets for all users on a turn change */
     if(MODULE.setting('clearTargets') && MODULE.isTurnChange(combat,changed)){
-      game.user.updateTokenTargets();
+        game.user.updateTokenTargets();
     }
   } 
 
@@ -480,8 +485,7 @@ class Cover{
 
             r.total = Math.max(r.tiles, r.tokens, r.walls);
 
-            if(MODULE.setting("debugDrawing"))
-              s.draw({ color : MODULE[NAME].coverData[r.total].color });
+            if(MODULE.setting("debugDrawing")) s.draw({ color : MODULE[NAME].coverData[r.total <= 0 ? 0 : r.total].color });
 
             return r;
         });
