@@ -2,10 +2,6 @@
 
 Little helpers for little 5e tasks.
 
-## Known Issues
-
-- Automatic proficiency for _specific_ items (such as "Daggers" or "Clubs") has not been fully upgraded for 0.8.
-
 ## Current Features
 
 ### Automatic Wild Magic Surge
@@ -25,23 +21,26 @@ Little helpers for little 5e tasks.
 
 ### Combat Action Management
 
-- Action HUD added to tokens during combat, tracking their Action, Bonus Action and Reaction.
+- Action HUD added to tokens during combat, tracking their Reaction, Action, and Bonus Action (left to right).
   - Positive action cost items will mark the corresponding action as used.
   - Negative action cost items will refund the corresponding action. Ex. Action Surge configured as "-1 Action".
+  - Items with usage of "Action" will be interpretted as a Reaction when used on another actor's turn.
 - Used actions will reset at the beginning of the combatant's turn.
 - Additional control added to the token HUD during combat to manually adjust actions.
+- Used actions can optionally be displayed as status effects for easier tracking.
+- When the action HUD is visible, clicking on an action icon will consume that action, clicking a used action will restore it for use.
+- Note: This management is for display purposes only and will not interfere with item use.
 
-![Action Management HUD](.github/action-management.webp)
+### Legendary Action Reset on End of Turn
 
-### Legendary Action Reset on Start of Turn
-
-- All legendary action uses of a creature will reset to their max on the start of their turn in combat.
+- All legendary action uses of a creature will reset to their max on the end of their turn in combat.
+  - Note: RAW indicates this should be at the beginning of their turn, but due to timing issues with the legendary action helper, this has been moved to the end of the turn and has no mechanical effect on gameplay.
 
 ### Lair and Legendary Action Helpers
 
-- Prompts GM with available legendary actions in-between combatant turns
-- Prompts GM with available lair actions at initiative count 20
-- Tracks current available uses
+- Prompts GM with available legendary actions in-between combatant turns.
+- Prompts GM with available lair actions at the creature's designated lair initiatve.
+- Tracks current available uses of legendary actions.
 
 ![Lair Legendary Helper](.github/lair-legend-helpers.webp)
 
@@ -65,37 +64,36 @@ Little helpers for little 5e tasks.
 
 - When a user with a selected token targets another token with the designated hotkey held, the target's cover will be calculated following the rules presented in DMG pg. 251
 - A message in chat will be posted concerning the target's cover in relation to the selected token(s).
-- Prioritizes walls, specially flagged tiles, then tokens.
-  - Tiles have a new option in their configuration dialog that sets the cover granted by them.
+- Prioritizes walls, tiles, and then tokens.
+  - Walls, tiles, and tokens have a new option in their configuration dialog that sets the cover granted by them.
   - Two tiles are now included from game-icons.net that are configured automatically for half and three-quarters cover in modules/dnd5e-helpers/assets/cover-tiles.
 - Has two modes for cover in relation to walls: Center Point and Four Corner. Cover from tiles and tokens are (currently) only calculated from Center Point.
   - Center Point - a target token's cover is based on foundry's player vision rendering (center point of self to 4 corners of target)
   - Four Corner - direct implementation of DMG rules, where vision is computed from each occupied grid point and the corner granting the target the least cover is chosen.
   - A more detailed discussion of this can be found on our Wiki
-- A new method has been added as `Token#computeTargetCover`. The usage of it has been detailed in the source code, but is still a work in progress. Basic usage is calling with no arguments with both a selected and targeted token. The return value is a promise of the raw cover data from visibility tests.
-
-![Cover Calculation](.github/los_calc.gif)
+- Added `Token#setCoverValue` which accepts 0-3 (no, half, 3/4, and full cover, respectively). Can be used to change a token's provided cover; e.g. when prone or dead.
 
 ### Cover Application
 
 - Manual setting adds chat buttons to click to cycle between different cover effects.
 - Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment.
-- This cover bonus is applied onto the _targeter_ not the target and is a -2,-5,-40 negative for any attack rolls.
-- The cover bonus to Dexerity saves are not dealt with.
+- This cover bonus is applied onto the _attacker_ not the target and is a -2,-5,-40 penalty for any attack rolls.
+- The cover bonus to Dexerity saves are not handled.
 - A new special trait has been added to indicate if the actor should ignore cover (e.g. Sharpshooter or Spell Sniper)
 - Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ).
+- Cover penalties can be optionally removed at the end of the token's turn.
 - ![Cover Report](.github/cover-report.webp)
 
-### Auto Proficiency Detection
+### Rest Effects
+- Adds an additional option to Active Effects that allows removal of effect on a short or long rest.
 
-- Will automatically mark a newly added weapon, armor or tool 'proficient' if it is part of the actor's listed proficiencies
-- Note: specific weapon or armor proficiencies should match their intended name (ex. "Dagger" proficiency for a weapon called"Dagger").
-- For Tools, it tries to match the tool name with the proficiency (Ex. "Flute" will not be detected by checking "Musical Instrument" Tool Proficiency textbox, but "Musical Instrument: Flute" will. To detect "Flute", add "Flute" as a special Tool Proficiency).
+- ![Rest Effects](.github/rest_effects.webp)
 
 ### Auto Regeneration
 
 - Automatically checks actors with the Regeneration or Self-Repair features
 - Searches the these features for the phrase "X hit points", where X can be a static value or a dice formula
+  - The search phrase is localized for your supported language.
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
 ### Regen Blocking
@@ -125,13 +123,6 @@ Little helpers for little 5e tasks.
 - Triggers on a reduction of >50% of a token/actor's health.
 - Configurable Great Wound table to draw from.
 - This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save then roll on the table
-
-### Minimum Roll Dice Modifier
-
-- New die roll modifier added: `mr` (minimum roll)
-  - Example: `1d6mr2` will replace any rolls less than 2 with 2s, `1d2mr10` will replace any rolls less than 10 with 10!
-  - Spell and Cantrip scaling works as expected. `1d6mr2` in the scaling field will ensure upcasting of Burning Hands will replace 1s with 2s. Cantrip scaling can be left blank in most cases (as per stock dnd5e operation) as the first damage field of the cantrip will be used as the scaling formula.
-  - Note: There is no toggle option for this functionality.
 
 ## Debug Setting
 
