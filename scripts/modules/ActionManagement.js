@@ -51,16 +51,14 @@ export class ActionManagement{
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
-          2 : MODULE.localize("option.default.displaySuppressed"),
+          2 : MODULE.localize("option.default.enabledHover"),
+          3 : MODULE.localize("option.default.displaySuppressed"),
         },
         onChange : async (v) =>{
           /**
            * @todo deal with updates based on rapid changes.
            */
         },
-      },
-      hoverShow : {
-        scope : "client", type : Boolean, group : "combat", default : true, config,
       },
       /** @todo localize */
       effectIconScale : {
@@ -162,8 +160,8 @@ export class ActionManagement{
     if(token.inCombat){
 
       queueUpdate( async () => {
-        if(token.hasActionContainer()) token.toggleActionContainer(mode === 2 || !state ? false : true);
-        else await ActionManagement._renderActionContainer(token, mode === 2 || !state ? false : true);
+        if(token.hasActionContainer()) token.toggleActionContainer(mode === 3 || !state ? false : true);
+        else await ActionManagement._renderActionContainer(token, mode === 3 || !state ? false : true);
         return token.drawEffects();
       });
 
@@ -175,7 +173,7 @@ export class ActionManagement{
     if(mode == 0 || !tokenDocument.inCombat) return;
 
     if("width" in update || "height" in update || "scale" in update){
-      ActionManagement._renderActionContainer(tokenDocument.object, mode === 2 || !tokenDocument.object._controlled ? false : true );
+      ActionManagement._renderActionContainer(tokenDocument.object, mode === 3 || !tokenDocument.object._controlled ? false : true );
     }
 
     if("tint" in update || "img" in update || "flags" in update)
@@ -243,13 +241,11 @@ export class ActionManagement{
      * should display on owned tokens 
      */
     if(!token.isOwner) return;
-    const setting = MODULE.setting('hoverShow');
     const mode = MODULE.setting('actionMgmtEnable');
 
     /* main hover option must be enabled, and we must be in combat
-     * and we cannot have action mgmt disabled or suppressed
      */
-    if(setting && mode !== 0 && mode !== 2 && token.inCombat){
+    if(mode == 2 && token.inCombat){
       if(!state) {
         setTimeout(function() {
           token.renderActionContainer(state);

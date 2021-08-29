@@ -5,6 +5,8 @@
     "option.default.disabled" : "Disabled",
     "option.default.enabled" : "Enabled",
     "option.default.displaySuppressed" : "Enabled (Display Suppressed)",
+    "option.default.enabledHover": "Enabled (On Hover)",
+
     "DND5EH.Default_none" : "None", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket received",
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
@@ -39,10 +41,10 @@
     "DND5EH.LoSMaskNPCs_targetMask": "a creature",
     "setting.losKeyBind.name" : "Keybind for Cover",
     "setting.losKeyBind.hint" : "Assign a keyboard shortcut to check cover when targeting.",
-    "setting.clearTargets.name" : "Remove Cover on Turn End",
-    "setting.clearTargets.hint" : "Removes any cover effect at the end of a combatants turn",
-    "setting.removeTargets.name" : "Remove Targets on Turn End",
-    "setting.removeTargets.hint" : "Removes any targets at the end of a combatant's turn",
+    "setting.removeCover.name" : "Remove Cover on Turn End",
+    "setting.removeCover.hint" : "Removes any cover effect at the end of a combatants turn",
+    "setting.clearTargets.name" : "Remove Targets on Turn End",
+    "setting.clearTargets.hint" : "Removes any targets at the end of a combatant's turn",
 
     "setting.coverApplication.name" : "Cover Application",
     "setting.coverApplication.hint" : "Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves.",
@@ -57,8 +59,8 @@
     "option.coverTint.grey" : "Dim Grey",
     "option.coverTint.rainbow" : "Rainbow",
 
-    "setting.losWithTokens.name": "[*]Token Cover",
-    "setting.losWithTokens.hint": "[*]Allow tokens to be factored into cover calculation.",
+    "setting.losWithTokens.name": "Token Cover",
+    "setting.losWithTokens.hint": "Allow tokens to be factored into cover calculation.",
     "setting.losMaskNPC.name": "Hide GM info from Cover Report",
     "setting.losMaskNPC.hint": "Replaces uses of the NPC's name with \"A creature\" when reporting cover and whispers GM prompted cover checks.",
 
@@ -99,8 +101,6 @@
 
     "setting.actionMgmtEnable.name": "Enable Combat Action Management",
     "setting.actionMgmtEnable.hint": "Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
-    "setting.hoverShow.name": "Show Action HUD on Hover",
-    "setting.hoverShow.hint": "Displays the action HUD on hover with a half second delay, instead of when controlled.",
 
     "setting.legendaryActionRecharge.name":"Start of turn legendary action reset.",
     "setting.legendaryActionRecharge.hint":"Enables or disables this feature (global)",

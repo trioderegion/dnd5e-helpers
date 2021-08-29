@@ -5,6 +5,8 @@
     "option.default.disabled" : "비활성화",
     "option.default.enabled" : "활성화",
     "option.default.displaySuppressed" : "[EN]Enabled (Display Suppressed)",
+    "option.default.enabledHover": "[EN]Enabled (On Hover)",
+
     "DND5EH.Default_none" : "없음", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers 소켓 수신",
     "DND5EH.Default_SocketSend": "{socketData}와 소켓 전송",
@@ -39,10 +41,10 @@
     "DND5EH.LoSMaskNPCs_targetMask": "생물",
     "setting.losKeyBind.name" : "엄폐 단축키",
     "setting.losKeyBind.hint" : "대상 지정 시 엄폐 체크 단축키를 할당한다.",
-    "setting.clearTargets.name" : "턴 종료 시 엄폐 제거",
-    "setting.clearTargets.hint" : "전투원의 턴 종료 시 엄폐 효과를 제거한다.",
-    "setting.removeTargets.name" : "턴 종료시 대상 지정 해제",
-    "setting.removeTargets.hint" : "전투원의 턴 종료 시 대상 지정을 해제한다.",
+    "setting.removeCover.name" : "턴 종료 시 엄폐 제거",
+    "setting.removeCover.hint" : "전투원의 턴 종료 시 엄폐 효과를 제거한다.",
+    "setting.clearTargets.name" : "턴 종료시 대상 지정 해제",
+    "setting.clearTargets.hint" : "전투원의 턴 종료 시 대상 지정을 해제한다.",
 
     "setting.coverApplication.name" : "엄폐 어플리케이션",
     "setting.coverApplication.hint" : "엄폐 보너스 적용을 허용한다. 이 설정은 대상이 아니라 공격자에게 적용된다. 이는 근거리 및 원거리 공격에만 영향을 끼치지 않으며 민첩 내성 굴림은 해당되지 않는다.",
@@ -57,8 +59,8 @@
     "option.coverTint.grey" : "흐린 회색",
     "option.coverTint.rainbow" : "무지개색",
 
-    "setting.losWithTokens.name":"방해 토큰을 절반 엄폐로 취급",
-    "setting.losWithTokens.hint": "비활성화 시 토큰들이 엄폐 계산에 포함되지 않는다.",
+    "setting.losWithTokens.name":"[*]방해 토큰을 절반 엄폐로 취급",
+    "setting.losWithTokens.hint": "[*]비활성화 시 토큰들이 엄폐 계산에 포함되지 않는다.",
     "setting.losMaskNPC.name": "엄폐 보고에서 GM 정보 숨기기",
     "setting.losMaskNPC.hint": "엄폐 보고 시 NPC 이름을 \"한 생물\"로 대체하여 GM에게 엄폐 결과를 귓속말로 출력한다.",
 
@@ -99,8 +101,6 @@
 
     "setting.actionMgmtEnable.name": "[EN]Enable Combat Action Management",
     "setting.actionMgmtEnable.hint": "[EN]Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
-    "setting.hoverShow.name": "[EN]Show Action HUD on Hover",
-    "setting.hoverShow.hint": "[EN]Displays the action HUD on hover with a half second delay, instead of when controlled.",
 
     "setting.legendaryActionRecharge.name":"턴 시작 시 전설적 행동 리셋",
     "setting.legendaryActionRecharge.hint":"이 기능을 활성화/비활성화 한다. (전반적)",

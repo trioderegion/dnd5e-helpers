@@ -5,6 +5,8 @@
     "option.default.disabled" : "Desactivado",
     "option.default.enabled" : "[EN]Enabled",
     "option.default.displaySuppressed" : "[EN]Enabled (Display Suppressed)",
+    "option.default.enabledHover": "[EN]Enabled (On Hover)",
+
     "DND5EH.Default_none" : "Ninguno",
     "DND5EH.Default_SocketSetup" :"Socket de dnd5e helpers recibido",
     "DND5EH.Default_SocketSend": "socket enviado con {socketData}",
@@ -39,10 +41,10 @@
     "DND5EH.LoSMaskNPCs_targetMask": "una criatura",
     "setting.losKeyBind.name" : "[EN] Keybind for Cover",
     "setting.losKeyBind.hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
-    "setting.clearTargets.name" : "[EN]Remove Cover on turn end",
-    "setting.clearTargets.hint" : "[EN]Removes any cover effect at the end of a combatants turn",
-    "setting.removeTargets.name" : "[EN]Remove Targets on turn end",
-    "setting.removeTargets.hint" : "[EN]Removes any targets at the end of a combatants turn",
+    "setting.removeCover.name" : "[EN]Remove Cover on turn end",
+    "setting.removeCover.hint" : "[EN]Removes any cover effect at the end of a combatants turn",
+    "setting.clearTargets.name" : "[EN]Remove Targets on turn end",
+    "setting.clearTargets.hint" : "[EN]Removes any targets at the end of a combatants turn",
 
     "setting.coverApplication.name" : "[EN] Cover Application",
     "setting.coverApplication.hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
@@ -57,8 +59,8 @@
     "option.coverTint.grey" : "[EN]Dim Grey",
     "option.coverTint.rainbow" : "[EN]Rainbow",
 
-    "setting.losWithTokens.name":"Considerar tokens como media cob.",
-    "setting.losWithTokens.hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",
+    "setting.losWithTokens.name":"[*]Considerar tokens como media cob.",
+    "setting.losWithTokens.hint": "[*]Resultados sin comprobar de tokens no se usan para calcular cob.",
     "setting.losMaskNPC.name": "No mostrar información del GM del Anuncio de Cob.",
     "setting.losMaskNPC.hint": "Reemplaza el nombre del PNJ por \"Una criatura\" al anunciar cob. y susurra control de cob. pedido por el GM..",
 
@@ -99,8 +101,6 @@
 
     "setting.actionMgmtEnable.name": "[EN]Enable Combat Action Management",
     "setting.actionMgmtEnable.hint": "[EN]Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
-    "setting.hoverShow.name": "[EN]Show Action HUD on Hover",
-    "setting.hoverShow.hint": "[EN]Displays the action HUD on hover with a half second delay, instead of when controlled.",
 
     "setting.legendaryActionRecharge.name":"Reinicio de acciones legendarias al inicio del turno",
     "setting.legendaryActionRecharge.hint":"Activa o desactiva esta función (global)",

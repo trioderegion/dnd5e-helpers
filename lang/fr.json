@@ -5,6 +5,8 @@
     "option.default.disabled" : "Désassemblé",
     "option.default.enabled" : "[EN]Enabled",
     "option.default.displaySuppressed" : "[EN]Enabled (Display Suppressed)",
+    "option.default.enabledHover": "[EN]Enabled (On Hover)",
+    
     "DND5EH.Default_none" : "Aucun", 
     "DND5EH.Default_SocketSetup" :"Prise d'Aide Dnd5e reçue",
     "DND5EH.Default_SocketSend": "socket envoyé avec {socketData}",
@@ -39,10 +41,10 @@
     "DND5EH.LoSMaskNPCs_targetMask": "[EN] a creature",
     "setting.losKeyBind.name" : "[EN] Keybind for Cover",
     "setting.losKeyBind.hint" : "[EN] Assign a keyboard shortcut to check cover when targeting.",
-    "setting.clearTargets.name" : "[EN]Remove Cover on turn end",
-    "setting.clearTargets.hint" : "[EN]Removes any cover effect at the end of a combatants turn",
-    "setting.removeTargets.name" : "[EN]Remove Targets on turn end",
-    "setting.removeTargets.hint" : "[EN]Removes any targets at the end of a combatants turn",
+    "setting.removeCover.name" : "[EN]Remove Cover on turn end",
+    "setting.removeCover.hint" : "[EN]Removes any cover effect at the end of a combatants turn",
+    "setting.clearTargets.name" : "[EN]Remove Targets on turn end",
+    "setting.clearTargets.hint" : "[EN]Removes any targets at the end of a combatants turn",
 
     "setting.coverApplication.name" : "[EN] Cover Application",
     "setting.coverApplication.hint" : "[EN] Allow application of cover bonuses. These are applied to the attacker, not the target. These only affect melee and ranged attacks, not dexterity saves",
@@ -57,8 +59,8 @@
     "option.coverTint.grey" : "[EN]Dim Grey",
     "option.coverTint.rainbow" : "[EN]Rainbow",
 
-    "setting.losWithTokens.name":"Considérez les jetons comme une demi-couverture",
-    "setting.losWithTokens.hint": "Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
+    "setting.losWithTokens.name":"[*]Considérez les jetons comme une demi-couverture",
+    "setting.losWithTokens.hint": "[*]Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
     "setting.losMaskNPC.name": "[EN] Hide GM info from Cover Report",
     "setting.losMaskNPC.hint": "[EN] Replaces uses of the NPC's name with \"A creature\" when reporting cover [EN] and whispers GM prompted cover checks.",
 
@@ -99,8 +101,6 @@
 
     "setting.actionMgmtEnable.name": "[EN]Enable Combat Action Management",
     "setting.actionMgmtEnable.hint": "[EN]Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
-    "setting.hoverShow.name": "[EN]Show Action HUD on Hover",
-    "setting.hoverShow.hint": "[EN]Displays the action HUD on hover with a half second delay, instead of when controlled.",
 
     "setting.legendaryActionRecharge.name":"Réinitialisation de l'action légendaire du début du tour.",
     "setting.legendaryActionRecharge.hint":"Active ou désactive cette fonctionnalité (global)",

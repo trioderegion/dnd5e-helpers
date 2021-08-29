@@ -30,7 +30,7 @@ export class DnDWildMagic{
           1: MODULE.localize("option.wmOptions.standard"),
           2: MODULE.localize("option.wmOptions.more"),
           3: MODULE.localize("option.wmOptions.volatile"),
-          4: MODULE.localize("option.wmOptions.custom"),
+        //4: MODULE.localize("option.wmOptions.custom"),
         },
         onchange : (...args) => {
           logger.info("Settings Change!", args);
