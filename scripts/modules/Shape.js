@@ -74,6 +74,7 @@ export class Shape {
     try {
       return new Shape({ segments : [new Segment({ numbers : wall.data.c }, o)] }, o);
     } catch(e) {
+      logger.debug('Ignoring invalid wall:', wall);
       return null;
     }
   }
