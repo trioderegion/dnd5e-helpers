@@ -14,7 +14,7 @@ export class OpenWounds {
         const config = false;
         const settingsData = {
             OpenWoundsFeatureName: {
-                scope: "world", config, group: "combat", default: "Great Wound", type: String,
+                scope: "world", config, group: "combat", default: "Open Wound", type: String,
             },
             OpenWoundPcOnlyName: {
                 scope: "world", config, group: "combat", default: false, type: Boolean
