@@ -71,7 +71,11 @@ export class Shape {
   }
 
   static buildWall(wall, o){
-    return new Shape({ segments : [new Segment({ numbers : wall.data.c }, o)] }, o);
+    try {
+      return new Shape({ segments : [new Segment({ numbers : wall.data.c }, o)] }, o);
+    } catch(e) {
+      return null;
+    }
   }
 
   static buildTile(tile, o){
