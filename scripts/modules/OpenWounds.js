@@ -93,7 +93,7 @@ export class OpenWounds {
     static async OpenWounds(actor, woundType) {
         if(MODULE.setting("OpenWoundPcOnlyName") && !actor.hasPlayerOwner) return
         logger.debug("Open Wounds info", { actor: actor, woundType: woundType })
-        const owFeatureName = MODULE.setting("OpenWoundFeatureName");
+        const owFeatureName = MODULE.setting("OpenWoundsFeatureName");
         const openWoundTable = MODULE.setting("OpenWoundTableName");
         ChatMessage.create({
             content: MODULE.format("DND5EH.OpenWoundFeaturename_chatoutput", {
