@@ -193,7 +193,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"d'un jet de sauvetage raté",
 
     "setting.OpenWoundCrit.name":"Blessure ouverte - Critiques",
-    "setting.OpenWoundCrit.hint":"Blessure ouverte déclenchée sur les jets d'attaque. Si un jet d'attaque est supérieur à cette valeur, une blessure ouverte est lancée. Pour désactiver cela, laissez le champ vide",
+    "setting.OpenWoundCrit.hint":"[*]Blessure ouverte déclenchée sur les jets d'attaque. Si un jet d'attaque est supérieur à cette valeur, une blessure ouverte est lancée. Pour désactiver cela, laissez le champ vide",
     "DND5EH.OpenWoundCrit_reason":"par un coup critique",
 
     "setting.OpenWound0HP.name":"Blessure ouverte - PV à 0",

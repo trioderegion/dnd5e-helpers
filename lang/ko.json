@@ -193,7 +193,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"죽음 내성 굴림 실패",
 
     "setting.OpenWoundCrit.name":"벌어진 상처 - Crits",
-    "setting.OpenWoundCrit.hint":"벌어진 상처가 굴려졌을 때 결과가 명중 굴림 값보다 낮으면 벌어진 상처가 발동된다. 이 옵션을 사용하지 않으려면 필드를 공백으로 둘 것.",
+    "setting.OpenWoundCrit.hint":"[*]벌어진 상처가 굴려졌을 때 결과가 명중 굴림 값보다 낮으면 벌어진 상처가 발동된다. 이 옵션을 사용하지 않으려면 필드를 공백으로 둘 것.",
     "DND5EH.OpenWoundCrit_reason":"치명타 피해",
 
     "setting.OpenWound0HP.name":"벌어진 상처 - HP at 0",

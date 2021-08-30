@@ -193,7 +193,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"de uma falha de salvaguarda contra morte",
 
     "setting.OpenWoundCrit.name":"Lesão Persistente - Críticos",
-    "setting.OpenWoundCrit.hint":"Lesão Persistente decorrente de jogadas de ataque. Se uma jogada de ataque for maior que esse valor, uma Lesão Persistente é rolada. Para desabilitar, deixe o campo em branco.",
+    "setting.OpenWoundCrit.hint":"[*]Lesão Persistente decorrente de jogadas de ataque. Se uma jogada de ataque for maior que esse valor, uma Lesão Persistente é rolada. Para desabilitar, deixe o campo em branco.",
     "DND5EH.OpenWoundCrit_reason":"de um acerto crítico",
 
     "setting.OpenWound0HP.name":"Lesão Persistente - 0 PV",
