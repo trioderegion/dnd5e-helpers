@@ -291,7 +291,7 @@ export class CoverCalculator{
    */
   static _patchToken(){
     Token.prototype.ignoresCover = function(){
-      return !!this.actor.getFlag("dnd5e", "helpersIgnoreCover");
+      return !!this.actor?.getFlag("dnd5e", "helpersIgnoreCover") ?? false;
     }
 
     Token.prototype.coverValue = function(){
@@ -304,7 +304,7 @@ export class CoverCalculator{
     }
 
     Token.prototype.getCoverEffects = function(){
-      return this.actor.effects.filter(e => e.getFlag(MODULE.data.name, "cover"));
+      return this.actor?.effects.filter(e => e.getFlag(MODULE.data.name, "cover")) ?? [];
     }
 
     Token.prototype.setCoverValue = function(value){
@@ -410,6 +410,9 @@ class Cover{
     //create list of walls to find collisions with
     this.data.walls.objects = canvas.walls.placeables.filter(wall => wall.coverValue() !== 0 );
     this.data.walls.shapes = this.data.walls.objects.map(wall => Shape.buildWall(wall, { cover : wall.coverValue() }));
+
+    //filter out garbage walls (i.e. null)
+    this.data.walls.shapes = this.data.walls.shapes.filter( shape => !!shape );
 
     if(MODULE.setting("debugDrawing"))
       this.data.walls.shapes.forEach(shape => shape.draw());

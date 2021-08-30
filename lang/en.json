@@ -193,7 +193,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"from a failed death saving throw",
 
     "setting.OpenWoundCrit.name":"Open Wound - Crits",
-    "setting.OpenWoundCrit.hint":"Open Wounds triggered on attack rolls. If an attack roll is greater than this value an Open Wound is rolled. To disable this leave the field blank",
+    "setting.OpenWoundCrit.hint":"Open Wounds triggered on critical attack rolls when a token is targeted. The actor's Weapon Critical Threshold special trait is taken into account.",
     "DND5EH.OpenWoundCrit_reason":"from a critical hit",
 
     "setting.OpenWound0HP.name":"Open Wound - HP at 0",

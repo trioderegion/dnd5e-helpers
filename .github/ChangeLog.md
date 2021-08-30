@@ -322,3 +322,14 @@
   - Translation key values that have no translation are prefixed with `[EN]`.
   - Translation key values that have been modified slightly are prefixed with `[*]`
   - Many thanks to our localizers -- we sincerely appreciate your time.
+
+### 3.0.1
+- *BUG FIXES*
+  - Changed Open Wound feature name default changed to "Open Wound".
+  - Debug symbols were stomping all over everything. Whoops.
+    - This affected midi-qol users and any modules using the 'logger' namespace.
+  - Cover calculator now ignores 0-length walls and better supports tokens w/o actors.
+  - Great Wound functionality now correctly respects its enable state.
+
+- *LOCALIZATION*
+  - `setting.OpenWoundCrit.hint` updated to reflect reliance on token targeting and usage of the weapon critical hit threshold

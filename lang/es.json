@@ -193,7 +193,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"por una tirada de muerte fallida",
 
     "setting.OpenWoundCrit.name":"Herida abierta - Críticos",
-    "setting.OpenWoundCrit.hint":"Se activa la Herida Abierta por tiradas de ataque. Si la tirada de ataque es superior a este valor se tira una Herida Abierta. Deja en blanco para desactivar.",
+    "setting.OpenWoundCrit.hint":"[*]Se activa la Herida Abierta por tiradas de ataque. Si la tirada de ataque es superior a este valor se tira una Herida Abierta. Deja en blanco para desactivar.",
     "DND5EH.OpenWoundCrit_reason":"por un golpe crítico",
 
     "setting.OpenWound0HP.name":"Herida Abierta - PG a 0",

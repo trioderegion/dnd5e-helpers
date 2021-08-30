@@ -60,6 +60,7 @@ export class GreatWound {
     }
 
     static calculation(actor, update) {
+        if(!MODULE.setting("GreatWoundEnable")) {return}
         let data = {
             actor: actor,
             actorData: actor.data,

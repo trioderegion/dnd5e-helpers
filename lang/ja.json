@@ -193,7 +193,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"死亡セーヴの失敗により",
 
     "setting.OpenWoundCrit.name":"後遺症 - クリティカル",
-    "setting.OpenWoundCrit.hint":"攻撃ロールがここで指定した値よりも大きい場合、後遺症が発生します。この機能を無効にするには、このフィールドを空白にしてください。",
+    "setting.OpenWoundCrit.hint":"[*]攻撃ロールがここで指定した値よりも大きい場合、後遺症が発生します。この機能を無効にするには、このフィールドを空白にしてください。",
     "DND5EH.OpenWoundCrit_reason":"致命的な打撃を受けたため",
 
     "setting.OpenWound0HP.name":"後遺症 - 0hp",

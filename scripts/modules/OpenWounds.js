@@ -14,7 +14,7 @@ export class OpenWounds {
         const config = false;
         const settingsData = {
             OpenWoundsFeatureName: {
-                scope: "world", config, group: "combat", default: "Great Wound", type: String,
+                scope: "world", config, group: "combat", default: "Open Wound", type: String,
             },
             OpenWoundPcOnlyName: {
                 scope: "world", config, group: "combat", default: false, type: Boolean
@@ -93,7 +93,7 @@ export class OpenWounds {
     static async OpenWounds(actor, woundType) {
         if(MODULE.setting("OpenWoundPcOnlyName") && !actor.hasPlayerOwner) return
         logger.debug("Open Wounds info", { actor: actor, woundType: woundType })
-        const owFeatureName = MODULE.setting("OpenWoundFeatureName");
+        const owFeatureName = MODULE.setting("OpenWoundsFeatureName");
         const openWoundTable = MODULE.setting("OpenWoundTableName");
         ChatMessage.create({
             content: MODULE.format("DND5EH.OpenWoundFeaturename_chatoutput", {

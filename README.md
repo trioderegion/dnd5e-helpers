@@ -119,7 +119,7 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 
 - Rolls on an "Injury Table" when specific customisable criteria are met; currently:
   - Failing a Death Saving Throw by 5 or more
-  - Getting critically hit (customisable value)
+  - On a critical hit (enemy must be targeted; critical range specified by special traits)
   - Falling to 0hp
   - Falling to 0hp from a Great Wound
 
