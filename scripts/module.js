@@ -106,8 +106,9 @@ export class MODULE{
     return ((MODULE.setting(feature) && actor.data.type === "npc") ? MODULE.format(label) : actor.data.name).capitalize();
   }
 
-  static sanitizeTokenName(token, feature, label){
-    return ((MODULE.setting(feature) && token.actor.data.type === "npc") ? MODULE.format(label) : token.data.name).capitalize();
+  static sanitizeTokenName(token, feature, label, capitalize = true){
+    const name = ((MODULE.setting(feature) && token.actor.data.type === "npc") ? MODULE.format(label) : token.data.name)
+    return capitalize ? name.capitalize() : name;
   }
 
   static applySettings(settingsData){

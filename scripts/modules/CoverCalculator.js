@@ -531,8 +531,9 @@ class Cover{
   }
 
   async toMessage(){
-    this.data.origin.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPC", "DND5EH.LoSMaskNPCs_sourceMask");
-    this.data.target.name = MODULE.sanitizeTokenName(this.data.target.object, "losMaskNPC", "DND5EH.LoSMaskNPCs_targetMask");
+    this.data.origin.name = MODULE.sanitizeTokenName(this.data.origin.object, "losMaskNPC", "DND5EH.LoSMaskNPCs_creatureMask");
+    this.data.target.name = MODULE.sanitizeTokenName(this.data.target.object, "losMaskNPC", "DND5EH.LoSMaskNPCs_creatureMask", false);
+    this.data.target.name += '.'; //punctuation
 
     const appliedCover = this.data.origin.object.getCoverEffect()?.getFlag(MODULE.data.name, "level") ?? 0;
     let content = `
@@ -542,9 +543,6 @@ class Cover{
         <div class="dice-result">
           <div class="dice-formula">
             ${this.data.results.label}
-            <div class="desc">
-              ${this.data.results.corners} ${MODULE.localize("DND5EH.LoS_visiblecorners")}
-            </div>
           </div>
         </div>
       </div>
