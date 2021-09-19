@@ -205,7 +205,7 @@ export class ActionManagement{
     const token = await fromUuid(`Scene.${speaker.scene}.Token.${speaker.token}`);
 
     /* check that the token is in combat */
-    if ( (token.combatant?.combat.started ?? false) == false) return;
+    if ( (token.combatant?.combat?.started ?? false) == false) return;
 
     const item_id = $(messageData.content).attr("data-item-id");
 
