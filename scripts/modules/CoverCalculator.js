@@ -179,7 +179,17 @@ export class CoverCalculator{
 
   static async _deleteCombatant(combatant, /*render*/){
     if(MODULE.setting("losOnTarget") > 0 && MODULE.isFirstGM()){
-      const token = combatant?.token?.object;
+
+      /* need to grab a fresh copy in case this
+       * was triggered from a delete token operation,
+       * which means this token is already deleted
+       * and we need to do nothing
+       */
+      const tokenId = combatant.token?.id;
+      const sceneId = combatant.parent.data.scene
+
+      const token = game.scenes.get(sceneId).tokens.get(tokenId);
+
       if(token)
         queueUpdate( () => {
           return Cover._removeEffect(token);

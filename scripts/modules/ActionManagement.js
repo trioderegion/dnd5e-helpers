@@ -143,8 +143,17 @@ export class ActionManagement{
     }
   }
 
-  static _deleteCombatant(combatant, /* options, userId */){
-    const token = combatant.token?.object;
+  static _deleteCombatant(combatant/*, options, userId */){
+
+    /* need to grab a fresh copy in case this
+     * was triggered from a delete token operation,
+     * which means this token is already deleted
+     * and we need to do nothing
+     */
+    const tokenId = combatant.token?.id;
+    const sceneId = combatant.parent.data.scene
+
+    const token = game.scenes.get(sceneId).tokens.get(tokenId);
 
     if(token?.hasActionContainer()) {
       queueUpdate( async () => {
