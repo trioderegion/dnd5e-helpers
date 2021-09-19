@@ -79,9 +79,10 @@ export class DnDWildMagic{
     logger.debug(`_preUpdateActor | Entered`);
     /** Exit if hook is not the product of a spell change */
     const spells = !!getProperty(update, "data.spells");
-    const enable = actor.getFlag('dnd5e', 'wildMagic');
-    logger.debug(`_preUpdateActor | Logic (e/s) | `, enable, spells);
-    if(!enable || !spells) return;
+    const specialTrait = actor.getFlag('dnd5e', 'wildMagic');
+    const enabled = MODULE.setting('wmOptions') !== 0;
+    logger.debug(`_preUpdateActor | Logic (e/s) | `, specialTrait, spells);
+    if(!specialTrait || !spells || !enabled) return;
 
     /** Find the spell level just cast */
     const spellLvlNames = ["spell0", "spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
