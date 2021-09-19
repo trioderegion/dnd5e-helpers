@@ -241,7 +241,13 @@ export class CoverCalculator{
   }
 
   static _addToConfig(app, html, ele){
-    const status = app.object._object.coverValue() ?? 0;
+
+    /* if this app doesnt have the expected
+     * data (ex. prototype token config),
+     * bail out.
+     */
+    if (!app.object?.object) return;
+    const status = app.object.object.coverValue() ?? 0;
     const selectHTML = `<label>${MODULE.localize("DND5EH.LoS_providescover")}</label>
                           <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
                             ${
