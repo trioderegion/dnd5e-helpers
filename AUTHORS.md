@@ -4,4 +4,3 @@
 - trioderegion (matt.haentschke@gmail.com)
 - kandashi (jacobmpalmer@live.co.uk)
 - kekilla (pman159@gmail.com)
-- hugoprudente (hugo.kenshin@gmail.com)
