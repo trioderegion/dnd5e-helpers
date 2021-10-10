@@ -56,8 +56,10 @@ export class AD extends Application{
       this._executeItemClick(ele);
   }
 
-  update(){
-    this._update();
+  async update(){
+    await this._update();
+    //minimize size? (or just update css to not be stupid)
+    this.activateListeners();
   }
 
   _getActors(){
@@ -130,20 +132,42 @@ export class AD extends Application{
     };
   }
 
-  _update(){
+  async _update(){
+    const element = this.element;
+    const data = await this.getData(this.options);
 
+    if( element.length && this.options.scrollY ) this._saveScrollPositions(element);
+
+    const inner = await this._renderInner(data);
+
+    if( element.length ) this._replaceHTML(element, inner);
   }
 
   _executeActorClick(html){
-    logger.debug("Actor Click | ", html);
+    html.onclick = (event) => {
+      logger.debug("Actor Click | ", html, this);
+
+      const actor = this.actors.find(a => a.name === html.id);
+      if(actor.id === this.selectedActor.id) return;
+      this.selectedActor = actor;
+
+      this.update();
+    }
   }
 
   _executeActionClick(html){
-    logger.debug("Action Click | ", html);
+    html.onclick = (event) => {
+      logger.debug("Action Click | ", html, this);
+      const action = html.id;
+
+      if(this.selectedAction === action) return;
+      this.selectedAction = action;
+
+      this.update();
+    }
   }
 
   _executeItemClick(html){
-    logger.debug("Item Click | ", html);
     html.onclick = async (event) => {
       const item = await fromUuid(html.id);
       await item.roll();

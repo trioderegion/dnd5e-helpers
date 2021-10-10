@@ -63,3 +63,10 @@ Hooks.on(`setup`, () => {
   //Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
   //Object.entries(SUB_APPS).forEach(([key, cl])=> window[key] = cl);
 });
+
+
+/**
+ * Kekilla @todo :
+ *    Expanded Character Resources
+ *    Specific Character Resource Management
+ */

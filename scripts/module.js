@@ -31,7 +31,7 @@ export class MODULE{
   }
 
   static async wait(ms){
-    return new Promise((resolve)=> setTimeout(resolve, ms))
+    return new Promise((resolve)=> setTimeout(resolve, ms));
   }
 
   static async waitFor(fn, m = 200, w = 100, i = 0){
@@ -140,9 +140,9 @@ export class MODULE{
     })
   }
   static async getItem(key, id){
-    if(key === "Item") return game.items.get(id)
-    let pack = game.packs.get(key)
-    return await pack.getDocument(id)
+    if(key === "Item") return game.items.get(id);
+    let pack = game.packs.get(key);
+    return await pack.getDocument(id);
   }
 
   /*

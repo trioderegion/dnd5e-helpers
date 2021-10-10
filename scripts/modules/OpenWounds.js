@@ -6,7 +6,7 @@ const NAME = "OpenWounds";
 
 export class OpenWounds {
     static register() {
-        logger.info("Registering Great-Wound Calculations");
+        logger.info("Registering Open-Wound Calculations");
         OpenWounds.settings();
         OpenWounds.hooks();
     }
