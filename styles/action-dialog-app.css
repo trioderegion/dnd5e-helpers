@@ -1,0 +1,100 @@
+/*
+  Action Dialog App 
+*/
+.action-dialog-app {
+  display: flex;
+  min-height: 300px !important;
+  min-width: 400px !important;
+}
+
+.action-dialog-app .flex {
+  display: flex;
+}
+
+.action-dialog-app .right {
+  display: flex;
+  justify-content: right !important;
+  text-align: right !important;
+}
+
+.action-dialog-app .center {
+  display: flex;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.action-dialog-app .left {
+  display: flex;
+  justify-content: left !important;
+  text-align: left !important;
+}
+
+.action-dialog-app .row {
+  display: flex;
+  flex-direction: row !important;
+  justify-content: space-evenly;
+}
+
+.action-dialog-app .col {
+  display: flex;
+  flex-direction: column !important;
+  justify-content: space-evenly;
+}
+
+.action-dialog-app .select {
+  display: flex;
+  height: 35px;
+  width: 100%;
+}
+
+.action-dialog-app .tab {
+  display: flex;
+}
+
+.action-dialog-app .active {
+  display: flex;
+  visibility: visible !important;
+}
+
+.action-dialog-app .actor-info {
+  display: flex;
+  justify-content: start;
+}
+
+.action-dialog-app .actor-info img {
+  width: 200px;
+  height: 200px;
+}
+
+.action-dialog-app .item-info {
+  display: flex;
+}
+
+.action-dialog-app .button {
+  display: flex;
+  width: 180px;
+  height: 30px;
+}
+
+.action-dialog-app .tab-button {
+  display: flex;
+  margin-left: 5px;
+  margin-right: 5px;
+  border-style: outset;
+  border-color: grey;
+}
+
+.action-dialog-app .pad {
+  display: flex;
+  padding: 5px 5px 5px 5px;
+}
+
+.action-dialog-app .wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.action-dialog-app .nowrap {
+  display: flex;
+  flex-wrap: nowrap;
+}

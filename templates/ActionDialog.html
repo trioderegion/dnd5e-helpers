@@ -1,0 +1,39 @@
+<div class="container dnd5ehelpers">
+  {{#each combatants as |combatant|}}
+  <div class="row">
+    <div class="combatant-img">
+      <!-- <label>{{combatant.name}}</label> -->
+      <img id="{{combatant.id}}" src="{{combatant.img}}" title="{{combatant.name}}">
+    </div>
+    {{#each combatant.items}}
+      {{#if this}}
+        <div class="col">
+          <!-- <label><b>{{@key}}</b></label> -->
+          {{#each this}}
+            <div class="hover-group">
+              <div class="desc">{{{this.description}}}</div>
+              <button type="button" id="{{this.id}}" value="{{this.uuid}}">
+                <label>{{this.name}}</label>
+                <label>
+                  {{#if this.activation.cost}}
+                  [{{localize "DND5E.Uses"}} {{this.activation.cost}}{{#if this.activation.available}} / {{this.activation.available}}{{/if}}]
+                  {{/if}}
+                </label>
+              </button>
+            </div>
+          {{/each}}
+        </div>
+      {{/if}}
+    {{/each}}
+  </div>
+  {{/each}}
+</div>
+<hr>
+<div class="dialog-buttons">
+  {{#each buttons as |button id|}}
+  <button class="dialog-button {{cssClass}}" data-button="{{id}}">
+    {{{button.icon}}}
+    {{{button.label}}}
+  </button>
+  {{/each}}
+</div>

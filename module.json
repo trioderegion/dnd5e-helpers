@@ -2,8 +2,8 @@
     "name": "dnd5e-helpers",
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
-    "systems": ["dnd5e"],
-    "version": "2.0.5",
+    "system": ["dnd5e"],
+    "version": "3.0.0-alpha",
     "author": "honeybadger, Kandashi, hugoprudente, kekilla",
     "authors": [
       {
@@ -15,16 +15,12 @@
         "url": "https://github.com/kandashi"
       },
       {
-        "name": "hugoprudente",
-        "url": "https://github.com/hugoprudente"
-      },
-      {
           "name": "kekilla",
           "url": "https://github.com/kekilla0"
       }
     ],
     "esmodules": [
-        "/scripts/dnd5e-helpers.js"
+        "/scripts/helpers.js"
     ],
     "languages": [
       {
@@ -54,12 +50,13 @@
       }
     ],
     "styles": [
-      "/styles/dnd5e-helpers.css"
+      "/styles/dnd5e-helpers.css",
+      "/styles/action-dialog-app.css"
     ] ,
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
-    "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/master/module.json",
-    "download": "https://github.com/trioderegion/dnd5e-helpers/releases/latest/download/module.zip",
+    "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/Kek-Rewrite/module.json",
+    "download": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/Kek-Rewrite/module.zip",
     "minimumCoreVersion": "0.8.5",
-    "compatibleCoreVersion": "0.8.6"
+    "compatibleCoreVersion": "0.8.9"
 }

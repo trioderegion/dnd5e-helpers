@@ -285,3 +285,51 @@
 ### 2.0.7
 - We welcome kekilla into our development group! We are excited for the expertise that he brings.
 - Issue 130: Further strengthened combat state detection logic to suppress unnecessary combat entity updates. Additionally, (temporarily) removed functionality to erase Helpers cover messages from the chat log as we chase document update/deletion race conditions. Please report any remaining emebedded document errors related to starting/stopping combat.
+
+### 3.0.0
+- The version 2.0 refactor did not meet our needs. With Kekilla's guidance, we have completely rewritten the entirety of 5e Helpers in a far more sustainable form. This also allows significantly easier contributions of new or improved functionality.
+- These patch notes are not comprehensive, but touch on the major changes introduced in this version.
+
+- *ADDED AND IMPROVED FEATURES*
+  - Vastly improved accuracy and configurability of the cover calculator.
+  - `Token#setCoverValue` for programmaticly changing a token's provided cover.
+  - Walls, tiles, and tokens can be configured individually for the cover they provide. Found in their properties dialog.
+  - Legendary action reset moved to end of turn.
+  - Legendary and lair action helper dialogs now close when an action is used.
+  - Active Effects can now be removed on short or long rests. Found in the 'Duration' tab of its configuration dialog.
+  - Great wounds and undead fortitude now have a configurable base DC.
+  - Open wounds can be restricted to Characters (PCs) only.
+  - Action HUD has been repositioned inside the token's bounding box, allowing for interactivity and less obstruction.
+  - Action HUD can now be displayed on control or hover of a token, in addition to being suppressed for display.
+  - Action HUD can now show _all_ used actions as status effects. This is configurable as "disabled", "enabled", or "reactions only" to emulate prior functionality.
+  - Status effect icons now flow left-to-right top-to-bottom to better align with the new position of the action HUD.
+  - Added scalor value to modify the size of status effect tokens, which is client controlled.
+  - Automatic regeneration now has a localizable search string for "hit points".
+
+- *REMOVED FEATURES*
+  - Removed automatic proficiency detection as this will be rolled into dnd5e core in the future.
+  - Removed `mr` dice modifier. Core has implemented `min` which works the same way.
+  - `Token#computeTargetCover` has been removed.
+
+- *BUG FIXES*
+  - Erroneously detected cover in tight spaces with nearby tokens.
+  - Race conditions related to removal of cover effects.
+  - Strengthened chat card detection in relation to action management detection.
+  - Temporary combatant handling.
+
+- *LOCALIZATION*
+  - Too many to list formally. We tried our best to preserve previously translated strings.
+  - Translation key values that have no translation are prefixed with `[EN]`.
+  - Translation key values that have been modified slightly are prefixed with `[*]`
+  - Many thanks to our localizers -- we sincerely appreciate your time.
+
+### 3.0.1
+- *BUG FIXES*
+  - Changed Open Wound feature name default changed to "Open Wound".
+  - Debug symbols were stomping all over everything. Whoops.
+    - This affected midi-qol users and any modules using the 'logger' namespace.
+  - Cover calculator now ignores 0-length walls and better supports tokens w/o actors.
+  - Great Wound functionality now correctly respects its enable state.
+
+- *LOCALIZATION*
+  - `setting.OpenWoundCrit.hint` updated to reflect reliance on token targeting and usage of the weapon critical hit threshold

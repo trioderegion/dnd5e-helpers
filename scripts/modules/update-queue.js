@@ -1,21 +1,3 @@
-let updateQueues = new Map();
-
-/** 
- * Safely manages concurrent updates to the provided entity type
- * @param {String} entity       the name of the entity type, ex. 'Combat' or 'Scene'
- * @param {Function} updateFn   the function that handles the actual update (can be async)
- */
-export function queueEntityUpdate(entity, updateFn) {
-
-  /** if this is a new entity type, create the queue object to manage it */
-  if(!updateQueues.has(entity)) {
-    updateQueues.set(entity, new UpdateQueue(entity));
-  }
-
-  /** queue the update for this entity */
-  updateQueues.get(entity).queueUpdate(updateFn);
-}
-
 /** 
  * Helper class to manage database updates that occur from
  * hooks that may fire back to back.
@@ -66,4 +48,15 @@ class UpdateQueue {
     this.inFlight = false;
 
   }
+}
+
+let updateQueue = new UpdateQueue("All");
+
+/** 
+ * Safely manages concurrent updates to the provided entity type
+ * @param {Function} updateFn   the function that handles the actual update (can be async)
+ */
+export function queueUpdate(updateFn) {
+  /** queue the update for this entity */
+  updateQueue.queueUpdate(updateFn);
 }
