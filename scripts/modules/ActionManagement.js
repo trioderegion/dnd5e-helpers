@@ -195,7 +195,7 @@ export class ActionManagement{
       ActionManagement._renderActionContainer(tokenDocument.object, mode === 3 || !tokenDocument.object._controlled ? false : true );
     }
 
-    if("tint" in update || "img" in update || "flags" in update)
+    if("tint" in update || "img" in update || !!getProperty(update, `flags.${MODULE.data.name}`))
       tokenDocument.object.updateActionMarkers();
       
     logger.debug("_updateToken | Data | ", {
