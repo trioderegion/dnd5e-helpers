@@ -63,8 +63,8 @@ export class LegendaryActionManagement{
    */
   static _createCombatant(combatant) {
 
-    /* do not run if not the first GM or the feature is not enabled */
-    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+    /* do not run if not the first GM, but always flag regardless of enable state */
+    if (!MODULE.isFirstGM()) return;
 
     const hasLegendary = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "legendary")
 
@@ -85,36 +85,44 @@ export class LegendaryActionManagement{
   static _updateCombat(combat, changed) {
 
     /* do not run if not the first GM or the feature is not enabled */
-    if (!MODULE.isFirstGM() || !MODULE.setting('legendaryActionHelper')) return;
+    if (!MODULE.isFirstGM()) return;
 
     /* only trigger legendary actions on a legit turn change */
     if (!MODULE.isTurnChange(combat, changed)) return;
 
-    /* Collect legendary combatants (but not the combatant whose turn just ended) */
     const previousId = combat.previous?.combatantId;
-    const legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
 
-    /* send list of combantants to the action dialog subclass */
-    if (legendaryCombatants.length > 0) {
-      LegendaryActionManagement.showLegendaryActions(legendaryCombatants);
-    }
+    /* run the leg action helper dialog if enabled */
+    if (MODULE.setting('legendaryActionHelper')) {
 
-    /* once the dialog for the "in-between" turn has been rendered, recharge legendary actions
-     * for the creature whose turn just ended. This is not entirely RAW, but due to order
-     * of operations it must be done 'late'. Since a creature cannot use a legendary
-     * action at the end of its own turn, nor on its own turn, recharging at end of turn
-     * rather than beginning of turn is functionally equivalent. */
-    if (previousId) {
+      /* Collect legendary combatants (but not the combatant whose turn just ended) */
+      const legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
 
-      /* does the previous combatant have legendary actions? */
-      const previousCombatant = combat.combatants.get(previousId);
-      if(!!previousCombatant?.getFlag(MODULE.data.name, 'hasLegendary')) {
-        LegendaryActionManagement.rechargeLegendaryActions(previousCombatant);
+      /* send list of combantants to the action dialog subclass */
+      if (legendaryCombatants.length > 0) {
+        LegendaryActionManagement.showLegendaryActions(legendaryCombatants);
       }
 
-
     }
 
+    /* recharge the legendary actions, if enabled */
+    if (MODULE.setting('legendaryActionRecharge')) {
+
+      /* once the dialog for the "in-between" turn has been rendered, recharge legendary actions
+       * for the creature whose turn just ended. This is not entirely RAW, but due to order
+       * of operations it must be done 'late'. Since a creature cannot use a legendary
+       * action at the end of its own turn, nor on its own turn, recharging at end of turn
+       * rather than beginning of turn is functionally equivalent. */
+      if (previousId) {
+
+        /* does the previous combatant have legendary actions? */
+        const previousCombatant = combat.combatants.get(previousId);
+        if(!!previousCombatant?.getFlag(MODULE.data.name, 'hasLegendary')) {
+          LegendaryActionManagement.rechargeLegendaryActions(previousCombatant);
+        }
+      }
+
+    }
   }
 
   /** @private */
