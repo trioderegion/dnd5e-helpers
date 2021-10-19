@@ -153,7 +153,9 @@ export class ActionManagement{
     const tokenId = combatant.token?.id;
     const sceneId = combatant.parent.data.scene
 
-    const token = game.scenes.get(sceneId).tokens.get(tokenId);
+    /* this retrieves a token DOCUMENT */
+    const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
+    const token = tokenDoc?.object;
 
     if(token?.hasActionContainer()) {
       queueUpdate( async () => {
