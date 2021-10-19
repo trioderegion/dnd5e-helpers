@@ -188,7 +188,8 @@ export class CoverCalculator{
       const tokenId = combatant.token?.id;
       const sceneId = combatant.parent.data.scene
 
-      const token = game.scenes.get(sceneId).tokens.get(tokenId);
+      const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
+      const token = tokenDoc?.object;
 
       if(token)
         queueUpdate( () => {
