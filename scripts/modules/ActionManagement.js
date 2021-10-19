@@ -332,12 +332,7 @@ export class ActionManagement{
     Token.prototype.iterateActionFlag = function(type, value){
 
       /* dont mess with flags if I am not in combat */
-      if (!this.combatant) return;
-
-      /* check current combat turn to see if we should treat an 
-       * action as a reaction 
-       */
-      //type = ActionManagement._checkForReaction(type, this.combatant);
+      if (!this.combatant) return false;
 
       let flag = this.getActionFlag() ?? duplicate(MODULE[NAME].default);
       if(value === undefined) flag[type] += 1;
@@ -372,6 +367,21 @@ export class ActionManagement{
         return this.toggleActionContainer(state);
       else
         return ActionManagement._renderActionContainer(this, state);
+    }
+
+    /* return: Promise<setFlag> */
+    Token.prototype.setActionUsed = async function(actionType, overrideCount = undefined) {
+      const validActions = ['action', 'bonus', 'reaction'];
+      if (validActions.includes(actionType)){
+
+        /* if setting the action went well, return the resulting action usage object */
+        const success = await this.iterateActionFlag(actionType, overrideCount); 
+        if(success){
+          return this.getActionFlag();
+        }
+      } 
+
+      return false;
     }
 
     //from foundry.js:44998 as of v0.8.8.
