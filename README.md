@@ -83,6 +83,10 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
   - A more detailed discussion of this can be found on our Wiki
 - Added `Token#setCoverValue` which accepts 0-3 (no, half, 3/4, and full cover, respectively). Can be used to change a token's provided cover; e.g. when prone or dead.
 
+#### A Note on Module Interactions
+
+Helpers provides built-in functionality for managing cover in a simple manner. Other modules may interact with Helper's output, or supercede it entirely. If this is the case, please consult the other module's instructions or readme and configure the Helpers cover calculator settings appropriately.
+
 https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4
 
 ### Cover Application
