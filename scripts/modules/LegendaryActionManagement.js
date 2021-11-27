@@ -66,7 +66,7 @@ export class LegendaryActionManagement{
     /* do not run if not the first GM, but always flag regardless of enable state */
     if (!MODULE.isFirstGM()) return;
 
-    const hasLegendary = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "legendary")
+    const hasLegendary = !!combatant.actor?.items.find((i) => i.data?.data?.activation?.type === "legendary")
 
     /* flag this combatant as a legendary actor for quick filtering */
     if (hasLegendary){
@@ -96,7 +96,11 @@ export class LegendaryActionManagement{
     if (MODULE.setting('legendaryActionHelper')) {
 
       /* Collect legendary combatants (but not the combatant whose turn just ended) */
-      const legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
+      let legendaryCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLegendary') && combatant.id != previousId );
+
+      /* only prompt for actions from alive creatures with leg acts remaining */
+      legendaryCombatants = legendaryCombatants.filter( combatant => getProperty(combatant.actor, 'data.data.resources.legact.value') ?? 0 > 0 );
+      legendaryCombatants = legendaryCombatants.filter( combatant => getProperty(combatant.actor, 'data.data.attributes.hp.value') ?? 0 > 0 );
 
       /* send list of combantants to the action dialog subclass */
       if (legendaryCombatants.length > 0) {
