@@ -346,8 +346,14 @@ export class CoverCalculator{
   static _patchWall(){
     Wall.prototype.coverValue = function(){
       const data = MODULE[NAME].wall;
-      const sense = this.data.sense;
-      return this.document.getFlag(MODULE.data.name, data.flag) ?? (sense >= CONST.WALL_SENSE_TYPES.NORMAL ? data.default : 0);
+
+      /* sight vs sense is a 0.9 vs 0.8 issue -- prefer 0.9, but fall back to 0.8 */
+      const sense = this.document.data.door < CONST.WALL_DOOR_TYPES.DOOR ? this.document.data.sight ?? this.document.data.sense
+        : this.document.data.ds == CONST.WALL_DOOR_STATES.OPEN ? CONST.WALL_SENSE_TYPES.NONE 
+        : this.document.data.sight ?? this.document.data.sense;
+      const value = this.document.getFlag(MODULE.data.name, data.flag) ?? data.default;
+
+      return sense >= CONST.WALL_SENSE_TYPES.NORMAL ? value : 0;
     }
   }
 
