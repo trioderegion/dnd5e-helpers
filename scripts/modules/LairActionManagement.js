@@ -62,7 +62,7 @@ export class LairActionManagement{
     if (!MODULE.isFirstGM() || !MODULE.setting('lairActionHelper')) return;
 
     const usesLair = getProperty(combatant, "actor.data.data.resources.lair.value")
-    const hasLairAction = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "lair")
+    const hasLairAction = !!combatant.actor?.items.find((i) => i.data?.data?.activation?.type === "lair")
 
     /* flag this combatant as a lair actor for quick filtering */
     if (usesLair && hasLairAction){
@@ -109,7 +109,11 @@ export class LairActionManagement{
       return (previousInit - combatant.actor.data.data.resources.lair.initiative) >= 0;
     }
 
-    const triggeredLairInits = allLairCombatants.filter( combatant => correctDirection(combatant) && lairCloser(combatant));
+    const hasHp = (combatant) => {
+      return getProperty(combatant.actor, 'data.data.attributes.hp.value') ?? 0 > 0;
+    }
+
+    const triggeredLairInits = allLairCombatants.filter( combatant => correctDirection(combatant) && lairCloser(combatant) && hasHp(combatant) );
 
     /* send list of combantants to the action dialog subclass */
     if (triggeredLairInits.length > 0) {

@@ -70,7 +70,7 @@ export class AbilityRecharge {
   }
 
   static _collectRechargeItems(token) {
-    const rechargeItems = token.actor.items.filter(e => AbilityRecharge._needsRecharge(e.data.data.recharge));
+    const rechargeItems = token.actor?.items.filter(e => AbilityRecharge._needsRecharge(e.data.data.recharge)) ?? [];
 
     return rechargeItems;
   }
