@@ -93,7 +93,7 @@ export class ActionManagement{
     Hooks.on(`updateCombat`, ActionManagement._updateCombat);
     Hooks.on(`controlToken`, ActionManagement._controlToken);
     Hooks.on(`updateToken`, ActionManagement._updateToken);
-    Hooks.on(`preCreateChatMessage`, ActionManagement._preCreateChatMessage);
+    Hooks.on(`createChatMessage`, ActionManagement._createChatMessage);
     Hooks.on(`deleteCombat`, ActionManagement._deleteCombat);
     Hooks.on(`deleteCombatant`, ActionManagement._deleteCombatant);
     Hooks.on('hoverToken', ActionManagement._hoverToken);
@@ -203,11 +203,13 @@ export class ActionManagement{
     });
   }
 
-  static async _preCreateChatMessage(messageDocument, messageData, /*options, userId*/){
+  static async _createChatMessage(messageDocument, /*options, userId*/){
+    const messageData = messageDocument.data;
+
     const types = Object.keys(MODULE[NAME].default);
     const speaker = messageData.speaker;
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       types, speaker, messageData,
     });
 
@@ -220,7 +222,7 @@ export class ActionManagement{
 
     const item_id = $(messageData.content).attr("data-item-id");
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       item_id, token,
     });
 
@@ -228,19 +230,20 @@ export class ActionManagement{
 
     const item = token.actor.items.get(item_id);
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       item,
     });
 
     if(!item || !types.includes(item.data.data.activation.type)) return;
     let type = item.data.data.activation.type;
+    let cost = item.data.data.activation.cost ?? 1;
     
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       type,
     });
 
     type = ActionManagement._checkForReaction(type, token.combatant);
-    token.object.iterateActionFlag(type);
+    token.object.iterateActionFlag(type, cost);
   }
 
   static _checkForReaction(actionType, combatant){
