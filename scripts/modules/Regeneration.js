@@ -67,8 +67,9 @@ export class Regeneration {
     /** before we check anything else, is regen blocked on this actor? */
     const regenBlockName = MODULE.setting("regenBlock");
     const blockEffect = actor.effects?.find(e => e.data.label === regenBlockName );
+    const enabledBlockEffect = !(getProperty(blockEffect ?? {}, 'data.disabled') ?? true);
 
-    if (!!blockEffect){
+    if (enabledBlockEffect){
       logger.debug(`${actor.name}'s regeneration blocked by ${blockEffect.data.label}`);
       return null;
     }
