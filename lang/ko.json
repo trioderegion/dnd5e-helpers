@@ -148,6 +148,7 @@
     "DND5EH.UndeadFort_insantdeathmessage":"대상이 완전히 소멸했습니다.",
     "DND5EH.UndeadFort_deathmessage":"{tokenName} 대상이 {total}만큼을 굴려 사망했습니다.",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} 대상이 {total}만큼을 굴려 생존했습니다.",
+    "DND5EH.UndeadFort_failsafe":"[EN]{tokenName} rolls against DC {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "대상에 대한 피해:",
   
     "setting.lairActionHelper.name" : "소굴 행동 출력",
