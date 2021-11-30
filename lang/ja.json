@@ -148,6 +148,7 @@
     "DND5EH.UndeadFort_insantdeathmessage":"対象は即座に破壊されます。",
     "DND5EH.UndeadFort_deathmessage":"{tokenName}はセーヴ値：{total}で破壊されました。",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName}はセーヴ値：{total}で生き延びました。",
+    "DND5EH.UndeadFort_failsafe":"[EN]{tokenName} rolls against DC {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "対象へのダメージ：",
 
     "setting.lairActionHelper.name":"住処アクションの通知",

@@ -148,6 +148,7 @@
     "DND5EH.UndeadFort_insantdeathmessage":"La cible meurt carrément",
     "DND5EH.UndeadFort_deathmessage":"{tokenName} meurt avec un jet de {total}",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} survit avec un jet de {total}",
+    "DND5EH.UndeadFort_failsafe":"[EN]{tokenName} rolls against DC {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Dégâts sur la cible:",
 
     "setting.lairActionHelper.name" : "[EN] Lair Action Prompt",
