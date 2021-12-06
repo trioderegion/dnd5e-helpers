@@ -47,7 +47,7 @@ export class ActionManagement{
     const config = false;
     const settingData = {
       actionMgmtEnable : {
-        scope : "world", type : Number, group : "combat", default : 0, config,
+        scope : "client", type : Number, group : "combat", default : 0, config,
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
