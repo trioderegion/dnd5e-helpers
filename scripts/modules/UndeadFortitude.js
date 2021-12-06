@@ -111,15 +111,26 @@ export class UndeadFortitude {
       if (saveInfo.rollSave) {
         /* but roll the save if we need to and check */
         const result = (await data.actor.rollAbilitySave('con', {flavor: `${MODULE.setting('undeadFortName')} - DC ${saveInfo.saveDc}`, rollMode: 'gmroll'})).total;
-        hasSaved = result >= saveInfo.saveDc;
 
-        if (hasSaved) {
-          /* they saved, report and restore to 1 HP */
-          content = MODULE.format("DND5EH.UndeadFort_surivalmessage", { tokenName: data.actor.token.name, total: result });
-          await data.actor.update({'data.attributes.hp.value': 1});
+        /* check for unexpected roll outputs (like BetterRolls) and simply output information
+         * note: result == null _should_ account for result === undefined as well.
+         */
+        if (result == null) {
+          logger.debug(`${NAME} | Could not parse result of constitution save. Echoing needed DC instead.`);
+          content = MODULE.format('DND5EH.UndeadFort_failsafe', {tokenName: data.actor.token.name, dc: saveInfo.saveDc});
         } else {
-          /* rolled and failed, but not instantly via damage type */
-          content = MODULE.format("DND5EH.UndeadFort_deathmessage", { tokenName: data.actor.token.name, total: result });
+
+          /* Otherwise, the roll result we got was valid and usable, so do the calculations ourselves */
+          hasSaved = result >= saveInfo.saveDc;
+
+          if (hasSaved) {
+            /* they saved, report and restore to 1 HP */
+            content = MODULE.format("DND5EH.UndeadFort_surivalmessage", { tokenName: data.actor.token.name, total: result });
+            await data.actor.update({'data.attributes.hp.value': 1});
+          } else {
+            /* rolled and failed, but not instantly via damage type */
+            content = MODULE.format("DND5EH.UndeadFort_deathmessage", { tokenName: data.actor.token.name, total: result });
+          }
         }
       } else {
         /* this is an auto-fail due to damage type, do not update remain at 0 */

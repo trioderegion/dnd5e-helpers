@@ -47,7 +47,7 @@ export class ActionManagement{
     const config = false;
     const settingData = {
       actionMgmtEnable : {
-        scope : "world", type : Number, group : "combat", default : 0, config,
+        scope : "client", type : Number, group : "combat", default : 0, config,
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
@@ -93,7 +93,7 @@ export class ActionManagement{
     Hooks.on(`updateCombat`, ActionManagement._updateCombat);
     Hooks.on(`controlToken`, ActionManagement._controlToken);
     Hooks.on(`updateToken`, ActionManagement._updateToken);
-    Hooks.on(`preCreateChatMessage`, ActionManagement._preCreateChatMessage);
+    Hooks.on(`createChatMessage`, ActionManagement._createChatMessage);
     Hooks.on(`deleteCombat`, ActionManagement._deleteCombat);
     Hooks.on(`deleteCombatant`, ActionManagement._deleteCombatant);
     Hooks.on('hoverToken', ActionManagement._hoverToken);
@@ -153,7 +153,9 @@ export class ActionManagement{
     const tokenId = combatant.token?.id;
     const sceneId = combatant.parent.data.scene
 
-    const token = game.scenes.get(sceneId).tokens.get(tokenId);
+    /* this retrieves a token DOCUMENT */
+    const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
+    const token = tokenDoc?.object;
 
     if(token?.hasActionContainer()) {
       queueUpdate( async () => {
@@ -193,7 +195,7 @@ export class ActionManagement{
       ActionManagement._renderActionContainer(tokenDocument.object, mode === 3 || !tokenDocument.object._controlled ? false : true );
     }
 
-    if("tint" in update || "img" in update || "flags" in update)
+    if("tint" in update || "img" in update || !!getProperty(update, `flags.${MODULE.data.name}`))
       tokenDocument.object.updateActionMarkers();
       
     logger.debug("_updateToken | Data | ", {
@@ -201,11 +203,13 @@ export class ActionManagement{
     });
   }
 
-  static async _preCreateChatMessage(messageDocument, messageData, /*options, userId*/){
+  static async _createChatMessage(messageDocument, /*options, userId*/){
+    const messageData = messageDocument.data;
+
     const types = Object.keys(MODULE[NAME].default);
     const speaker = messageData.speaker;
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       types, speaker, messageData,
     });
 
@@ -218,7 +222,7 @@ export class ActionManagement{
 
     const item_id = $(messageData.content).attr("data-item-id");
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       item_id, token,
     });
 
@@ -226,19 +230,20 @@ export class ActionManagement{
 
     const item = token.actor.items.get(item_id);
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       item,
     });
 
     if(!item || !types.includes(item.data.data.activation.type)) return;
     let type = item.data.data.activation.type;
+    let cost = item.data.data.activation.cost ?? 1;
     
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       type,
     });
 
     type = ActionManagement._checkForReaction(type, token.combatant);
-    token.object.iterateActionFlag(type);
+    token.object.iterateActionFlag(type, cost);
   }
 
   static _checkForReaction(actionType, combatant){
@@ -330,12 +335,7 @@ export class ActionManagement{
     Token.prototype.iterateActionFlag = function(type, value){
 
       /* dont mess with flags if I am not in combat */
-      if (!this.combatant) return;
-
-      /* check current combat turn to see if we should treat an 
-       * action as a reaction 
-       */
-      //type = ActionManagement._checkForReaction(type, this.combatant);
+      if (!this.combatant) return false;
 
       let flag = this.getActionFlag() ?? duplicate(MODULE[NAME].default);
       if(value === undefined) flag[type] += 1;
@@ -370,6 +370,21 @@ export class ActionManagement{
         return this.toggleActionContainer(state);
       else
         return ActionManagement._renderActionContainer(this, state);
+    }
+
+    /* return: Promise<setFlag> */
+    Token.prototype.setActionUsed = async function(actionType, overrideCount = undefined) {
+      const validActions = ['action', 'bonus', 'reaction'];
+      if (validActions.includes(actionType)){
+
+        /* if setting the action went well, return the resulting action usage object */
+        const success = await this.iterateActionFlag(actionType, overrideCount); 
+        if(success){
+          return this.getActionFlag();
+        }
+      } 
+
+      return false;
     }
 
     //from foundry.js:44998 as of v0.8.8.

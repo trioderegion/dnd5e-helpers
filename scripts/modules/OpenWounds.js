@@ -51,7 +51,7 @@ export class OpenWounds {
 
     static _preUpdateActor(actor, update) {
         let hp = getProperty(update, "data.attributes.hp.value");
-        if ((MODULE.setting('OpenWound0HP')) && (hp === 0)) {
+        if ((MODULE.setting('OpenWound0HP')) && (hp <= 0)) {
             OpenWounds.OpenWounds(actor, MODULE.localize("DND5EH.OpenWound0HP_reason"))
         }
     }

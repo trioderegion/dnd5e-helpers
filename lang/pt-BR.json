@@ -148,6 +148,7 @@
     "DND5EH.UndeadFort_insantdeathmessage":"O alvo morre imediatamente",
     "DND5EH.UndeadFort_deathmessage":"{tokenName} morre ao falhar com {total}",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} sobrevive com {total}",
+    "DND5EH.UndeadFort_failsafe":"[EN]{tokenName} rolls against DC {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Dano no alvo:",
 
     "setting.lairActionHelper.name" : "[EN] Lair Action Prompt",

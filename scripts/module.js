@@ -75,15 +75,16 @@ export class MODULE{
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
 
-    const gmOwners = Object.entries(doc.data.permission)
-      .filter(([id,level]) => (game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
-      .map(([id, level]) => id);
-    const otherOwners = Object.entries(doc.data.permission)
+    const playerOwners = Object.entries(doc.data.permission)
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
       .map(([id, level])=> id);
 
-    if(otherOwners.length > 0) return game.users.get(otherOwners[0]);
-    else return game.users.get(gmOwners[0]);
+    if(playerOwners.length > 0) {
+      return game.users.get(playerOwners[0]);
+    }
+
+    /* if no online player owns this actor, fall back to first GM */
+    return MODULE.firstGM();
   }
 
   static isFirstOwner(doc){
