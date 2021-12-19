@@ -225,14 +225,14 @@ export class CoverCalculator{
 
   static _renderTileConfig(app, html){
     if(MODULE.setting("losOnTarget") === 0 || !MODULE.setting("losWithTiles") || app.object.data.overhead ) return;
-    const tab = html.find('[data-tab="basic"]')[1];
-    CoverCalculator._addToConfig(app, html, tab);
+    const adjacentElement = html.find('[data-tab="basic"] .form-group').last();
+    CoverCalculator._injectCoverAdjacent(app, html, adjacentElement);
   }
 
   static _renderTokenConfig(app, html){
     if(MODULE.setting("losOnTarget") === 0 || !MODULE.setting("losWithTokens")) return;
-    const tab = html.find('[data-tab="vision"]')[1];
-    CoverCalculator._addToConfig(app, html, tab);
+    const adjacentElement = html.find('[data-tab="character"] .form-group').last();
+    CoverCalculator._injectCoverAdjacent(app, html, adjacentElement);
   }
 
   static _renderWallConfig(app, html){
@@ -241,6 +241,31 @@ export class CoverCalculator{
     CoverCalculator._addToConfig(app, html, ele);
   }
 
+  /* used for new style multi-tab config apps */
+  // TODO functionalize HTML generation between these two functions
+  static _injectCoverAdjacent(app, html, element) {
+    /* if this app doesnt have the expected
+     * data (ex. prototype token config),
+     * bail out.
+     */
+    if (!app.object?.object) return;
+    const status = app.object.object.coverValue() ?? 0;
+    const selectHTML = `<div class="form-group">
+                          <label>${MODULE.localize("DND5EH.LoS_providescover")}</label>
+                          <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
+                            ${
+                              Object.entries(MODULE[NAME].coverData).reduce((acc, [key,{label}]) => acc+=`<option value="${key}" ${key == status ? 'selected' : ''}>${label}</option>`, ``)
+                            }
+                          </select>
+                        </div>`;
+
+    html.css("height", "auto");
+    element.after(selectHTML);
+
+  }
+
+  /* used for "legacy" single page config apps */
+  // TODO functionalize HTML generation between these two functions
   static _addToConfig(app, html, ele){
 
     /* if this app doesnt have the expected
