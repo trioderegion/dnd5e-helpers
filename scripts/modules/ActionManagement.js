@@ -387,10 +387,10 @@ export class ActionManagement{
       return false;
     }
 
-    //from foundry.js:44998 as of v0.8.8.
+    //from foundry.js:38015 as of v9.238
     Token.prototype._drawEffect = async function (src, index, bg, w, tint) {
       let tex = await loadTexture(src);
-      let icon = this.effects.addChild(new PIXI.Sprite(tex));
+      let icon = this.hud.effects.addChild(new PIXI.Sprite(tex));
       
       //BEGIN D5H
       const scale = MODULE.setting('effectIconScale');
@@ -407,7 +407,6 @@ export class ActionManagement{
 
       if ( tint ) icon.tint = tint;
       bg.drawRoundedRect(icon.x + 1, icon.y + 1, icon.width - 2, icon.height - 2, 2);
-      this.effects.addChild(icon);
     }
   }
 
