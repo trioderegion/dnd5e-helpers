@@ -5,7 +5,7 @@
     "system": [
         "dnd5e"
     ],
-    "version": "3.1.!0",
+    "version": "3.1.!1",
     "author": "honeybadger, Kandashi, hugoprudente, kekilla",
     "authors": [
         {
@@ -63,7 +63,7 @@
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/dnd5e-helpers-next/module.json",
-    "download": "https://github.com/trioderegion/dnd5e-helpers/releases/download/3.1.!0/module.zip",
+    "download": "https://github.com/trioderegion/dnd5e-helpers/releases/download/3.1.!1/module.zip",
     "minimumCoreVersion": "0.8.5",
     "compatibleCoreVersion": "0.8.9"
 }
