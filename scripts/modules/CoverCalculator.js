@@ -201,6 +201,12 @@ export class CoverCalculator{
   static async _renderChatMessage(app, html, data){
     if(app.getFlag(MODULE.data.name, 'coverMessage') && MODULE.setting("coverApplication") > 0 ){
       await MODULE.waitFor(() => !!canvas?.ready);
+
+      const hasButtons = html.find('.cover-button').length > 0
+
+      /* some messages may not have buttons to put listeners on */
+      if(!hasButtons) return;
+
       const token = (await fromUuid(app.getFlag(MODULE.data.name, 'tokenUuid')))?.object;
 
       if(!token) return new Error(MODULE.localize("error.token.missing"));
@@ -217,9 +223,9 @@ export class CoverCalculator{
       if(l == 3) c.style.background = MODULE.setting("coverTint");
 
       //add listeners
-      a.onclick =  (...args) => Cover._toggleEffect(token, a, [b,c], 1);
-      b.onclick = (...args) => Cover._toggleEffect(token, b, [a,c], 2);
-      c.onclick = (...args) => Cover._toggleEffect(token, c, [a,b], 3);
+      a.onclick =  () => Cover._toggleEffect(token, a, [b,c], 1);
+      b.onclick = () => Cover._toggleEffect(token, b, [a,c], 2);
+      c.onclick = () => Cover._toggleEffect(token, c, [a,b], 3);
     }
   }
 
