@@ -2,61 +2,68 @@
     "name": "dnd5e-helpers",
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
-    "system": ["dnd5e"],
-    "version": "3.0.0-alpha",
+    "system": [
+        "dnd5e"
+    ],
+    "version": "3.1.!0",
     "author": "honeybadger, Kandashi, hugoprudente, kekilla",
     "authors": [
-      {
-        "name": "honeybadger",
-        "url": "https://github.com/trioderegion"
-      },
-      {
-        "name": "Kandashi",
-        "url": "https://github.com/kandashi"
-      },
-      {
-          "name": "kekilla",
-          "url": "https://github.com/kekilla0"
-      }
+        {
+            "name": "honeybadger",
+            "url": "https://github.com/trioderegion"
+        },
+        {
+            "name": "Kandashi",
+            "url": "https://github.com/kandashi"
+        },
+        {
+            "name": "kekilla",
+            "url": "https://github.com/kekilla0"
+        }
     ],
     "esmodules": [
         "/scripts/helpers.js"
     ],
     "languages": [
-      {
-        "lang": "en",
-        "name": "English",
-        "path": "lang/en.json"
-      },{
-        "lang": "es",
-        "name": "Spanish",
-        "path": "lang/es.json"
-      },{
-        "lang": "fr",
-        "name": "French",
-        "path": "lang/fr.json"
-      },{
-        "lang": "pt-BR",
-        "name": "Brazilian Portugues",
-        "path": "lang/pt-BR.json"
-      },{
-        "lang": "ko",
-        "name": "Korean",
-        "path": "lang/ko.json"
-      },{
-        "lang": "ja",
-        "name": "日本語",
-        "path": "lang/ja.json"
-      }
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        },
+        {
+            "lang": "es",
+            "name": "Spanish",
+            "path": "lang/es.json"
+        },
+        {
+            "lang": "fr",
+            "name": "French",
+            "path": "lang/fr.json"
+        },
+        {
+            "lang": "pt-BR",
+            "name": "Brazilian Portugues",
+            "path": "lang/pt-BR.json"
+        },
+        {
+            "lang": "ko",
+            "name": "Korean",
+            "path": "lang/ko.json"
+        },
+        {
+            "lang": "ja",
+            "name": "日本語",
+            "path": "lang/ja.json"
+        }
     ],
     "styles": [
-      "/styles/dnd5e-helpers.css",
-      "/styles/action-dialog-app.css"
-    ] ,
+        "/styles/dnd5e-helpers.css",
+        "/styles/action-dialog-app.css"
+    ],
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
-    "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/Kek-Rewrite/module.json",
-    "download": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/Kek-Rewrite/module.zip",
+    "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/dnd5e-helpers-next/module.json",
+    "download": "https://github.com/trioderegion/dnd5e-helpers/releases/download/3.1.!0/module.zip",
     "minimumCoreVersion": "0.8.5",
     "compatibleCoreVersion": "0.8.9"
 }
