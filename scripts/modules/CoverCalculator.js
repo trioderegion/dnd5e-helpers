@@ -103,9 +103,9 @@ export class CoverCalculator{
           "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)" : MODULE.localize("option.coverTint.rainbow"),
         },
       },
-      losKeyBind : {
-        scope : "world", config, group : "system", default : "", type : String,
-      },
+      //losKeyBind : {
+      //  scope : "world", config, group : "system", default : "", type : String,
+      //},
       coverApplication : {
         scope : "world", config, group : "system", default : 0, type : Number, 
         choices : {
@@ -294,8 +294,9 @@ export class CoverCalculator{
   static async _targetToken(user, target, onOff){
     if(game.user !== user) return;
 
-    const keyBind = MODULE.setting("losKeyBind");
-    const confirmCover = game.keyboard._downKeys.has(keyBind) || keyBind == "";
+    // TODO v9 hotkey update
+    //const keyBind = MODULE.setting("losKeyBind");
+    const confirmCover = true; /*game.keyboard._downKeys.has(keyBind) || keyBind == "";*/
 
     if(user.targets.size == 1 && confirmCover && onOff && MODULE.setting("losOnTarget")){
       for(const selected of canvas.tokens.controlled){
