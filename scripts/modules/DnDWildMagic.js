@@ -183,7 +183,6 @@ export class DnDWildMagic{
     logger.debug("_getTides | ", {name, item});
 
     if(item) return item;
-    return logger.error(`Failed to get ${name} item`);
   }
 
   static _getResource(actor){
