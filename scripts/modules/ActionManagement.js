@@ -220,7 +220,13 @@ export class ActionManagement{
     /* check that the token is in combat */
     if ( (token.combatant?.combat?.started ?? false) == false) return;
 
-    const item_id = $(messageData.content).attr("data-item-id");
+    let item_id = '';
+    try{
+      item_id = $(messageData.content).attr("data-item-id");
+    }catch(e){ 
+      /* any error in querying means its not the droids we are looking for */
+      return;
+    }
 
     logger.debug("_createChatMessage | DATA | ", {
       item_id, token,
