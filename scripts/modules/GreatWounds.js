@@ -164,15 +164,17 @@ export class GreatWound {
     }
 
     static async itemResult(actor, results) {
-        let roll = results[0].data
-        const item = await MODULE.getItem(roll.collection, roll.resultId)
+      const roll = results[0].data
+      const item = await MODULE.getItem(roll.collection, roll.resultId)
+      if (item) {
         queueUpdate(async () => {
-            switch (MODULE.setting("GreatWoundItemSetting")) {
-                case "1": await actor.createEmbeddedDocuments("Item", [item.data])
-                    break;
-                case "2": await actor.createEmbeddedDocuments("ActiveEffect", [item.effects.contents[0].data])
-            }
+          switch (MODULE.setting("GreatWoundItemSetting")) {
+            case "1": await actor.createEmbeddedDocuments("Item", [item.data])
+              break;
+            case "2": await actor.createEmbeddedDocuments("ActiveEffect", [item.effects.contents[0].data])
+          }
         })
+      }
     }
 
 }

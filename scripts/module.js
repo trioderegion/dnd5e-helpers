@@ -143,7 +143,7 @@ export class MODULE{
   static async getItem(key, id){
     if(key === "Item") return game.items.get(id)
     let pack = game.packs.get(key)
-    return await pack.getDocument(id)
+    return await pack?.getDocument(id)
   }
 
   /*
