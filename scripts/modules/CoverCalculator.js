@@ -81,7 +81,7 @@ export class CoverCalculator{
         scope : "client", config, default : false, type : Boolean,
       },
       losSystem : {
-        scope : "client", config, group : "system", default : 0, type : Number,
+        scope : "world", config, group : "system", default : 0, type : Number,
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.losOnTarget.center"),
