@@ -119,7 +119,7 @@ export class GreatWound {
                 let { results } = await game.tables
                     .getName(greatWoundTable)
                     .draw({ roll: null, results: [], displayChat: true });
-                if (MODULE.setting("GreatWoundItemSetting") !== 0) {
+                if (MODULE.setting("GreatWoundItemSetting") != '0') {
                     GreatWound.itemResult(actor, results)
                 }
             } else {
@@ -169,9 +169,10 @@ export class GreatWound {
       if (item) {
         queueUpdate(async () => {
           switch (MODULE.setting("GreatWoundItemSetting")) {
-            case "1": await actor.createEmbeddedDocuments("Item", [item.data])
+            case "1": await actor.createEmbeddedDocuments("Item", [item.toObject()])
               break;
-            case "2": await actor.createEmbeddedDocuments("ActiveEffect", [item.effects.contents[0].data])
+            case "2": await actor.createEmbeddedDocuments("ActiveEffect", item.getEmbeddedCollection('ActiveEffect').map( doc => doc.toObject() ));
+              break;
           }
         })
       }
