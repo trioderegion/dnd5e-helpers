@@ -4,7 +4,7 @@
     "description": "Little helpers for little tasks.",
     "system": ["dnd5e"],
     "version": "3.0.0-alpha",
-    "author": "honeybadger, Kandashi, hugoprudente, kekilla",
+    "author": "honeybadger, Kandashi, kekilla",
     "authors": [
       {
         "name": "honeybadger",
@@ -55,8 +55,8 @@
     ] ,
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
-    "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/Kek-Rewrite/module.json",
-    "download": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/Kek-Rewrite/module.zip",
-    "minimumCoreVersion": "0.8.5",
-    "compatibleCoreVersion": "0.8.9"
+    "manifest": "",
+    "download": "",
+    "minimumCoreVersion": "9",
+    "compatibleCoreVersion": "9"
 }

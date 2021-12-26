@@ -136,7 +136,10 @@ export class DnDWildMagic{
 
     if(surge_die_result <= target){
       await DnDWildMagic._rollTable();
-      await DnDWildMagic._recharge(actor);
+
+      if( MODULE.setting("wmToCRecharge") && DnDWildMagic._isTidesSpent(actor) ) {
+        await DnDWildMagic._rechargeTides(actor);
+      }
     }
   }
 
@@ -161,11 +164,13 @@ export class DnDWildMagic{
     return logger.error(`Failed to get ${name} Table`);
   }
 
-  static async _recharge(actor){
-    let item = DnDWildMagic._getTides(actor);
+  static async _rechargeTides(actor){
+    const item = DnDWildMagic._getTides(actor);
+
     if(item)
       await item.update({ "data.uses.value" : item.data.data.uses.max });
-    let resource = DnDWildMagic._getResource(actor);
+
+    const resource = DnDWildMagic._getTidesResource(actor);
     if(resource)
       await actor.update({ [`data.data.resources[${resource.key}].value`] : resource.max });
     return { item, actor };
@@ -183,10 +188,9 @@ export class DnDWildMagic{
     logger.debug("_getTides | ", {name, item});
 
     if(item) return item;
-    return logger.error(`Failed to get ${name} item`);
   }
 
-  static _getResource(actor){
+  static _getTidesResource(actor){
     const name = MODULE.setting("wmToCFeatureName") ?? MODULE[NAME].feature;
     return Object.entries(actor.data.data.resources).reduce((acc, [key, obj]) => {
       if(obj.label === name)

@@ -102,7 +102,7 @@ export class UndeadFortitude {
     queueUpdate( async () => {
       const saveInfo = await UndeadFortitude._getUndeadFortSave(data, mode === 2 ? true : false ); 
       const speaker = ChatMessage.getSpeaker({actor: data.actor, token: data.actor.token});
-      const whisper = game.users.entities.filter(u => u.isGM).map(u => u._id)
+      const whisper = game.users.filter(u => u.isGM).map(u => u.id)
       let content = '';
 
       /* assume the actor fails its save automatically (i.e. rollSave == false) */
