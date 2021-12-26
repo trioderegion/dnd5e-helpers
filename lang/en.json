@@ -28,7 +28,9 @@
     "option.gridTemplateScaling.all":"All Templates",
 
     "setting.losOnTarget.name":"Compute cover on target",
-    "setting.losOnTarget.hint":"Enables or disables this feature globally (includes tile cover config option).",
+    "setting.losOnTarget.hint":"Always compute cover when targeting a token, regardless of hotkey.",
+    "setting.losSystem.name": "Cover computation mode",
+    "setting.losSystem.hint": "Selects algorithm to be used during cover checks, or disables this feature entirely.",
     "option.losOnTarget.center":"Center Point Vision (Foundry Vision)",
     "option.losOnTarget.corner":"Four Corner Vision (DMG pg. 251)",
     "DND5EH.LoS_nocover": "No cover",
