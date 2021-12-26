@@ -6,7 +6,7 @@
     "option.default.enabled" : "Activé",
     "option.default.displaySuppressed" : "Activé (affichage supprimé)",
     "option.default.enabledHover": "Activé (en survolant)",
-    
+
     "DND5EH.Default_none" : "Aucun", 
     "DND5EH.Default_SocketSetup" :"Prise d'Aide Dnd5e reçue",
     "DND5EH.Default_SocketSend": "socket envoyé avec {socketData}",
@@ -60,8 +60,8 @@
     "option.coverTint.grey" : "Gris pâle",
     "option.coverTint.rainbow" : "Arc-en-ciel",
 
-    "setting.losWithTokens.name":"[*]Considérez les jetons comme une demi-couverture",
-    "setting.losWithTokens.hint": "[*]Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
+    "setting.losWithTokens.name":"Considérez les jetons comme une demi-couverture",
+    "setting.losWithTokens.hint": "Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
     "setting.losMaskNPC.name": "Masquer les informations MJ du rapport de couverture",
     "setting.losMaskNPC.hint": "Remplace les utilisations du nom du PNJ par \"Une créature\" lors du rapport de couverture et chuchote les vérifications de couverture demandées par le MJ.",
 
@@ -195,7 +195,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"d'un jet de sauvetage raté",
 
     "setting.OpenWoundCrit.name":"Blessure ouverte - Critiques",
-    "setting.OpenWoundCrit.hint":"[*]Blessure ouverte déclenchée sur les jets d'attaque. Si un jet d'attaque est supérieur à cette valeur, une blessure ouverte est lancée. Pour désactiver cela, laissez le champ vide",
+    "setting.OpenWoundCrit.hint":"Blessure ouverte déclenchée sur les jets d'attaque. Si un jet d'attaque est supérieur à cette valeur, une blessure ouverte est lancée. Pour désactiver cela, laissez le champ vide",
     "DND5EH.OpenWoundCrit_reason":"par un coup critique",
 
     "setting.OpenWound0HP.name":"Blessure ouverte - PV à 0",

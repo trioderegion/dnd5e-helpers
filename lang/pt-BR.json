@@ -60,8 +60,8 @@
     "option.coverTint.grey" : "Dim Grey",
     "option.coverTint.rainbow" : "Rainbow",
 
-    "setting.losWithTokens.name":"[*]Considerar tokens interpostos como cobertura parcial",
-    "setting.losWithTokens.hint": "[*]Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
+    "setting.losWithTokens.name":"Considerar tokens interpostos como cobertura parcial",
+    "setting.losWithTokens.hint": "Se desabilitado, resulta em tokens não serem considerados para o cálculo de cobertura.",
     "setting.losMaskNPC.name": "Ocultar informações do MJ ao Relatar Cobertura",
     "setting.losMaskNPC.hint": "Substitui nomes de PdM com \"Uma criatura\" ao relatar a cobertura e sussurra os cálculos ao MJ.",
 
@@ -195,7 +195,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"de uma falha de salvaguarda contra morte",
 
     "setting.OpenWoundCrit.name":"Lesão Persistente - Críticos",
-    "setting.OpenWoundCrit.hint":"[*]Lesão Persistente decorrente de jogadas de ataque. Se uma jogada de ataque for maior que esse valor, uma Lesão Persistente é rolada. Para desabilitar, deixe o campo em branco.",
+    "setting.OpenWoundCrit.hint":"Lesão Persistente decorrente de jogadas de ataque. Se uma jogada de ataque for maior que esse valor, uma Lesão Persistente é rolada. Para desabilitar, deixe o campo em branco.",
     "DND5EH.OpenWoundCrit_reason":"de um acerto crítico",
 
     "setting.OpenWound0HP.name":"Lesão Persistente - 0 PV",

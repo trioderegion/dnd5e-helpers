@@ -60,8 +60,8 @@
     "option.coverTint.grey" : "Dim Grey",
     "option.coverTint.rainbow" : "Rainbow",
 
-    "setting.losWithTokens.name":"[*]Considerar tokens como media cob.",
-    "setting.losWithTokens.hint": "[*]Resultados sin comprobar de tokens no se usan para calcular cob.",
+    "setting.losWithTokens.name":"Considerar tokens como media cob.",
+    "setting.losWithTokens.hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",
     "setting.losMaskNPC.name": "No mostrar información del GM del Anuncio de Cob.",
     "setting.losMaskNPC.hint": "Reemplaza el nombre del PNJ por \"Una criatura\" al anunciar cob. y susurra control de cob. pedido por el GM..",
 
@@ -195,7 +195,7 @@
     "DND5EH.OpenWoundDeathSave_reason" :"por una tirada de muerte fallida",
 
     "setting.OpenWoundCrit.name":"Herida abierta - Críticos",
-    "setting.OpenWoundCrit.hint":"[*]Se activa la Herida Abierta por tiradas de ataque. Si la tirada de ataque es superior a este valor se tira una Herida Abierta. Deja en blanco para desactivar.",
+    "setting.OpenWoundCrit.hint":"Se activa la Herida Abierta por tiradas de ataque. Si la tirada de ataque es superior a este valor se tira una Herida Abierta. Deja en blanco para desactivar.",
     "DND5EH.OpenWoundCrit_reason":"por un golpe crítico",
 
     "setting.OpenWound0HP.name":"Herida Abierta - PG a 0",

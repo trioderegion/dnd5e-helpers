@@ -1,32 +1,32 @@
 {
     "setting.ConfigOption.name": "설정 구성",
     "setting.ConfigOption.label": "Helpers 설정 열기",
-  
+
     "option.default.disabled" : "비활성화",
     "option.default.enabled" : "활성화",
     "option.default.displaySuppressed" : "활성화 (표시 억제됨)",
     "option.default.enabledHover": "활성화 (호버시)",
-  
+
     "DND5EH.Default_none" : "없음", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers 소켓 수신",
     "DND5EH.Default_SocketSend": "{socketData}와 소켓 전송",
     "DND5EH.Default_roll" : "굴림",
-  
+
     "setting.effectIconScale.name": "상태 효과 조절",
     "setting.effectIconScale.hint": "승수가 기본 아이콘 크기인 20pxdp 적용된다.",
-  
+
     "DND5EH.flagsNoCover" : "절반 및 3/4 엄폐 무시",
     "DND5EH.flagsNoCoverHint" : "피트에 따라 적용된다",
     "DND5EH.flagsWildMagic" : "야생 마법 여파",
     "DND5EH.flagsWildMagicHint" : "야생 마법 여파 자동화 활성화",
-  
+
     "setting.gridTemplateScaling.name": "템플릿을 5E 그리드로 자동 조정",
     "setting.gridTemplateScaling.hint": "선과 원뿔의 길이가 조정된다. 원이 동일한 직사각형 영역으로 변환된다. 이것은 대각선 측정이 템플릿 배치에 포함될 때 5e 그리드 거리를 일치시키려 한다.",
     "option.gridTemplateScaling.none":"템플릿 스케일링 없음",
     "option.gridTemplateScaling.lineCone":"선과 원뿔",
     "option.gridTemplateScaling.circle": "원",
     "option.gridTemplateScaling.all":"모든 템플릿",
-  
+
     "setting.losOnTarget.name":"대상 엄폐 계산",
     "setting.losOnTarget.hint":"Always compute cover when targeting a token, regardless of hotkey.",
     "setting.losSystem.name": "Cover computation mode",
@@ -46,28 +46,28 @@
     "setting.removeCover.hint" : "전투원의 턴 종료 시 엄폐 효과를 제거한다.",
     "setting.clearTargets.name" : "턴 종료시 대상 지정 해제",
     "setting.clearTargets.hint" : "전투원의 턴 종료 시 대상 지정을 해제한다.",
-  
+
     "setting.coverApplication.name" : "엄폐 어플리케이션",
     "setting.coverApplication.hint" : "엄폐 보너스 적용을 허용한다. 이 설정은 대상이 아니라 공격자에게 적용된다. 이는 근거리 및 원거리 공격에만 영향을 끼치지 않으며 민첩 내성 굴림은 해당되지 않는다.",
     "option.coverApplication.manual" : "수동",
     "option.coverApplication.auto" : "자동",
     "DND5EH.LoSCover_cover" : "엄폐",
-  
+
     "setting.coverTint.name" : "엄폐 버튼 색조",
     "setting.coverTint.hint" : "엄폐 버튼이 활성화 중인지 표시하기 위해 적용할 색상",
     "option.coverTint.red" : "암적색",
     "option.coverTint.blue" : "밝은 청색",
     "option.coverTint.grey" : "흐린 회색",
     "option.coverTint.rainbow" : "무지개색",
-  
+
     "setting.losWithTokens.name":"토큰 엄폐",
     "setting.losWithTokens.hint": "토큰에 엄폐 계산을 적용한다.",
     "setting.losMaskNPC.name": "엄폐 보고에서 GM 정보 숨기기",
     "setting.losMaskNPC.hint": "엄폐 보고 시 NPC 이름을 \"한 생물\"로 대체하여 GM에게 엄폐 결과를 귓속말로 출력한다.",
-  
+
     "setting.losWithTiles.name": "타일 엄폐",
     "setting.losWithTiles.hint": "타일에 엄폐 계산을 적용한다.",
-  
+
     "setting.wmOptions.name":  "야생 마법 여파 - 자동 탐지",
     "setting.wmOptions.hint": "야생 마법의 자동 탐지와 처리 방법을 활성화/비활성화 한다. 표준 (PHB): PHB pg. 103에 표시된 바와 동일. 추가: 혼돈 마법의 d20 <= 주문 레벨 시 혼돈의 물결이 재충전된다. 불안정: 추가와 비슷하지만 혼돈의 물결이 소모된 경우 1d4를 추가한다.",
     "option.wmOptions.standard": "활성화 - 표준 (PHB)",
@@ -83,33 +83,33 @@
     "DND5EH.WildMagicConsoleSurgesroll" :"여파 굴림중...",
     "DND5EH.WildMagicChatSurgesMessage" : "야생 마법 ({wmFeatureName}) 특성으로 인해 사용자의 레벨 {lvl} 슬롯이 소모 되었습니다! ({bWasCast}) ",
     "DND5EH.WildMagicChatSpeakerName": "위브",
-  
+
     "DND5EH.WildMagicFeatureName_name":"야생 마법 특성 이름",
     "DND5EH.WildMagicFeatureName_hint":"소서러의 야생 마법 여파를 나타내는 특성 이름. (기본값: Wild Magic Surge)",
-  
+
     "setting.wmTableName.name":"야생 마법 여파 표 이름",
     "setting.wmTableName.hint":"여파 발생 시 굴려야 하는 표 이름 (기본값: Wild-Magic-Surge-Table). 이 단계를 건너뛰려면 비워 두십시오.",
     "DND5EH.WildMagicTableError" : "DnD5e Helper: 야생 여파 표가 없습니다",
-  
+
     "setting.wmToCFeatureName.name":"혼돈의 물결 특성 이름",
     "setting.wmToCFeatureName.hint":"소서러의 혼돈의 물결을 나타내는 특성 이름. (기본값: Tide of Chaos)",
     "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helper: 혼돈의 물결 특성 이름이 없습니다.",
     "setting.wmToCRecharge.name":"혼돈의 물결 재충전",
     "setting.wmToCRecharge.hint": "활성화시 야생 마법 여파가 발동할 때 혼돈의 물결이 충전된다.",
-  
+
     "setting.wmWhisper.name":"플레이어로부터 야생 마법 숨기기",
     "setting.wmWhisper.hint":"모든 굴림 및 표 결과를 GM에게 귓속말로 알린다.",
-  
+
     "setting.actionMgmtEnable.name": "전투 행동 관리 활성화",
     "setting.actionMgmtEnable.hint": "제어중인 토큰에 새로운 HUD를 표시해서 행동, 추가 행동, 반응 행동을 추적한다.",
     "setting.actionsAsStatus.name": "사용된 행동을 상태 효과로 표시",
     "setting.actionsAsStatus.hint": "어떤 행동을 사용했는지 토큰의 상태에 표시하여 비소유자가 확인할 수 있다.",
     "option.actionsAsStatus.onlyReaction": "반응 행동만",
-  
+
     "setting.legendaryActionRecharge.name":"턴 시작 시 전설적 행동 리셋",
     "setting.legendaryActionRecharge.hint":"이 기능을 활성화/비활성화 한다. (전반적)",
     "DND5EH.CombatLegendary_notification":"{tokenName}에 대한 전설적 행동이 {max}만큼 복구되었습니다 ",
-  
+
     "setting.abilityRecharge.name":"모든 D6 재충전 특성 자동 굴림",
     "setting.abilityRecharge.hint":"이 기능을 활성화/비활성화 한다. (전반적)",
     "setting.hideAbilityRecharge.name" : "재충전 굴림 결과 숨김",
@@ -117,7 +117,7 @@
     "option.arOption.Off": "해제",
     "option.arOption.Start": "턴의 시작",
     "option.arOption.End": "턴의 마지막",
-  
+
     "setting.autoRegen.name":"자동 재생 확인",
     "setting.autoRegen.hint":"GM에게 재생 굴림을 자동으로 출력한다.",
     "DND5EH.AutoRegen_Regneration": "재생",
@@ -131,7 +131,7 @@
     "DND5EH.AutoRegenDialog_healingprompt": "{regenAmout}만큼의 회복을 적용합니다.",
     "DND5EH.AutoRegenDialog_healingmessage": "{tokenName} 대상이 {regenRoll}만큼 회복 되었습니다.",
     "DND5EH.AutoRegenDialog_stopprompt":"회복하지 않음",
-  
+
     "setting.undeadFortEnable.name":"언데드의 인내력 판정",
     "setting.undeadFortEnable.hint":"GM에게 언데드의 인내력 판정 메시지가 자동으로 표시된다.",
     "setting.undeadFortName.name":"비확인",
@@ -157,71 +157,71 @@
     "setting.lairActionHelper.hint" : "GM의 우선권 굴림이 20일 시 소굴 행동을 출력한다.",
     "setting.legendaryActionHelper.name" : "전설적 행동 출력",
     "setting.legendaryActionHelper.hint" : "GM에게 다른 생물의 턴이 종료될 때 현재 전투원들의 전설적 행동 사용을 출력한다.",
-  
+
     "setting.GreatWoundEnable.name":"심각한 부상",
     "setting.GreatWoundEnable.hint":"토큰이 한 번의 피해로 최대 Hp의 절반을 넘는 손실을 입으면 지정된 굴림표에서 굴림을 한다.",
-  
+
     "DND5EH.GreatWoundDialogTitle" : "{actorName}에게 {gwFeatureName} 굴림",
     "DND5EH.GreatWoundDialogContents" : "유저가 제어 중인 {actorName} 캐릭터에게 난이도 {DC}의 내성굴림을 출력합니다.",
     "DND5EH.GreatWoundDialogFailMessage": "{actorName} 액터가 {gwFeatureName} 내성굴림에 실패했습니다.",
     "DND5EH.GreatWoundDialogSuccessMessage": "{actorName} 액터가 {gwFeatureName} 내성굴림을 패스했습니다.",
     "DND5EH.GreatWoundDialogError" : "{gwFeatureName}에 사용할 테이블을 아직 설정하지 않았습니다.",
-  
+
     "setting.GreatWoundFeatureName.name" : "심각한 부상 이름 대체",
     "setting.GreatWoundFeatureName.hint" :  "심각한 부상 기능에 표시할 이름이다.",
-  
+
     "setting.GreatWoundTableName.name":"심각한 부상 표",
     "setting.GreatWoundTableName.hint":"심각한 부상이 발생한 경우 굴려야 하는 굴림표의 이름이다.",
-  
+
     "setting.GreatWoundSaveValue.name" : "심각한 부상 내성굴림 난이도",
     "setting.GreatWoundSaveValue.hint" : "심각한 부상을 방지하기 위한 내성굴림 난이도. 굴리지 않으려면 0으로 설정한다.",
-  
+
     "setting.GreatWoundItemSetting.name": "심각한 부상에 효과 적용",
     "setting.GreatWoundItemSetting.hint": "표 결과의 활성화 효과 또는 아이템을 액터에게 적용한다.",
     "option.GreatWoundItemSetting.none" : "비활성화",
     "option.GreatWoundItemSetting.item" : "인벤토리에 아이템 추가",
     "option.GreatWoundItemSetting.effect" : "액터에게 아이템의 활성화 효과를 추가한다.",
-  
+
     "setting.OpenWoundsFeatureName.name":"벌어진 상처 상처 기능 이름",
     "setting.OpenWoundsFeatureName.hint":"벌어진 상처 기능에 표시할 이름이다.",
     "DND5EH.OpenWoundFeaturename_chatoutput": "{actorName} 액터가 {owFeatureName} {woundType}의 상처에 시달립니다.",
     "setting.OpenWoundPcOnlyName.name" : "PC에게만 벌어진 상처 적용",
     "setting.OpenWoundPcOnlyName.hint" : "플레이어 소유 액터에 대해서만 벌어진 상처를 적용한다.",
-  
+
     "DND5EH.OpenWoundSocketMessage": "{gwFeatureName}로 인해 Hp가 0으로 줄어들었습니다.",
-  
+
     "setting.OpenWoundDeathSave.name" :"벌어진 상처 - 죽음 내성 굴림",
     "setting.OpenWoundDeathSave.hint" :"죽음 내성 굴림이 이 값보다 낮으면 벌어진 상처가 발동한다.",
     "DND5EH.OpenWoundDeathSave_reason" :"죽음 내성 굴림 실패",
-  
+
     "setting.OpenWoundCrit.name":"벌어진 상처 - Crits",
     "setting.OpenWoundCrit.hint":"토큰을 대상으로 한 치명타 공격 굴림에 벌어진 상처가 발동한다. 액터의 무기 치명타 임계값 특수 특성이 적용된다.",
     "DND5EH.OpenWoundCrit_reason":"치명타 피해",
-  
+
     "setting.OpenWound0HP.name":"벌어진 상처 - HP at 0",
     "setting.OpenWound0HP.hint":"Hp가 0으로 떨어졌을 때 벌어진 상처 발동",
     "DND5EH.OpenWound0HP_reason":"Hp가 0으로 저하",
-  
+
     "setting.OpenWound0HPGW.name":"벌어진 상처 - 심각한 부상으로 Hp가 0이 됨",
     "setting.OpenWound0HPGW.hint":"한 피해로 인해 액터 최대 Hp의 절반을 넘는 손실을 입으면 벌어진 상처가 발동된다.(심각한 부상을 활성화해야 함)",
-  
+
     "setting.OpenWoundTableName.name":"벌어진 상처 표",
     "setting.OpenWoundTableName.hint":"벌어진 상처가 발생한 경우 굴려야 하는 굴림표의 이름이다.",
     "DND5EH.OpenWoundTableName_error":"{owFeatureName} 에 사용할 테이블을 아직 설정하지 않았습니다.",
-  
+
     "setting.OpenWoundItemSetting.name": "벌어진 상처에 효과 적용",
     "setting.OpenWoundItemSetting.hint": "표 결과의 아이템을 액터에게 적용한다.",
-  
+
     "DND5EH.OpenWoundDebug_name":"디버깅",
     "DND5EH.OpenWoundDebug_hint":"디버깅을 위해 몇 개의 콘솔 로그를 추가합니다.",
-  
+
     "setting.GreatAndOpenWoundMaskNPC.name": "심각한 부상과 벌어진 상처 보고에서 GM 정보 숨기기",
     "setting.GreatAndOpenWoundMaskNPC.hint": "보고 시 NPC의 이름을 \"한 생물체\"로 대체한다",
     "DND5EH.GreatAndOpenWoundMaskNPC_mask": "한 생물체",
-  
+
     "DND5EH.Hooks_preUpdateActor_updatelog" : "Dnd5e Helpers: {actorName} 액터의 업데이트에 다음이 포함되었습니다. hp: {hp}, spells: {spells}",
     "DND5EH.Hooks_updateActor_updatelog" :"Dnd5e Helpers: {currentTokenName} 대상의 업데이트에 다음이 포함되었습니다. regen: {regenSett}",
     "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName} 액터의 업데이트에 다음이 포함되었습니다. hp: {hp}, and Fort: {fortSett}",
-  
+
     "error.token.missing": "필요한 토큰이 존재하지 않습니다." 
 }
