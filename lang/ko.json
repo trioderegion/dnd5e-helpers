@@ -28,7 +28,9 @@
     "option.gridTemplateScaling.all":"모든 템플릿",
   
     "setting.losOnTarget.name":"대상 엄폐 계산",
-    "setting.losOnTarget.hint":"이 기능을 전체적으로 활성화하거나 비활성화 한다. (타일 엄폐 설정 옵션 포함)",
+    "setting.losOnTarget.hint":"Always compute cover when targeting a token, regardless of hotkey.",
+    "setting.losSystem.name": "Cover computation mode",
+    "setting.losSystem.hint": "Selects algorithm to be used during cover checks, or disables this feature entirely.",
     "option.losOnTarget.center":"중앙 지점 시야 (Foundry 시야)",
     "option.losOnTarget.corner":"네 모서리 시야 (DMG pg. 251)",
     "DND5EH.LoS_nocover": "엄폐 없음",
@@ -149,7 +151,6 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} 대상이 {total}만큼을 굴려 사망했습니다.",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} 대상이 {total}만큼을 굴려 생존했습니다.",
     "DND5EH.UndeadFort_failsafe":"{tokenName} 캐릭터가 DC {dc}의 굴림을 합니다.",
-
     "DND5EH.UndeadFort_slowdialogcontentquery" : "대상에 대한 피해:",
 
     "setting.lairActionHelper.name" : "소굴 행동 출력",
@@ -223,4 +224,4 @@
     "DND5EH.Hooks_preupdateToken_updatelog" : "Dnd5e Helpers: {ActorName} 액터의 업데이트에 다음이 포함되었습니다. hp: {hp}, and Fort: {fortSett}",
   
     "error.token.missing": "필요한 토큰이 존재하지 않습니다." 
-  }
+}

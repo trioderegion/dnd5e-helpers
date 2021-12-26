@@ -151,7 +151,6 @@
     "DND5EH.UndeadFort_deathmessage":"{tokenName} dies as it rolls a {total}.",
     "DND5EH.UndeadFort_surivalmessage":"{tokenName} survives with a {total}.",
     "DND5EH.UndeadFort_failsafe":"{tokenName} rolls against DC {dc}",
-
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Damage to target:",
 
     "setting.lairActionHelper.name" : "Lair Action Prompt",
