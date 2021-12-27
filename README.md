@@ -51,6 +51,7 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
 - Prompts GM with available legendary actions in-between combatant turns.
 - Prompts GM with available lair actions at the creature's designated lair initiatve.
 - Tracks current available uses of legendary actions.
+- A creature's legendary and lair actions will be indexed when first added to the tracker. Only items with an activation cost of "Legendary Action" or "Lair Action" will be indexed.
 
 ![Lair Legendary Helper](.github/lair-legend-helpers.webp)
 
