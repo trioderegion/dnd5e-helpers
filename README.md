@@ -2,6 +2,9 @@
 
 Little helpers for little 5e tasks.
 
+### Compatibility Notes
+- v3.0.4 (legacy 0.8.x generation): Requires dnd5e system version 1.5.5 or greater.
+
 ## Current Features
 
 ### Automatic Wild Magic Surge
