@@ -85,14 +85,14 @@
     "DND5EH.WildMagicChatSpeakerName": "Le Tissage",
 
     "DND5EH.WildMagicFeatureName_name":"Nom de la fonction Magie Sauvage",
-    "DND5EH.WildMagicFeatureName_hint":""DND5EH.WildMagicFeatureName_hint":"Nom de l'entité qui représente le sursaaut de Magie Sauvage du Sorcier (par défaut : Sursaut de magie sauvage)",",
+    "DND5EH.WildMagicFeatureName_hint":"Nom de l'entité qui représente le sursaaut de Magie Sauvage du Sorcier (par défaut : Sursaut de magie sauvage)",
 
     "setting.wmTableName.name":"Nom de la table Sursaut de Magie Sauvage",
     "setting.wmTableName.hint":"Nom de la table qui doit être activé si un Sursaut se produit (par défaut : Wild-Magic-Surge-Table). Laissez vide pour ignorer cette étape.",
     "DND5EH.WildMagicTableError" : "DnD5e Helper : aucune configuration de la table Sursaut Sauvage",
 
     "setting.wmToCFeatureName.name":"Nom de la fonction Marées du Chaos",
-    "setting.wmToCFeatureName.hint":""setting.wmToCFeatureName.hint":"Nom de la fonctionnalité qui représente les Marées du Chaos du Sorcier (par défaut : Tides of Chaos)",",
+    "setting.wmToCFeatureName.hint":"Nom de la fonctionnalité qui représente les Marées du Chaos du Sorcier (par défaut : Tides of Chaos)",
     "DND5EH.WildMagicTidesOfChaos_error": "DnD5e Helper: Le nom de la fonctionnalité Marées du Chaos n'est pas configuré",
     "setting.wmToCRecharge.name":"Recharge la Marées du Chaos en Sursaut",
     "setting.wmToCRecharge.hint": "L'activation recharge les Marées de Chaos lorsqu'un Sursaut de Magie Sauvage se produit.",
@@ -121,7 +121,7 @@
     "setting.autoRegen.name":"Regeneration automatique",
     "setting.autoRegen.hint":"Demande automatiquement des jets de régénération pour le MJ",
     "DND5EH.AutoRegen_Regneration": "Régénération",
-    "DND5EH.AutoRegen_SelfRepair": "Auto-Réparation,
+    "DND5EH.AutoRegen_SelfRepair": "Auto-Réparation",
     "DND5EH.AutoRegen_HP": "points de vie",
     "setting.regenBlock.name" :"Nom de l'effet pour bloquer la régénération",
     "setting.regenBlock.hint" : "Quel nom doit être vérifié pour empêcher la popup de régénération",
