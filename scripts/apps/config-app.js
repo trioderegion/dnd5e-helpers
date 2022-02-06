@@ -34,6 +34,8 @@ export class HelpersSettingsConfig extends SettingsConfig{
     const canConfigure = game.user.can("SETTING_MODIFY");
     const settings = Array.from(game.settings.settings);
 
+    
+
     const data = {
       tabs : [
         {name: "system",       i18nName:"System Helpers",      class: "fas fa-cog",          menus: [], settings: []},
@@ -42,6 +44,10 @@ export class HelpersSettingsConfig extends SettingsConfig{
         {name: "combat",       i18nName:"Combat Helpers",      class: "fas fa-dice-d20",     menus: [], settings: []},
       ],
     };
+
+    const registerGroup = (setting) => {
+      
+    }
 
     for(let [k, setting] of settings.filter(([k, setting]) => k.includes(MODULE.data.name))){
       if(!canConfigure && setting.scope !== "client") continue;

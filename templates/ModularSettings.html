@@ -1,0 +1,117 @@
+{{#*inline "settingPartial"}}
+<div class="form-group">
+    <label>{{this.name}}</label>
+    <div class="form-fields">
+
+        {{#if this.isCheckbox}}
+        <input type="checkbox" name="{{this.id}}" data-dtype="Boolean" {{checked this.value}}/>
+
+        {{else if this.isSelect}}
+        <select name="{{this.id}}" data-dtype="{{this.type}}">
+            {{#select this.value}}
+            {{#each this.choices as |name k|}}
+            <option value="{{k}}">{{localize name}}</option>
+            {{/each}}
+            {{/select}}
+        </select>
+
+        {{else if this.isRange}}
+        <input type="range" name="{{this.id}}" data-dtype="Number" value="{{ this.value }}"
+               min="{{ this.range.min }}" max="{{ this.range.max }}" step="{{ this.range.step }}"/>
+        <span class="range-value">{{this.value}}</span>
+
+        {{else if this.filePicker}}
+        {{filePicker target=this.id type=this.filePickerType}}
+        <input type="text" name="{{this.id}}" value="{{this.value}}" data-dtype="{{this.type}}"/>
+
+        {{else}}
+        <input type="text" name="{{this.id}}" value="{{this.value}}" data-dtype="{{this.type}}"/>
+        {{/if}}
+    </div>
+
+    <p class="notes">{{this.hint}}</p>
+</div>
+{{/inline}}
+
+{{#*inline "menuPartial" }}
+<div class="form-group submenu">
+    <label>{{ localize this.name }}</label>
+    <button type="button" data-key="{{ this.key }}">
+        {{#if this.icon}}<i class="{{ this.icon }}"></i>{{/if}}
+        <label>{{ localize this.label }}</label>
+    </button>
+    {{#if this.hint}}<p class="notes">{{ localize this.hint }}</p>{{/if}}
+</div>
+{{/inline}}
+
+<form class="flexcol" autocomplete="off">
+
+    <!-- Navigation Tabs -->
+    <nav class="sheet-tabs tabs" data-group="sections">
+        {{#each data.groups}} 
+        <a class="item" data-tab="core"><i class="fas fa-dice-d20"></i> {{localize 'SETTINGS.TabCore'}}</a>
+        <a class="item" data-tab="system"><i class="fas fa-cogs"></i> {{localize 'SETTINGS.TabSystem'}}</a>
+        <a class="item" data-tab="modules"><i class="fas fa-plug"></i> {{localize 'SETTINGS.TabModule'}}</a>
+    </nav>
+
+    <!-- Main Content Section -->
+    <section id="config-tabs" class="content">
+
+        <!-- Core Tab -->
+        <div class="tab" data-tab="core" data-group="sections">
+            <div class="settings-list">
+                {{#each data.core.menus}}
+                {{> menuPartial}}
+                {{/each}}
+                {{#each data.core.settings}}
+                {{> settingPartial}}
+                {{/each}}
+                {{#if data.core.none}}
+                <p class="notes">{{localize 'SETTINGS.None'}}</p>
+                {{/if}}
+            </div>
+        </div>
+
+        <!-- Systems Tab -->
+        <div class="tab" data-tab="system" data-group="sections">
+            <div class="settings-list">
+                <h2 class="module-header">{{ localize data.system.title }}</h2>
+                {{#each data.system.menus}}
+                {{> menuPartial}}
+                {{/each}}
+                {{#each data.system.settings}}
+                {{> settingPartial}}
+                {{/each}}
+                {{#if data.system.none}}
+                <p class="notes">{{localize 'SETTINGS.None'}}</p>
+                {{/if}}
+            </div>
+        </div>
+
+        <!-- Modules Tab -->
+        <div class="tab" data-tab="modules" data-group="sections">
+            <div class="settings-list">
+            {{#each data.modules as |m|}}
+                <h2 class="module-header">{{localize m.title}}</h2>
+                {{#each m.menus}}
+                {{> menuPartial}}
+                {{/each}}
+                {{#each m.settings}}
+                {{> settingPartial}}
+                {{/each}}
+            {{/each}}
+            </div>
+        </div>
+    </section>
+
+    <!-- Settings Footer -->
+    <footer class="sheet-footer flexrow">
+        <button type="submit" name="submit">
+            <i class="far fa-save"></i> {{localize 'SETTINGS.Save'}}
+        </button>
+        <button type="button" name="reset">
+            <i class="fas fa-undo"></i> {{localize 'SETTINGS.Reset'}}
+        </button>
+    </footer>
+</form>
+
