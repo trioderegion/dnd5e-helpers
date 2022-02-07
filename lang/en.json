@@ -7,6 +7,12 @@
     "option.default.displaySuppressed" : "Enabled (Display Suppressed)",
     "option.default.enabledHover": "Enabled (On Hover)",
 
+    "DND5EH.groupLabel.system": "System Helpers",
+    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
+    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
+    "DND5EH.groupLabel.combat": "Combat Helpers",
+    "DND5EH.groupLabel.misc": "Misc",
+
     "DND5EH.Default_none" : "None", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket received",
     "DND5EH.Default_SocketSend": "socket send with {socketData}",

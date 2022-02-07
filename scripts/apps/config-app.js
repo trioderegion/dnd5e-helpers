@@ -20,7 +20,7 @@ export class HelpersSettingsConfig extends SettingsConfig{
     return mergeObject(super.defaultOptions, {
       title : MODULE.localize("Helpers"),
       id : "helpers-client-settings",
-      template : `${MODULE.data.path}/templates/HelperConfig.html`,
+      template : `${MODULE.data.path}/templates/ModularSettings.html`,
       width : 600,
       height : "auto",
       tabs : [
@@ -29,30 +29,42 @@ export class HelpersSettingsConfig extends SettingsConfig{
     });
   }
 
+  static groupLabels = {
+    'system': { faIcon: 'fas fa-cog', tabLabel: 'DND5EH.groupLabel.system'},
+    'npc-features': { faIcon: 'fas fa-address-book', tabLabel: 'DND5EH.groupLabel.npcFeatures'},
+    'pc-features':{ faIcon: 'fas fa-address-book', tabLabel: 'DND5EH.groupLabel.pcFeatures'},
+    'combat':{ faIcon: 'fas fa-dice-d20', tabLabel: 'DND5EH.groupLabel.combat'},
+    'misc':{ faIcon: 'fas fa-list-alt', tabLabel: 'DND5EH.groupLabel.misc'},
+  }
+
   /**@override */
   getData(options){
     const canConfigure = game.user.can("SETTING_MODIFY");
     const settings = Array.from(game.settings.settings);
 
-    
-
-    const data = {
-      tabs : [
-        {name: "system",       i18nName:"System Helpers",      class: "fas fa-cog",          menus: [], settings: []},
-        {name: "npc-features", i18nName:"NPC Feature Helpers", class: "fas fa-address-book", menus: [], settings: []},
-        {name: "pc-features",  i18nName:"PC Feature Helpers",  class: "fas fa-address-book", menus: [], settings: []},
-        {name: "combat",       i18nName:"Combat Helpers",      class: "fas fa-dice-d20",     menus: [], settings: []},
-      ],
-    };
-
-    const registerGroup = (setting) => {
-      
+    let data = {
+      tabs: HelpersSettingsConfig.groupLabels
     }
 
-    for(let [k, setting] of settings.filter(([k, setting]) => k.includes(MODULE.data.name))){
-      if(!canConfigure && setting.scope !== "client") continue;
+    const registerGroup = (setting) => {
+      /* this entry exists already or the setting does NOT have a group,
+       * dont need to create another tab. Core settings do not have this field.
+       */
+      if(data.tabs[setting.group].menus || data.tabs[setting.group].settings) return false;  
+      
+      /* it doesnt exist, so add a new entry */
+      data.tabs[setting.group].menus = [];
+      data.tabs[setting.group].settings = [];
+    }
 
-      let groupTab = data.tabs.find(tab => tab.name === setting.group) ?? false;
+    for(let [_, setting] of settings.filter(([k, _]) => k.includes(MODULE.data.name))){
+      if(!canConfigure && setting.scope !== "client") continue;
+      
+      setting.group = data.tabs[setting.group] ? setting.group : 'misc'
+      /* ensure there is a tab to hold this setting */
+      registerGroup(setting);
+
+      let groupTab = data.tabs[setting.group] ?? false;
       if(groupTab) groupTab.settings.push({
         ...setting,
         type : setting.type instanceof Function ? setting.type.name : "String",
@@ -60,6 +72,7 @@ export class HelpersSettingsConfig extends SettingsConfig{
         isSelect : setting.choices !== undefined,
         isRange : setting.type === Number && setting.range,
         value : MODULE.setting(setting.key),
+        path: `${setting.namespace}.${setting.key}`
       });
     }
 
