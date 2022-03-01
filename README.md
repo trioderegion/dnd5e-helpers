@@ -153,5 +153,4 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
-- hugoprudente (https://github.com/hugoprudente)
 - kekilla (https://github.com/kekilla0)
