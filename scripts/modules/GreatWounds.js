@@ -106,12 +106,12 @@ export class GreatWound {
         const gwFeatureName = MODULE.setting("GreatWoundFeatureName");
         const saveTest = MODULE.setting("GreatWoundSaveValue");
         let gwSave = saveTest > 0 ? await actor.rollAbilitySave("con") : {total: -5};
-        let sanitizedTokenName = MODULE.sanitizeTokenName(actor, "GreatAndOpenWoundMaskNPC", "gwFeatureName")
+        let sanitizedActorName = MODULE.sanitizeActorName(actor, "GreatAndOpenWoundMaskNPC", "gwFeatureName")
         if (gwSave.total < saveTest) {
             const greatWoundTable = MODULE.setting("GreatWoundTableName");
             ChatMessage.create({
                 content: MODULE.format("DND5EH.GreatWoundDialogFailMessage", {
-                    actorName: sanitizedTokenName,
+                    actorName: sanitizedActorName,
                     gwFeatureName: gwFeatureName,
                 }),
             });
@@ -132,7 +132,7 @@ export class GreatWound {
         } else {
             ChatMessage.create({
                 content: MODULE.format("DND5EH.GreatWoundDialogSuccessMessage", {
-                    actorName: sanitizedTokenName,
+                    actorName: sanitizedActorName,
                     gwFeatureName: gwFeatureName,
                 }),
             });
