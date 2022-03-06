@@ -63,14 +63,6 @@ export class MODULE{
     return game.user.id === MODULE.firstGM()?.id;
   }
 
-  /* can use 'combat.current.combatantId' and 'combat.previous.combatantId' instead 
-  static getChangedTurns(combat, changed) {
-    const next = combat.turns[changed.turn];
-    const previous = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
-    return {next, previous};
-  }
-  */
-
   static firstOwner(doc){
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
@@ -112,12 +104,13 @@ export class MODULE{
     return capitalize ? name.capitalize() : name;
   }
 
-  static applySettings(settingsData){
+  static applySettings(settingsData, group = 'misc'){
     Object.entries(settingsData).forEach(([key, data])=> {
       game.settings.register(
         MODULE.data.name, key, {
           name : MODULE.localize(`setting.${key}.name`),
           hint : MODULE.localize(`setting.${key}.hint`),
+          subModuleId : data.subModuleId ?? HelpersSettingsConfig.defaultOptions.id,
           ...data
         }
       );

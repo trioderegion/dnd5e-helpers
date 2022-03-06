@@ -2,6 +2,10 @@
     "setting.ConfigOption.name": "Configure Settings",
     "setting.ConfigOption.label": "Open Helpers Settings",
 
+    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
+    "DND5EH.ConfigApp.return": "Back",
+    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+
     "option.default.disabled" : "Disabled",
     "option.default.enabled" : "Enabled",
     "option.default.displaySuppressed" : "Enabled (Display Suppressed)",

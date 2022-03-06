@@ -35,12 +35,12 @@
 
 {{#*inline "menuPartial" }}
 <div class="form-group submenu">
-    <label>{{ localize this.name }}</label>
-    <button type="button" data-key="{{ this.key }}">
+    <!-- <label>{{ localize this.name }}</label> -->
+    <button type="button" data-key="{{ this.name }}">
         {{#if this.icon}}<i class="{{ this.icon }}"></i>{{/if}}
         <label>{{ localize this.label }}</label>
     </button>
-    {{#if this.hint}}<p class="notes">{{ localize this.hint }}</p>{{/if}}
+    <!-- {{#if this.hint}}<p class="notes">{{ localize this.hint }}</p>{{/if}} -->
 </div>
 {{/inline}}
 {{log this}}
@@ -61,7 +61,7 @@
       <div class="tab" data-tab="{{tab}}" data-group="sections">
             <div class="settings-list">
               {{#each data.menus}}
-              <!-- TODO -->
+                {{> menuPartial}}
               {{/each}}
               {{#each data.settings}}
                 {{> settingPartial}} 
@@ -73,6 +73,11 @@
 
     <!-- Settings Footer -->
     <footer class="sheet-footer flexrow">
+        {{#if data.hasParent}}
+        <button type="button" name="return" key="{{data.parentMenu}}">
+            <i class="fa fa-step-backward"></i> {{localize 'DND5EH.ConfigApp.return'}}
+        </button>
+        {{/if}}
         <button type="submit" name="submit">
             <i class="far fa-save"></i> {{localize 'SETTINGS.Save'}}
         </button>

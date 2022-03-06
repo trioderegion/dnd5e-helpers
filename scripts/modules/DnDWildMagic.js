@@ -1,9 +1,10 @@
 import { MODULE } from "../module.js";
 import { logger } from "../logger.js";
+import {HelpersSettingsConfig} from "../apps/config-app.js";
 
 const NAME = "DnDWildMagic";
 
-export class DnDWildMagic{
+export class DnDWildMagic {
   static register(){
     logger.info("Registering Wild Magic Surge");
     DnDWildMagic.defaults();
@@ -51,7 +52,7 @@ export class DnDWildMagic{
 
     };
 
-    MODULE.applySettings(settingsData);
+    HelpersSettingsConfig.registerSubMenu(NAME, settingsData, {tab: 'pc-features'});
 
     CONFIG.DND5E.characterFlags.wildMagic = {
       hint: "DND5EH.flagsWildMagicHint",
