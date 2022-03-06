@@ -412,14 +412,18 @@ export class CoverCalculator{
   static _patchWall(){
     Wall.prototype.coverValue = function(){
       const data = MODULE[NAME].wall;
-
       /* sight vs sense is a 0.9 vs 0.8 issue -- prefer 0.9, but fall back to 0.8 */
-      const sense = this.document.data.door < CONST.WALL_DOOR_TYPES.DOOR ? this.document.data.sight ?? this.document.data.sense
-        : this.document.data.ds == CONST.WALL_DOOR_STATES.OPEN ? CONST.WALL_SENSE_TYPES.NONE 
-        : this.document.data.sight ?? this.document.data.sense;
-      const value = this.document.getFlag(MODULE.data.name, data.flag) ?? data.default;
+      const definedCover = this.document.getFlag(MODULE.data.name, data.flag);
 
-      return sense >= CONST.WALL_SENSE_TYPES.NORMAL ? value : 0;
+      if (definedCover) return definedCover;
+
+      /* otherwise, make an intelligent guess as to the default state based on the wall itself */
+      /* sight vs sense is a 0.9 vs 0.8 issue -- prefer 0.9, but fall back to 0.8 */
+      const sense = this.document.data.door < CONST.WALL_DOOR_TYPES.DOOR ? this.document.data.sight
+        : this.document.data.ds == CONST.WALL_DOOR_STATES.OPEN ? CONST.WALL_SENSE_TYPES.NONE 
+        : this.document.data.sight;
+
+      return sense >= CONST.WALL_SENSE_TYPES.LIMITED ? data.default : 0;
     }
   }
 
@@ -497,8 +501,8 @@ class Cover{
 
   buildWallData(){
     //create list of walls to find collisions with
-    this.data.walls.objects = canvas.walls.placeables.filter(wall => wall.coverValue() !== 0 );
-    this.data.walls.shapes = this.data.walls.objects.map(wall => Shape.buildWall(wall, { cover : wall.coverValue() }));
+    this.data.walls.objects = canvas.walls.placeables.filter(wall => wall.coverValue() !== 0 && wall.document.data.ds !== CONST.WALL_DOOR_STATES.OPEN);
+    this.data.walls.shapes = this.data.walls.objects.map(wall => Shape.buildWall(wall, { cover : wall.coverValue(), limited: wall.document.data.sight == CONST.WALL_SENSE_TYPES.LIMITED }));
 
     //filter out garbage walls (i.e. null)
     this.data.walls.shapes = this.data.walls.shapes.filter( shape => !!shape );
@@ -562,6 +566,28 @@ class Cover{
       this.data.target.shapes.forEach(shape => shape.draw());
   }
 
+  static _processLimitedSightCollisions(results = []){
+    const numLimited = results.reduce( (acc, curr) => {
+      if (curr.limited) acc++;
+      return acc;
+    }, 0)
+
+    const toRemove = numLimited % 2;
+    const processed = results.reduce( (acc, curr) => {
+
+      if( acc.numSeen < toRemove) {
+        acc.numSeen++; 
+      } else {
+        acc.results.push(curr.cover);
+      }
+
+      return acc;
+      
+    },{results: [], numSeen: 0});
+
+    return processed.results;
+  }
+
   pointSquareCoverCalculator(){
     const results = this.data.origin.points.map(point =>{
       return this.data.target.shapes.map(square => {
@@ -570,9 +596,9 @@ class Cover{
             let s = new Segment({ points : [point, p]});
 
             let r = {
-              tiles : Math.max(...this.data.tiles.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
-              tokens : Math.max(...this.data.tokens.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
-              walls : Math.max(...this.data.walls.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
+              tiles : Math.max.apply(null, Cover._processLimitedSightCollisions(this.data.tiles.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) }))),
+              tokens : Math.max.apply(null, Cover._processLimitedSightCollisions(this.data.tokens.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) }))),
+              walls : Math.max.apply(null, Cover._processLimitedSightCollisions(this.data.walls.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) }))),
             };
 
             r.total = Math.max(r.tiles, r.tokens, r.walls);
