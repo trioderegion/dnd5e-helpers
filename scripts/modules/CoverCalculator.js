@@ -78,7 +78,7 @@ export class CoverCalculator{
     const config = false;
     const settingsData = {
       debugDrawing : {
-        scope : "client", config, default : false, type : Boolean,
+        scope : "client", config, groupd: 'misc', default : false, type : Boolean,
       },
       losSystem : {
         scope : "world", config, group : "system", default : 0, type : Number,
@@ -120,14 +120,14 @@ export class CoverCalculator{
         scope : "world", config, group : "system", default : false, type : Boolean,
       },
       removeCover : {
-        scope : "world", config, group : "system", default : false, type : Boolean,
+        scope : "world", config, group : "combat", default : false, type : Boolean,
       },
       clearTargets : {
-        scope : "world", config, group : "system", default : false, type : Boolean,
+        scope : "world", config, group : "combat", default : false, type : Boolean,
       },
     };
 
-    MODULE.applySettings(settingsData);
+    MODULE.registerSubMenu(NAME, settingsData, {tab: 'system'});
 
     CONFIG.DND5E.characterFlags.helpersIgnoreCover = {
       hint: "DND5EH.flagsNoCoverHint",

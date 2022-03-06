@@ -16,13 +16,13 @@ export class GreatWound {
         const config = false;
         const settingsData = {
             GreatWoundEnable: {
-                scope: "world", config, group: "combat", default: false, type: Boolean,
+                scope: "world", config, group: "system", default: false, type: Boolean,
             },
             GreatWoundFeatureName: {
-                scope: "world", config, group: "combat", default: "Great Wound", type: String,
+                scope: "world", config, group: "system", default: "Great Wound", type: String,
             },
             GreatWoundTableName: {
-                scope: "world", config, group: "combat", default: "", type: String,
+                scope: "world", config, group: "system", default: "", type: String,
             },
             GreatAndOpenWoundMaskNPC: {
                 scope: "world", config, group: "combat", default: false, type: Boolean,
@@ -40,7 +40,7 @@ export class GreatWound {
             },
         };
 
-        MODULE.applySettings(settingsData);
+        MODULE.registerSubMenu(NAME, settingsData, {tab: 'combat'});
     }
 
     static hooks() {
