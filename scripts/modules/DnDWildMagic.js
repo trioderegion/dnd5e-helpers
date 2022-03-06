@@ -52,7 +52,7 @@ export class DnDWildMagic {
 
     };
 
-    HelpersSettingsConfig.registerSubMenu(NAME, settingsData, {tab: 'pc-features'});
+    MODULE.registerSubMenu(NAME, settingsData, {tab: 'pc-features'});
 
     CONFIG.DND5E.characterFlags.wildMagic = {
       hint: "DND5EH.flagsWildMagicHint",

@@ -60,11 +60,11 @@
       {{#each data.tabs as |data tab|}}
       <div class="tab" data-tab="{{tab}}" data-group="sections">
             <div class="settings-list">
-              {{#each data.menus}}
-                {{> menuPartial}}
-              {{/each}}
               {{#each data.settings}}
                 {{> settingPartial}} 
+              {{/each}}
+              {{#each data.menus}}
+                {{> menuPartial}}
               {{/each}}
             </div>
         </div>

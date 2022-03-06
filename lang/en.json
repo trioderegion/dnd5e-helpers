@@ -5,6 +5,10 @@
     "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
     "DND5EH.ConfigApp.return": "Back",
     "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
+    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
+    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
+    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
 
     "option.default.disabled" : "Disabled",
     "option.default.enabled" : "Enabled",
@@ -116,13 +120,13 @@
     "setting.actionsAsStatus.hint": "Displaying used actions in this way allows non-owners to see which actions an actor has used this round.",
     "option.actionsAsStatus.onlyReaction": "Only Reactions",
 
-    "setting.legendaryActionRecharge.name":"Start of turn legendary action reset.",
+    "setting.legendaryActionRecharge.name":"Start of turn legendary action reset",
     "setting.legendaryActionRecharge.hint":"Enables or disables this feature (global)",
     "DND5EH.CombatLegendary_notification":"Legendary actions restored to {max} for {tokenName}",
 
-    "setting.abilityRecharge.name":"Automatically roll any uncharged abilities with a d6 recharge.",
+    "setting.abilityRecharge.name":"Automatically roll ability recharge",
     "setting.abilityRecharge.hint":"Enables or disables this feature (global). Can be toggled between start or end of turn",
-    "setting.hideAbilityRecharge.name" : "Hide the results of ability recharge rolls",
+    "setting.hideAbilityRecharge.name" : "Hide recharge roll results",
     "setting.hideAbilityRecharge.hint":"Enables or disables this feature (global). Can be toggled between start or end of turn",
     "option.arOption.Off": "Off",
     "option.arOption.Start": "Start of Turn",
@@ -225,7 +229,7 @@
     "DND5EH.OpenWoundDebug_name":"Debugging",
     "DND5EH.OpenWoundDebug_hint":"Adds a few console logs for debugging purposes",
 
-    "setting.GreatAndOpenWoundMaskNPC.name": "Hide GM info from Great Wound and Open Wound report",
+    "setting.GreatAndOpenWoundMaskNPC.name": "Hide GM info from report",
     "setting.GreatAndOpenWoundMaskNPC.hint": "Replaces uses of the NPC's name with \"A creature\" when reporting",
     "DND5EH.GreatAndOpenWoundMaskNPC_mask": "a creature",
 

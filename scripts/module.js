@@ -104,7 +104,7 @@ export class MODULE{
     return capitalize ? name.capitalize() : name;
   }
 
-  static applySettings(settingsData, group = 'misc'){
+  static applySettings(settingsData){
     Object.entries(settingsData).forEach(([key, data])=> {
       game.settings.register(
         MODULE.data.name, key, {
@@ -115,6 +115,10 @@ export class MODULE{
         }
       );
     });
+  }
+
+  static registerSubMenu(subModule, settingsData, {groupLabels = HelpersSettingsConfig.defaultGroupLabels, menuIcon = 'fas fa-user-cog', /* parentMenu = null,*/ tab = 'misc'} = {}){
+    HelpersSettingsConfig.registerSubMenu(subModule, settingsData, {groupLabels, menuIcon, tab});
   }
 
   static stringToDom(innerHTML, className){

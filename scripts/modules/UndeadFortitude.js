@@ -35,7 +35,7 @@ export class UndeadFortitude {
       },
     };
 
-    MODULE.applySettings(settingsData);
+    MODULE.registerSubMenu(NAME, settingsData, {tab: 'npc-features'});
 
   }
 

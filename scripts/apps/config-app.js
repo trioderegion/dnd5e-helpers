@@ -16,8 +16,9 @@ import { logger } from "../logger.js";
  */
 export class HelpersSettingsConfig extends SettingsConfig{
 
-  static registerSubMenu(subModule, settingsData, {groupLabels = HelpersSettingsConfig.defaultGroupLabels, menuIcon = 'fas fa-user-cog', parentMenu = null, tab = 'misc'} = {}){
+  static registerSubMenu(subModule, settingsData, {groupLabels = HelpersSettingsConfig.defaultGroupLabels, menuIcon = 'fas fa-user-cog', /* parentMenu = null,*/ tab = 'misc'} = {}){
 
+    const parentMenu = null;
     const subMenuId = randomID();
     const config = false;
 
@@ -96,6 +97,17 @@ export class HelpersSettingsConfig extends SettingsConfig{
     if ( !menu ) return ui.notifications.error("No parent menu found");
     const app = new menu.type();
     return app.render(true);
+  }
+
+  async _onSubmit(...args) {
+    const formData = await super._onSubmit(...args);
+
+    if( this.options.subMenuId ){
+      /* submitting from a subMenu, re-render parent */
+      await this._onClickReturn(...args);
+    }
+
+    return formData;
   }
 
   /** @override */
