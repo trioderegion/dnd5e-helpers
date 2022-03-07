@@ -15,7 +15,7 @@ class LegendaryActionDialog extends ActionDialog {
     const title = MODULE.format("DND5E.LegAct");
 
     /* construct an action dialog using only legendary actions */
-    super(combatants, {legendary: true, title});
+    super(combatants, {legendary: true, title, id:'legact-action-dialog'});
   }
 
 }
