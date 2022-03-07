@@ -10,7 +10,7 @@ import { MODULE } from '../module.js';
  */
 export class ActionDialog extends Dialog {
   /** @override */
-  constructor(combatants, options = { action : true, bonus : true, reaction : true, legendary : true, lair : true, special : true, id: randomID() }){
+  constructor(combatants, options = { action : true, bonus : true, reaction : true, legendary : true, lair : true, special : true, id: ActionDialog.DEFAULT_ID }){
     /*
       Build Options
     */
