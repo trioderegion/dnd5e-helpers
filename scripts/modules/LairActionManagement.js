@@ -15,7 +15,7 @@ class LairActionDialog extends ActionDialog {
     const title = MODULE.format("DND5E.LairActionLabel");
 
     /* construct an action dialog using only legendary actions */
-    super(combatants, {lair: true, title});
+    super(combatants, {lair: true, title, id: 'lairact-action-dialog'});
   }
 
 }
