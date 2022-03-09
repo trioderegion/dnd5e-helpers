@@ -132,7 +132,7 @@ export class DnDWildMagic {
     await DnDWildMagic._showResult({
       action : surge_die_result <= target ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
       level,
-      resultText : `( [[/r ${surge_die_result} #${surge_die}${(MODULE.setting("wmOptions") === 3 && DnDWildMagic._isTidesSpent(actor)) ? `+${bonus_die}` : ""} result]] )`
+      resultText : `( [[/r ${surge_die_result} #${surge_die}${(MODULE.setting("wmOptions") === 3 && DnDWildMagic._isTidesSpent(actor)) ? `-${bonus_die}` : ""} result]] )`
     });
 
     if(surge_die_result <= target){
