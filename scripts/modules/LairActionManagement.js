@@ -95,25 +95,30 @@ export class LairActionManagement{
     const currentInit = combat.combatants.get(currentId).initiative;
 
     /* check if we have wrapped around and simulate its previous initiative */
-    if (changed.turn == 0) previousInit = 100;
 
-    /* if the distance between inits for the lair action is lower than the
-     * current initiative, we have cross its initiative count. Less than
-     * ensures that lair inits will always lose ties 
-     */
-    const lairCloser = (combatant) => {
-      return (previousInit - combatant.actor.data.data.resources.lair.initiative) < (previousInit - currentInit)
+    /* lair init should be inside this range or outside? */
+    const inside = previousInit - currentInit > 0; 
+
+    const containsLair = (combatant) => {
+      const init = combatant.actor.data.data.resources.lair.initiative
+
+      return previousInit >= init && init > currentInit;
     }
 
-    const correctDirection = (combatant) => {
-      return (previousInit - combatant.actor.data.data.resources.lair.initiative) >= 0;
+    const excludesLair = (combatant) => {
+      const init = combatant.actor.data.data.resources.lair.initiative
+
+      return init > currentInit || init <= previousInit;
     }
 
     const hasHp = (combatant) => {
       return getProperty(combatant.actor, 'data.data.attributes.hp.value') ?? 0 > 0;
     }
 
-    const triggeredLairInits = allLairCombatants.filter( combatant => correctDirection(combatant) && lairCloser(combatant) && hasHp(combatant) );
+    const filterCondition = inside ? containsLair : excludesLair;
+
+    //const triggeredLairInits = allLairCombatants.filter( combatant => correctDirection(combatant) && lairCloser(combatant) && hasHp(combatant) );
+    const triggeredLairInits = allLairCombatants.filter( combatant => filterCondition(combatant) && hasHp(combatant) );
 
     /* send list of combantants to the action dialog subclass */
     if (triggeredLairInits.length > 0) {
