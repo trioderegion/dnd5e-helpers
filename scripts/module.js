@@ -46,7 +46,7 @@ export class MODULE{
     /* we need a turn change or a round change to consider this a live combat */
     const liveCombat = !!combat.started && (("turn" in changed) || ('round' in changed));
     const anyCombatants = (combat.data.combatants.size ?? 0) !== 0;
-    const notFirstTurn = !((changed.turn ?? undefined === 0) && (changed.round ?? 0) === 1)
+    const notFirstTurn = !(((changed.turn ?? undefined) === 0) && (changed.round ?? 0) === 1)
 
     return liveCombat && anyCombatants && notFirstTurn;
   }
