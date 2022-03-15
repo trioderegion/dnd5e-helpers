@@ -23,15 +23,21 @@ export class ActionDialog extends Dialog {
     this.data = {};
     this.data.title = options?.title ?? "Action Dialog";
     this.data.buttons = { 
-      close: { label: MODULE.format("Close"), callback: () => {}}
+      close: { label: MODULE.format("Close"), callback: ActionDialog.storePosition}
     };
     this.data.default = "close";
-    this.data.combatants = combatants
+    this.data.combatants = combatants;
     mergeObject(this.position, ActionDialog._lastPosition.get(this.options.id) ?? {});
   }
 
   static DEFAULT_ID = 'dnd5e-helpers-action-dialog';
   static _lastPosition = new Map(); 
+
+  static storePosition(html) {
+    const id = html.attr('id');
+    const position = html.position();
+    ActionDialog._lastPosition.set(id, {top: position.top, left: position.left});
+  }
 
   /** @inheritdoc */
   static get defaultOptions() {
@@ -42,7 +48,8 @@ export class ActionDialog extends Dialog {
       id: ActionDialog.DEFAULT_ID,
       jQuery : true,
       height: "100%",
-      close: () => {ui.notify}
+      close: ActionDialog.storePosition,
+      popOutModuleDisable: true,
     });
   }
 
@@ -120,7 +127,6 @@ export class ActionDialog extends Dialog {
   setPosition(options = {}) {
     options.height = '100%'
     const position = super.setPosition(options);
-    ActionDialog._lastPosition.set(this.options.id, {top: position.top, left: position.left});
     return position;
   }
 
