@@ -11,7 +11,7 @@ Little helpers for little 5e tasks.
 
 - To enable, select a Surge option from the Feature Helpers config tab and then set the special trait for actors that should surge on casting a spell.
 
-![HelpersSpecialTraits](.github/helpers_special_traits.webp)
+![Special traits](https://user-images.githubusercontent.com/62909799/158481682-550e9ebe-992a-412f-a957-b1fb24dad992.jpg)
 
 - Triggers on _any_ reduction in current spell slots from a character with the 'Wild Magic Surge' special trait
 - Optional homebrews
