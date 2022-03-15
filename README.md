@@ -99,8 +99,8 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 - Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment.
 - This cover bonus is applied onto the _attacker_ not the target and is a -2,-5,-40 penalty for any attack rolls.
 - The cover bonus to Dexerity saves are not handled.
-- A new special trait has been added to indicate if the actor should ignore cover (e.g. Sharpshooter or Spell Sniper)
-- Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ).
+- A new special trait has been added to indicate if the actor should ignore certain levels of cover (e.g. Sharpshooter, Spell Sniper, Wand of the Warmage)
+- Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ). Said flags accepts values of 0,1,2 or 3 which allows the actor to ignore no, half, three-quarters or full cover respectively. To ensure legacy compatibility values of true are also accepted but identical in functionality to a value of 2.
 - Cover penalties can be optionally removed at the end of the token's turn.
 
 ![Cover Report](.github/cover-report.webp)
