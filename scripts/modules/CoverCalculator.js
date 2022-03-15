@@ -71,6 +71,12 @@ export class CoverCalculator{
           1 : [0,1,1,1,1],
         }
       },
+      ignoreCover:{ // Defining what number relates to what cover ignore level
+        "none":0,
+        "half":1,
+        "threeQuarter":2,
+        "full":3
+      },
     }
   }
 
@@ -133,7 +139,13 @@ export class CoverCalculator{
       hint: "DND5EH.flagsNoCoverHint",
       name: "DND5EH.flagsNoCover",
       section: "Feats",
-      type: Boolean
+      choices:{
+        0:MODULE.localize("DND5EH.flagsNoCoverOptionNone"),
+        1:MODULE.localize("DND5EH.flagsNoCoverOptionHalf"),
+        2:MODULE.localize("DND5EH.flagsNoCoverOptionThreeQ"),
+        3:MODULE.localize("DND5EH.flagsNoCoverOptionFull")
+      },
+      type: Number
     };
 
     /* insert keybindings */
@@ -374,7 +386,13 @@ export class CoverCalculator{
    */
   static _patchToken(){
     Token.prototype.ignoresCover = function(){
-      return !!this.actor?.getFlag("dnd5e", "helpersIgnoreCover") ?? false;
+      let flagValue=this.actor?.getFlag("dnd5e", "helpersIgnoreCover") ?? 0;
+      if (flagValue===true||flagValue==="true"){
+        // used to be a boolean flag, if the flag is true either 
+        // ,the value or a string due to AE shenanigans, treat is as it would have been before
+        flagValue=MODULE[NAME].ignoreCover.threeQuarter
+      }
+      return flagValue
     }
 
     Token.prototype.coverValue = function(){
@@ -636,7 +654,9 @@ class Cover{
     this.data.results.ignore = this.data.origin.object.ignoresCover();
     this.data.results.corners = 0;
     this.data.results.cover = results.reduce((a,b) => Math.min(a, b.reduce((c,d) => Math.min(c, d.total), 3)),3);
-    this.data.results.cover = this.data.results.cover < 3 && this.data.results.ignore ? 0 : this.data.results.cover;
+    // If the current cover value is under the ignore threshold set cover to 0. ignore theshold goes from 1 to 3, cover from 0 to 3
+    // none, half, threequarter, full
+    this.data.results.cover = this.data.results.cover <= this.data.results.ignore ? 0 : this.data.results.cover;
     this.data.results.label = MODULE[NAME].coverData[this.data.results.cover ?? 0].label;
     this.data.results.value = MODULE[NAME].coverData[this.data.results.cover ?? 0].value;
 

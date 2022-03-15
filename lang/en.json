@@ -29,8 +29,13 @@
     "setting.effectIconScale.name": "Status Effect Scale",
     "setting.effectIconScale.hint": "Multiplier applied to the default icon size of 20px",
 
-    "DND5EH.flagsNoCover" : "Ignore half and three-quarters cover",
-    "DND5EH.flagsNoCoverHint" : "Provided by feats.",
+    "DND5EH.flagsNoCover" : "Ignore certain levels of cover",
+    "DND5EH.flagsNoCoverHint" : "Provided by feats and magic items.",
+    "DND5EH.flagsNoCoverOptionNone" : "Don't ignore any cover.",
+    "DND5EH.flagsNoCoverOptionHalf" : "Ignore half cover.",
+    "DND5EH.flagsNoCoverOptionThreeQ" : "Ignore half and three-quarters cover.",
+    "DND5EH.flagsNoCoverOptionFull" : "Ignore all cover.",
+
     "DND5EH.flagsWildMagic" : "Wild Magic Surge",
     "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation",
 
