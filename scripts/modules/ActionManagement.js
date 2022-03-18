@@ -127,6 +127,7 @@ export class ActionManagement{
         const token = combatant.token.object;
         await token.resetActionFlag();
         await token.renderActionContainer(combatant.token.object._controlled);
+        await token.updateActionMarkers();
       }
     
     if(MODULE.isTurnChange(combat, changed) && MODULE.isFirstOwner(combat.combatant.token.actor)){
@@ -134,13 +135,13 @@ export class ActionManagement{
     }
   }
 
-  static async _deleteCombat(combat, /* options, userId */){
-    const mode = MODULE.setting('actionMgmtEnable');
-    if(mode == 0) return;
+  static _deleteCombat(combat, /* options, userId */){
+      const mode = MODULE.setting('actionMgmtEnable');
+      if(mode == 0) return;
 
-    for(const combatant of combat.combatants){
-      ActionManagement._deleteCombatant(combatant);
-    }
+      for(const combatant of combat.combatants){
+        ActionManagement._deleteCombatant(combatant);
+      }
   }
 
   static _deleteCombatant(combatant/*, options, userId */){
@@ -153,23 +154,21 @@ export class ActionManagement{
     const tokenId = combatant.token?.id;
     const sceneId = combatant.parent.data.scene
 
-    /* this retrieves a token DOCUMENT */
-    const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
-    const token = tokenDoc?.object;
+    queueUpdate(async () => {
+      /* this retrieves a token DOCUMENT */
+      const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
+      const token = tokenDoc?.object;
 
-    if(token?.hasActionContainer()) {
-      queueUpdate( async () => {
-        await token.removeActionContainer();
-      });
-    }
-    if(token?.hasActionFlag()) {
-      /* reset its flags to 0 to update status effect icons */
-      queueUpdate( async () => {
-        await token.resetActionFlag();
-        await token.updateActionMarkers();
-        await token.removeActionFlag();
-      });
-    }
+      if(/*token?.hasActionFlag() &&*/ token.isOwner) {
+        /* reset its flags to 0 to update status effect icons */
+          await token.resetActionFlag();
+          await token.updateActionMarkers(); 
+          await token.removeActionFlag();
+      }
+
+      await token.removeActionContainer();
+
+    });
   }
 
   static _controlToken(token, state){
@@ -187,6 +186,8 @@ export class ActionManagement{
     }
   }
 
+  /* this is where all clients should be updating their rendering, based on flags
+   * set by the owner */
   static _updateToken(tokenDocument, update, /* options, id */){
     const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0 || !tokenDocument.inCombat) return;
@@ -320,11 +321,13 @@ export class ActionManagement{
           element.alpha = 1;
         }
 
-        /* update any needed status icons for this change */
-        if (ActionManagement._shouldAddEffect(type)) {
-          queueUpdate( async () => {
-            await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
-          });
+        /* update any needed status icons for this change (requires ownership) */
+        if(this.isOwner) {
+          if (ActionManagement._shouldAddEffect(type)) {
+            queueUpdate( async () => {
+              await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
+            });
+          }
         }
       }
     }
@@ -360,7 +363,8 @@ export class ActionManagement{
         token : this, default : MODULE[NAME].default,
       });
 
-      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, duplicate(MODULE[NAME].default));
+      /* force an update on reset */
+      return await this.document.update({[`flags.${MODULE.data.name}.${MODULE[NAME].flagKey}`]: MODULE[NAME].default}, {diff: false})
     }
 
     Token.prototype.removeActionContainer = function(){
