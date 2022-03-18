@@ -38,11 +38,15 @@ class UpdateQueue {
       const updateIndex = this.queue.length-1;
       const updateFn = this.queue[updateIndex];
 
+      try {
       /** wait for the update to complete */
-      await updateFn();
-
-      /** remove this entry from the queue */
-      this.queue.splice(updateIndex,1);
+        await updateFn();
+      } catch (e) {
+        logger.error(e);
+      } finally {
+        /** remove this entry from the queue */
+        this.queue.splice(updateIndex,1);
+      }
     }
 
     this.inFlight = false;
