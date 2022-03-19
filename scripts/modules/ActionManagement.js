@@ -47,12 +47,10 @@ export class ActionManagement{
     const config = false;
     const settingData = {
       actionMgmtEnable : {
-        scope : "client", type : Number, group : "combat", default : 0, config,
+        scope : "world", type : Number, group : "combat", default : 0, config,
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
-          2 : MODULE.localize("option.default.enabledHover"),
-          3 : MODULE.localize("option.default.displaySuppressed"),
         },
         onChange : async (v) =>{
           /**
@@ -66,6 +64,14 @@ export class ActionManagement{
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
           2 : MODULE.localize("option.actionsAsStatus.onlyReaction"),
+        }
+      },
+      actionMgmtDisplay : {
+        scope : "client", type : Number, group : "combat", default : 2, config,
+        choices : {
+          0 : MODULE.localize("option.default.disabled"),
+          1 : MODULE.localize("option.default.enabled"),
+          2 : MODULE.localize("option.default.enabledHover"),
         }
       },
       /** @todo localize */
@@ -175,11 +181,13 @@ export class ActionManagement{
     const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0) return;
 
+    const display = MODULE.setting('actionMgmtDisplay');
+
     if(token.inCombat){
 
       queueUpdate( async () => {
-        if(token.hasActionContainer()) token.toggleActionContainer(mode === 3 || !state ? false : true);
-        else await ActionManagement._renderActionContainer(token, mode === 3 || !state ? false : true);
+        if(token.hasActionContainer()) token.toggleActionContainer(display === 0 || !state ? false : true);
+        else await ActionManagement._renderActionContainer(token, display === 0 || !state ? false : true);
         return token.drawEffects();
       });
 
@@ -192,15 +200,17 @@ export class ActionManagement{
     const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0 || !tokenDocument.inCombat) return;
 
+    const display = MODULE.setting('actionMgmtDisplay');
+
     if("width" in update || "height" in update || "scale" in update){
-      ActionManagement._renderActionContainer(tokenDocument.object, mode === 3 || !tokenDocument.object._controlled ? false : true );
+      ActionManagement._renderActionContainer(tokenDocument.object, display === 0 || !tokenDocument.object._controlled ? false : true );
     }
 
     if("tint" in update || "img" in update || !!getProperty(update, `flags.${MODULE.data.name}`))
       tokenDocument.object.updateActionMarkers();
       
     logger.debug("_updateToken | Data | ", {
-      tokenDocument, mode, update, container : tokenDocument.object.getActionContainer(),
+      tokenDocument, mode: display, update, container : tokenDocument.object.getActionContainer(),
     });
   }
 
@@ -269,12 +279,12 @@ export class ActionManagement{
     /* users can hover anything, but only 
      * should display on owned tokens 
      */
-    if(!token.isOwner) return;
-    const mode = MODULE.setting('actionMgmtEnable');
+    if(!token.isOwner || !MODULE.setting('actionMgmtEnable')) return;
+    const display = MODULE.setting('actionMgmtDisplay');
 
     /* main hover option must be enabled, and we must be in combat
      */
-    if(mode == 2 && token.inCombat){
+    if(display == 2 && token.inCombat){
       if(!state) {
         setTimeout(function() {
           token.renderActionContainer(state);
@@ -429,7 +439,7 @@ export class ActionManagement{
    */
   static _shouldAddEffect(type) {
     const preDefAnswers = [false, true, type == 'reaction' ? true : false];
-    const mode = MODULE.setting('actionsAsStatus');
+    const mode = MODULE.setting('actionMgmtEnable') != 0 ? MODULE.setting('actionsAsStatus') : 0;
     return preDefAnswers[mode];
   }
 

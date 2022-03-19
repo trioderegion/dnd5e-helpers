@@ -120,10 +120,13 @@
     "setting.wmWhisper.hint":"Whispers all rolls and table results to the GM",
 
     "setting.actionMgmtEnable.name": "Enable Combat Action Management",
-    "setting.actionMgmtEnable.hint": "Displays a new HUD on the controlled token that tracks combat usage of actions, bonus actions, and reactions",
+    "setting.actionMgmtEnable.hint": "Enables action tracking during combat. Displaying usage of actions, bonus actions, and reactions.",
     "setting.actionsAsStatus.name": "Display Used Actions as Status Effect",
     "setting.actionsAsStatus.hint": "Displaying used actions in this way allows non-owners to see which actions an actor has used this round.",
     "option.actionsAsStatus.onlyReaction": "Only Reactions",
+
+    "setting.actionMgmtDisplay.name": "Enable Action Management HUD",
+    "setting.actionMgmtDisplay.hint": "Client-side setting for preferred HUD display style.",
 
     "setting.legendaryActionRecharge.name":"Start of turn legendary action reset",
     "setting.legendaryActionRecharge.hint":"Enables or disables this feature (global)",
