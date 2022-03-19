@@ -57,12 +57,15 @@ export class UndeadFortitude {
     /* bail if not enabled */
     if(!MODULE.setting('undeadFortEnable') > 0) return;
 
+    /* bail if HP isnt being modified */
+    if( getProperty(update, "data.attributes.hp.value") == undefined ) return;
+
     /* bail if this actor does not have undead fortitude feature */
     if(!actor.items.getName(MODULE.setting("undeadFortName"))) return;
 
     /* collect the needed information and pass it along to the handler */ 
     const originalHp = actor.data.data.attributes.hp.value;
-    const finalHp = getProperty(update, "data.attributes.hp.value") ?? actorHp;
+    const finalHp = getProperty(update, "data.attributes.hp.value") ?? originalHp;
     const hpDelta = originalHp - finalHp;
 
     const data = {
