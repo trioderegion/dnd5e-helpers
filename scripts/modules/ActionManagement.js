@@ -132,7 +132,7 @@ export class ActionManagement{
       for(let combatant of combat.combatants){
         const token = combatant.token.object;
         await token.resetActionFlag();
-        await token.renderActionContainer(combatant.token.object._controlled);
+        await token.renderActionContainer(combatant.token.object._controlled && MODULE.setting('actionMgmtDisplay') == 1 );
         await token.updateActionMarkers();
       }
     
