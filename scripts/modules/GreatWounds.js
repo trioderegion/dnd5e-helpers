@@ -5,177 +5,221 @@ import { OpenWounds } from './OpenWounds.js';
 
 const NAME = "GreatWounds";
 
+class GWData {
+
+  constructor(actor, update = {}) {
+    this.data = {
+      actor: actor,
+      actorData: actor.data,
+      updateData: update,
+      actorHP: actor.data.data.attributes.hp.value,
+      actorMax: actor.data.data.attributes.hp.max,
+      updateHP: (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : 0),
+      hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
+    };
+
+    this.chatLabel = MODULE.setting("GreatWoundFeatureName");
+    this.saveDC = MODULE.setting("GreatWoundSaveValue");
+  }
+
+  thresholdCheck() {
+    return this.data.hpChange >= Math.ceil(this.data.actorMax / 2)
+  }
+
+  get tableName() {
+    return MODULE.setting("GreatWoundTableName");
+  }
+
+  get dialogTitle() {
+    return MODULE.format("DND5EH.GreatWoundDialogTitle", { gwFeatureName: this.chatLabel, actorName: this.data.actor.name });
+  }
+
+  get dialogContent() {
+    return MODULE.format("DND5EH.GreatWoundDialogContents", { actorName: this.data.actor.name, DC: MODULE.setting("GreatWoundSaveValue") });
+  }
+
+  get socketData() {
+    return { 
+      users: this.data.actor.data._source.permission,
+      actorId: this.data.actor.id,
+      greatwound: true,
+      hp: this.data.updateHP,
+    }
+  }
+
+  get actorName() {
+    return MODULE.sanitizeActorName(this.data.actor, "GreatAndOpenWoundMaskNPC", "gwFeatureName")
+  }
+
+  get failMsgData() {
+    return {
+      content: MODULE.format("DND5EH.GreatWoundDialogFailMessage", {
+        actorName: this.actorName,
+        gwFeatureName: this.chatLabel,
+      })
+    }
+  }
+
+  get passMsgData() {
+    return {
+      content: MODULE.format("DND5EH.GreatWoundDialogSuccessMessage", {
+        actorName: this.actorName,
+        gwFeatureName: this.chatLabel,
+      })
+    }
+  }
+}
+
 export class GreatWound {
-    static register() {
-        logger.info("Registering Great-Wound Calculations");
-        GreatWound.settings();
-        GreatWound.hooks();
-    }
+  static register() {
+    logger.info("Registering Great-Wound Calculations");
+    GreatWound.settings();
+    GreatWound.hooks();
+  }
 
-    static settings() {
-        const config = false;
-        const settingsData = {
-            GreatWoundEnable: {
-                scope: "world", config, group: "system", default: false, type: Boolean,
-            },
-            GreatWoundFeatureName: {
-                scope: "world", config, group: "system", default: "Great Wound", type: String,
-            },
-            GreatWoundTableName: {
-                scope: "world", config, group: "system", default: "", type: String,
-            },
-            GreatAndOpenWoundMaskNPC: {
-                scope: "world", config, group: "combat", default: false, type: Boolean,
-            },
-            GreatWoundSaveValue: {
-                scope: "world", config, group: "combat", default: 15, type: Number,
-            },
-            GreatWoundItemSetting: {
-                scope: "world", config, group: "combat", default: 0, type: String,
-                choices: {
-                    0: MODULE.localize("option.GreatWoundItemSetting.none"),
-                    1: MODULE.localize("option.GreatWoundItemSetting.item"),
-                    2: MODULE.localize("option.GreatWoundItemSetting.effect")
-                }
-            },
-        };
-
-        MODULE.registerSubMenu(NAME, settingsData, {tab: 'combat'});
-    }
-
-    static hooks() {
-        Hooks.on("ready", () => {
-            logger.info("DnD5e Helpers socket setup")
-            game.socket.on(`module.dnd5e-helpers`, GreatWound.greatWoundSocket);
-
-        });
-        Hooks.on("preUpdateActor", GreatWound._preUpdateActor)
-    }
-
-    static _preUpdateActor(actor, update) {
-        let hp = getProperty(update, "data.attributes.hp.value");
-        if (hp !== undefined) {
-            GreatWound.calculation(actor, update);
+  static settings() {
+    const config = false;
+    const settingsData = {
+      GreatWoundEnable: {
+        scope: "world", config, group: "system", default: false, type: Boolean,
+      },
+      GreatWoundFeatureName: {
+        scope: "world", config, group: "system", default: "Great Wound", type: String,
+      },
+      GreatWoundTableName: {
+        scope: "world", config, group: "system", default: "", type: String,
+      },
+      GreatAndOpenWoundMaskNPC: {
+        scope: "world", config, group: "system", default: false, type: Boolean,
+      },
+      GreatWoundSaveValue: {
+        scope: "world", config, group: "combat", default: 15, type: Number,
+      },
+      GreatWoundItemSetting: {
+        scope: "world", config, group: "system", default: 0, type: String,
+        choices: {
+          0: MODULE.localize("option.GreatWoundItemSetting.none"),
+          1: MODULE.localize("option.GreatWoundItemSetting.item"),
+          2: MODULE.localize("option.GreatWoundItemSetting.effect")
         }
+      },
+    };
+
+    MODULE.registerSubMenu(NAME, settingsData, {tab: 'combat'});
+  }
+
+  static hooks() {
+    Hooks.on("ready", () => {
+      logger.info("DnD5e Helpers socket setup")
+      game.socket.on(`module.dnd5e-helpers`, GreatWound.greatWoundSocket);
+
+    });
+    Hooks.on("preUpdateActor", GreatWound._preUpdateActor)
+  }
+
+  static _preUpdateActor(actor, update) {
+    let hp = getProperty(update, "data.attributes.hp.value");
+    if (hp !== undefined) {
+      GreatWound.calculation(actor, update);
     }
+  }
 
-    static calculation(actor, update) {
-        if(!MODULE.setting("GreatWoundEnable")) {return}
-        let data = {
-            actor: actor,
-            actorData: actor.data,
-            updateData: update,
-            actorHP: actor.data.data.attributes.hp.value,
-            actorMax: actor.data.data.attributes.hp.max,
-            updateHP: (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : 0),
-            hpChange: (actor.data.data.attributes.hp.value - (hasProperty(update, "data.attributes.hp.value") ? update.data.attributes.hp.value : actor.data.data.attributes.hp.value))
-        };
-        logger.debug("Great Wound update Data", { data });
+  static calculation(actor, update) {
+    if(!MODULE.setting("GreatWoundEnable")) {return}
+    let gwData = new GWData(actor, update);
+    logger.debug("Great Wound update Data", gwData);
 
-        const gwFeatureName = MODULE.setting("GreatWoundFeatureName");
-        // check if the change in hp would be over 50% max hp
-        if (data.hpChange >= Math.ceil(data.actorMax / 2)) {
-            new Dialog({
-                title: MODULE.format("DND5EH.GreatWoundDialogTitle", { gwFeatureName: gwFeatureName, actorName: actor.name }),
-                content: MODULE.format("DND5EH.GreatWoundDialogContents", { actorName: actor.name, DC: MODULE.setting("GreatWoundSaveValue") }),
-                buttons: {
-                    one: {
-                        label: MODULE.localize("DND5EH.Default_roll"),
-                        callback: () => {
-                            /** draw locally if we are the one prompting the change OR if not owned by any players */
-                            if (game.user.data.role !== 4 || !actor.hasPlayerOwner) {
-                                GreatWound.DrawGreatWound(actor);
-                                return;
-                            }
-                            const socketData = {
-                                users: actor.data._source.permission,
-                                actorId: actor.id,
-                                greatwound: true,
-                                hp: data.updateHP,
-                            }
-                            logger.info(MODULE.format("DND5EH.Default_SocketSend", { socketData: socketData }))
-                            game.socket.emit(`module.dnd5e-helpers`, socketData)
-                        }
-                    }
-                }
-            }).render(true)
-        }
-    }
+    // check if the change in hp would be over 50% max hp
+    if (gwData.thresholdCheck()) {
+      new Dialog({
+        title: gwData.dialogTitle,
+        content: gwData.dialogContent,
+        buttons: {
+          one: {
+            label: MODULE.localize("DND5EH.Default_roll"),
+            callback: () => {
 
-    static async DrawGreatWound(actor) {
-        const gwFeatureName = MODULE.setting("GreatWoundFeatureName");
-        const saveTest = MODULE.setting("GreatWoundSaveValue");
-        let gwSave = saveTest > 0 ? await actor.rollAbilitySave("con") : {total: -5};
-        let sanitizedActorName = MODULE.sanitizeActorName(actor, "GreatAndOpenWoundMaskNPC", "gwFeatureName")
-        if (gwSave.total < saveTest) {
-            const greatWoundTable = MODULE.setting("GreatWoundTableName");
-            ChatMessage.create({
-                content: MODULE.format("DND5EH.GreatWoundDialogFailMessage", {
-                    actorName: sanitizedActorName,
-                    gwFeatureName: gwFeatureName,
-                }),
-            });
-            if (greatWoundTable !== "") {
-                let { results } = await game.tables
-                    .getName(greatWoundTable)
-                    .draw({ roll: null, results: [], displayChat: true });
-                if (MODULE.setting("GreatWoundItemSetting") != '0') {
-                    GreatWound.itemResult(actor, results)
-                }
-            } else {
-                ChatMessage.create({
-                    content: MODULE.format("DND5EH.GreatWoundDialogError", {
-                        gwFeatureName: gwFeatureName,
-                    }),
-                });
+              /** draw locally if we are the one prompting the change OR if not owned by any players */
+              if (game.user.data.role !== 4 || !actor.hasPlayerOwner) {
+                GreatWound.DrawGreatWound(gwData);
+                return;
+              }
+
+              const socketData = gwData.socketData;
+
+              logger.info(MODULE.format("DND5EH.Default_SocketSend", { socketData }))
+              game.socket.emit(`module.dnd5e-helpers`, socketData)
             }
-        } else {
-            ChatMessage.create({
-                content: MODULE.format("DND5EH.GreatWoundDialogSuccessMessage", {
-                    actorName: sanitizedActorName,
-                    gwFeatureName: gwFeatureName,
-                }),
-            });
-        }
-
-    }
-
-    static greatWoundSocket(socketData) {
-        if (!socketData.greatwound && socketData.hp > 0) return
-        //Rolls Saves for owned tokens
-        let actor = game.actors.get(socketData.actorId);
-        for (const [key, value] of Object.entries(socketData.users)) {
-            if (value === 3 && game.users.get(`${key}`).data.role !== 4) {
-                if (game.user.data._id === `${key}`) {
-                    GreatWound.DrawGreatWound(actor);
-                }
-            }
-
-        }
-        if (socketData.hp === 0 && MODULE.setting("OpenWounds0HPGW")) {
-            const gwFeatureName = MODULE.setting("GreatWoundFeatureName");
-            DnDWounds.OpenWounds(
-                actor,
-                MODULE.format("DND5EH.OpenWoundSocketMessage", {
-                    gwFeatureName: gwFeatureName,
-                })
-            );
-        }
-    }
-
-    static async itemResult(actor, results) {
-      const roll = results[0].data
-      const item = await MODULE.getItem(roll.collection, roll.resultId)
-      if (item) {
-        queueUpdate(async () => {
-          switch (MODULE.setting("GreatWoundItemSetting")) {
-            case "1": await actor.createEmbeddedDocuments("Item", [item.toObject()])
-              break;
-            case "2": await actor.createEmbeddedDocuments("ActiveEffect", item.getEmbeddedCollection('ActiveEffect').map( doc => doc.toObject() ));
-              break;
           }
-        })
-      }
+        }
+      }).render(true)
     }
+  }
+
+  static async DrawGreatWound(gwData) {
+
+    const saveTest = gwData.saveDC; 
+    let gwSave = saveTest > 0 ? await gwData.data.actor.rollAbilitySave("con") : {total: -5};
+
+    if (gwSave.total < saveTest) {
+      await ChatMessage.create(gwData.failMsgData)
+      
+      if (gwData.tableName !== "") {
+        let { results } = await game.tables
+          .getName(gwData.tableName)
+          .draw({ roll: null, results: [], displayChat: true });
+        if (MODULE.setting("GreatWoundItemSetting") != '0') {
+          await GreatWound.itemResult(gwData.actor, results)
+        }
+      } else {
+        await ChatMessage.create({
+          content: MODULE.format("DND5EH.GreatWoundDialogError", {
+            gwFeatureName: gwData.chatLabel,
+          }),
+        });
+      }
+    } else {
+      await ChatMessage.create(gwData.passMsgData);
+    }
+
+  }
+
+  static greatWoundSocket(socketData) {
+    if (!socketData.greatwound && socketData.hp > 0) return
+    //Rolls Saves for owned tokens
+    const gwData = new GWData(game.actors.get(socketData.actorId));
+
+    for (const [key, value] of Object.entries(socketData.users)) {
+      if (value === 3 && game.users.get(`${key}`).data.role !== 4) {
+        if (game.user.data._id === `${key}`) {
+          GreatWound.DrawGreatWound(gwData);
+        }
+      }
+
+    }
+    if (socketData.hp === 0 && MODULE.setting("OpenWounds0HPGW")) {
+      DnDWounds.OpenWounds(
+        actor,
+        MODULE.format("DND5EH.OpenWoundSocketMessage", {
+          gwFeatureName: gwData.chatLabel,
+        })
+      );
+    }
+  }
+
+  static async itemResult(actor, results) {
+    const roll = results[0].data
+    const item = await MODULE.getItem(roll.collection, roll.resultId)
+    if (item) {
+      queueUpdate(async () => {
+        switch (MODULE.setting("GreatWoundItemSetting")) {
+          case "1": await actor.createEmbeddedDocuments("Item", [item.toObject()])
+            break;
+          case "2": await actor.createEmbeddedDocuments("ActiveEffect", item.getEmbeddedCollection('ActiveEffect').map( doc => doc.toObject() ));
+            break;
+        }
+      })
+    }
+  }
 
 }
