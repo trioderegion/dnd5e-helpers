@@ -8,9 +8,8 @@ const NAME = "GreatWounds";
 class GWData {
 
   constructor(actor, update = {}) {
+    this.actor = actor;
     this.data = {
-      actor: actor,
-      actorData: actor.data,
       updateData: update,
       actorHP: actor.data.data.attributes.hp.value,
       actorMax: actor.data.data.attributes.hp.max,
@@ -31,30 +30,30 @@ class GWData {
   }
 
   get dialogTitle() {
-    return MODULE.format("DND5EH.GreatWoundDialogTitle", { gwFeatureName: this.chatLabel, actorName: this.data.actor.name });
+    return MODULE.format("DND5EH.GreatWoundDialogTitle", { gwFeatureName: this.chatLabel, actorName: this.actor.name });
   }
 
   get dialogContent() {
-    return MODULE.format("DND5EH.GreatWoundDialogContents", { actorName: this.data.actor.name, DC: MODULE.setting("GreatWoundSaveValue") });
+    return MODULE.format("DND5EH.GreatWoundDialogContents", { actorName: this.actor.name, DC: MODULE.setting("GreatWoundSaveValue") });
   }
 
   get socketData() {
     return { 
-      users: this.data.actor.data._source.permission,
-      actorId: this.data.actor.id,
+      users: this.actor.data._source.permission,
+      actorId: this.actor.id,
       greatwound: true,
       hp: this.data.updateHP,
     }
   }
 
-  get actorName() {
-    return MODULE.sanitizeActorName(this.data.actor, "GreatAndOpenWoundMaskNPC", "gwFeatureName")
+  get sanitizedName() {
+    return MODULE.sanitizeActorName(this.actor, "GreatAndOpenWoundMaskNPC", "DND5EH.GreatAndOpenWoundMaskNPC_mask")
   }
 
   get failMsgData() {
     return {
       content: MODULE.format("DND5EH.GreatWoundDialogFailMessage", {
-        actorName: this.actorName,
+        actorName: this.sanitizedName,
         gwFeatureName: this.chatLabel,
       })
     }
@@ -63,7 +62,7 @@ class GWData {
   get passMsgData() {
     return {
       content: MODULE.format("DND5EH.GreatWoundDialogSuccessMessage", {
-        actorName: this.actorName,
+        actorName: this.sanitizedName,
         gwFeatureName: this.chatLabel,
       })
     }
@@ -159,7 +158,7 @@ export class GreatWound {
   static async DrawGreatWound(gwData) {
 
     const saveTest = gwData.saveDC; 
-    let gwSave = saveTest > 0 ? await gwData.data.actor.rollAbilitySave("con") : {total: -5};
+    let gwSave = saveTest > 0 ? await gwData.actor.rollAbilitySave("con") : {total: -5};
 
     if (gwSave.total < saveTest) {
       await ChatMessage.create(gwData.failMsgData)

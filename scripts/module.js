@@ -95,8 +95,8 @@ export class MODULE{
     });
   }
 
-  static sanitizeActorName(actor, feature, label){
-    return ((MODULE.setting(feature) && actor.data.type === "npc") ? MODULE.format(label) : actor.data.name).capitalize();
+  static sanitizeActorName(actor, sanitizeOptionKey, sanitizedNameKey){
+    return ((MODULE.setting(sanitizeOptionKey) && actor.data.type === "npc") ? MODULE.format(sanitizedNameKey) : actor.name).capitalize();
   }
 
   static sanitizeTokenName(token, feature, label, capitalize = true){
