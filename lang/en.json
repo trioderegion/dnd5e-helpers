@@ -83,6 +83,8 @@
     "setting.losWithTokens.hint": "Allow tokens to be factored into cover calculation.",
     "setting.losMaskNPC.name": "Hide GM info from Cover Report",
     "setting.losMaskNPC.hint": "Replaces uses of the NPC's name with \"A creature\" when reporting cover and whispers GM prompted cover checks.",
+    "setting.whisperToSelf.name":"Whisper cover report to self",
+    "setting.whisperToSelf.hint":"Whisper the cover report only to yourself instead of also whispering it to the GM",
 
     "setting.losWithTiles.name": "Tile Cover",
     "setting.losWithTiles.hint": "Allow Tiles to be factored into cover calculation.",

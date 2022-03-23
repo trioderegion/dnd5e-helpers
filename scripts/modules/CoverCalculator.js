@@ -122,6 +122,9 @@ export class CoverCalculator{
           2 : MODULE.format("option.coverApplication.auto"),
         }
       },
+      whisperToSelf:{
+        scope : "client", config, group : "system", default : false, type : Boolean,
+      },
       losMaskNPC : {
         scope : "world", config, group : "system", default : false, type : Boolean,
       },
@@ -700,9 +703,9 @@ class Cover{
         </div>
       `;
     }
-
+    
     return await ChatMessage.create({
-      whisper : ChatMessage.getWhisperRecipients("GM"),
+      whisper : MODULE.setting("whisperToSelf")?[game.user]:ChatMessage.getWhisperRecipients("GM"),
       speaker : { alias : MODULE.localize("setting.coverApplication.name") },
       flags : {[MODULE.data.name] : { 
         ["coverMessage"] : true,
