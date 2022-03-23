@@ -2,7 +2,7 @@
     "name": "dnd5e-helpers",
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
-    "system": ["dnd5e"],
+    "system": ["dnd5e", "sw5e"],
     "version": "3.0.0-alpha",
     "author": "honeybadger, Kandashi, kekilla",
     "authors": [
