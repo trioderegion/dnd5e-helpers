@@ -22,7 +22,19 @@ class GWData {
   }
 
   thresholdCheck() {
-    return this.data.hpChange >= Math.ceil(this.data.actorMax / 2)
+    let pass = false;
+    const tPct = MODULE.setting('GreatWoundTriggerPct');
+    const tFlat = MODULE.setting('GreatWoundTriggerFlat');
+
+    if (tPct > 0) {
+      pass ||= this.data.hpChange >= Math.ceil(this.data.actorMax * tPct/100);
+    }
+
+    if (tFlat > 0) {
+      pass ||= this.data.hpChange >= tFlat;
+    }
+
+    return pass;
   }
 
   get tableName() {
@@ -91,11 +103,17 @@ export class GreatWound {
       GreatAndOpenWoundMaskNPC: {
         scope: "world", config, group: "system", default: false, type: Boolean,
       },
+      GreatWoundTriggerPct: {
+        scope: "world", config, group: "combat", default: 50, type: Number,
+      },
+      GreatWoundTriggerFlat: {
+        scope: "world", config, group: "combat", default: 0, type: Number,
+      },
       GreatWoundSaveValue: {
         scope: "world", config, group: "combat", default: 15, type: Number,
       },
       GreatWoundItemSetting: {
-        scope: "world", config, group: "system", default: 0, type: String,
+        scope: "world", config, group: "combat", default: 0, type: String,
         choices: {
           0: MODULE.localize("option.GreatWoundItemSetting.none"),
           1: MODULE.localize("option.GreatWoundItemSetting.item"),
