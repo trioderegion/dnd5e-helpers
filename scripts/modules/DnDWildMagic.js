@@ -1,6 +1,5 @@
 import { MODULE } from "../module.js";
 import { logger } from "../logger.js";
-import {HelpersSettingsConfig} from "../apps/config-app.js";
 
 const NAME = "DnDWildMagic";
 
@@ -9,9 +8,9 @@ export class DnDWildMagic {
     logger.info("Registering Wild Magic Surge");
     DnDWildMagic.defaults();
     DnDWildMagic.settings();
+    DnDWildMagic.globals();
     DnDWildMagic.hooks();
     DnDWildMagic.patch();
-    DnDWildMagic.globals();
   }
 
   static defaults(){
@@ -63,7 +62,9 @@ export class DnDWildMagic {
   }
 
   static hooks(){
+    Hooks.on('ready', DnDWildMagic._init);
     Hooks.on("preUpdateActor", DnDWildMagic._preUpdateActor);
+    Hooks.on('wmsRegister', DnDWildMagic._registerStockHandlers);
   }
 
   static patch(){
@@ -71,7 +72,8 @@ export class DnDWildMagic {
   }
 
   static globals(){
-    
+    // Name to Handler Fn
+    MODULE[NAME].handlers = {};
   }
   /*
     Class specific functions
@@ -200,6 +202,44 @@ export class DnDWildMagic {
     }, {});
   }
 
+  static _setTraitsOptions() {
+
+    CONFIG.DND5E.characterFlags.wildMagicCustom = {
+      hint: "DND5EH.flagsWildMagicHint",
+      name: "DND5EH.flagsWildMagic",
+      section: "Feats",
+      type: Number,
+      choices: [...Object.keys(MODULE[NAME].handlers).sort()]
+    }
+
+  }
+
+  static _init() {
+    
+    /* call for surge handlers */
+    Hooks.callAll('wmsRegister', DnDWildMagic.registerHandler);
+
+    /* configure settings */
+    DnDWildMagic._setTraitsOptions();
+  }
+
+  static registerHandler(label, handler) {
+
+    if( MODULE[NAME].handlers[label] ){
+      logger.warn('Rejecting duplicate surge handler.');
+      return false;
+    }
+
+    MODULE[NAME].handlers[label] = handler;
+
+  }
+
+  static _registerStockHandlers(register) {
+    
+    register('Test', ()=>{});
+    register('Ahhhhh', ()=>{});
+
+  }
   /*
     Rewrite majority of the module to add a hook for surge control
   */
