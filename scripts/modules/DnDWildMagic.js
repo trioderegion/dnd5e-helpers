@@ -1,5 +1,6 @@
 import { MODULE } from "../module.js";
 import { logger } from "../logger.js";
+import { queueUpdate } from './update-queue.js'
 
 const NAME = "DnDWildMagic";
 
@@ -27,9 +28,9 @@ export class DnDWildMagic {
         scope: "world", config, group: "pc-features", default: 0, type: Number,
         choices: {
           0: MODULE.localize("option.default.disabled"),
-          1: MODULE.localize("option.wmOptions.standard"),
-          2: MODULE.localize("option.wmOptions.more"),
-          3: MODULE.localize("option.wmOptions.volatile"),
+          1: MODULE.localize("option.wmOptions.enabled"),
+        //2: MODULE.localize("option.wmOptions.more"),
+        //3: MODULE.localize("option.wmOptions.volatile"),
         //4: MODULE.localize("option.wmOptions.custom"),
         },
         onchange : (...args) => {
@@ -52,19 +53,18 @@ export class DnDWildMagic {
     };
 
     MODULE.registerSubMenu(NAME, settingsData, {tab: 'pc-features'});
-
-    CONFIG.DND5E.characterFlags.wildMagic = {
-      hint: "DND5EH.flagsWildMagicHint",
-      name: "DND5EH.flagsWildMagic",
-      section: "Feats",
-      type: Boolean
-    }
   }
 
   static hooks(){
-    Hooks.on('ready', DnDWildMagic._init);
+    /* surge monitoring hooks */
     Hooks.on("preUpdateActor", DnDWildMagic._preUpdateActor);
+    Hooks.on("updateActor", DnDWildMagic._updateActor);
+
+    /* set up our stock handers when requested */
     Hooks.on('wmsRegister', DnDWildMagic._registerStockHandlers);
+
+    /* initialize and call for surge handlers when everything is loaded */
+    Hooks.on('ready', DnDWildMagic._init);
   }
 
   static patch(){
@@ -74,45 +74,63 @@ export class DnDWildMagic {
   static globals(){
     // Name to Handler Fn
     MODULE[NAME].handlers = {};
+    // Name to preCheck Fn
+    MODULE[NAME].preCheck = {};
+
+    //wild magic helpers
+    game.dnd5e.helpers.wildMagic = {}
   }
   /*
     Class specific functions
   */
-  static async _preUpdateActor(actor, update){
-    logger.debug(`_preUpdateActor | Entered`);
-    /** Exit if hook is not the product of a spell change */
-    const spells = !!getProperty(update, "data.spells");
-    const specialTrait = actor.getFlag('dnd5e', 'wildMagic');
+  static _updateActor(actor, _, options, user){
+    if(!options.wmsHandler || user !== game.user.id) return;
+    runHandler(options.wmsHandler, actor, options.wmsData);
+  }
+
+  static async runHandler(handler, actor, surgeData){
+
+    /* run the handler to produce the results */
+    const result = await MODULE[NAME].handlers[handler](actor, surgeData)
+
+    /* do various things with result */
+
+  }
+
+  static _preUpdateActor(actor, update, options){
+
+    let specialTrait = actor.getFlag('dnd5e', 'wildMagic');
+
+    /* Forceful Migration step TODO provide migration API */
+    if (typeof specialTrait != 'string') {
+      specialTrait = ''; 
+    }
+
     const enabled = MODULE.setting('wmOptions') !== 0;
-    logger.debug(`_preUpdateActor | Logic (e/s) | `, specialTrait, spells);
-    if(!specialTrait || !spells || !enabled) return;
+    logger.debug(`_preUpdateActor | Logic (e/s) | `, specialTrait);
+    if(!specialTrait || !enabled) return;
 
-    /** Find the spell level just cast */
-    const spellLvlNames = ["spell0", "spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
-    let lvl = spellLvlNames.findIndex(name => { return getProperty(update, "data.spells." + name) });
+    /* otherwise, call preCheck to deny the surge or prep data needed for it */
+    let data = MODULE[NAME].preCheck[specialTrait](actor, update);
 
-    const preCastSlotCount = getProperty(actor.data.data.spells, spellLvlNames[lvl] + ".value");
-    const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
-    const wasCast = (preCastSlotCount - postCastSlotCount) > 0;
+    if (!!data) {
+      options.wmsData = data;
+      options.wmsHandler = specialTrait;
+    }
 
-    logger.debug(`_preUpdateActor | `, { actor, lvl, wasCast , FeatureName : MODULE.setting("wmToCFeatureName") ?? MODULE[NAME].feature });
+  }
 
-    if (wasCast && lvl > 0) {
+  static stockHandler(actor, surgeData){
+    if (!!surgeData) {
       /** lets go baby lets go */
       logger.info(MODULE.localize("DND5EH.WildMagicConsoleSurgesroll"));
 
-      switch(MODULE.setting("wmOptions")){
-        case 1 : 
-          return DnDWildMagic._rollSurge(actor, 1, lvl, "Normal Surge");
-        case 2 :
-          return DnDWildMagic._rollSurge(actor, lvl, lvl, "More Surge");
-        case 3 :
-          return DnDWildMagic._rollSurge(actor, lvl, lvl, "Volatile Surge");
-        case 4 :
-          /*
-            Custom Die Roll for WM Surge (Hook controller)
-          */
-          break;
+      switch(surgeData.handler){
+        case 'Normal' : 
+          return DnDWildMagic._rollSurge(actor, 1, surgeData.spellLevel, surgeData.handler);
+        case 'More' :
+        case 'Volatile' :
+          return DnDWildMagic._rollSurge(actor, surgeData.spellLevel, surgeData.spellLevel, surgeData.handler);
         default :
           return logger.error(`An actor with wild magic surge cast a spell, but we could not determine the surge type to use!`);
       }
@@ -127,14 +145,14 @@ export class DnDWildMagic {
     let surge_die_result = (await new Roll(surge_die).evaluate({ async : true})).total;
     let bonus_die_result = (await new Roll(bonus_die).evaluate({ async : true})).total;
 
-    surge_die_result = (MODULE.setting("wmOptions") === 3 && DnDWildMagic._isTidesSpent(actor)) ? surge_die_result - bonus_die_result : surge_die_result;
+    surge_die_result = (type == 'Volatile' && DnDWildMagic._isTidesSpent(actor)) ? surge_die_result - bonus_die_result : surge_die_result;
 
     logger.debug("_rollSurge | ", type, {surge_die_result, bonus_die_result, target });
 
     await DnDWildMagic._showResult({
       action : surge_die_result <= target ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
       level,
-      resultText : `( [[/r ${surge_die_result} #${surge_die}${(MODULE.setting("wmOptions") === 3 && DnDWildMagic._isTidesSpent(actor)) ? `-${bonus_die}` : ""} result]] )`
+      resultText : `( [[/r ${surge_die_result} #${surge_die}${(type === 'Volatile' && DnDWildMagic._isTidesSpent(actor)) ? `-${bonus_die}` : ""} result]] )`
     });
 
     if(surge_die_result <= target){
@@ -204,14 +222,16 @@ export class DnDWildMagic {
 
   static _setTraitsOptions() {
 
-    CONFIG.DND5E.characterFlags.wildMagicCustom = {
+    CONFIG.DND5E.characterFlags.wildMagic = {
       hint: "DND5EH.flagsWildMagicHint",
       name: "DND5EH.flagsWildMagic",
       section: "Feats",
-      type: Number,
-      choices: [...Object.keys(MODULE[NAME].handlers).sort()]
+      type: String,
+      choices: Object.keys(MODULE[NAME].handlers).sort().reduce( (acc, curr) => {
+        acc[curr]=curr;
+        return acc;
+      },{})
     }
-
   }
 
   static _init() {
@@ -223,7 +243,32 @@ export class DnDWildMagic {
     DnDWildMagic._setTraitsOptions();
   }
 
-  static registerHandler(label, handler) {
+  static slotExpended(actor, update) {
+
+    /** Exit if hook is not the product of a spell change */
+    const spells = !!getProperty(update, "data.spells");
+    if( !spells ) return false;
+
+    /** Find the spell level just cast */
+    const spellLvlNames = ["spell0", "spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
+    let lvl = spellLvlNames.findIndex(name => { return getProperty(update, "data.spells." + name) });
+
+    const preCastSlotCount = getProperty(actor.data.data.spells, spellLvlNames[lvl] + ".value");
+    const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
+    const wasCast = (preCastSlotCount - postCastSlotCount) > 0;
+
+    logger.debug(`Slot Expended check | `, { actor, lvl, wasCast , FeatureName : MODULE.setting("wmToCFeatureName") ?? MODULE[NAME].feature });
+
+    if (wasCast && lvl > 0) {
+      return {
+        spellLevel: lvl,
+      }
+    }
+    
+    return false;
+  }
+
+  static registerHandler(label, handler, preCheck = DnDWildMagic.slotExpended) {
 
     if( MODULE[NAME].handlers[label] ){
       logger.warn('Rejecting duplicate surge handler.');
@@ -231,13 +276,17 @@ export class DnDWildMagic {
     }
 
     MODULE[NAME].handlers[label] = handler;
+    MODULE[NAME].preCheck[label] = preCheck;
 
   }
 
   static _registerStockHandlers(register) {
     
-    register('Test', ()=>{});
-    register('Ahhhhh', ()=>{});
+    register('', ()=>false, ()=>false);
+    //TODO localize
+    register('Normal', DnDWildMagic.stockHandler);
+    register('More', DnDWildMagic.stockHandler);
+    register('Volatile', DnDWildMagic.stockHandler);
 
   }
   /*
