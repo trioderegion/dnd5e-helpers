@@ -183,7 +183,12 @@
     "setting.legendaryActionHelper.hint" : "Prompts the GM for legendary action use of current combatants at the end of another creature's turn.",
 
     "setting.GreatWoundEnable.name":"Great Wound",
-    "setting.GreatWoundEnable.hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow,",
+    "setting.GreatWoundEnable.hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow. Thresholds can be changed on the 'combat' tab.",
+    "setting.GreatWoundTriggerPct.name": "Trigger: Percent of Max HP",
+    "setting.GreatWoundTriggerPct.hint": "Percentage of maximum hit points taken as damage to trigger a great wound. A value of 0 disables this threshold check. Default: 50.",
+
+    "setting.GreatWoundTriggerFlat.name": "Trigger: Flat Damage",
+    "setting.GreatWoundTriggerFlat.hint": "Total amount of damage taken from a single source to trigger a great wound. A value of 0 disables this threshold check. Default: 0.",
 
     "DND5EH.GreatWoundDialogTitle" : "{gwFeatureName} roll for {actorName}",
     "DND5EH.GreatWoundDialogContents" : "Prompt the User controlling {actorName} to roll a save against DC{DC}",
