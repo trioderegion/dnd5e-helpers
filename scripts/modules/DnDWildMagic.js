@@ -1,6 +1,5 @@
 import { MODULE } from "../module.js";
 import { logger } from "../logger.js";
-import { queueUpdate } from './update-queue.js'
 
 const NAME = "DnDWildMagic";
 
@@ -23,18 +22,23 @@ export class DnDWildMagic {
 
   static settings(){
     const config = false;
+
+    /* {blindroll : CHAT.RollBlind} */
+    let rollModes = Object.entries(CONST.DICE_ROLL_MODES).reduce( (acc, [key, value]) => {
+          acc[value] = MODULE.localize(`CHAT.Roll${key.toLowerCase().capitalize()}`);         
+          return acc
+        },{})
+    rollModes['default'] = MODULE.localize('Default');
+
     const settingsData = {
       wmOptions : {
         scope: "world", config, group: "pc-features", default: 0, type: Number,
         choices: {
           0: MODULE.localize("option.default.disabled"),
-          1: MODULE.localize("option.wmOptions.enabled"),
-        //2: MODULE.localize("option.wmOptions.more"),
-        //3: MODULE.localize("option.wmOptions.volatile"),
-        //4: MODULE.localize("option.wmOptions.custom"),
+          1: MODULE.localize("option.default.enabled"),
         },
-        onchange : (...args) => {
-          logger.info("Settings Change!", args);
+        onchange : (/*...args*/) => {
+          //logger.info("Settings Change!", args);
         }
       },
       wmTableName : {
@@ -49,7 +53,11 @@ export class DnDWildMagic {
       wmWhisper : {
         scope: "world", config, group: "pc-features", default: false, type: Boolean,
       },
-
+      wmRollMode : {
+        scope: "world", config, group: "pc-features", default: 'default', type: String,
+        choices: rollModes 
+        
+      }
     };
 
     MODULE.registerSubMenu(NAME, settingsData, {tab: 'pc-features'});
@@ -72,29 +80,73 @@ export class DnDWildMagic {
   }
 
   static globals(){
+    //
     // Name to Handler Fn
     MODULE[NAME].handlers = {};
     // Name to preCheck Fn
     MODULE[NAME].preCheck = {};
 
     //wild magic helpers
-    game.dnd5e.helpers.wildMagic = {}
+    game.dnd5e.helpers.wildMagic = {
+      tidesRechargeUpdate: DnDWildMagic.tidesRechargeUpdate,
+      isTidesCharged: DnDWildMagic.isTidesCharged,
+      getChatData: DnDWildMagic.basicChatData,
+      surge: DnDWildMagic.surge,
+      commonSurgeHandler: DnDWildMagic.commonSurgeHandler,
+    }
   }
-  /*
-    Class specific functions
-  */
+  
+  /* return: Promise<handlerReturnData> */
+  static surge(actor, {data = {}, handler = actor.getFlag('dnd5e', 'wildMagic')} = {} ) {
+    return DnDWildMagic._runHandler(handler, actor, data)
+  }
+
   static _updateActor(actor, _, options, user){
     if(!options.wmsHandler || user !== game.user.id) return;
-    runHandler(options.wmsHandler, actor, options.wmsData);
+    DnDWildMagic._runHandler(options.wmsHandler, actor, options.wmsData);
   }
 
-  static async runHandler(handler, actor, surgeData){
+  static async _runHandler(handler, actor, surgeData){
 
     /* run the handler to produce the results */
-    const result = await MODULE[NAME].handlers[handler](actor, surgeData)
+    let handlerResult;
+    if (typeof handler == 'string') {
+      /* we were handed a handler ID, grab the function */
+      handler = MODULE[NAME].handlers[handler]
+    }
+
+    try {
+      handlerResult = await handler(actor, surgeData)
+    } catch (e) {
+      logger.error(e);
+      return false;
+    }
 
     /* do various things with result */
+    if(handlerResult.chatData) {
+      await ChatMessage.create(handlerResult.chatData);
+    }
 
+    if(handlerResult.table?.uuid){
+      await DnDWildMagic._rollTable(handlerResult.table.uuid, handlerResult.table.rollMode)
+    }
+
+    /* run actor updates */
+    if(handlerResult.actorUpdates) {
+      await actor.update(handlerResult.actorUpdates);
+    }
+
+    /* run item updates */
+    if(handlerResult.itemUpdates) {
+      await actor.updateEmbeddedDocuments('Item',handlerResult.itemUpdates);
+    }
+
+    /* run effect updates */
+    if(handlerResult.effectUpdates) {
+      await actor.updateEmbeddedDocuments('ActiveEffect',handlerResult.effectUpdates);
+    }
+
+    return handlerResult;
   }
 
   static _preUpdateActor(actor, update, options){
@@ -108,10 +160,18 @@ export class DnDWildMagic {
 
     const enabled = MODULE.setting('wmOptions') !== 0;
     logger.debug(`_preUpdateActor | Logic (e/s) | `, specialTrait);
-    if(!specialTrait || !enabled) return;
+    if(specialTrait == '' || !enabled) return;
 
     /* otherwise, call preCheck to deny the surge or prep data needed for it */
-    let data = MODULE[NAME].preCheck[specialTrait](actor, update);
+    const preCheck = MODULE[NAME].preCheck[specialTrait]
+
+    let data;
+    try{
+      data = preCheck(actor, update);
+    } catch (e) {
+      logger.error(e)
+      return
+    }
 
     if (!!data) {
       options.wmsData = data;
@@ -120,86 +180,63 @@ export class DnDWildMagic {
 
   }
 
-  static stockHandler(actor, surgeData){
-    if (!!surgeData) {
-      /** lets go baby lets go */
-      logger.info(MODULE.localize("DND5EH.WildMagicConsoleSurgesroll"));
+  static basicChatData(info){
 
-      switch(surgeData.handler){
-        case 'Normal' : 
-          return DnDWildMagic._rollSurge(actor, 1, surgeData.spellLevel, surgeData.handler);
-        case 'More' :
-        case 'Volatile' :
-          return DnDWildMagic._rollSurge(actor, surgeData.spellLevel, surgeData.spellLevel, surgeData.handler);
-        default :
-          return logger.error(`An actor with wild magic surge cast a spell, but we could not determine the surge type to use!`);
-      }
+    const data = {
+      action : info.surgeOccured ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
+      spellLevel: info.spellLevel ?? 0,
+      resultText : `[[/r ${info.surgeRoll.formula}cs<=${info.targetRoll.formula} #${info.surgeRoll.formula}cs<=${info.targetRoll.formula}]]{${info.surgeRoll.total} <= ${info.targetRoll.total}}`,
+      extraText: info.extraText ?? '',
     }
-  }
 
-  static async _rollSurge(actor, target, level, type){
-    logger.debug("_rollSurge | ", { actor, target, level, type });
-    const surge_die = "1d20";
-    const bonus_die = "1d4";
-
-    let surge_die_result = (await new Roll(surge_die).evaluate({ async : true})).total;
-    let bonus_die_result = (await new Roll(bonus_die).evaluate({ async : true})).total;
-
-    surge_die_result = (type == 'Volatile' && DnDWildMagic._isTidesSpent(actor)) ? surge_die_result - bonus_die_result : surge_die_result;
-
-    logger.debug("_rollSurge | ", type, {surge_die_result, bonus_die_result, target });
-
-    await DnDWildMagic._showResult({
-      action : surge_die_result <= target ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
-      level,
-      resultText : `( [[/r ${surge_die_result} #${surge_die}${(type === 'Volatile' && DnDWildMagic._isTidesSpent(actor)) ? `-${bonus_die}` : ""} result]] )`
-    });
-
-    if(surge_die_result <= target){
-      await DnDWildMagic._rollTable();
-
-      if( MODULE.setting("wmToCRecharge") && DnDWildMagic._isTidesSpent(actor) ) {
-        await DnDWildMagic._rechargeTides(actor);
-      }
+    const whisper = info.whisper ?? (MODULE.setting("wmWhisper") ? ChatMessage.getWhisperRecipients("GM") : []);
+    const speaker = info.speaker ?? ChatMessage.getSpeaker({ alias : MODULE.localize("DND5EH.WildMagicChatSpeakerName")});
+    const content = info.content ?? MODULE.format("DND5EH.WildMagicConsoleSurgesMessage", data);
+   
+    const chatData = {
+      content,
+      speaker,
+      whisper, 
     }
+
+    return chatData;
   }
 
-  static async _showResult({action, level, resultText}){
-    return ChatMessage.create({
-      content : MODULE.format("DND5EH.WildMagicConsoleSurgesMessage", { action, spellLevel : level, resultText, extraText : "" }),
-      speaker : ChatMessage.getSpeaker({ alias : MODULE.localize("DND5EH.WildMagicChatSpeakerName")}),
-      whisper : MODULE.setting("wmWhisper") ? ChatMessage.getWhisperRecipients("GM") : [],
-    })
-  }
+  static async _rollTable(uuid, rollMode = MODULE.setting('wmRollMode')) {
 
-  static async _rollTable(){
-    const rollMode = MODULE.setting('wmWhisper') ? "blindroll" : game.settings.get("core", "rollMode");
-    const name = MODULE.setting("wmTableName") ?? MODULE[NAME].table;
-    const table = game.tables.getName(name);
+    rollMode = rollMode == 'default' ? game.settings.get("core", "rollMode") : rollMode;
+    const table = await fromUuid(uuid);
 
-    logger.debug("_rollTable | ", {rollMode, name, table});
+    logger.debug("_rollTable | ", {rollMode, name: table?.name, table});
     
     if(table){
       return await table.draw({ rollMode });
     }
-    return logger.error(`Failed to get ${name} Table`);
+
+    return logger.error(`Failed to get Table [${uuid}]`);
   }
 
-  static async _rechargeTides(actor){
+  static tidesRechargeUpdate(actor) {
+    let updates = {actor: {}, item: []};
     const item = DnDWildMagic._getTides(actor);
 
     if(item)
-      await item.update({ "data.uses.value" : item.data.data.uses.max });
+      updates.item.push({_id:item.id, "data.uses.value" : item.data.data.uses.max });
 
     const resource = DnDWildMagic._getTidesResource(actor);
     if(resource)
-      await actor.update({ [`data.data.resources[${resource.key}].value`] : resource.max });
-    return { item, actor };
+      updates.actor = { [`data.resources.${resource.key}.value`] : resource.max }
+    return updates;
   }
 
-  static _isTidesSpent(actor){
+  static isTidesCharged(actor){
     let item = DnDWildMagic._getTides(actor);
-    return item?.data?.data?.uses?.value === 0;
+    const itemCharge =  item?.data?.data?.uses?.value != 0;
+
+    let resource = DnDWildMagic._getTidesResource(actor);
+    const resourceCharge = !!resource.value 
+
+    return itemCharge || resourceCharge
   }
 
   static _getTides(actor){
@@ -217,7 +254,7 @@ export class DnDWildMagic {
       if(obj.label === name)
         return { key, ...obj};
       return acc;
-    }, {});
+    }, false);
   }
 
   static _setTraitsOptions() {
@@ -269,7 +306,6 @@ export class DnDWildMagic {
   }
 
   static registerHandler(label, handler, preCheck = DnDWildMagic.slotExpended) {
-
     if( MODULE[NAME].handlers[label] ){
       logger.warn('Rejecting duplicate surge handler.');
       return false;
@@ -281,15 +317,59 @@ export class DnDWildMagic {
   }
 
   static _registerStockHandlers(register) {
-    
+    /* default handler */
     register('', ()=>false, ()=>false);
-    //TODO localize
-    register('Normal', DnDWildMagic.stockHandler);
-    register('More', DnDWildMagic.stockHandler);
-    register('Volatile', DnDWildMagic.stockHandler);
-
   }
-  /*
-    Rewrite majority of the module to add a hook for surge control
-  */
+
+  static async commonSurgeHandler(actor, surgeData, surgeRoll, targetRoll) {
+    let results = {
+      table: null,
+    }
+
+    let surgeOccured = false;
+    if (surgeRoll.total <= targetRoll.total) {
+      
+      surgeOccured = true;
+
+      /* should I recharge tides for this surge? */
+      const rechargeTides = MODULE.setting('wmToCRecharge');
+
+      if(rechargeTides && !game.dnd5e.helpers.wildMagic.isTidesCharged(actor)){
+
+        /* get the actor and/or item update information for
+         * recharging tides
+         */
+        const updates = game.dnd5e.helpers.wildMagic.tidesRechargeUpdate(actor);
+
+        results.actorUpdates = updates.actor;
+        results.itemUpdates = updates.item;
+      }
+
+      const tableName = MODULE.setting('wmTableName');
+      let table = game.tables.getName(tableName) ?? await fromUuid(tableName);
+      if(!table) {
+        /* maybe its a uuid */
+        try {
+          table = await fromUuid(tableName);
+        } catch (e) {
+          //nope
+        }
+      }
+
+      results.table = {
+        uuid: table?.uuid
+      }
+    }
+
+    results.chatData = game.dnd5e.helpers.wildMagic.getChatData({
+      surgeRoll,
+      targetRoll,
+      surgeOccured,
+      spellLevel: surgeData.spellLevel,
+    })
+
+    return results;
+  }
+
+
 }
