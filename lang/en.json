@@ -177,6 +177,9 @@
     "DND5EH.UndeadFort_failsafe":"{tokenName} rolls against DC {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Damage to target:",
 
+    "DND5EH.flagsUndeadFortitude":"Undead Fortitude Equivalent",
+    "DND5EH.flagsUndeadFortitudeHint":"Grants the actor the effects of Undead Fortitude even if they do not have the relevant feature.",
+
     "setting.lairActionHelper.name" : "Lair Action Prompt",
     "setting.lairActionHelper.hint" : "Prompts GM for lair actions at initiative count 20, draws from active combatants",
     "setting.legendaryActionHelper.name" : "Legendary Action Prompt",
