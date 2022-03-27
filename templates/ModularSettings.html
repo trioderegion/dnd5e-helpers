@@ -43,14 +43,11 @@
     <!-- {{#if this.hint}}<p class="notes">{{ localize this.hint }}</p>{{/if}} -->
 </div>
 {{/inline}}
-{{log this}}
 <form class="flexcol" autocomplete="off">
 
     <!-- Navigation Tabs -->
     <nav class="sheet-tabs tabs" data-group="sections">
-        {{log "Rendering Tabs"}}
         {{#each data.tabs as |data tab|}} 
-          {{log 'tab' tab 'data' data}}
           <a class="item" data-tab="{{tab}}"><i class="{{data.faIcon}}"></i> {{localize data.tabLabel}} </a>
         {{/each}} 
     </nav>
