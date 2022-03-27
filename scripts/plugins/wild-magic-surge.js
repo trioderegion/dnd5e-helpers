@@ -1,50 +1,38 @@
-const MODULE = 'dnd5e-helpers'
-let logger;
 class WildMagicSurge {
-
 
   /* helper classes provided by Helpers */
 
-  static init({logger}) {
-    logger = logger;
-
+  static init() {
     Hooks.on('wmsRegister', WildMagicSurge.registerHandlers);
   }
 
-  static registerHandlers(registerFn) {
-    registerFn(game.i18n.localize("option.wmOptions.standard"), WildMagicSurge.normalHandler );
-    registerFn(game.i18n.localize("option.wmOptions.more"), WildMagicSurge.moreHandler);
-    registerFn(game.i18n.localize("option.wmOptions.volatile"), WildMagicSurge.volatileHandler);
+  static registerHandlers() {
+    WildMagic.registerHandler(game.i18n.localize("option.wmOptions.standard"), WildMagicSurge.normalHandler );
+    WildMagic.registerHandler(game.i18n.localize("option.wmOptions.more"), WildMagicSurge.moreHandler);
+    WildMagic.registerHandler(game.i18n.localize("option.wmOptions.volatile"), WildMagicSurge.volatileHandler);
   }
 
   /* return: Promise <handlerReturn> */
-  static async normalHandler(actor, surgeData) {
+  static normalHandler(actor, surgeData) {
 
-    /* roll for a 1 */
-    const surgeRoll = await new Roll('1d20').evaluate({async: true});
-    const targetRoll = await new Roll('1').evaluate({async:true});
-
-    return game.dnd5e.helpers.wildMagic.commonSurgeHandler(actor, surgeData, surgeRoll, targetRoll);
-    
+    /* surge on a roll of 1 */
+    return WildMagic.templates.handler(actor, surgeData);
   }
 
   static async moreHandler(actor, surgeData) {
 
-    /* roll for a 1 */
-    const surgeRoll = await new Roll('1d20').evaluate({async: true});
-    const targetRoll = await new Roll(`${surgeData.spellLevel}`).evaluate({async:true});
-
-    return game.dnd5e.helpers.wildMagic.commonSurgeHandler(actor, surgeData, surgeRoll, targetRoll);
+    /* roll at or under spell level */
+    return WildMagic.templates.handler(actor, surgeData, '1d20', `${surgeData.spellLevel}`);
   }
 
   static async volatileHandler(actor, surgeData) {
 
-    const surgeRoll = await new Roll('1d20').evaluate({async: true});
+    /* increase the spell level (like 'more') if tides is spent */
+    const tidesCharged = WildMagic.isTidesCharged(actor);
+    const targetRoll = `${surgeData.spellLevel}${tidesCharged ? '' : ' + 1d4'}`;
 
-    const tidesCharged = game.dnd5e.helpers.wildMagic.isTidesCharged(actor);
-    const targetRoll = await new Roll(`${surgeData.spellLevel}${tidesCharged ? '' : ' + 1d4'}`).evaluate({async:true});
 
-    return game.dnd5e.helpers.wildMagic.commonSurgeHandler(actor, surgeData, surgeRoll, targetRoll);
+    return WildMagic.templates.handler(actor, surgeData, '1d20', targetRoll);
   }
 }
 

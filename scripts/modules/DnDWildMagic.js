@@ -3,6 +3,182 @@ import { logger } from "../logger.js";
 
 const NAME = "DnDWildMagic";
 
+/**
+ * Acts as the primary API class for the wild magic system and interacting with it.
+ * Exposes system functions from the DnDWildMagic class.
+ * @class
+ */
+class WildMagicAPI {
+  
+  initialize() {
+
+    /* clear any handlers present */
+    this._handlers = new Map();
+    this._preCheck = new Map();
+
+    /* call for surge handlers */
+    Hooks.callAll('wmsRegister');
+
+    /* Add surge handlers to special traits options */
+    DnDWildMagic._setTraitsOptions(Array.from(this._handlers.keys())); 
+  }
+
+  constructor() {
+    this._handlers = new Map();
+    this._preCheck = new Map();
+  }
+
+  getHandler(label){
+    return this._handlers.get(label);
+  }
+
+  getPreCheck(label){
+    return this._preCheck.get(label);
+  }
+
+  get templates() {
+    return {
+      /* core roll <= targetRoll handler */
+      handler: DnDWildMagic.commonSurgeHandler,
+
+      /* core "was slot used?" pre check for surging */
+      preCheck: DnDWildMagic.slotExpended,
+    }
+  }
+
+  /**
+   * Registers the provided handler with the wild magic system. If done during the 
+   * 'wmsRegister' hook, will additionally add this to the actor special traits
+   * list. If done afterwords, can be invoked by directly calling 'surge'.
+   * @see {@link DnDWildMagic.surge}
+   *
+   * @param {string} label - Unique identifier for this handler. Also used as the displayed handler name in the special traits menu
+   * @param {function} handler - signature: `async function handler(actor, surgeData)`. Given surgeData produced by the preCheck function, determines if a surge occurs (typically by rolling under a target number).
+   * @param {function} [preCheck = WildMagic.slotExpended] - signature `function preCheck(actor, update)`. Given an actor pre-update and the update to be applied, returns an object containing information for its paired handler OR false if a surge cannot occur (ex. the update was not expending a spell slot).
+   *
+   * @returns {boolean} indicates successful addition
+   *
+   */
+  registerHandler(label, handler, preCheck = DnDWildMagic.slotExpended) {
+    if( this._handlers.has(label) ){
+      logger.warn(`Rejecting duplicate surge handler: ${label}`);
+      return false;
+    }
+
+    this._handlers.set(label, handler);
+    this._preCheck.set(label, preCheck);
+    return true;
+  }
+
+  /**
+   * Unregisters a given handler and preCheck pair based on the handler's key (label)
+   * @param {string} label - name of handler and preCheck pair to remove
+   * @returns {boolean} indicates successful removal of handler
+   */
+  unregisterHandler(label) {
+   if( !this._handlers.has(label) ){
+      logger.warn(`Cannot locate existing handler to remove: ${label}`);
+      return false;
+    }
+    
+    this._handlers.delete(label);
+    this._preCheck.delete(label);
+    return true;
+  }
+
+  /**
+   * Force a surge to occur for the desired actor
+   * @param {Actor5e} actor - which character will surge
+   * @param {Object} [surgeOptions] - optional information to customize this actor's surge process and results
+   * @param {Object} surgeOptions.data - information needed by this actor's surge handler. Often {spellLevel: N}.
+   * @param {string|function} surgeOptions.handler - Either the handler's key (string) or a custom handler function.
+   * @see {@link DnDWildMagic.registerHandler} for details on the handler function signature.
+   *
+   * @returns {Promise} Resulting information returned by the handler function used to carry out any needed operations resulting from this type of surge.
+   */
+  surge(actor, {data = {}, handler = actor.getFlag('dnd5e', 'wildMagic')} = {} ) {
+    return DnDWildMagic._runHandler(handler, actor, data)
+  }
+
+  /** 
+   * Helper function for creating the chat message data for a given surge result
+   * @parm {Object} info - needed surge information to construct the feedback chat message
+   * @param {Roll} info.surgeRoll - Roll object representing the test roll for surging
+   * @param {Roll} info.targetRoll - Roll object representing the upper bound for a successful surge
+   * @param {boolean} [info.surgeOccured = false] - whether a surge occured or not
+   * @param {number} [info.spellLevel = 0] - spell level that triggered this surge
+   * @param {string} [info.extraText = ''] - Additional string placed between spell level and "spell" in output. Ex. 'as a level 9<extraText> spell is cast'
+   *
+   * @returns {Object} - ChatMessage data needed to construct the surge results.
+   */
+  generateChatData(info){
+
+    const data = {
+      action : info.surgeOccured ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
+      spellLevel: info.spellLevel ?? 0,
+      resultText : `[[/r ${info.surgeRoll.formula}cs<=${info.targetRoll.formula} #${info.surgeRoll.formula}cs<=${info.targetRoll.formula}]]{${info.surgeRoll.total} <= ${info.targetRoll.total}}`,
+      extraText: info.extraText ?? '',
+    }
+
+    const whisper = info.whisper ?? (MODULE.setting("wmWhisper") ? ChatMessage.getWhisperRecipients("GM") : []);
+    const speaker = info.speaker ?? ChatMessage.getSpeaker({ alias : MODULE.localize("DND5EH.WildMagicChatSpeakerName")});
+    const content = info.content ?? MODULE.format("DND5EH.WildMagicConsoleSurgesMessage", data);
+   
+    const chatData = {
+      content,
+      speaker,
+      whisper, 
+    }
+
+    return chatData;
+  }
+
+  /**
+   * Determines if the actor has a charged use of Tides remaining. In the event of both
+   * a resource and feature item being used to track charges, this will indicate true (charged)
+   * if *either* the resource or item has uses left.
+   *
+   * @param {Actor5e} actor - actor to query for charged tides
+   *
+   * @returns {boolean} indicates if tides is charged (true) or not (false)
+   */
+  isTidesCharged(actor){
+    let item = DnDWildMagic._getTides(actor);
+    const itemCharge =  item?.data?.data?.uses?.value != 0;
+
+    let resource = DnDWildMagic._getTidesResource(actor);
+    const resourceCharge = !!resource.value 
+
+    return itemCharge || resourceCharge
+  }
+
+  /**
+   * Generates the needed actor and item updates for recharging the configured Tides feature/resource
+   *
+   * @param {Actor5e} actor - actor for which to generate the recharge update information.
+   *
+   * @returns {Object} updates - resulting update information
+   * @returns {Object} updates.actor - actor update data
+   * @returns {Object[]} updates.item - array of item update data
+   */
+  tidesRechargeUpdate(actor) {
+    let updates = {actor: {}, item: []};
+    const item = DnDWildMagic._getTides(actor);
+
+    if(item)
+      updates.item.push({_id:item.id, "data.uses.value" : item.data.data.uses.max });
+
+    const resource = DnDWildMagic._getTidesResource(actor);
+    if(resource)
+      updates.actor = { [`data.resources.${resource.key}.value`] : resource.max }
+    return updates;
+  }
+}
+
+/**
+ * Core wild magic operations, initialization, and helper functions
+ * @class
+ */
 export class DnDWildMagic {
   static register(){
     logger.info("Registering Wild Magic Surge");
@@ -10,7 +186,6 @@ export class DnDWildMagic {
     DnDWildMagic.settings();
     DnDWildMagic.globals();
     DnDWildMagic.hooks();
-    DnDWildMagic.patch();
   }
 
   static defaults(){
@@ -72,33 +247,11 @@ export class DnDWildMagic {
     Hooks.on('wmsRegister', DnDWildMagic._registerStockHandlers);
 
     /* initialize and call for surge handlers when everything is loaded */
-    Hooks.on('ready', DnDWildMagic._init);
-  }
-
-  static patch(){
-    
+    Hooks.on('ready', () => globalThis.WildMagic.initialize());
   }
 
   static globals(){
-    //
-    // Name to Handler Fn
-    MODULE[NAME].handlers = {};
-    // Name to preCheck Fn
-    MODULE[NAME].preCheck = {};
-
-    //wild magic helpers
-    game.dnd5e.helpers.wildMagic = {
-      tidesRechargeUpdate: DnDWildMagic.tidesRechargeUpdate,
-      isTidesCharged: DnDWildMagic.isTidesCharged,
-      getChatData: DnDWildMagic.basicChatData,
-      surge: DnDWildMagic.surge,
-      commonSurgeHandler: DnDWildMagic.commonSurgeHandler,
-    }
-  }
-  
-  /* return: Promise<handlerReturnData> */
-  static surge(actor, {data = {}, handler = actor.getFlag('dnd5e', 'wildMagic')} = {} ) {
-    return DnDWildMagic._runHandler(handler, actor, data)
+    globalThis.WildMagic = new WildMagicAPI();
   }
 
   static _updateActor(actor, _, options, user){
@@ -112,7 +265,7 @@ export class DnDWildMagic {
     let handlerResult;
     if (typeof handler == 'string') {
       /* we were handed a handler ID, grab the function */
-      handler = MODULE[NAME].handlers[handler]
+      handler = globalThis.WildMagic.getHandler(handler);
     }
 
     try {
@@ -163,7 +316,8 @@ export class DnDWildMagic {
     if(specialTrait == '' || !enabled) return;
 
     /* otherwise, call preCheck to deny the surge or prep data needed for it */
-    const preCheck = MODULE[NAME].preCheck[specialTrait]
+    const preCheck = globalThis.WildMagic.getPreCheck(specialTrait);
+    if (!preCheck) return;
 
     let data;
     try{
@@ -180,28 +334,6 @@ export class DnDWildMagic {
 
   }
 
-  static basicChatData(info){
-
-    const data = {
-      action : info.surgeOccured ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
-      spellLevel: info.spellLevel ?? 0,
-      resultText : `[[/r ${info.surgeRoll.formula}cs<=${info.targetRoll.formula} #${info.surgeRoll.formula}cs<=${info.targetRoll.formula}]]{${info.surgeRoll.total} <= ${info.targetRoll.total}}`,
-      extraText: info.extraText ?? '',
-    }
-
-    const whisper = info.whisper ?? (MODULE.setting("wmWhisper") ? ChatMessage.getWhisperRecipients("GM") : []);
-    const speaker = info.speaker ?? ChatMessage.getSpeaker({ alias : MODULE.localize("DND5EH.WildMagicChatSpeakerName")});
-    const content = info.content ?? MODULE.format("DND5EH.WildMagicConsoleSurgesMessage", data);
-   
-    const chatData = {
-      content,
-      speaker,
-      whisper, 
-    }
-
-    return chatData;
-  }
-
   static async _rollTable(uuid, rollMode = MODULE.setting('wmRollMode')) {
 
     rollMode = rollMode == 'default' ? game.settings.get("core", "rollMode") : rollMode;
@@ -214,29 +346,6 @@ export class DnDWildMagic {
     }
 
     return logger.error(`Failed to get Table [${uuid}]`);
-  }
-
-  static tidesRechargeUpdate(actor) {
-    let updates = {actor: {}, item: []};
-    const item = DnDWildMagic._getTides(actor);
-
-    if(item)
-      updates.item.push({_id:item.id, "data.uses.value" : item.data.data.uses.max });
-
-    const resource = DnDWildMagic._getTidesResource(actor);
-    if(resource)
-      updates.actor = { [`data.resources.${resource.key}.value`] : resource.max }
-    return updates;
-  }
-
-  static isTidesCharged(actor){
-    let item = DnDWildMagic._getTides(actor);
-    const itemCharge =  item?.data?.data?.uses?.value != 0;
-
-    let resource = DnDWildMagic._getTidesResource(actor);
-    const resourceCharge = !!resource.value 
-
-    return itemCharge || resourceCharge
   }
 
   static _getTides(actor){
@@ -257,29 +366,32 @@ export class DnDWildMagic {
     }, false);
   }
 
-  static _setTraitsOptions() {
+  static _setTraitsOptions(handlerKeys) {
+
+    /* create key:value pair for display */
+    let choices = {};
+    handlerKeys.forEach( key => choices[key] = key );
 
     CONFIG.DND5E.characterFlags.wildMagic = {
       hint: "DND5EH.flagsWildMagicHint",
       name: "DND5EH.flagsWildMagic",
       section: "Feats",
       type: String,
-      choices: Object.keys(MODULE[NAME].handlers).sort().reduce( (acc, curr) => {
-        acc[curr]=curr;
-        return acc;
-      },{})
+      choices
     }
   }
 
-  static _init() {
-    
-    /* call for surge handlers */
-    Hooks.callAll('wmsRegister', DnDWildMagic.registerHandler);
-
-    /* configure settings */
-    DnDWildMagic._setTraitsOptions();
-  }
-
+  /**
+   * Standard surge "pre-check" function which determines if this particular actor update
+   * represents the use of a spell slot. This is the default pre-check handler used if one 
+   * is not supplied by the caller of DnDWildMagic.registerHandler
+   * @see {@link DnDWildMagic.registerHandler}
+   *
+   * @param {Actor5e} actor - actor under update (pre-update state)
+   * @param {Object} update - update to be applied to the actor
+   *
+   * @returns {boolean|Object} - false if no slot was used, or an Object containing `spellLevel` if the surge occured and from which slot level.
+   */
   static slotExpended(actor, update) {
 
     /** Exit if hook is not the product of a spell change */
@@ -305,23 +417,29 @@ export class DnDWildMagic {
     return false;
   }
 
-  static registerHandler(label, handler, preCheck = DnDWildMagic.slotExpended) {
-    if( MODULE[NAME].handlers[label] ){
-      logger.warn('Rejecting duplicate surge handler.');
-      return false;
+  static _registerStockHandlers() {
+    /* default handler */
+    globalThis.WildMagic.registerHandler('', ()=>false, ()=>false);
+  }
+
+  static async commonSurgeHandler(actor, surgeData, surgeRoll = '1d20', targetRoll = '1') {
+
+    const convertEval = async (roll) => {
+
+      if(typeof roll == 'string') {
+        roll = new Roll(roll);
+      }
+
+      if( roll.total == undefined ) {
+        await roll.evaluate({async: true});
+      }
+
+      return roll;
     }
 
-    MODULE[NAME].handlers[label] = handler;
-    MODULE[NAME].preCheck[label] = preCheck;
+    surgeRoll = await convertEval(surgeRoll); 
+    targetRoll = await convertEval(targetRoll); 
 
-  }
-
-  static _registerStockHandlers(register) {
-    /* default handler */
-    register('', ()=>false, ()=>false);
-  }
-
-  static async commonSurgeHandler(actor, surgeData, surgeRoll, targetRoll) {
     let results = {
       table: null,
     }
@@ -334,12 +452,12 @@ export class DnDWildMagic {
       /* should I recharge tides for this surge? */
       const rechargeTides = MODULE.setting('wmToCRecharge');
 
-      if(rechargeTides && !game.dnd5e.helpers.wildMagic.isTidesCharged(actor)){
+      if(rechargeTides && !WildMagic.isTidesCharged(actor)){
 
         /* get the actor and/or item update information for
          * recharging tides
          */
-        const updates = game.dnd5e.helpers.wildMagic.tidesRechargeUpdate(actor);
+        const updates = WildMagic.tidesRechargeUpdate(actor);
 
         results.actorUpdates = updates.actor;
         results.itemUpdates = updates.item;
@@ -361,7 +479,7 @@ export class DnDWildMagic {
       }
     }
 
-    results.chatData = game.dnd5e.helpers.wildMagic.getChatData({
+    results.chatData = WildMagic.generateChatData({
       surgeRoll,
       targetRoll,
       surgeOccured,
