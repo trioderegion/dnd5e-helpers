@@ -124,8 +124,8 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 
 ### Undead Fortitude
 
-- Automatically checks actors with the Undead Fortitude feature
-- When they are reduced to 0hp it will prompt the GM to choose the type of damage that was applied
+- Automatically checks actors with the Undead Fortitude feature or the trait set under special traits
+- When they are reduced to 0 hp it will prompt the GM to choose the type of damage that was applied
 - Then prompts the GM for a Con save for that actor, and will auto heal the NPC if the roll beats the save needed
 - There are two settings for levels of checks:
   - Quick saves will just measure the change in hp and will not measure "overkill"
