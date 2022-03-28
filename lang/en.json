@@ -52,6 +52,8 @@
     "setting.losSystem.hint": "Selects algorithm to be used during cover checks, or disables this feature entirely.",
     "option.losOnTarget.center":"Center Point Vision (Foundry Vision)",
     "option.losOnTarget.corner":"Four Corner Vision (DMG pg. 251)",
+    "setting.debugDrawing.name": "Debug Line-of-Sight",
+    "setting.debugDrawing.hint": "Renders the sight rays used in the latest cover calculation. Refresh to clear drawing.",
     "DND5EH.LoS_nocover": "No cover",
     "DND5EH.LoS_halfcover":"Half cover (+2)",
     "DND5EH.LoS_34cover":"Three-quarters cover (+5)",
