@@ -1,8 +1,5 @@
 {
   "scripts": {
-    "doc": "jsdoc -c jsdoc.conf -t node_modules/foodoc/template"
-  },
-  "dependencies": {
-    "foodoc": "0.0.9"
+    "doc": "jsdoc -c jsdoc.conf"
   }
 }
