@@ -37,7 +37,9 @@ class WildMagicAPI {
   }
 
   /**
-   * @member
+   * @namespace templates
+   * @memberof WildMagicAPI
+   * @type {Object} 
    */
   get templates() {
     return {
@@ -47,7 +49,8 @@ class WildMagicAPI {
        * Checks for surge given the roll and targets, produces chat message data, retrieves the
        * table configured in Helpers, and produces the update data for recharging Tides if enabled
        * in the Helpers options.
-       * @function
+       * @memberof WildMagicAPI.templates
+       * @method handler
        * @async
        *
        * @param {Actor5e} actor - actor for the surge
@@ -67,7 +70,8 @@ class WildMagicAPI {
        * Core "was slot used?" pre check for surging. Checks if the actor update is a reduction
        * in spell slot counts. Each preCheck function will return data for its paired handler to
        * consume in order to execute the needed rolls to determine if a surge actually occurs.
-       * @function
+       * @memberof WildMagicAPI.templates
+       * @method preCheck
        *
        * @param {Actor5e} actor - The actor at its current state, before any updates have been applied
        * @param {Object} updates - The incoming updates that _may_ trigger a surge check. In this case,
