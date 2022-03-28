@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>DnD5e Helpers</h1>
+<p>Little helpers for little 5e tasks.</p>
+<h3>Compatibility Notes</h3>
+<ul>
+<li>v3.0.4 (legacy 0.8.x generation): Requires dnd5e system version 1.5.5 or greater.</li>
+</ul>
+<h2>Current Features</h2>
+<h3>Automatic Wild Magic Surge</h3>
+<ul>
+<li>To enable, select a Surge option from the Feature Helpers config tab and then set the special trait for actors that should surge on casting a spell.</li>
+</ul>
+<p><img src="https://user-images.githubusercontent.com/62909799/158481682-550e9ebe-992a-412f-a957-b1fb24dad992.jpg" alt="Special traits"></p>
+<ul>
+<li>Triggers on <em>any</em> reduction in current spell slots from a character with the 'Wild Magic Surge' special trait</li>
+<li>Optional homebrews
+<ul>
+<li>More Surges - a surge triggers on a roll &lt;= spell level. Also recharges Tides of Chaos.</li>
+<li>Volatile Surges - Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended</li>
+<li>The homebrew variants look for the designated Tides of Chaos feature and expects it to have &quot;X uses per long rest&quot;. Will also recharge an actor resource of the same name, if present.</li>
+</ul>
+</li>
+<li>Blind draw surge table results, which hides the results of the surge from the players.</li>
+</ul>
+<p><img src=".github/surge-output.webp" alt="WildSurge"></p>
+<h3>Combat Action Management</h3>
+<ul>
+<li>Action HUD added to tokens during combat, tracking their Reaction, Action, and Bonus Action (left to right).
+<ul>
+<li>Positive action cost items will mark the corresponding action as used.</li>
+<li>Negative action cost items will refund the corresponding action. Ex. Action Surge configured as &quot;-1 Action&quot;.</li>
+<li>Items with usage of &quot;Action&quot; will be interpretted as a Reaction when used on another actor's turn.</li>
+</ul>
+</li>
+<li>Used actions will reset at the beginning of the combatant's turn.</li>
+<li>Additional control added to the token HUD during combat to manually adjust actions.</li>
+<li>Used actions can optionally be displayed as status effects for easier tracking.</li>
+<li>When the action HUD is visible, clicking on an action icon will consume that action, clicking a used action will restore it for use.</li>
+<li>Note: This management is for display purposes only and will not interfere with item use.</li>
+</ul>
+<h4>Added <code>Token</code> Methods</h4>
+<ul>
+<li><code>setActionUsed(actionType, overrideCount = undefined)</code>: Sets the provided action type as used for this token and will update the management HUD accordingly.
+<ul>
+<li>
+<p><code>actionType</code> {String}: valid values are <code>action</code>, <code>bonus</code>, and <code>reaction</code>. Indicates which action type to modify uses for.</p>
+</li>
+<li>
+<p><code>overrideCount</code> {Number = <code>undefined</code>}: optionally sets how many times this action has been used. If set to <code>0</code>, restores the action as unsued for combat HUD display.</p>
+</li>
+<li>
+<p><code>return value</code> {Object | <code>false</code>}: Current set of used actions and their counts, or <code>false</code> if any part of the update failed -- typically due to incorrect action type string.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4</p>
+<h3>Legendary Action Reset on End of Turn</h3>
+<ul>
+<li>All legendary action uses of a creature will reset to their max on the end of their turn in combat.
+<ul>
+<li>Note: RAW indicates this should be at the beginning of their turn, but due to timing issues with the legendary action helper, this has been moved to the end of the turn and has no mechanical effect on gameplay.</li>
+</ul>
+</li>
+</ul>
+<h3>Lair and Legendary Action Helpers</h3>
+<ul>
+<li>Prompts GM with available legendary actions in-between combatant turns.</li>
+<li>Prompts GM with available lair actions at the creature's designated lair initiatve.</li>
+<li>Tracks current available uses of legendary actions.</li>
+<li>A creature's legendary and lair actions will be indexed when first added to the tracker. Only items with an activation cost of &quot;Legendary Action&quot; or &quot;Lair Action&quot; will be indexed.</li>
+</ul>
+<p><img src=".github/lair-legend-helpers.webp" alt="Lair Legendary Helper"></p>
+<h3>Recharge Abilities on Start of Turn</h3>
+<ul>
+<li>GM only</li>
+<li>For abilities with a &quot;d6 recharge&quot; on every turn.</li>
+<li>Configurable to hide the roll, or to roll at the end of a combatants turn instead of the start.</li>
+</ul>
+<h3>Diagonal Template Scaling</h3>
+<ul>
+<li><em>I cast...Firesquare!</em></li>
+<li>Scales line, cone, and circle type templates upon placement to better fit to the 5/5/5 diagonal rule.</li>
+<li>Line and cone scaling can be enabled independently from circle scaling.
+<ul>
+<li>Circle templates less than 1 grid unit in radius will not be converted. These small templates are often useful for creating quick token-like markers on the board or used for macros which need the centerpoint maintained.</li>
+</ul>
+</li>
+</ul>
+<p><img src=".github/ray_scaling.gif" alt="Line Scaling">
+<img src=".github/circle_scaling.gif" alt="Circle Scaling"></p>
+<h3>Cover Calculator</h3>
+<ul>
+<li>When a user with a selected token targets another token with the designated hotkey held, the target's cover will be calculated following the rules presented in DMG pg. 251</li>
+<li>A message in chat will be posted concerning the target's cover in relation to the selected token(s).</li>
+<li>Prioritizes walls, tiles, and then tokens.
+<ul>
+<li>Walls, tiles, and tokens have a new option in their configuration dialog that sets the cover granted by them.</li>
+<li>Two tiles are now included from game-icons.net that are configured automatically for half and three-quarters cover in modules/dnd5e-helpers/assets/cover-tiles.</li>
+</ul>
+</li>
+<li>Has two modes for cover in relation to walls: Center Point and Four Corner. Cover from tiles and tokens are (currently) only calculated from Center Point.
+<ul>
+<li>Center Point - a target token's cover is based on foundry's player vision rendering (center point of self to 4 corners of target)</li>
+<li>Four Corner - direct implementation of DMG rules, where vision is computed from each occupied grid point and the corner granting the target the least cover is chosen.</li>
+<li>A more detailed discussion of this can be found on our Wiki</li>
+</ul>
+</li>
+<li>Added <code>Token#setCoverValue</code> which accepts 0-3 (no, half, 3/4, and full cover, respectively). Can be used to change a token's provided cover; e.g. when prone or dead.</li>
+</ul>
+<h4>A Note on Module Interactions</h4>
+<p>Helpers provides built-in functionality for managing cover in a simple manner. Other modules may interact with Helper's output, or supercede it entirely. If this is the case, please consult the other module's instructions or readme and configure the Helpers cover calculator settings appropriately.</p>
+<p>https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4</p>
+<h3>Cover Application</h3>
+<ul>
+<li>Manual setting adds chat buttons to click to cycle between different cover effects.</li>
+<li>Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment.</li>
+<li>This cover bonus is applied onto the <em>attacker</em> not the target and is a -2,-5,-40 penalty for any attack rolls.</li>
+<li>The cover bonus to Dexerity saves are not handled.</li>
+<li>A new special trait has been added to indicate if the actor should ignore certain levels of cover (e.g. Sharpshooter, Spell Sniper, Wand of the Warmage)</li>
+<li>Alternatively, a flag of <code>&quot;dnd5e&quot;, &quot;helpersIgnoreCover&quot;</code> will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ). Said flags accepts values of 0,1,2 or 3 which allows the actor to ignore no, half, three-quarters or full cover respectively. To ensure legacy compatibility values of true are also accepted but identical in functionality to a value of 2.</li>
+<li>Cover penalties can be optionally removed at the end of the token's turn.</li>
+</ul>
+<p><img src=".github/cover-report.webp" alt="Cover Report"></p>
+<h3>Rest Effects</h3>
+<ul>
+<li>Adds an additional option to Active Effects that allows removal of effect on a short or long rest.</li>
+</ul>
+<p><img src=".github/rest_effects.webp" alt="Rest Effects"></p>
+<h3>Auto Regeneration</h3>
+<ul>
+<li>Automatically checks actors with the Regeneration or Self-Repair features</li>
+<li>Searches the these features for the phrase &quot;X hit points&quot;, where X can be a static value or a dice formula
+<ul>
+<li>The search phrase is localized for your supported language.</li>
+</ul>
+</li>
+<li>At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing</li>
+</ul>
+<h3>Regen Blocking</h3>
+<ul>
+<li>Feature to prevent the auto regen popup</li>
+<li>Matches and active effect of the specified name (case specific)</li>
+</ul>
+<h3>Undead Fortitude</h3>
+<ul>
+<li>Automatically checks actors with the Undead Fortitude feature</li>
+<li>When they are reduced to 0hp it will prompt the GM to choose the type of damage that was applied</li>
+<li>Then prompts the GM for a Con save for that actor, and will auto heal the NPC if the roll beats the save needed</li>
+<li>There are two settings for levels of checks:
+<ul>
+<li>Quick saves will just measure the change in hp and will not measure &quot;overkill&quot;</li>
+<li>Advanced saves will query the GM for the amount of damage taken as a more complex system</li>
+</ul>
+</li>
+</ul>
+<h3>Open Wounds</h3>
+<ul>
+<li>Rolls on an &quot;Injury Table&quot; when specific customisable criteria are met; currently:
+<ul>
+<li>Failing a Death Saving Throw by 5 or more</li>
+<li>On a critical hit (enemy must be targeted; critical range specified by special traits)</li>
+<li>Falling to 0hp</li>
+<li>Falling to 0hp from a Great Wound</li>
+</ul>
+</li>
+</ul>
+<h3>Great Wound Detection</h3>
+<ul>
+<li>Triggers on a reduction of &gt;50% of a token/actor's health.</li>
+<li>Configurable Great Wound table to draw from.</li>
+<li>This will ask for a Great Wound Roll, and will prompt the owner of the token to make a Con Save then roll on the table</li>
+</ul>
+<h2>Debug Setting</h2>
+<ul>
+<li>Option to add debug logs for troubleshooting</li>
+</ul>
+<h2>Authors:</h2>
+<ul>
+<li>honeybadger (https://github.com/trioderegion)</li>
+<li>Kandashi (https://github.com/kandashi)</li>
+<li>kekilla (https://github.com/kekilla0)</li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ActionDialog.html">ActionDialog</a></li><li><a href="ActionManagement.html">ActionManagement</a></li><li><a href="DnDWildMagic.html">DnDWildMagic</a></li><li><a href="HelpersSettingsConfig.html">HelpersSettingsConfig</a></li><li><a href="LairActionDialog.html">LairActionDialog</a></li><li><a href="LairActionManagement.html">LairActionManagement</a></li><li><a href="LegendaryActionDialog.html">LegendaryActionDialog</a></li><li><a href="LegendaryActionManagement.html">LegendaryActionManagement</a></li><li><a href="UpdateQueue.html">UpdateQueue</a></li><li><a href="WildMagicAPI.html">WildMagicAPI</a></li><li><a href="WildMagicSurge.html">WildMagicSurge</a></li></ul><h3>Global</h3><ul><li><a href="global.html#handler">handler</a></li><li><a href="global.html#preCheck">preCheck</a></li><li><a href="global.html#queueUpdate">queueUpdate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun Mar 27 2022 21:58:41 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

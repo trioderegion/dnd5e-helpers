@@ -10,12 +10,17 @@ export class MODULE{
   static async register(){
     logger.info("Initializing Module");
     MODULE.settings();
+    MODULE.globals();
   }
 
   static async build(){
     MODULE.data = {
       name : NAME, path : PATH, title : TITLE
     };
+  }
+
+  static globals() {
+    game.dnd5e.helpers = {};
   }
 
   static setting(key){

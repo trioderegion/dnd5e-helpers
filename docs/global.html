@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Global</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Global</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2></h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="handler"><span class="type-signature">(async) </span>handler<span class="signature">(actor, surgeData, targetRoll, surgeRoll)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Core <code>roll &lt;= target</code> handler. Has no side effects and can be used to build upon.
+Checks for surge given the roll and targets, produces chat message data, retrieves the
+table configured in Helpers, and produces the update data for recharging Tides if enabled
+in the Helpers options.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>actor</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Actor5e</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>actor for the surge</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>surgeData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>spellLevel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Spell level triggering this surge check</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>targetRoll</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Roll</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Either a die expression or a Roll object (evaluated or not)
+representing the target number that the surge roll will be compared against.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>surgeRoll</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Roll</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Either a die expression or a Roll object (evaluated or not)
+representing the surge check.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_DnDWildMagic.js.html">modules/DnDWildMagic.js</a>, <a href="modules_DnDWildMagic.js.html#line64">line 64</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>surge results, table selection, resulting chat data for this surge.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="preCheck"><span class="type-signature"></span>preCheck<span class="signature">(actor, updates)</span><span class="type-signature"> &rarr; {Object|boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Core &quot;was slot used?&quot; pre check for surging. Checks if the actor update is a reduction
+in spell slot counts. Each preCheck function will return data for its paired handler to
+consume in order to execute the needed rolls to determine if a surge actually occurs.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>actor</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Actor5e</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The actor at its current state, before any updates have been applied</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>updates</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The incoming updates that <em>may</em> trigger a surge check. In this case,
+the reduction of any spell slot count will trigger a surge check.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_DnDWildMagic.js.html">modules/DnDWildMagic.js</a>, <a href="modules_DnDWildMagic.js.html#line82">line 82</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><code>WildMagic.templates.handler</code></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>a non-false return indicates that this update triggers a surge check.
+Additionally, the data returned will be used by the surge handler in order to execute the needed
+checks. <code>{spellLevel: number}</code> is returned by this handler and is intended for use with the default
+handler.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="queueUpdate"><span class="type-signature"></span>queueUpdate<span class="signature">(updateFn)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Safely manages concurrent updates to the provided entity type</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>updateFn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>the function that handles the actual update (can be async)</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="modules_update-queue.js.html">modules/update-queue.js</a>, <a href="modules_update-queue.js.html#line63">line 63</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ActionDialog.html">ActionDialog</a></li><li><a href="ActionManagement.html">ActionManagement</a></li><li><a href="DnDWildMagic.html">DnDWildMagic</a></li><li><a href="HelpersSettingsConfig.html">HelpersSettingsConfig</a></li><li><a href="LairActionDialog.html">LairActionDialog</a></li><li><a href="LairActionManagement.html">LairActionManagement</a></li><li><a href="LegendaryActionDialog.html">LegendaryActionDialog</a></li><li><a href="LegendaryActionManagement.html">LegendaryActionManagement</a></li><li><a href="UpdateQueue.html">UpdateQueue</a></li><li><a href="WildMagicAPI.html">WildMagicAPI</a></li><li><a href="WildMagicSurge.html">WildMagicSurge</a></li></ul><h3>Global</h3><ul><li><a href="global.html#handler">handler</a></li><li><a href="global.html#preCheck">preCheck</a></li><li><a href="global.html#queueUpdate">queueUpdate</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun Mar 27 2022 21:58:41 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

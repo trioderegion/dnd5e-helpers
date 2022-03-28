@@ -20,7 +20,8 @@
       }
     ],
     "esmodules": [
-        "/scripts/helpers.js"
+        "/scripts/helpers.js",
+        "/scripts/plugins/wild-magic-surge.js"
     ],
     "languages": [
       {
