@@ -44,7 +44,6 @@ const SUB_MODULES = {
 
 const SUB_APPS = {
   ActionDialog,
-  AD,
 }
 
 /*
