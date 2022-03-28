@@ -24,7 +24,6 @@ import { UndeadFortitude } from './modules/UndeadFortitude.js'
  * Sub Apps
  */
 import { ActionDialog } from './apps/action-dialog.js';
-import { AD } from './apps/action-dialog-app.js';
 
 const SUB_MODULES = {
   MODULE,
