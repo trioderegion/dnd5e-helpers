@@ -13,8 +13,8 @@ class WildMagicAPI {
   initialize() {
 
     /* clear any handlers present */
-    this._handlers = new Map();
-    this._preCheck = new Map();
+    this._handlers.clear()
+    this._preCheck.clear()
 
     /* call for surge handlers */
     Hooks.callAll('wmsRegister');
@@ -36,12 +36,49 @@ class WildMagicAPI {
     return this._preCheck.get(label);
   }
 
+  /**
+   * @member
+   */
   get templates() {
     return {
-      /* core roll <= targetRoll handler */
+
+      /**
+       * Core `roll <= target` handler. Has no side effects and can be used to build upon.
+       * Checks for surge given the roll and targets, produces chat message data, retrieves the
+       * table configured in Helpers, and produces the update data for recharging Tides if enabled
+       * in the Helpers options.
+       * @function
+       * @async
+       *
+       * @param {Actor5e} actor - actor for the surge
+       * @param {Object} surgeData 
+       * @param {number} surgeData.spellLevel - Spell level triggering this surge check
+       * @param {string|Roll} targetRoll - Either a die expression or a Roll object (evaluated or not)
+       * representing the target number that the surge roll will be compared against.
+       * @param {string|Roll} surgeRoll - Either a die expression or a Roll object (evaluated or not)
+       * representing the surge check.
+       *
+       * @returns {Promise} surge results, table selection, resulting chat data for this surge.
+       *
+       */
       handler: DnDWildMagic.commonSurgeHandler,
 
-      /* core "was slot used?" pre check for surging */
+      /**
+       * Core "was slot used?" pre check for surging. Checks if the actor update is a reduction
+       * in spell slot counts. Each preCheck function will return data for its paired handler to
+       * consume in order to execute the needed rolls to determine if a surge actually occurs.
+       * @function
+       *
+       * @param {Actor5e} actor - The actor at its current state, before any updates have been applied
+       * @param {Object} updates - The incoming updates that _may_ trigger a surge check. In this case,
+       * the reduction of any spell slot count will trigger a surge check.
+       *
+       * @returns {Object|boolean} a non-false return indicates that this update triggers a surge check.
+       * Additionally, the data returned will be used by the surge handler in order to execute the needed
+       * checks. `{spellLevel: number}` is returned by this handler and is intended for use with the default
+       * handler.
+       * @see {@link WildMagic.templates.handler}
+       */
       preCheck: DnDWildMagic.slotExpended,
     }
   }
@@ -52,12 +89,17 @@ class WildMagicAPI {
    * list. If done afterwords, can be invoked by directly calling 'surge'.
    * @see {@link DnDWildMagic.surge}
    *
-   * @param {string} label - Unique identifier for this handler. Also used as the displayed handler name in the special traits menu
-   * @param {function} handler - signature: `async function handler(actor, surgeData)`. Given surgeData produced by the preCheck function, determines if a surge occurs (typically by rolling under a target number).
-   * @param {function} [preCheck = WildMagic.slotExpended] - signature `function preCheck(actor, update)`. Given an actor pre-update and the update to be applied, returns an object containing information for its paired handler OR false if a surge cannot occur (ex. the update was not expending a spell slot).
+   * @param {string} label - Unique identifier for this handler. Also used as the
+   * displayed handler name in the special traits menu
+   * @param {function} handler - signature: `async function handler(actor, surgeData)`.
+   * Given surgeData produced by the preCheck function, determines if a surge occurs
+   * (typically by rolling under a target number).
+   * @param {function} [preCheck = WildMagic.slotExpended] - signature 
+   * `function preCheck(actor, update)`. Given an actor pre-update and the update to
+   * be applied, returns an object containing information for its paired handler OR 
+   * false if a surge cannot occur (ex. the update was not expending a spell slot).
    *
    * @returns {boolean} indicates successful addition
-   *
    */
   registerHandler(label, handler, preCheck = DnDWildMagic.slotExpended) {
     if( this._handlers.has(label) ){
@@ -422,7 +464,7 @@ export class DnDWildMagic {
     globalThis.WildMagic.registerHandler('', ()=>false, ()=>false);
   }
 
-  static async commonSurgeHandler(actor, surgeData, surgeRoll = '1d20', targetRoll = '1') {
+  static async commonSurgeHandler(actor, surgeData, targetRoll = '1', surgeRoll = '1d20' ) {
 
     const convertEval = async (roll) => {
 
