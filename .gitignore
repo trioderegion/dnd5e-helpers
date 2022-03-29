@@ -3,3 +3,4 @@
 *.orig
 *.code-workspace
 *.lock
+.idea/*
