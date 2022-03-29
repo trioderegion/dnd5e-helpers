@@ -509,14 +509,13 @@ export class DnDWildMagic {
         results.itemUpdates = updates.item;
       }
 
+      let table;
       const tableName = MODULE.setting('wmTableName');
-      let table = game.tables.getName(tableName) ?? await fromUuid(tableName);
-      if(!table) {
-        /* maybe its a uuid */
+      if(tableName) {
         try {
-          table = await fromUuid(tableName);
-        } catch (e) {
-          //nope
+          table = game.tables.getName(tableName) ?? await fromUuid(tableName);
+        }catch(err){
+          // nope
         }
       }
 
