@@ -158,7 +158,7 @@ export class HelpersSettingsConfig extends SettingsConfig{
       data.tabs[tabName].menus = [];
     }
 
-    for(let [_, setting] of settings.filter(([k, _]) => k.startsWith(MODULE.data.name))){
+    for(let [_, setting] of settings.filter(([_, setting]) => setting.namespace == MODULE.data.name)){
 
       /* only add an actual setting if the menu ids match */
       if(setting.subMenuId == this.options.subMenuId) {
