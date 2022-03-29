@@ -157,7 +157,7 @@ class WildMagicAPI {
    *
    * @returns {Object} - ChatMessage data needed to construct the surge results.
    */
-  generateChatData(info){
+  async generateChatData(info){
 
     const data = {
       action : info.surgeOccured ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
@@ -166,17 +166,26 @@ class WildMagicAPI {
       extraText: info.extraText ?? '',
     }
 
+    const rollHtml = $(await info.surgeRoll.render());
+
+    rollHtml.find(".dice-total")
+      .toggleClass('critical', info.surgeOccured)
+      .text(info.surgeRoll.total);
+
+    rollHtml.find('.dice-formula').text(`${info.surgeRoll.formula}cs<=${info.targetRoll.formula}`);
+
     const whisper = info.whisper ?? (MODULE.setting("wmWhisper") ? ChatMessage.getWhisperRecipients("GM") : []);
     const speaker = info.speaker ?? ChatMessage.getSpeaker({ alias : MODULE.localize("DND5EH.WildMagicChatSpeakerName")});
-    const content = info.content ?? MODULE.format("DND5EH.WildMagicConsoleSurgesMessage", data);
-   
-    const chatData = {
+    const content = info.content ?? await renderTemplate(`modules/${MODULE.data.name}/templates/WildMagicSurgeChat.html`, {
+      mainMessage: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", { ...data }),
+      roll: rollHtml.prop("outerHTML")
+    });
+
+    return {
       content,
       speaker,
-      whisper, 
-    }
-
-    return chatData;
+      whisper,
+    };
   }
 
   /**
@@ -524,7 +533,7 @@ export class DnDWildMagic {
       }
     }
 
-    results.chatData = WildMagic.generateChatData({
+    results.chatData = await WildMagic.generateChatData({
       surgeRoll,
       targetRoll,
       surgeOccured,

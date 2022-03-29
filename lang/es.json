@@ -79,7 +79,7 @@
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helper: Sobrecarga volátil - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
     "DND5EH.WildMagicConsoleSurgesCalm" : "mantiene la calma",
     "DND5EH.WildMagicConsoleSurgesSurge" : "se sobrecarga",
-    "DND5EH.WildMagicConsoleSurgesMessage" : "¡<i>{action} se lanza como conjuro de nivel {spellLevel} {extraText}!</i> {resultText}",
+    "DND5EH.WildMagicConsoleSurgesMessage" : "¡Magia Salvaje <strong>{action}</strong> se lanza como conjuro de nivel {spellLevel} {extraText}!",
     "DND5EH.WildMagicConsoleSurgesroll" :"Tirando para sobrecarga...",
     "DND5EH.WildMagicChatSurgesMessage" : "Un espacio de nivel {lvl} fue gastado ({bWasCast}) por un usuario con el rasgo de Magia Salvaje({wmFeatureName})",
     "DND5EH.WildMagicChatSpeakerName": "La Urdimbre",
