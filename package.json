@@ -1,5 +1,8 @@
 {
   "scripts": {
-    "doc": "jsdoc -c jsdoc.conf"
+    "doc": "jsdoc --configure jsdoc.conf"
+  },
+  "dependencies": {
+    "clean-jsdoc-theme": "^3.3.4"
   }
 }

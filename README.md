@@ -17,9 +17,9 @@ Little helpers for little 5e tasks.
   - The homebrew variants look for the designated Tides of Chaos feature and expects it to have "X uses per long rest". Will also recharge an actor resource of the same name, if present.
 - Blind draw surge table results, which hides the results of the surge from the players.
 
-![special_traits](https://user-images.githubusercontent.com/14878515/160881349-efce8f09-a39e-4fb9-98d9-e31cfcd85038.jpg)
+![special-traits](https://user-images.githubusercontent.com/14878515/160881349-efce8f09-a39e-4fb9-98d9-e31cfcd85038.jpg)
 
-![updated_surge_msg](https://user-images.githubusercontent.com/14878515/160877584-a7112dda-fefe-46e9-a3da-07fa3687822b.png)
+![updated-surge-msg](https://user-images.githubusercontent.com/14878515/160877584-a7112dda-fefe-46e9-a3da-07fa3687822b.png)
 
 ### Combat Action Management
 
@@ -33,7 +33,7 @@ Little helpers for little 5e tasks.
 - When the action HUD is visible, clicking on an action icon will consume that action, clicking a used action will restore it for use.
 - Note: This management is for display purposes only and will not interfere with item use.
 
-![action_hud](https://user-images.githubusercontent.com/14878515/160882602-3e58868e-9e6e-444b-88b4-5189e647271e.jpg)
+![action-hud](https://user-images.githubusercontent.com/14878515/160882602-3e58868e-9e6e-444b-88b4-5189e647271e.jpg)
 
 #### Added `Token` Methods
 
@@ -43,7 +43,7 @@ Little helpers for little 5e tasks.
 
   - `return value` {Object | `false`}: Current set of used actions and their counts, or `false` if any part of the update failed -- typically due to incorrect action type string.
 
-[hud_demo](https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4)
+[Action Mgmt HUD DEMO](https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4)
 
 ### Legendary Action Reset on End of Turn
 
@@ -72,8 +72,8 @@ Little helpers for little 5e tasks.
 - Line and cone scaling can be enabled independently from circle scaling.
   - Circle templates less than 1 grid unit in radius will not be converted. These small templates are often useful for creating quick token-like markers on the board or used for macros which need the centerpoint maintained.
 
-![ray_scaling](https://user-images.githubusercontent.com/14878515/160877997-267b01a5-e19f-475a-97ab-4fe2f381dd41.gif)
-![circle_scaling](https://user-images.githubusercontent.com/14878515/160877936-8839866d-ae81-499b-b373-4032890b05ed.gif)
+![ray-scaling](https://user-images.githubusercontent.com/14878515/160877997-267b01a5-e19f-475a-97ab-4fe2f381dd41.gif)
+![circle-scaling](https://user-images.githubusercontent.com/14878515/160877936-8839866d-ae81-499b-b373-4032890b05ed.gif)
 
 ### Cover Calculator
 
@@ -92,7 +92,7 @@ Little helpers for little 5e tasks.
 
 Helpers provides built-in functionality for managing cover in a simple manner. Other modules may interact with Helper's output, or supercede it entirely. If this is the case, please consult the other module's instructions or readme and configure the Helpers cover calculator settings appropriately.
 
-[cover_debug](https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4)
+[Cover Debug Demo](https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4)
 
 ### Cover Application
 
@@ -110,7 +110,7 @@ Helpers provides built-in functionality for managing cover in a simple manner. O
 - Adds an additional option to Active Effects that allows removal of effect on a short or long rest.
 
 
-![rest_effects](https://user-images.githubusercontent.com/14878515/160878529-a5106714-af70-494b-b34b-4c6c372831a6.png)
+![rest-effects](https://user-images.githubusercontent.com/14878515/160878529-a5106714-af70-494b-b34b-4c6c372831a6.png)
 
 ### Auto Regeneration
 
@@ -119,14 +119,14 @@ Helpers provides built-in functionality for managing cover in a simple manner. O
   - The search phrase is localized for your supported language.
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
-![regen_feature](https://user-images.githubusercontent.com/14878515/160883756-f3e9d5b3-0107-40d2-9e40-34a03e4dcdd7.jpg)
+![regen-feature](https://user-images.githubusercontent.com/14878515/160883756-f3e9d5b3-0107-40d2-9e40-34a03e4dcdd7.jpg)
 
 ### Regen Blocking
 
 - Feature to prevent the auto regen popup
 - Matches and active effect of the specified name (case specific)
 
-![block_regen](https://user-images.githubusercontent.com/14878515/160883283-da1412ac-8afa-4c1d-b79d-c4e9f524ca34.jpg)
+![block-regen](https://user-images.githubusercontent.com/14878515/160883283-da1412ac-8afa-4c1d-b79d-c4e9f524ca34.jpg)
 
 ### Undead Fortitude
 
