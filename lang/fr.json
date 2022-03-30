@@ -15,10 +15,28 @@
     "setting.effectIconScale.name": "Echelle d'effet des statuts",
     "setting.effectIconScale.hint": "Multiplicateur appliqué à la taille d'icône par défaut de 20px",
 
+    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
+    "DND5EH.ConfigApp.return": "Back",
+    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
+    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
+    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
+    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
+
+    "DND5EH.groupLabel.system": "System Helpers",
+    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
+    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
+    "DND5EH.groupLabel.combat": "Combat Helpers",
+    "DND5EH.groupLabel.misc": "Misc",
+
     "DND5EH.flagsNoCover" : "Ignorer la moitié et les trois quarts de la couverture",
     "DND5EH.flagsNoCoverHint" : "fourni pas des dons.",
     "DND5EH.flagsWildMagic" : "Sursaut de magie sauvage",
     "DND5EH.flagsWildMagicHint" : "Activité l'automatisation de Sursaut de magie sauvage",
+    "DND5EH.flagsNoCoverOptionNone" : "Don't ignore any cover.",
+    "DND5EH.flagsNoCoverOptionHalf" : "Ignore half cover.",
+    "DND5EH.flagsNoCoverOptionThreeQ" : "Ignore half and three-quarters cover.",
+    "DND5EH.flagsNoCoverOptionFull" : "Ignore all cover.",
 
     "setting.gridTemplateScaling.name": "Ajuster automatiquement les Templates sur la grille 5e",
     "setting.gridTemplateScaling.hint":"Les lignes et les cônes auront leur longueur mise à l'échelle. Les cercles seront convertis en un rectangle de surface équivalente. Cela cherche à correspondre à la distance de grille 5e lorsque des mesures diagonales sont impliquées dans le placement du modèle.",
@@ -33,6 +51,8 @@
     "setting.losSystem.hint": "Selects algorithm to be used during cover checks, or disables this feature entirely.",
     "option.losOnTarget.center":"Vision du point centrale (Foundry Vision)",
     "option.losOnTarget.corner":"Vision des 4 coins (DMG pg. 251)",
+    "setting.debugDrawing.name": "Debug Line-of-Sight",
+    "setting.debugDrawing.hint": "Renders the sight rays used in the latest cover calculation. Refresh to clear drawing.",
     "DND5EH.LoS_nocover": "Pas de couvert",
     "DND5EH.LoS_halfcover":"Demi-couvert",
     "DND5EH.LoS_34cover":"3/4 couvert",
@@ -64,6 +84,8 @@
     "setting.losWithTokens.hint": "Si la case n'est pas cochée, les jetons ne sont pas pris en compte pour le calcul de la couverture.",
     "setting.losMaskNPC.name": "Masquer les informations MJ du rapport de couverture",
     "setting.losMaskNPC.hint": "Remplace les utilisations du nom du PNJ par \"Une créature\" lors du rapport de couverture et chuchote les vérifications de couverture demandées par le MJ.",
+    "setting.whisperToSelf.name":"Whisper cover report to self",
+    "setting.whisperToSelf.hint":"Whisper the cover report only to yourself instead of also whispering it to the GM",
 
     "setting.losWithTiles.name": "Couverture de tuile",
     "setting.losWithTiles.hint": "Permettre aux tuiles d'être prises en compte dans le calcul de la couverture",
@@ -73,7 +95,10 @@
     "option.wmOptions.standard": "Activé - Standard (MdJ)",
     "option.wmOptions.more": "Activé - Plus",
     "option.wmOptions.volatile": "Activé - Volatile",
-    "option.wmOptions.custom" : "Activé - Personnalisés de lancement des dés",
+
+    "setting.wmRollMode.name": "Table Roll Mode",
+    "setting.wmRollMode.hint": "Default uses the client's current roll mode.",
+
     "DND5EH.WildMagicConsoleNormalSurgeLog" : "DnD5e Helper: Sursaut normal - {d20result}",
     "DND5EH.WildMagicConsoleMoreSurgeLog" : "DnD5e Helper: Sursaut plus - {d20result} vs {spellLevel}",
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helper: Sursaut volatile - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
@@ -105,6 +130,9 @@
     "setting.actionsAsStatus.name": "Afficher les actions utilisées comme effet de statut",
     "setting.actionsAsStatus.hint": "Afficher les actions utilisées de cette manière permet aux non-propriétaires de voir quelles actions un acteur a utilisées ce tour.",
     "option.actionsAsStatus.onlyReaction": "Uniquement les Réactions", 
+
+    "setting.actionMgmtDisplay.name": "Enable Action Management HUD",
+    "setting.actionMgmtDisplay.hint": "Client-side setting for preferred HUD display style.",
 
     "setting.legendaryActionRecharge.name":"Réinitialisation de l'action légendaire du début du tour.",
     "setting.legendaryActionRecharge.hint":"Active ou désactive cette fonctionnalité (global)",
@@ -153,6 +181,9 @@
     "DND5EH.UndeadFort_failsafe":"{tokenName} lancement de dès contre JS {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Dégâts sur la cible:",
 
+    "DND5EH.flagsUndeadFortitude":"Undead Fortitude Equivalent",
+    "DND5EH.flagsUndeadFortitudeHint":"Grants the actor the effects of Undead Fortitude even if they do not have the relevant feature.",
+
     "setting.lairActionHelper.name" : "Invite d'Action de Repaire",
     "setting.lairActionHelper.hint" : "Invite le MJ à effectuer des actions de repaire au nombre d'initiatives 20, puise parmi les combattants actifs",
     "setting.legendaryActionHelper.name" : "Invite d'Action Légendaire",
@@ -160,6 +191,10 @@
 
     "setting.GreatWoundEnable.name":"Blessure grave",
     "setting.GreatWoundEnable.hint":"Lance un dès sur une table spécifiée lorsqu'un jeton prend plus de 50% de HP max en un seul coup,",
+    "setting.GreatWoundTriggerPct.name": "Trigger: Percent of Max HP",
+    "setting.GreatWoundTriggerPct.hint": "Percentage of maximum hit points taken as damage to trigger a great wound. A value of 0 disables this threshold check. Default: 50.",
+    "setting.GreatWoundTriggerFlat.name": "Trigger: Flat Damage",
+    "setting.GreatWoundTriggerFlat.hint": "Total amount of damage taken from a single source to trigger a great wound. A value of 0 disables this threshold check. Default: 0.",
 
     "DND5EH.GreatWoundDialogTitle" : "{gwFeatureName} lance un dès pour {actorName}",
     "DND5EH.GreatWoundDialogContents" : "Invitez l'utilisateur contrôlant {actorName} à effectuer une sauvegarde contre un JS{DC}",

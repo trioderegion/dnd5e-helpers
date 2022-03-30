@@ -2,24 +2,10 @@
     "setting.ConfigOption.name": "Configure Settings",
     "setting.ConfigOption.label": "Open Helpers Settings",
 
-    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
-    "DND5EH.ConfigApp.return": "Back",
-    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
-    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
-    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
-    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
-    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
-
     "option.default.disabled" : "Disabled",
     "option.default.enabled" : "Enabled",
     "option.default.displaySuppressed" : "Enabled (Display Suppressed)",
     "option.default.enabledHover": "Enabled (On Hover)",
-
-    "DND5EH.groupLabel.system": "System Helpers",
-    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
-    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
-    "DND5EH.groupLabel.combat": "Combat Helpers",
-    "DND5EH.groupLabel.misc": "Misc",
 
     "DND5EH.Default_none" : "None", 
     "DND5EH.Default_SocketSetup" :"Dnd5e helpers socket received",
@@ -29,15 +15,28 @@
     "setting.effectIconScale.name": "Status Effect Scale",
     "setting.effectIconScale.hint": "Multiplier applied to the default icon size of 20px",
 
+    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
+    "DND5EH.ConfigApp.return": "Back",
+    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
+    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
+    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
+    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
+
+    "DND5EH.groupLabel.system": "System Helpers",
+    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
+    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
+    "DND5EH.groupLabel.combat": "Combat Helpers",
+    "DND5EH.groupLabel.misc": "Misc",
+
     "DND5EH.flagsNoCover" : "Ignore certain levels of cover",
     "DND5EH.flagsNoCoverHint" : "Provided by feats and magic items.",
+    "DND5EH.flagsWildMagic" : "Wild Magic Surge",
+    "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation using the selected handler.",
     "DND5EH.flagsNoCoverOptionNone" : "Don't ignore any cover.",
     "DND5EH.flagsNoCoverOptionHalf" : "Ignore half cover.",
     "DND5EH.flagsNoCoverOptionThreeQ" : "Ignore half and three-quarters cover.",
     "DND5EH.flagsNoCoverOptionFull" : "Ignore all cover.",
-
-    "DND5EH.flagsWildMagic" : "Wild Magic Surge",
-    "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation",
 
     "setting.gridTemplateScaling.name": "Auto adjust templates to 5e grids",
     "setting.gridTemplateScaling.hint" :"Lines and cones will have their length scaled. Circles will be converted to an equivalent area rectangle. This seeks to match 5e grid distance when diagonal measurements are involved in template placement.",
@@ -92,7 +91,7 @@
     "setting.losWithTiles.hint": "Allow Tiles to be factored into cover calculation.",
 
     "setting.wmOptions.name":  "Wild Magic Auto-Detect",
-    "setting.wmOptions.hint": "Enables or disables auto detection of Wild Magic and how it should be handled. Standard (PHB): as seen on PHB pg. 103. More: surges on d20 <= spell level. Volatile: Similar to More, but adds 1d4 to the spell level if Tides of Chaos has been expended.",
+    "setting.wmOptions.hint": "Enables or disables auto detection of Wild Magic Surges. The specific surge handler is chosen on a per actor basis and is configured via the actor's special traits menu.",
     "option.wmOptions.standard": "Standard (PHB)",
     "option.wmOptions.more": "More Surges",
     "option.wmOptions.volatile": "Volatile Surges",
@@ -194,7 +193,6 @@
     "setting.GreatWoundEnable.hint":"Rolls on a specified table when a token takes over 50% max hp in a single blow. Thresholds can be changed on the 'combat' tab.",
     "setting.GreatWoundTriggerPct.name": "Trigger: Percent of Max HP",
     "setting.GreatWoundTriggerPct.hint": "Percentage of maximum hit points taken as damage to trigger a great wound. A value of 0 disables this threshold check. Default: 50.",
-
     "setting.GreatWoundTriggerFlat.name": "Trigger: Flat Damage",
     "setting.GreatWoundTriggerFlat.hint": "Total amount of damage taken from a single source to trigger a great wound. A value of 0 disables this threshold check. Default: 0.",
 

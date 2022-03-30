@@ -15,10 +15,28 @@
     "setting.effectIconScale.name": "Escala de Efeito de Status",
     "setting.effectIconScale.hint": "Multiplicador aplicado ao tamanho de ícone padrão de 20px",
 
+    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
+    "DND5EH.ConfigApp.return": "Back",
+    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
+    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
+    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
+    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
+
+    "DND5EH.groupLabel.system": "System Helpers",
+    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
+    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
+    "DND5EH.groupLabel.combat": "Combat Helpers",
+    "DND5EH.groupLabel.misc": "Misc",
+
     "DND5EH.flagsNoCover" : "Ignorar cobertura parcial e de três quartos",
     "DND5EH.flagsNoCoverHint" : "Fornecido por talentos",
     "DND5EH.flagsWildMagic" : "Surto de Magia Selvagem",
     "DND5EH.flagsWildMagicHint" : "Permite automação de surto de magia selvagem",
+    "DND5EH.flagsNoCoverOptionNone" : "Don't ignore any cover.",
+    "DND5EH.flagsNoCoverOptionHalf" : "Ignore half cover.",
+    "DND5EH.flagsNoCoverOptionThreeQ" : "Ignore half and three-quarters cover.",
+    "DND5EH.flagsNoCoverOptionFull" : "Ignore all cover.",
 
     "setting.gridTemplateScaling.name": "Autoajustar modelos em grids da 5e",
     "setting.gridTemplateScaling.hint":"Linhas e cones terão seu alcance ajustado. Círculos serão convertidos em um retângulo de área equivalente. Isso busca criar a correspondência de distância do grid da 5e quando medidas diagonais são envolvidas no posicionamento de modelos.",
@@ -33,6 +51,8 @@
     "setting.losSystem.hint": "Seleciona o algoritmo a ser usado durante as verificações de cobertura ou desativa totalmente esse recurso.",
     "option.losOnTarget.center":"Visão do Ponto Central (Visão do Foundry)",
     "option.losOnTarget.corner":"Visão dos Quatro Cantos (DMG, p. 251)",
+    "setting.debugDrawing.name": "Debug Line-of-Sight",
+    "setting.debugDrawing.hint": "Renders the sight rays used in the latest cover calculation. Refresh to clear drawing.",
     "DND5EH.LoS_nocover": "Sem Cobertura",
     "DND5EH.LoS_halfcover":"Cobertura parcial (+2)",
     "DND5EH.LoS_34cover":"Cobertura de três quartos(+5)",
@@ -64,6 +84,8 @@
     "setting.losWithTokens.hint": "Permitir que os tokens sejam considerados no cálculo da cobertura.",
     "setting.losMaskNPC.name": "Ocultar informações do MJ do Relatório de Cobertura",
     "setting.losMaskNPC.hint": "Substitui os usos do nome do PNJ por \"Uma criatura\" ao relatar cobertura e sussurra verificações de cobertura solicitadas pelo MJ.",
+    "setting.whisperToSelf.name":"Whisper cover report to self",
+    "setting.whisperToSelf.hint":"Whisper the cover report only to yourself instead of also whispering it to the GM",
 
     "setting.losWithTiles.name": "Cobertura de Peça",
     "setting.losWithTiles.hint": "Permitir que as Peças sejam consideradas no cálculo da cobertura",
@@ -73,7 +95,10 @@
     "option.wmOptions.standard": "Habilitado - Padrão (PHB)",
     "option.wmOptions.more": "Habilitado - Maior",
     "option.wmOptions.volatile": "Habilitado - Volátil",
-    "option.wmOptions.custom" : "Habilitad - Rolagens de Dados Personalizada",
+
+    "setting.wmRollMode.name": "Table Roll Mode",
+    "setting.wmRollMode.hint": "Default uses the client's current roll mode.",
+
     "DND5EH.WildMagicConsoleNormalSurgeLog" : "DnD5e Helpers: Surto Normal - {d20result}",
     "DND5EH.WildMagicConsoleMoreSurgeLog" : "DnD5e Helpers: Surto Maior - {d20result} vs {spellLevel}",
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helpers: Surto Volátil - {d20result} vs {spellLevel + d4result}(Magia: {spellLevel})(d4: {d4result})",
@@ -105,6 +130,9 @@
     "setting.actionsAsStatus.name": "Exibir Ações Usadas como Efeito de Status",
     "setting.actionsAsStatus.hint": "A exibição de ações usadas dessa maneira permite que não proprietários vejam quais ações um ator usou nesta rodada.",
     "option.actionsAsStatus.onlyReaction": "Somente Reações",
+
+    "setting.actionMgmtDisplay.name": "Enable Action Management HUD",
+    "setting.actionMgmtDisplay.hint": "Client-side setting for preferred HUD display style.",
 
     "setting.legendaryActionRecharge.name":"Reiniciar ação lendária no início do turno.",
     "setting.legendaryActionRecharge.hint":"Habilitar ou desabilitar essa função (global).",
@@ -153,6 +181,9 @@
     "DND5EH.UndeadFort_failsafe":"{tokenName} rola contra CD {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Dano ao alvo:",
 
+    "DND5EH.flagsUndeadFortitude":"Undead Fortitude Equivalent",
+    "DND5EH.flagsUndeadFortitudeHint":"Grants the actor the effects of Undead Fortitude even if they do not have the relevant feature.",
+
     "setting.lairActionHelper.name" : "Solicitação de Ação do Covil",
     "setting.lairActionHelper.hint" : "Solicita ao MJ ações de covil na contagem de iniciativa 20, depois dos combatentes ativos",
     "setting.legendaryActionHelper.name" : "Solicitação de Ação Lendária",
@@ -160,6 +191,10 @@
 
     "setting.GreatWoundEnable.name":"Dano Maciço",
     "setting.GreatWoundEnable.hint":"Rola em uma tabela quando um alvo perde mais de 50% dos PV em um único golpe.",
+    "setting.GreatWoundTriggerPct.name": "Trigger: Percent of Max HP",
+    "setting.GreatWoundTriggerPct.hint": "Percentage of maximum hit points taken as damage to trigger a great wound. A value of 0 disables this threshold check. Default: 50.",
+    "setting.GreatWoundTriggerFlat.name": "Trigger: Flat Damage",
+    "setting.GreatWoundTriggerFlat.hint": "Total amount of damage taken from a single source to trigger a great wound. A value of 0 disables this threshold check. Default: 0.",
 
     "DND5EH.GreatWoundDialogTitle" : "Rolagem de {gwFeatureName} para {actorName}",
     "DND5EH.GreatWoundDialogContents" : "Solicita ao Usuário que controla {actorName} que faça uma Salvaguarda contra CD {DC}",

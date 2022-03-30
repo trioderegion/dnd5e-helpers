@@ -15,10 +15,28 @@
     "setting.effectIconScale.name": "상태 효과 조절",
     "setting.effectIconScale.hint": "승수가 기본 아이콘 크기인 20pxdp 적용된다.",
 
+    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
+    "DND5EH.ConfigApp.return": "Back",
+    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
+    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
+    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
+    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
+
+    "DND5EH.groupLabel.system": "System Helpers",
+    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
+    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
+    "DND5EH.groupLabel.combat": "Combat Helpers",
+    "DND5EH.groupLabel.misc": "Misc",
+
     "DND5EH.flagsNoCover" : "절반 및 3/4 엄폐 무시",
     "DND5EH.flagsNoCoverHint" : "피트에 따라 적용된다",
     "DND5EH.flagsWildMagic" : "야생 마법 여파",
     "DND5EH.flagsWildMagicHint" : "야생 마법 여파 자동화 활성화",
+    "DND5EH.flagsNoCoverOptionNone" : "Don't ignore any cover.",
+    "DND5EH.flagsNoCoverOptionHalf" : "Ignore half cover.",
+    "DND5EH.flagsNoCoverOptionThreeQ" : "Ignore half and three-quarters cover.",
+    "DND5EH.flagsNoCoverOptionFull" : "Ignore all cover.",
 
     "setting.gridTemplateScaling.name": "템플릿을 5E 그리드로 자동 조정",
     "setting.gridTemplateScaling.hint": "선과 원뿔의 길이가 조정된다. 원이 동일한 직사각형 영역으로 변환된다. 이것은 대각선 측정이 템플릿 배치에 포함될 때 5e 그리드 거리를 일치시키려 한다.",
@@ -33,6 +51,8 @@
     "setting.losSystem.hint": "Selects algorithm to be used during cover checks, or disables this feature entirely.",
     "option.losOnTarget.center":"중앙 지점 시야 (Foundry 시야)",
     "option.losOnTarget.corner":"네 모서리 시야 (DMG pg. 251)",
+    "setting.debugDrawing.name": "Debug Line-of-Sight",
+    "setting.debugDrawing.hint": "Renders the sight rays used in the latest cover calculation. Refresh to clear drawing.",
     "DND5EH.LoS_nocover": "엄폐 없음",
     "DND5EH.LoS_halfcover":"절반 엄폐 (+2)",
     "DND5EH.LoS_34cover":"3/4 엄폐 (+5)",
@@ -64,6 +84,8 @@
     "setting.losWithTokens.hint": "토큰에 엄폐 계산을 적용한다.",
     "setting.losMaskNPC.name": "엄폐 보고에서 GM 정보 숨기기",
     "setting.losMaskNPC.hint": "엄폐 보고 시 NPC 이름을 \"한 생물\"로 대체하여 GM에게 엄폐 결과를 귓속말로 출력한다.",
+    "setting.whisperToSelf.name":"Whisper cover report to self",
+    "setting.whisperToSelf.hint":"Whisper the cover report only to yourself instead of also whispering it to the GM",
 
     "setting.losWithTiles.name": "타일 엄폐",
     "setting.losWithTiles.hint": "타일에 엄폐 계산을 적용한다.",
@@ -73,7 +95,10 @@
     "option.wmOptions.standard": "활성화 - 표준 (PHB)",
     "option.wmOptions.more": "활성화 - 추가",
     "option.wmOptions.volatile": "활성화 - 불안정",
-    "option.wmOptions.custom" : "활성화 - 커스텀 주사위 굴리기",
+
+    "setting.wmRollMode.name": "Table Roll Mode",
+    "setting.wmRollMode.hint": "Default uses the client's current roll mode.",
+
     "DND5EH.WildMagicConsoleNormalSurgeLog" : "DnD5e Helper: 기본 여파 - {d20result}",
     "DND5EH.WildMagicConsoleMoreSurgeLog" : "DnD5e Helper: 추가 여파 - {d20result} vs {spellLevel}",
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helper: 불안정 여파 - {d20result} vs {spellLevel + d4result}(주문: {spellLevel})(d4: {d4result})",
@@ -105,6 +130,9 @@
     "setting.actionsAsStatus.name": "사용된 행동을 상태 효과로 표시",
     "setting.actionsAsStatus.hint": "어떤 행동을 사용했는지 토큰의 상태에 표시하여 비소유자가 확인할 수 있다.",
     "option.actionsAsStatus.onlyReaction": "반응 행동만",
+
+    "setting.actionMgmtDisplay.name": "Enable Action Management HUD",
+    "setting.actionMgmtDisplay.hint": "Client-side setting for preferred HUD display style.",
 
     "setting.legendaryActionRecharge.name":"턴 시작 시 전설적 행동 리셋",
     "setting.legendaryActionRecharge.hint":"이 기능을 활성화/비활성화 한다. (전반적)",
@@ -153,6 +181,9 @@
     "DND5EH.UndeadFort_failsafe":"{tokenName} 캐릭터가 DC {dc}의 굴림을 합니다.",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "대상에 대한 피해:",
 
+    "DND5EH.flagsUndeadFortitude":"Undead Fortitude Equivalent",
+    "DND5EH.flagsUndeadFortitudeHint":"Grants the actor the effects of Undead Fortitude even if they do not have the relevant feature.",
+
     "setting.lairActionHelper.name" : "소굴 행동 출력",
     "setting.lairActionHelper.hint" : "GM의 우선권 굴림이 20일 시 소굴 행동을 출력한다.",
     "setting.legendaryActionHelper.name" : "전설적 행동 출력",
@@ -160,6 +191,10 @@
 
     "setting.GreatWoundEnable.name":"심각한 부상",
     "setting.GreatWoundEnable.hint":"토큰이 한 번의 피해로 최대 Hp의 절반을 넘는 손실을 입으면 지정된 굴림표에서 굴림을 한다.",
+    "setting.GreatWoundTriggerPct.name": "Trigger: Percent of Max HP",
+    "setting.GreatWoundTriggerPct.hint": "Percentage of maximum hit points taken as damage to trigger a great wound. A value of 0 disables this threshold check. Default: 50.",
+    "setting.GreatWoundTriggerFlat.name": "Trigger: Flat Damage",
+    "setting.GreatWoundTriggerFlat.hint": "Total amount of damage taken from a single source to trigger a great wound. A value of 0 disables this threshold check. Default: 0.",
 
     "DND5EH.GreatWoundDialogTitle" : "{actorName}에게 {gwFeatureName} 굴림",
     "DND5EH.GreatWoundDialogContents" : "유저가 제어 중인 {actorName} 캐릭터에게 난이도 {DC}의 내성굴림을 출력합니다.",

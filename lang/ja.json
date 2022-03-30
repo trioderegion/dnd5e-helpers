@@ -15,10 +15,28 @@
     "setting.effectIconScale.name": "状態アイコンの拡縮",
     "setting.effectIconScale.hint": "標準のアイコンサイズ（20px）に適用される乗数を指定します。",
 
+    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
+    "DND5EH.ConfigApp.return": "Back",
+    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
+    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
+    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
+    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
+
+    "DND5EH.groupLabel.system": "System Helpers",
+    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
+    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
+    "DND5EH.groupLabel.combat": "Combat Helpers",
+    "DND5EH.groupLabel.misc": "Misc",
+
     "DND5EH.flagsNoCover" : "1/2と3/4の遮蔽を無視する",
     "DND5EH.flagsNoCoverHint" : "特技によって遮蔽を無視できることがあります。",
     "DND5EH.flagsWildMagic" : "魔法暴走",
     "DND5EH.flagsWildMagicHint" : "魔法暴走の自動化を有効化します。",
+    "DND5EH.flagsNoCoverOptionNone" : "Don't ignore any cover.",
+    "DND5EH.flagsNoCoverOptionHalf" : "Ignore half cover.",
+    "DND5EH.flagsNoCoverOptionThreeQ" : "Ignore half and three-quarters cover.",
+    "DND5EH.flagsNoCoverOptionFull" : "Ignore all cover.",
 
     "setting.gridTemplateScaling.name": "テンプレートを5eグリッドに自動調整",
     "setting.gridTemplateScaling.hint":"線と円錐は距離がスケーリングされます。球形は同等の面積の矩形に変換されます。これはテンプレートの対角線を5eのグリッド距離測定に沿わせるものです。",
@@ -33,6 +51,8 @@
     "setting.losSystem.hint": "Selects algorithm to be used during cover checks, or disables this feature entirely.",
     "option.losOnTarget.center":"中心点からの視線（FVTTの視界準拠）",
     "option.losOnTarget.corner":"四隅の一点からの視線（DMG p.251）",
+    "setting.debugDrawing.name": "Debug Line-of-Sight",
+    "setting.debugDrawing.hint": "Renders the sight rays used in the latest cover calculation. Refresh to clear drawing.",
     "DND5EH.LoS_nocover": "遮蔽なし",
     "DND5EH.LoS_halfcover":"1/2遮蔽（+2）",
     "DND5EH.LoS_34cover":"3/4遮蔽（+5）",
@@ -64,6 +84,8 @@
     "setting.losWithTokens.hint": "遮蔽判定時にコマが考慮されるようになります。",
     "setting.losMaskNPC.name": "遮蔽判定からDM向け情報を隠す",
     "setting.losMaskNPC.hint": "遮蔽判定にDMへの秘話を使い、またNPCの名前を「不明なクリーチャー」に置き換えます。",
+    "setting.whisperToSelf.name":"Whisper cover report to self",
+    "setting.whisperToSelf.hint":"Whisper the cover report only to yourself instead of also whispering it to the GM",
 
     "setting.losWithTiles.name": "タイルによる遮蔽",
     "setting.losWithTiles.hint": "遮蔽判定にタイルが考慮されるようになります。",
@@ -73,7 +95,10 @@
     "option.wmOptions.standard": "有効 - 標準（PHB）",
     "option.wmOptions.more": "有効 - 刺激的",
     "option.wmOptions.volatile": "有効 - 不安定",
-    "option.wmOptions.custom" : "有効 - カスタムダイスロール",
+
+    "setting.wmRollMode.name": "Table Roll Mode",
+    "setting.wmRollMode.hint": "Default uses the client's current roll mode.",
+
     "DND5EH.WildMagicConsoleNormalSurgeLog" : "DnD5e Helpers：標準的暴走 - {d20result}",
     "DND5EH.WildMagicConsoleMoreSurgeLog" : "DnD5e Helpers：刺激的暴走 - {d20result} vs {spellLevel}",
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helpers：不安定な暴走 - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
@@ -105,6 +130,9 @@
     "setting.actionsAsStatus.name": "使用したアクションを状態として表示する",
     "setting.actionsAsStatus.hint": "状態として表示することで、どのアクションが使用済かをコマの所有者以外も確認できるようにします。",
     "option.actionsAsStatus.onlyReaction": "リアクションのみ",
+
+    "setting.actionMgmtDisplay.name": "Enable Action Management HUD",
+    "setting.actionMgmtDisplay.hint": "Client-side setting for preferred HUD display style.",
 
     "setting.legendaryActionRecharge.name":"ターン開始時に伝説アクションをリセットする",
     "setting.legendaryActionRecharge.hint":"この機能の有効/無効を切り替えます（グローバル設定）",
@@ -153,6 +181,9 @@
     "DND5EH.UndeadFort_failsafe":"{tokenName} rolls against DC {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "対象へのダメージ：",
 
+    "DND5EH.flagsUndeadFortitude":"Undead Fortitude Equivalent",
+    "DND5EH.flagsUndeadFortitudeHint":"Grants the actor the effects of Undead Fortitude even if they do not have the relevant feature.",
+
     "setting.lairActionHelper.name":"住処アクションの通知",
     "setting.lairActionHelper.hint" : "アクティブな戦闘参加者から住処アクションを検索し、イニシアチブ20の時点でDMに使用を促します。",
     "setting.legendaryActionHelper.name" : "伝説アクションの通知",
@@ -160,6 +191,10 @@
 
     "setting.GreatWoundEnable.name":"痛打",
     "setting.GreatWoundEnable.hint":"一撃で最大hpの50％を超えるダメージを受けたときに、指定した表をロールします。",
+    "setting.GreatWoundTriggerPct.name": "Trigger: Percent of Max HP",
+    "setting.GreatWoundTriggerPct.hint": "Percentage of maximum hit points taken as damage to trigger a great wound. A value of 0 disables this threshold check. Default: 50.",
+    "setting.GreatWoundTriggerFlat.name": "Trigger: Flat Damage",
+    "setting.GreatWoundTriggerFlat.hint": "Total amount of damage taken from a single source to trigger a great wound. A value of 0 disables this threshold check. Default: 0.",
 
     "DND5EH.GreatWoundDialogTitle" : "{actorName}の{gwFeatureName}ロール",
     "DND5EH.GreatWoundDialogContents" : "{actorName}の操作プレイヤーにDC{DC}のセーヴを求めます。",

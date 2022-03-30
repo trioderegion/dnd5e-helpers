@@ -15,10 +15,28 @@
     "setting.effectIconScale.name": "Status Effect Scale",
     "setting.effectIconScale.hint": "Multiplier applied to the default icon size of 20px",
 
+    "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
+    "DND5EH.ConfigApp.return": "Back",
+    "DND5EH.SubModule.DnDWildMagic.label": "Wild Magic Helpers",
+    "DND5EH.SubModule.CoverCalculator.label": "Cover Calculator Configuration",
+    "DND5EH.SubModule.UndeadFortitude.label": "Undead Fortitude Helpers",
+    "DND5EH.SubModule.GreatWounds.label": "Variant Rule: Great Wounds",
+    "DND5EH.SubModule.OpenWounds.label": "Variant Rule: Open Wounds",
+
+    "DND5EH.groupLabel.system": "System Helpers",
+    "DND5EH.groupLabel.npcFeatures": "NPC Feature Helpers",
+    "DND5EH.groupLabel.pcFeatures": "PC Feature Helpers",
+    "DND5EH.groupLabel.combat": "Combat Helpers",
+    "DND5EH.groupLabel.misc": "Misc",
+
     "DND5EH.flagsNoCover" : "Ignore half and three-quaters cover",
     "DND5EH.flagsNoCoverHint" : "Provided by feats.",
     "DND5EH.flagsWildMagic" : "Wild Magic Surge",
-    "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation",
+    "DND5EH.flagsWildMagicHint" : "Enables wild magic surge automation using the selected handler.",
+    "DND5EH.flagsNoCoverOptionNone" : "Don't ignore any cover.",
+    "DND5EH.flagsNoCoverOptionHalf" : "Ignore half cover.",
+    "DND5EH.flagsNoCoverOptionThreeQ" : "Ignore half and three-quarters cover.",
+    "DND5EH.flagsNoCoverOptionFull" : "Ignore all cover.",
 
     "setting.gridTemplateScaling.name": "Auto ajustar plantillas a la cuadrícula de 5e",
     "setting.gridTemplateScaling.hint":"Se ajustará la longitud de líneas y conos. Los círculos serán convertidos a un rectángulo de área equivalente. La intención es armonizar la distancia de la cuadrícula de 5e a la hora de calcular distancias diagonales en las plantillas.",
@@ -33,6 +51,8 @@
     "setting.losSystem.hint": "Selects algorithm to be used during cover checks, or disables this feature entirely.",
     "option.losOnTarget.center":"Visión de punto central (visión de Foundry)",
     "option.losOnTarget.corner":"Visión de cuatro esquinas (Four Corner Vision ,DMG pg. 251)",
+    "setting.debugDrawing.name": "Debug Line-of-Sight",
+    "setting.debugDrawing.hint": "Renders the sight rays used in the latest cover calculation. Refresh to clear drawing.",
     "DND5EH.LoS_nocover": "Sin cobertura",
     "DND5EH.LoS_halfcover":"Cobertura media",
     "DND5EH.LoS_34cover":"Cobertura 3 cuartos",
@@ -64,6 +84,8 @@
     "setting.losWithTokens.hint": "Resultados sin comprobar de tokens no se usan para calcular cob.",
     "setting.losMaskNPC.name": "No mostrar información del GM del Anuncio de Cob.",
     "setting.losMaskNPC.hint": "Reemplaza el nombre del PNJ por \"Una criatura\" al anunciar cob. y susurra control de cob. pedido por el GM..",
+    "setting.whisperToSelf.name":"Whisper cover report to self",
+    "setting.whisperToSelf.hint":"Whisper the cover report only to yourself instead of also whispering it to the GM",
 
     "setting.losWithTiles.name": "Tile Cover",
     "setting.losWithTiles.hint": "Allow Tiles to be factored into cover calculation",
@@ -73,7 +95,10 @@
     "option.wmOptions.standard": "Activado - Estándar (PHB)",
     "option.wmOptions.more": "Activado - Más",
     "option.wmOptions.volatile": "Activado - Volátil",
-    "option.wmOptions.custom" : "Enabled - Custom Dice Rolls",
+
+    "setting.wmRollMode.name": "Table Roll Mode",
+    "setting.wmRollMode.hint": "Default uses the client's current roll mode.",
+
     "DND5EH.WildMagicConsoleNormalSurgeLog" : "DnD5e Helper: Sobrecarga normal - {d20result}",
     "DND5EH.WildMagicConsoleMoreSurgeLog" : "DnD5e Helper: Más sobrecarga - {d20result} vs {spellLevel}",
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helper: Sobrecarga volátil - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
@@ -105,6 +130,9 @@
     "setting.actionsAsStatus.name": "Display Used Actions as Status Effect",
     "setting.actionsAsStatus.hint": "Displaying used actions in this way allows non-owners to see which actions an actor has used this round.",
     "option.actionsAsStatus.onlyReaction": "Only Reactions",
+
+    "setting.actionMgmtDisplay.name": "Enable Action Management HUD",
+    "setting.actionMgmtDisplay.hint": "Client-side setting for preferred HUD display style.",
 
     "setting.legendaryActionRecharge.name":"Reinicio de acciones legendarias al inicio del turno",
     "setting.legendaryActionRecharge.hint":"Activa o desactiva esta función (global)",
@@ -153,6 +181,9 @@
     "DND5EH.UndeadFort_failsafe":"{tokenName} rolls against DC {dc}",
     "DND5EH.UndeadFort_slowdialogcontentquery" : "Daño al objetivo:",
 
+    "DND5EH.flagsUndeadFortitude":"Undead Fortitude Equivalent",
+    "DND5EH.flagsUndeadFortitudeHint":"Grants the actor the effects of Undead Fortitude even if they do not have the relevant feature.",
+
     "setting.lairActionHelper.name" : " Lair Action Prompt",
     "setting.lairActionHelper.hint" : " Prompts GM for lair actions at initiative count 20, draws from active combatants",
     "setting.legendaryActionHelper.name" : "Legendary Action Prompt",
@@ -160,6 +191,10 @@
 
     "setting.GreatWoundEnable.name":"Daño Masivo",
     "setting.GreatWoundEnable.hint":"Tira en una tabla específica cuando un token recibe más de un 50% de su vida máxima de daño en un solo golpe",
+    "setting.GreatWoundTriggerPct.name": "Trigger: Percent of Max HP",
+    "setting.GreatWoundTriggerPct.hint": "Percentage of maximum hit points taken as damage to trigger a great wound. A value of 0 disables this threshold check. Default: 50.",
+    "setting.GreatWoundTriggerFlat.name": "Trigger: Flat Damage",
+    "setting.GreatWoundTriggerFlat.hint": "Total amount of damage taken from a single source to trigger a great wound. A value of 0 disables this threshold check. Default: 0.",
 
     "DND5EH.GreatWoundDialogTitle" : "Tirada de {gwFeatureName} para {actorName}",
     "DND5EH.GreatWoundDialogContents" : "Prompt the User controlling {actorName} to roll a save against DC{DC}",
