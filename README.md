@@ -10,9 +10,6 @@ Little helpers for little 5e tasks.
 ### Automatic Wild Magic Surge
 
 - To enable, select a Surge option from the Feature Helpers config tab and then set the special trait for actors that should surge on casting a spell.
-
-![Special traits](https://user-images.githubusercontent.com/62909799/158481682-550e9ebe-992a-412f-a957-b1fb24dad992.jpg)
-
 - Triggers on _any_ reduction in current spell slots from a character with the 'Wild Magic Surge' special trait
 - Optional homebrews
   - More Surges - a surge triggers on a roll <= spell level. Also recharges Tides of Chaos.
@@ -20,7 +17,9 @@ Little helpers for little 5e tasks.
   - The homebrew variants look for the designated Tides of Chaos feature and expects it to have "X uses per long rest". Will also recharge an actor resource of the same name, if present.
 - Blind draw surge table results, which hides the results of the surge from the players.
 
-![WildSurge](.github/surge-output.webp)
+![special_traits](https://user-images.githubusercontent.com/14878515/160881349-efce8f09-a39e-4fb9-98d9-e31cfcd85038.jpg)
+
+![updated_surge_msg](https://user-images.githubusercontent.com/14878515/160877584-a7112dda-fefe-46e9-a3da-07fa3687822b.png)
 
 ### Combat Action Management
 
@@ -33,6 +32,8 @@ Little helpers for little 5e tasks.
 - Used actions can optionally be displayed as status effects for easier tracking.
 - When the action HUD is visible, clicking on an action icon will consume that action, clicking a used action will restore it for use.
 - Note: This management is for display purposes only and will not interfere with item use.
+
+![action_hud](https://user-images.githubusercontent.com/14878515/160882602-3e58868e-9e6e-444b-88b4-5189e647271e.jpg)
 
 #### Added `Token` Methods
 
@@ -56,7 +57,7 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
 - Tracks current available uses of legendary actions.
 - A creature's legendary and lair actions will be indexed when first added to the tracker. Only items with an activation cost of "Legendary Action" or "Lair Action" will be indexed.
 
-![Lair Legendary Helper](.github/lair-legend-helpers.webp)
+![lair-legend-helpers](https://user-images.githubusercontent.com/14878515/160878262-3be912cd-eb7b-4870-af6f-3e644001e924.png)
 
 ### Recharge Abilities on Start of Turn
 
@@ -71,8 +72,8 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
 - Line and cone scaling can be enabled independently from circle scaling.
   - Circle templates less than 1 grid unit in radius will not be converted. These small templates are often useful for creating quick token-like markers on the board or used for macros which need the centerpoint maintained.
 
-![Line Scaling](.github/ray_scaling.gif)
-![Circle Scaling](.github/circle_scaling.gif)
+![ray_scaling](https://user-images.githubusercontent.com/14878515/160877997-267b01a5-e19f-475a-97ab-4fe2f381dd41.gif)
+![circle_scaling](https://user-images.githubusercontent.com/14878515/160877936-8839866d-ae81-499b-b373-4032890b05ed.gif)
 
 ### Cover Calculator
 
@@ -103,12 +104,13 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 - Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ). Said flags accepts values of 0,1,2 or 3 which allows the actor to ignore no, half, three-quarters or full cover respectively. To ensure legacy compatibility values of true are also accepted but identical in functionality to a value of 2.
 - Cover penalties can be optionally removed at the end of the token's turn.
 
-![Cover Report](.github/cover-report.webp)
+![cover-report](https://user-images.githubusercontent.com/14878515/160878446-27b78ac7-5790-4d37-8fb5-e38b59babfc6.png)
 
 ### Rest Effects
 - Adds an additional option to Active Effects that allows removal of effect on a short or long rest.
 
-![Rest Effects](.github/rest_effects.webp)
+
+![rest_effects](https://user-images.githubusercontent.com/14878515/160878529-a5106714-af70-494b-b34b-4c6c372831a6.png)
 
 ### Auto Regeneration
 
@@ -117,10 +119,14 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
   - The search phrase is localized for your supported language.
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
+![regen_feature](https://user-images.githubusercontent.com/14878515/160883756-f3e9d5b3-0107-40d2-9e40-34a03e4dcdd7.jpg)
+
 ### Regen Blocking
 
 - Feature to prevent the auto regen popup
 - Matches and active effect of the specified name (case specific)
+
+![block_regen](https://user-images.githubusercontent.com/14878515/160883283-da1412ac-8afa-4c1d-b79d-c4e9f524ca34.jpg)
 
 ### Undead Fortitude
 
@@ -154,3 +160,4 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
 - kekilla (https://github.com/kekilla0)
+- Flix (https://github.com/GamerFlix)
