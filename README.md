@@ -119,6 +119,8 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
   - The search phrase is localized for your supported language.
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
+![regen_feature](https://user-images.githubusercontent.com/14878515/160883756-f3e9d5b3-0107-40d2-9e40-34a03e4dcdd7.jpg)
+
 ### Regen Blocking
 
 - Feature to prevent the auto regen popup
