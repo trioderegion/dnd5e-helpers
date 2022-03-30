@@ -43,7 +43,7 @@ Little helpers for little 5e tasks.
 
   - `return value` {Object | `false`}: Current set of used actions and their counts, or `false` if any part of the update failed -- typically due to incorrect action type string.
 
-https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4
+[hud_demo](https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4)
 
 ### Legendary Action Reset on End of Turn
 
@@ -92,7 +92,7 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
 
 Helpers provides built-in functionality for managing cover in a simple manner. Other modules may interact with Helper's output, or supercede it entirely. If this is the case, please consult the other module's instructions or readme and configure the Helpers cover calculator settings appropriately.
 
-https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4
+[cover_debug](https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4)
 
 ### Cover Application
 
