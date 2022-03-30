@@ -79,7 +79,7 @@
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helpers：不安定な暴走 - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
     "DND5EH.WildMagicConsoleSurgesCalm" : "制御のもとに",
     "DND5EH.WildMagicConsoleSurgesSurge" : "暴走を伴って",
-    "DND5EH.WildMagicConsoleSurgesMessage" : "<strong>{action}、</strong>レベル{spellLevel}{extraText}呪文が発動しました{resultText}。",
+    "DND5EH.WildMagicConsoleSurgesMessage" : "<strong>{action}</strong>、レベル{spellLevel}{extraText}呪文が発動しました。",
     "DND5EH.WildMagicConsoleSurgesroll" :"魔法暴走表をロールします……",
     "DND5EH.WildMagicChatSurgesMessage" : "荒ぶる魔法（{wmFeatureName}）の使い手によって、レベル{lvl}のスロットが消費されました（{bWasCast}）。",
     "DND5EH.WildMagicChatSpeakerName": "ウィーヴ（織）",

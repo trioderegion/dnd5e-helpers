@@ -105,7 +105,7 @@
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helper: Volatile Surge - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
     "DND5EH.WildMagicConsoleSurgesCalm" : "remains calm",
     "DND5EH.WildMagicConsoleSurgesSurge" : "surges",
-    "DND5EH.WildMagicConsoleSurgesMessage" : "<i>{action} as a level {spellLevel} {extraText} spell is cast!</i><br>{resultText}",
+    "DND5EH.WildMagicConsoleSurgesMessage" : "Wild Magic <strong>{action}</strong> as a level {spellLevel} {extraText} spell is cast!",
     "DND5EH.WildMagicConsoleSurgesroll" :"Rolling for surge...",
     "DND5EH.WildMagicChatSurgesMessage" : "",
     "DND5EH.WildMagicChatSpeakerName": "The Weave",

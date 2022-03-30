@@ -79,7 +79,7 @@
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helpers: Surto Volátil - {d20result} vs {spellLevel + d4result}(Magia: {spellLevel})(d4: {d4result})",
     "DND5EH.WildMagicConsoleSurgesCalm" : "continua tranquila",
     "DND5EH.WildMagicConsoleSurgesSurge" : "surta",
-    "DND5EH.WildMagicConsoleSurgesMessage" : "<i>{action} é conjurada como uma magia de {spellLevel}º círculo {extraText}!</i> {resultText}",
+    "DND5EH.WildMagicConsoleSurgesMessage" : "Magia Selvagem <strong>{action}</strong> é conjurada como uma magia de {spellLevel}º círculo!",
     "DND5EH.WildMagicConsoleSurgesroll" :"Rolando para o surto...",
     "DND5EH.WildMagicChatSurgesMessage" : "",
     "DND5EH.WildMagicChatSpeakerName": "A Trama",

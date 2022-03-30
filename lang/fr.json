@@ -79,7 +79,7 @@
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helper: Sursaut volatile - {d20result} vs {spellLevel + d4result}(Spell: {spellLevel})(d4: {d4result})",
     "DND5EH.WildMagicConsoleSurgesCalm" : "reste calme",
     "DND5EH.WildMagicConsoleSurgesSurge" : "sursaut",
-    "DND5EH.WildMagicConsoleSurgesMessage" : "<i>{action} en tant que sort de niveau {spellLevel} {extraText} est incanté!</i> {resultText}",
+    "DND5EH.WildMagicConsoleSurgesMessage" : "Magie Sauvage <strong>{action}</strong> en tant que sort de niveau {spellLevel} {extraText} est incanté!",
     "DND5EH.WildMagicConsoleSurgesroll" :"Lancement de dès pour un sursaut...",
     "DND5EH.WildMagicChatSurgesMessage" : "Un emplacement de niveau {lvl} a été dépensé ({bWasCast}) par un utilisateur avec la fonction Magie Sauvage ({wmFeatureName})",
     "DND5EH.WildMagicChatSpeakerName": "Le Tissage",

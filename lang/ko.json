@@ -79,7 +79,7 @@
     "DND5EH.WildMagicConsoleVolatileSurgeLog" : "DnD5e Helper: 불안정 여파 - {d20result} vs {spellLevel + d4result}(주문: {spellLevel})(d4: {d4result})",
     "DND5EH.WildMagicConsoleSurgesCalm" : "평온이 유지됨",
     "DND5EH.WildMagicConsoleSurgesSurge" : "급동",
-    "DND5EH.WildMagicConsoleSurgesMessage" : "<i>{action}으로 레벨 {spellLevel} {extraText} 주문이 시전됩니다!</i> {resultText}",
+    "DND5EH.WildMagicConsoleSurgesMessage" : "<strong>{action}</strong>으로 레벨 {spellLevel} {extraText} 주문이 시전됩니다!",
     "DND5EH.WildMagicConsoleSurgesroll" :"여파 굴림중...",
     "DND5EH.WildMagicChatSurgesMessage" : "야생 마법 ({wmFeatureName}) 특성으로 인해 사용자의 레벨 {lvl} 슬롯이 소모 되었습니다! ({bWasCast}) ",
     "DND5EH.WildMagicChatSpeakerName": "위브",
