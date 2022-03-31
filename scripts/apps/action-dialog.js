@@ -64,7 +64,6 @@ export class ActionDialog extends Dialog {
         combatId: combatant.combat.id,
         img : combatant.img,
         name : combatant.name,
-        economy : this.getCombatantItemData(combatant),
         items : {
           action : this.options?.action ? this.getCombatantItemData(combatant, "action") : undefined,
           bonus : this.options?.bonus ? this.getCombatantItemData(combatant, "bonus") : undefined,
@@ -102,16 +101,6 @@ export class ActionDialog extends Dialog {
 
         return data;
       });
-  }
-
-  getCombatantEconomyData(combatant){
-    return {
-      action : 1,
-      bonus : 1,
-      reaction : 1,
-      legendary : combatant.actor.data.data.resources?.legact,
-      lair : combatant.actor.data.data.resources?.lair
-    }
   }
 
   getData(options) {
