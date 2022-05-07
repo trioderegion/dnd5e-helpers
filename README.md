@@ -2,14 +2,14 @@
 
 Little helpers for little 5e tasks.
 
+### Compatibility Notes
+- v3.0.4 (legacy 0.8.x generation): Requires dnd5e system version 1.5.5 or greater.
+
 ## Current Features
 
 ### Automatic Wild Magic Surge
 
 - To enable, select a Surge option from the Feature Helpers config tab and then set the special trait for actors that should surge on casting a spell.
-
-![HelpersSpecialTraits](.github/helpers_special_traits.webp)
-
 - Triggers on _any_ reduction in current spell slots from a character with the 'Wild Magic Surge' special trait
 - Optional homebrews
   - More Surges - a surge triggers on a roll <= spell level. Also recharges Tides of Chaos.
@@ -17,7 +17,9 @@ Little helpers for little 5e tasks.
   - The homebrew variants look for the designated Tides of Chaos feature and expects it to have "X uses per long rest". Will also recharge an actor resource of the same name, if present.
 - Blind draw surge table results, which hides the results of the surge from the players.
 
-![WildSurge](.github/surge-output.webp)
+![special-traits](https://user-images.githubusercontent.com/14878515/160881349-efce8f09-a39e-4fb9-98d9-e31cfcd85038.jpg)
+
+![updated-surge-msg](https://user-images.githubusercontent.com/14878515/160877584-a7112dda-fefe-46e9-a3da-07fa3687822b.png)
 
 ### Combat Action Management
 
@@ -31,7 +33,17 @@ Little helpers for little 5e tasks.
 - When the action HUD is visible, clicking on an action icon will consume that action, clicking a used action will restore it for use.
 - Note: This management is for display purposes only and will not interfere with item use.
 
-https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4
+![action-hud](https://user-images.githubusercontent.com/14878515/160882602-3e58868e-9e6e-444b-88b4-5189e647271e.jpg)
+
+#### Added `Token` Methods
+
+- `setActionUsed(actionType, overrideCount = undefined)`: Sets the provided action type as used for this token and will update the management HUD accordingly.
+  - `actionType` {String}: valid values are `action`, `bonus`, and `reaction`. Indicates which action type to modify uses for.
+  - `overrideCount` {Number = `undefined`}: optionally sets how many times this action has been used. If set to `0`, restores the action as unsued for combat HUD display.
+
+  - `return value` {Object | `false`}: Current set of used actions and their counts, or `false` if any part of the update failed -- typically due to incorrect action type string.
+
+[Action Mgmt HUD DEMO](https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-8f62-795145441605.mp4)
 
 ### Legendary Action Reset on End of Turn
 
@@ -43,8 +55,9 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
 - Prompts GM with available legendary actions in-between combatant turns.
 - Prompts GM with available lair actions at the creature's designated lair initiatve.
 - Tracks current available uses of legendary actions.
+- A creature's legendary and lair actions will be indexed when first added to the tracker. Only items with an activation cost of "Legendary Action" or "Lair Action" will be indexed.
 
-![Lair Legendary Helper](.github/lair-legend-helpers.webp)
+![lair-legend-helpers](https://user-images.githubusercontent.com/14878515/160878262-3be912cd-eb7b-4870-af6f-3e644001e924.png)
 
 ### Recharge Abilities on Start of Turn
 
@@ -59,8 +72,8 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
 - Line and cone scaling can be enabled independently from circle scaling.
   - Circle templates less than 1 grid unit in radius will not be converted. These small templates are often useful for creating quick token-like markers on the board or used for macros which need the centerpoint maintained.
 
-![Line Scaling](.github/ray_scaling.gif)
-![Circle Scaling](.github/circle_scaling.gif)
+![ray-scaling](https://user-images.githubusercontent.com/14878515/160877997-267b01a5-e19f-475a-97ab-4fe2f381dd41.gif)
+![circle-scaling](https://user-images.githubusercontent.com/14878515/160877936-8839866d-ae81-499b-b373-4032890b05ed.gif)
 
 ### Cover Calculator
 
@@ -75,7 +88,11 @@ https://user-images.githubusercontent.com/14878515/131264314-d4017b8a-fa7a-4bf8-
   - A more detailed discussion of this can be found on our Wiki
 - Added `Token#setCoverValue` which accepts 0-3 (no, half, 3/4, and full cover, respectively). Can be used to change a token's provided cover; e.g. when prone or dead.
 
-https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4
+#### A Note on Module Interactions
+
+Helpers provides built-in functionality for managing cover in a simple manner. Other modules may interact with Helper's output, or supercede it entirely. If this is the case, please consult the other module's instructions or readme and configure the Helpers cover calculator settings appropriately.
+
+[Cover Debug Demo](https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-9f7f-875bebabfed7.mp4)
 
 ### Cover Application
 
@@ -83,16 +100,17 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 - Automatic will automatically apply the relevant effect but still generate the chat message for manual adjustment.
 - This cover bonus is applied onto the _attacker_ not the target and is a -2,-5,-40 penalty for any attack rolls.
 - The cover bonus to Dexerity saves are not handled.
-- A new special trait has been added to indicate if the actor should ignore cover (e.g. Sharpshooter or Spell Sniper)
-- Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ).
+- A new special trait has been added to indicate if the actor should ignore certain levels of cover (e.g. Sharpshooter, Spell Sniper, Wand of the Warmage)
+- Alternatively, a flag of `"dnd5e", "helpersIgnoreCover"` will flags the token as ignoring cover, for use with Spell Sniper or Sharpshooter ( will also remove melee cover effects ). Said flags accepts values of 0,1,2 or 3 which allows the actor to ignore no, half, three-quarters or full cover respectively. To ensure legacy compatibility values of true are also accepted but identical in functionality to a value of 2.
 - Cover penalties can be optionally removed at the end of the token's turn.
 
-![Cover Report](.github/cover-report.webp)
+![cover-report](https://user-images.githubusercontent.com/14878515/160878446-27b78ac7-5790-4d37-8fb5-e38b59babfc6.png)
 
 ### Rest Effects
 - Adds an additional option to Active Effects that allows removal of effect on a short or long rest.
 
-![Rest Effects](.github/rest_effects.webp)
+
+![rest-effects](https://user-images.githubusercontent.com/14878515/160878529-a5106714-af70-494b-b34b-4c6c372831a6.png)
 
 ### Auto Regeneration
 
@@ -101,15 +119,19 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
   - The search phrase is localized for your supported language.
 - At the start of their turn, prompts the GM for a roll for the regen and auto applies the healing
 
+![regen-feature](https://user-images.githubusercontent.com/14878515/160883756-f3e9d5b3-0107-40d2-9e40-34a03e4dcdd7.jpg)
+
 ### Regen Blocking
 
 - Feature to prevent the auto regen popup
 - Matches and active effect of the specified name (case specific)
 
+![block-regen](https://user-images.githubusercontent.com/14878515/160883283-da1412ac-8afa-4c1d-b79d-c4e9f524ca34.jpg)
+
 ### Undead Fortitude
 
-- Automatically checks actors with the Undead Fortitude feature
-- When they are reduced to 0hp it will prompt the GM to choose the type of damage that was applied
+- Automatically checks actors with the Undead Fortitude feature or the trait set under special traits
+- When they are reduced to 0 hp it will prompt the GM to choose the type of damage that was applied
 - Then prompts the GM for a Con save for that actor, and will auto heal the NPC if the roll beats the save needed
 - There are two settings for levels of checks:
   - Quick saves will just measure the change in hp and will not measure "overkill"
@@ -137,5 +159,5 @@ https://user-images.githubusercontent.com/14878515/131264330-7cc644e9-a991-41cb-
 
 - honeybadger (https://github.com/trioderegion)
 - Kandashi (https://github.com/kandashi)
-- hugoprudente (https://github.com/hugoprudente)
 - kekilla (https://github.com/kekilla0)
+- Flix (https://github.com/GamerFlix)

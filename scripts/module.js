@@ -10,12 +10,17 @@ export class MODULE{
   static async register(){
     logger.info("Initializing Module");
     MODULE.settings();
+    MODULE.globals();
   }
 
   static async build(){
     MODULE.data = {
       name : NAME, path : PATH, title : TITLE
     };
+  }
+
+  static globals() {
+    game.dnd5e.helpers = {};
   }
 
   static setting(key){
@@ -46,7 +51,7 @@ export class MODULE{
     /* we need a turn change or a round change to consider this a live combat */
     const liveCombat = !!combat.started && (("turn" in changed) || ('round' in changed));
     const anyCombatants = (combat.data.combatants.size ?? 0) !== 0;
-    const notFirstTurn = !((changed.turn ?? undefined === 0) && (changed.round ?? 0) === 1)
+    const notFirstTurn = !(((changed.turn ?? undefined) === 0) && (changed.round ?? 0) === 1)
 
     return liveCombat && anyCombatants && notFirstTurn;
   }
@@ -63,27 +68,20 @@ export class MODULE{
     return game.user.id === MODULE.firstGM()?.id;
   }
 
-  /* can use 'combat.current.combatantId' and 'combat.previous.combatantId' instead 
-  static getChangedTurns(combat, changed) {
-    const next = combat.turns[changed.turn];
-    const previous = combat.turns[changed.turn - 1 > -1 ? changed.turn - 1 : combat.turns.length - 1]
-    return {next, previous};
-  }
-  */
-
   static firstOwner(doc){
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
 
-    const gmOwners = Object.entries(doc.data.permission)
-      .filter(([id,level]) => (game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
-      .map(([id, level]) => id);
-    const otherOwners = Object.entries(doc.data.permission)
+    const playerOwners = Object.entries(doc.data.permission)
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
       .map(([id, level])=> id);
 
-    if(otherOwners.length > 0) return game.users.get(otherOwners[0]);
-    else return game.users.get(gmOwners[0]);
+    if(playerOwners.length > 0) {
+      return game.users.get(playerOwners[0]);
+    }
+
+    /* if no online player owns this actor, fall back to first GM */
+    return MODULE.firstGM();
   }
 
   static isFirstOwner(doc){
@@ -102,8 +100,8 @@ export class MODULE{
     });
   }
 
-  static sanitizeActorName(actor, feature, label){
-    return ((MODULE.setting(feature) && actor.data.type === "npc") ? MODULE.format(label) : actor.data.name).capitalize();
+  static sanitizeActorName(actor, sanitizeOptionKey, sanitizedNameKey){
+    return ((MODULE.setting(sanitizeOptionKey) && actor.data.type === "npc") ? MODULE.format(sanitizedNameKey) : actor.name).capitalize();
   }
 
   static sanitizeTokenName(token, feature, label, capitalize = true){
@@ -117,10 +115,15 @@ export class MODULE{
         MODULE.data.name, key, {
           name : MODULE.localize(`setting.${key}.name`),
           hint : MODULE.localize(`setting.${key}.hint`),
+          subModuleId : data.subModuleId ?? HelpersSettingsConfig.defaultOptions.id,
           ...data
         }
       );
     });
+  }
+
+  static registerSubMenu(subModule, settingsData, {groupLabels = HelpersSettingsConfig.defaultGroupLabels, menuIcon = 'fas fa-user-cog', /* parentMenu = null,*/ tab = 'misc'} = {}){
+    HelpersSettingsConfig.registerSubMenu(subModule, settingsData, {groupLabels, menuIcon, tab});
   }
 
   static stringToDom(innerHTML, className){
@@ -142,7 +145,7 @@ export class MODULE{
   static async getItem(key, id){
     if(key === "Item") return game.items.get(id)
     let pack = game.packs.get(key)
-    return await pack.getDocument(id)
+    return await pack?.getDocument(id)
   }
 
   /*

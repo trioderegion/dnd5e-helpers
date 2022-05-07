@@ -51,8 +51,6 @@ export class ActionManagement{
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
-          2 : MODULE.localize("option.default.enabledHover"),
-          3 : MODULE.localize("option.default.displaySuppressed"),
         },
         onChange : async (v) =>{
           /**
@@ -66,6 +64,14 @@ export class ActionManagement{
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
           2 : MODULE.localize("option.actionsAsStatus.onlyReaction"),
+        }
+      },
+      actionMgmtDisplay : {
+        scope : "client", type : Number, group : "combat", default : 2, config,
+        choices : {
+          0 : MODULE.localize("option.default.disabled"),
+          1 : MODULE.localize("option.default.enabled"),
+          2 : MODULE.localize("option.default.enabledHover"),
         }
       },
       /** @todo localize */
@@ -93,7 +99,7 @@ export class ActionManagement{
     Hooks.on(`updateCombat`, ActionManagement._updateCombat);
     Hooks.on(`controlToken`, ActionManagement._controlToken);
     Hooks.on(`updateToken`, ActionManagement._updateToken);
-    Hooks.on(`preCreateChatMessage`, ActionManagement._preCreateChatMessage);
+    Hooks.on(`createChatMessage`, ActionManagement._createChatMessage);
     Hooks.on(`deleteCombat`, ActionManagement._deleteCombat);
     Hooks.on(`deleteCombatant`, ActionManagement._deleteCombatant);
     Hooks.on('hoverToken', ActionManagement._hoverToken);
@@ -126,7 +132,8 @@ export class ActionManagement{
       for(let combatant of combat.combatants){
         const token = combatant.token.object;
         await token.resetActionFlag();
-        await token.renderActionContainer(combatant.token.object._controlled);
+        await token.renderActionContainer(combatant.token.object._controlled && MODULE.setting('actionMgmtDisplay') == 1 );
+        await token.updateActionMarkers();
       }
     
     if(MODULE.isTurnChange(combat, changed) && MODULE.isFirstOwner(combat.combatant.token.actor)){
@@ -134,13 +141,13 @@ export class ActionManagement{
     }
   }
 
-  static async _deleteCombat(combat, /* options, userId */){
-    const mode = MODULE.setting('actionMgmtEnable');
-    if(mode == 0) return;
+  static _deleteCombat(combat, /* options, userId */){
+      const mode = MODULE.setting('actionMgmtEnable');
+      if(mode == 0) return;
 
-    for(const combatant of combat.combatants){
-      ActionManagement._deleteCombatant(combatant);
-    }
+      for(const combatant of combat.combatants){
+        ActionManagement._deleteCombatant(combatant);
+      }
   }
 
   static _deleteCombatant(combatant/*, options, userId */){
@@ -153,59 +160,67 @@ export class ActionManagement{
     const tokenId = combatant.token?.id;
     const sceneId = combatant.parent.data.scene
 
-    const token = game.scenes.get(sceneId).tokens.get(tokenId);
+    queueUpdate(async () => {
+      /* this retrieves a token DOCUMENT */
+      const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
+      const token = tokenDoc?.object;
 
-    if(token?.hasActionContainer()) {
-      queueUpdate( async () => {
-        await token.removeActionContainer();
-      });
-    }
-    if(token?.hasActionFlag()) {
-      /* reset its flags to 0 to update status effect icons */
-      queueUpdate( async () => {
-        await token.resetActionFlag();
-        await token.updateActionMarkers();
-        await token.removeActionFlag();
-      });
-    }
+      if(/*token?.hasActionFlag() &&*/ token.isOwner) {
+        /* reset its flags to 0 to update status effect icons */
+          await token.resetActionFlag();
+          await token.updateActionMarkers(); 
+          await token.removeActionFlag();
+      }
+
+      await token.removeActionContainer();
+
+    });
   }
 
   static _controlToken(token, state){
     const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0) return;
 
+    const display = MODULE.setting('actionMgmtDisplay');
+
     if(token.inCombat){
 
       queueUpdate( async () => {
-        if(token.hasActionContainer()) token.toggleActionContainer(mode === 3 || !state ? false : true);
-        else await ActionManagement._renderActionContainer(token, mode === 3 || !state ? false : true);
+        if(token.hasActionContainer()) token.toggleActionContainer(display === 0 || !state ? false : true);
+        else await ActionManagement._renderActionContainer(token, display === 0 || !state ? false : true);
         return token.drawEffects();
       });
 
     }
   }
 
+  /* this is where all clients should be updating their rendering, based on flags
+   * set by the owner */
   static _updateToken(tokenDocument, update, /* options, id */){
     const mode = MODULE.setting('actionMgmtEnable');
     if(mode == 0 || !tokenDocument.inCombat) return;
 
+    const display = MODULE.setting('actionMgmtDisplay');
+
     if("width" in update || "height" in update || "scale" in update){
-      ActionManagement._renderActionContainer(tokenDocument.object, mode === 3 || !tokenDocument.object._controlled ? false : true );
+      ActionManagement._renderActionContainer(tokenDocument.object, display === 0 || !tokenDocument.object._controlled ? false : true );
     }
 
-    if("tint" in update || "img" in update || "flags" in update)
+    if("tint" in update || "img" in update || !!getProperty(update, `flags.${MODULE.data.name}`))
       tokenDocument.object.updateActionMarkers();
       
     logger.debug("_updateToken | Data | ", {
-      tokenDocument, mode, update, container : tokenDocument.object.getActionContainer(),
+      tokenDocument, mode: display, update, container : tokenDocument.object.getActionContainer(),
     });
   }
 
-  static async _preCreateChatMessage(messageDocument, messageData, /*options, userId*/){
+  static async _createChatMessage(messageDocument, /*options, userId*/){
+    const messageData = messageDocument.data;
+
     const types = Object.keys(MODULE[NAME].default);
     const speaker = messageData.speaker;
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       types, speaker, messageData,
     });
 
@@ -216,9 +231,15 @@ export class ActionManagement{
     /* check that the token is in combat */
     if ( (token.combatant?.combat?.started ?? false) == false) return;
 
-    const item_id = $(messageData.content).attr("data-item-id");
+    let item_id = '';
+    try{
+      item_id = $(messageData.content).attr("data-item-id");
+    }catch(e){ 
+      /* any error in querying means its not the droids we are looking for */
+      return;
+    }
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       item_id, token,
     });
 
@@ -226,19 +247,20 @@ export class ActionManagement{
 
     const item = token.actor.items.get(item_id);
 
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       item,
     });
 
     if(!item || !types.includes(item.data.data.activation.type)) return;
     let type = item.data.data.activation.type;
+    let cost = item.data.data.activation.cost ?? 1;
     
-    logger.debug("_preCreateChatMessage | DATA | ", {
+    logger.debug("_createChatMessage | DATA | ", {
       type,
     });
 
     type = ActionManagement._checkForReaction(type, token.combatant);
-    token.object.iterateActionFlag(type);
+    token.object.iterateActionFlag(type, cost);
   }
 
   static _checkForReaction(actionType, combatant){
@@ -257,12 +279,12 @@ export class ActionManagement{
     /* users can hover anything, but only 
      * should display on owned tokens 
      */
-    if(!token.isOwner) return;
-    const mode = MODULE.setting('actionMgmtEnable');
+    if(!token.isOwner || !MODULE.setting('actionMgmtEnable')) return;
+    const display = MODULE.setting('actionMgmtDisplay');
 
     /* main hover option must be enabled, and we must be in combat
      */
-    if(mode == 2 && token.inCombat){
+    if(display == 2 && token.inCombat){
       if(!state) {
         setTimeout(function() {
           token.renderActionContainer(state);
@@ -309,11 +331,13 @@ export class ActionManagement{
           element.alpha = 1;
         }
 
-        /* update any needed status icons for this change */
-        if (ActionManagement._shouldAddEffect(type)) {
-          queueUpdate( async () => {
-            await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
-          });
+        /* update any needed status icons for this change (requires ownership) */
+        if(this.isOwner) {
+          if (ActionManagement._shouldAddEffect(type)) {
+            queueUpdate( async () => {
+              await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
+            });
+          }
         }
       }
     }
@@ -330,12 +354,7 @@ export class ActionManagement{
     Token.prototype.iterateActionFlag = function(type, value){
 
       /* dont mess with flags if I am not in combat */
-      if (!this.combatant) return;
-
-      /* check current combat turn to see if we should treat an 
-       * action as a reaction 
-       */
-      //type = ActionManagement._checkForReaction(type, this.combatant);
+      if (!this.combatant) return false;
 
       let flag = this.getActionFlag() ?? duplicate(MODULE[NAME].default);
       if(value === undefined) flag[type] += 1;
@@ -354,7 +373,8 @@ export class ActionManagement{
         token : this, default : MODULE[NAME].default,
       });
 
-      return await this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, duplicate(MODULE[NAME].default));
+      /* force an update on reset */
+      return await this.document.update({[`flags.${MODULE.data.name}.${MODULE[NAME].flagKey}`]: MODULE[NAME].default}, {diff: false})
     }
 
     Token.prototype.removeActionContainer = function(){
@@ -372,10 +392,25 @@ export class ActionManagement{
         return ActionManagement._renderActionContainer(this, state);
     }
 
-    //from foundry.js:44998 as of v0.8.8.
+    /* return: Promise<setFlag> */
+    Token.prototype.setActionUsed = async function(actionType, overrideCount = undefined) {
+      const validActions = ['action', 'bonus', 'reaction'];
+      if (validActions.includes(actionType)){
+
+        /* if setting the action went well, return the resulting action usage object */
+        const success = await this.iterateActionFlag(actionType, overrideCount); 
+        if(success){
+          return this.getActionFlag();
+        }
+      } 
+
+      return false;
+    }
+
+    //from foundry.js:38015 as of v9.238
     Token.prototype._drawEffect = async function (src, index, bg, w, tint) {
       let tex = await loadTexture(src);
-      let icon = this.effects.addChild(new PIXI.Sprite(tex));
+      let icon = this.hud.effects.addChild(new PIXI.Sprite(tex));
       
       //BEGIN D5H
       const scale = MODULE.setting('effectIconScale');
@@ -392,7 +427,6 @@ export class ActionManagement{
 
       if ( tint ) icon.tint = tint;
       bg.drawRoundedRect(icon.x + 1, icon.y + 1, icon.width - 2, icon.height - 2, 2);
-      this.effects.addChild(icon);
     }
   }
 
@@ -405,7 +439,7 @@ export class ActionManagement{
    */
   static _shouldAddEffect(type) {
     const preDefAnswers = [false, true, type == 'reaction' ? true : false];
-    const mode = MODULE.setting('actionsAsStatus');
+    const mode = MODULE.setting('actionMgmtEnable') != 0 ? MODULE.setting('actionsAsStatus') : 0;
     return preDefAnswers[mode];
   }
 

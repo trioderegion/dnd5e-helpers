@@ -71,16 +71,22 @@ export class CoverCalculator{
           1 : [0,1,1,1,1],
         }
       },
+      ignoreCover:{ // Defining what number relates to what cover ignore level
+        "none":0,
+        "half":1,
+        "threeQuarter":2,
+        "full":3
+      },
     }
   }
 
   static settings(){
     const config = false;
-    const settingsData = {
+    const menuData = {
       debugDrawing : {
-        scope : "client", config, default : false, type : Boolean,
+        scope : "client", config, groupd: 'misc', default : false, type : Boolean,
       },
-      losOnTarget : {
+      losSystem : {
         scope : "world", config, group : "system", default : 0, type : Number,
         choices : {
           0 : MODULE.localize("option.default.disabled"),
@@ -88,7 +94,9 @@ export class CoverCalculator{
           2 : MODULE.localize("option.losOnTarget.corner"),
         }
       },
-      losWithTiles : {
+      losOnTarget : {
+        scope : "client", config, group : "system", default : 0, type : Boolean,
+      }, losWithTiles : {
         scope : "world", config, group : "system", default : false, type : Boolean,
       },
       losWithTokens : {
@@ -103,9 +111,9 @@ export class CoverCalculator{
           "linear-gradient(to right, orange , yellow, green, cyan, blue, violet)" : MODULE.localize("option.coverTint.rainbow"),
         },
       },
-      losKeyBind : {
-        scope : "world", config, group : "system", default : "", type : String,
-      },
+      //losKeyBind : {
+      //  scope : "world", config, group : "system", default : "", type : String,
+      //},
       coverApplication : {
         scope : "world", config, group : "system", default : 0, type : Number, 
         choices : {
@@ -114,16 +122,25 @@ export class CoverCalculator{
           2 : MODULE.format("option.coverApplication.auto"),
         }
       },
+      whisperToSelf:{
+        scope : "client", config, group : "system", default : false, type : Boolean,
+      },
       losMaskNPC : {
         scope : "world", config, group : "system", default : false, type : Boolean,
       },
       removeCover : {
-        scope : "world", config, group : "system", default : false, type : Boolean,
+        scope : "world", config, group : "combat", default : false, type : Boolean,
       },
-      clearTargets : {
-        scope : "world", config, group : "system", default : false, type : Boolean,
-      },
+      
     };
+
+    MODULE.registerSubMenu(NAME, menuData, {tab: 'system'});
+
+    const settingsData = {
+      clearTargets : {
+        scope : "world", config, group : "combat", default : false, type : Boolean,
+      },
+    }
 
     MODULE.applySettings(settingsData);
 
@@ -131,8 +148,26 @@ export class CoverCalculator{
       hint: "DND5EH.flagsNoCoverHint",
       name: "DND5EH.flagsNoCover",
       section: "Feats",
-      type: Boolean
+      choices:{
+        0:MODULE.localize("DND5EH.flagsNoCoverOptionNone"),
+        1:MODULE.localize("DND5EH.flagsNoCoverOptionHalf"),
+        2:MODULE.localize("DND5EH.flagsNoCoverOptionThreeQ"),
+        3:MODULE.localize("DND5EH.flagsNoCoverOptionFull")
+      },
+      type: Number
     };
+
+    /* insert keybindings */
+    game.keybindings.register(MODULE.data.name, "coverReport", {
+      name: "Check Cover",
+      hint: "Check the cover between the selected and hovered token",
+      editable: [
+        {
+          key: "KeyR"
+        }
+      ],
+      onDown: () => CoverCalculator._handleCover()
+    });
   }
 
   static hooks(){
@@ -166,7 +201,7 @@ export class CoverCalculator{
    * Hook Functions
    */
   static async _deleteCombat(combat, /*settings, id*/){
-    if(MODULE.setting("losOnTarget") > 0 && MODULE.isFirstGM()){
+    if(MODULE.setting("losSystem") > 0 && MODULE.isFirstGM()){
       for(let combatant of combat.combatants){
         const token = combatant?.token?.object;
         if(token)
@@ -178,7 +213,7 @@ export class CoverCalculator{
   }
 
   static async _deleteCombatant(combatant, /*render*/){
-    if(MODULE.setting("losOnTarget") > 0 && MODULE.isFirstGM()){
+    if(MODULE.setting("losSystem") > 0 && MODULE.isFirstGM()){
 
       /* need to grab a fresh copy in case this
        * was triggered from a delete token operation,
@@ -188,7 +223,8 @@ export class CoverCalculator{
       const tokenId = combatant.token?.id;
       const sceneId = combatant.parent.data.scene
 
-      const token = game.scenes.get(sceneId).tokens.get(tokenId);
+      const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
+      const token = tokenDoc?.object;
 
       if(token)
         queueUpdate( () => {
@@ -200,6 +236,12 @@ export class CoverCalculator{
   static async _renderChatMessage(app, html, data){
     if(app.getFlag(MODULE.data.name, 'coverMessage') && MODULE.setting("coverApplication") > 0 ){
       await MODULE.waitFor(() => !!canvas?.ready);
+
+      const hasButtons = html.find('.cover-button').length > 0
+
+      /* some messages may not have buttons to put listeners on */
+      if(!hasButtons) return;
+
       const token = (await fromUuid(app.getFlag(MODULE.data.name, 'tokenUuid')))?.object;
 
       if(!token) return new Error(MODULE.localize("error.token.missing"));
@@ -216,73 +258,119 @@ export class CoverCalculator{
       if(l == 3) c.style.background = MODULE.setting("coverTint");
 
       //add listeners
-      a.onclick =  (...args) => Cover._toggleEffect(token, a, [b,c], 1);
-      b.onclick = (...args) => Cover._toggleEffect(token, b, [a,c], 2);
-      c.onclick = (...args) => Cover._toggleEffect(token, c, [a,b], 3);
+      a.onclick =  () => Cover._toggleEffect(token, a, [b,c], 1);
+      b.onclick = () => Cover._toggleEffect(token, b, [a,c], 2);
+      c.onclick = () => Cover._toggleEffect(token, c, [a,b], 3);
     }
   }
 
   static _renderTileConfig(app, html){
-    if(MODULE.setting("losOnTarget") === 0 || !MODULE.setting("losWithTiles") || app.object.data.overhead ) return;
-    const tab = html.find('[data-tab="basic"]')[1];
-    CoverCalculator._addToConfig(app, html, tab);
+    if(MODULE.setting("losSystem") === 0 || !MODULE.setting("losWithTiles") || app.object.data.overhead ) return;
+    const adjacentElement = html.find('[data-tab="basic"] .form-group').last();
+    CoverCalculator._injectCoverAdjacent(app, html, adjacentElement);
   }
 
   static _renderTokenConfig(app, html){
-    if(MODULE.setting("losOnTarget") === 0 || !MODULE.setting("losWithTokens")) return;
-    const tab = html.find('[data-tab="vision"]')[1];
-    CoverCalculator._addToConfig(app, html, tab);
+    if(MODULE.setting("losSystem") === 0 || !MODULE.setting("losWithTokens")) return;
+    const adjacentElement = html.find('[data-tab="character"] .form-group').last();
+    CoverCalculator._injectCoverAdjacent(app, html, adjacentElement);
   }
 
   static _renderWallConfig(app, html){
-    if(MODULE.setting("losOnTarget") === 0) return;
+    if(MODULE.setting("losSystem") === 0) return;
     const ele = html.find('[name="ds"]')[0].parentElement;
     CoverCalculator._addToConfig(app, html, ele);
   }
 
-  static _addToConfig(app, html, ele){
-
+  /* used for new style multi-tab config apps */
+  // TODO functionalize HTML generation between these two functions
+  static _injectCoverAdjacent(app, html, element) {
     /* if this app doesnt have the expected
      * data (ex. prototype token config),
      * bail out.
      */
     if (!app.object?.object) return;
     const status = app.object.object.coverValue() ?? 0;
-    const selectHTML = `<label>${MODULE.localize("DND5EH.LoS_providescover")}</label>
+    const selectHTML = `<div class="form-group">
+                          <label>${MODULE.localize("DND5EH.LoS_providescover")}</label>
+                          <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
+                            ${
+                              Object.entries(MODULE[NAME].coverData).reduce((acc, [key,{label}]) => acc+=`<option value="${key}" ${key == status ? 'selected' : ''}>${label}</option>`, ``)
+                            }
+                          </select>
+                        </div>`;
+
+    html.css("height", "auto");
+    element.after(selectHTML);
+
+  }
+
+    /* used for "legacy" single page config apps */
+    // TODO functionalize HTML generation between these two functions
+    static _addToConfig(app, html, ele){
+
+      /* if this app doesnt have the expected
+       * data (ex. prototype token config),
+       * bail out.
+       */
+      if (!app.object?.object) return;
+      const status = app.object.object.coverValue() ?? 0;
+      const selectHTML = `<label>${MODULE.localize("DND5EH.LoS_providescover")}</label>
                           <select name="flags.dnd5e-helpers.coverLevel" data-dtype="Number">
                             ${
                               Object.entries(MODULE[NAME].coverData).reduce((acc, [key,{label}]) => acc+=`<option value="${key}" ${key == status ? 'selected' : ''}>${label}</option>`, ``)
                             }
                           </select>`;
 
-    html.css("height", "auto");
-    ele.insertAdjacentElement('afterend',MODULE.stringToDom(selectHTML, "form-group"));
-  }
+                                html.css("height", "auto");
+                                ele.insertAdjacentElement('afterend',MODULE.stringToDom(selectHTML, "form-group"));
+                              }
 
-  static async _targetToken(user, target, onOff){
-    if(game.user !== user) return;
+  static _handleCover() {
+    if ( !canvas.ready ) return false;
+    const layer = canvas.activeLayer;
+    if ( !(layer instanceof TokenLayer) ) return false;
+    const hovered = layer.placeables.find(t => t._hover);
+    if ( !hovered ){
 
-    const keyBind = MODULE.setting("losKeyBind");
-    const confirmCover = game.keyboard._downKeys.has(keyBind) || keyBind == "";
-
-    if(user.targets.size == 1 && confirmCover && onOff && MODULE.setting("losOnTarget")){
-      for(const selected of canvas.tokens.controlled){
-        if(selected.id === target.id) continue;
-        let cover = new Cover(selected, target);
-
-        //apply cover bonus automatically if requested
-        queueUpdate( async () => {
-          if(MODULE.setting("coverApplication") == 2) await cover.addEffect();
-          await cover.toMessage();
-        });
-      }         
-    }
-
-    if(user.targets.size != 1)
+      /* remove cover bonuses for any selected */
       for(const selected of canvas.tokens.controlled)
         queueUpdate( async () => {
           await Cover._removeEffect(selected);
         });
+
+      return;
+    }
+
+    return CoverCalculator._runCoverCheck(canvas.tokens.controlled, hovered);
+  }
+
+  static async _runCoverCheck(sources, target){
+    for(const selected of sources){
+      if(selected.id === target.id) continue;
+      let cover = new Cover(selected, target);
+
+      //apply cover bonus automatically if requested
+      queueUpdate( async () => {
+        if(MODULE.setting("coverApplication") == 2) await cover.addEffect();
+        await cover.toMessage();
+      });
+    }         
+  }
+
+  static async _targetToken(user, target, onOff){
+    if(game.user !== user || MODULE.setting('losOnTarget') == false) return;
+
+    if(user.targets.size == 1 && onOff ){
+      CoverCalculator._runCoverCheck(canvas.tokens.controlled, target)
+    }
+
+    if(user.targets.size != 1) {
+      for(const selected of canvas.tokens.controlled)
+        queueUpdate( async () => {
+          await Cover._removeEffect(selected);
+        });
+    }
   }
 
   static async _updateCombat(combat, changed /*, options, userId */){
@@ -307,7 +395,13 @@ export class CoverCalculator{
    */
   static _patchToken(){
     Token.prototype.ignoresCover = function(){
-      return !!this.actor?.getFlag("dnd5e", "helpersIgnoreCover") ?? false;
+      let flagValue=this.actor?.getFlag("dnd5e", "helpersIgnoreCover") ?? 0;
+      if (flagValue===true||flagValue==="true"){
+        // used to be a boolean flag, if the flag is true either 
+        // ,the value or a string due to AE shenanigans, treat is as it would have been before
+        flagValue=MODULE[NAME].ignoreCover.threeQuarter
+      }
+      return flagValue
     }
 
     Token.prototype.coverValue = function(){
@@ -345,8 +439,18 @@ export class CoverCalculator{
   static _patchWall(){
     Wall.prototype.coverValue = function(){
       const data = MODULE[NAME].wall;
-      const sense = this.data.sense;
-      return this.document.getFlag(MODULE.data.name, data.flag) ?? (sense >= CONST.WALL_SENSE_TYPES.NORMAL ? data.default : 0);
+      /* sight vs sense is a 0.9 vs 0.8 issue -- prefer 0.9, but fall back to 0.8 */
+      const definedCover = this.document.getFlag(MODULE.data.name, data.flag);
+
+      if (definedCover) return definedCover;
+
+      /* otherwise, make an intelligent guess as to the default state based on the wall itself */
+      /* sight vs sense is a 0.9 vs 0.8 issue -- prefer 0.9, but fall back to 0.8 */
+      const sense = this.document.data.door < CONST.WALL_DOOR_TYPES.DOOR ? this.document.data.sight
+        : this.document.data.ds == CONST.WALL_DOOR_STATES.OPEN ? CONST.WALL_SENSE_TYPES.NONE 
+        : this.document.data.sight;
+
+      return sense >= CONST.WALL_SENSE_TYPES.LIMITED ? data.default : 0;
     }
   }
 
@@ -424,8 +528,8 @@ class Cover{
 
   buildWallData(){
     //create list of walls to find collisions with
-    this.data.walls.objects = canvas.walls.placeables.filter(wall => wall.coverValue() !== 0 );
-    this.data.walls.shapes = this.data.walls.objects.map(wall => Shape.buildWall(wall, { cover : wall.coverValue() }));
+    this.data.walls.objects = canvas.walls.placeables.filter(wall => wall.coverValue() !== 0 && wall.document.data.ds !== CONST.WALL_DOOR_STATES.OPEN);
+    this.data.walls.shapes = this.data.walls.objects.map(wall => Shape.buildWall(wall, { cover : wall.coverValue(), limited: wall.document.data.sight == CONST.WALL_SENSE_TYPES.LIMITED }));
 
     //filter out garbage walls (i.e. null)
     this.data.walls.shapes = this.data.walls.shapes.filter( shape => !!shape );
@@ -438,7 +542,7 @@ class Cover{
     this.data.origin.shapes = [];
     this.data.origin.points = [];
 
-    if(MODULE.setting('losOnTarget') === 1)
+    if(MODULE.setting('losSystem') === 1)
       this.data.origin.points.push(new Point(this.data.origin.object.center));
     else{
       let c = Math.round(this.data.origin.object.w / canvas.grid.size), d = Math.round(this.data.origin.object.h / canvas.grid.size);
@@ -489,6 +593,28 @@ class Cover{
       this.data.target.shapes.forEach(shape => shape.draw());
   }
 
+  static _processLimitedSightCollisions(results = []){
+    const numLimited = results.reduce( (acc, curr) => {
+      if (curr.limited) acc++;
+      return acc;
+    }, 0)
+
+    const toRemove = numLimited % 2;
+    const processed = results.reduce( (acc, curr) => {
+
+      if( acc.numSeen < toRemove) {
+        acc.numSeen++; 
+      } else {
+        acc.results.push(curr.cover);
+      }
+
+      return acc;
+      
+    },{results: [], numSeen: 0});
+
+    return processed.results;
+  }
+
   pointSquareCoverCalculator(){
     const results = this.data.origin.points.map(point =>{
       return this.data.target.shapes.map(square => {
@@ -497,9 +623,9 @@ class Cover{
             let s = new Segment({ points : [point, p]});
 
             let r = {
-              tiles : Math.max(...this.data.tiles.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
-              tokens : Math.max(...this.data.tokens.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
-              walls : Math.max(...this.data.walls.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) })),
+              tiles : Math.max.apply(null, Cover._processLimitedSightCollisions(this.data.tiles.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) }))),
+              tokens : Math.max.apply(null, Cover._processLimitedSightCollisions(this.data.tokens.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) }))),
+              walls : Math.max.apply(null, Cover._processLimitedSightCollisions(this.data.walls.shapes.map(shape => { this.data.calculations++; return shape.checkIntersection(s) }))),
             };
 
             r.total = Math.max(r.tiles, r.tokens, r.walls);
@@ -537,7 +663,9 @@ class Cover{
     this.data.results.ignore = this.data.origin.object.ignoresCover();
     this.data.results.corners = 0;
     this.data.results.cover = results.reduce((a,b) => Math.min(a, b.reduce((c,d) => Math.min(c, d.total), 3)),3);
-    this.data.results.cover = this.data.results.cover < 3 && this.data.results.ignore ? 0 : this.data.results.cover;
+    // If the current cover value is under the ignore threshold set cover to 0. ignore theshold goes from 1 to 3, cover from 0 to 3
+    // none, half, threequarter, full
+    this.data.results.cover = this.data.results.cover <= this.data.results.ignore ? 0 : this.data.results.cover;
     this.data.results.label = MODULE[NAME].coverData[this.data.results.cover ?? 0].label;
     this.data.results.value = MODULE[NAME].coverData[this.data.results.cover ?? 0].value;
 
@@ -581,9 +709,9 @@ class Cover{
         </div>
       `;
     }
-
+    
     return await ChatMessage.create({
-      whisper : ChatMessage.getWhisperRecipients("GM"),
+      whisper : MODULE.setting("whisperToSelf")?[game.user]:ChatMessage.getWhisperRecipients("GM"),
       speaker : { alias : MODULE.localize("setting.coverApplication.name") },
       flags : {[MODULE.data.name] : { 
         ["coverMessage"] : true,

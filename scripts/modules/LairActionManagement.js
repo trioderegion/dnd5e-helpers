@@ -15,7 +15,7 @@ class LairActionDialog extends ActionDialog {
     const title = MODULE.format("DND5E.LairActionLabel");
 
     /* construct an action dialog using only legendary actions */
-    super(combatants, {lair: true, title});
+    super(combatants, {lair: true, title, id: 'lairact-action-dialog'});
   }
 
 }
@@ -54,7 +54,6 @@ export class LairActionManagement{
    *  actorid, [itemid], 
    * 
    * @param {Combatant} combatant 
-   * @returns 
    */
   static _createCombatant(combatant) {
 
@@ -62,7 +61,7 @@ export class LairActionManagement{
     if (!MODULE.isFirstGM() || !MODULE.setting('lairActionHelper')) return;
 
     const usesLair = getProperty(combatant, "actor.data.data.resources.lair.value")
-    const hasLairAction = !!combatant.token.actor.items.find((i) => i.data?.data?.activation?.type === "lair")
+    const hasLairAction = !!combatant.actor?.items.find((i) => i.data?.data?.activation?.type === "lair")
 
     /* flag this combatant as a lair actor for quick filtering */
     if (usesLair && hasLairAction){
@@ -75,7 +74,6 @@ export class LairActionManagement{
    * 
    * @param {*} combat 
    * @param {*} changed 
-   * @returns 
    */
   static _updateCombat(combat, changed) {
 
@@ -95,21 +93,30 @@ export class LairActionManagement{
     const currentInit = combat.combatants.get(currentId).initiative;
 
     /* check if we have wrapped around and simulate its previous initiative */
-    if (changed.turn == 0) previousInit = 100;
 
-    /* if the distance between inits for the lair action is lower than the
-     * current initiative, we have cross its initiative count. Less than
-     * ensures that lair inits will always lose ties 
-     */
-    const lairCloser = (combatant) => {
-      return (previousInit - combatant.actor.data.data.resources.lair.initiative) < (previousInit - currentInit)
+    /* lair init should be inside this range or outside? */
+    const inside = previousInit - currentInit > 0; 
+
+    const containsLair = (combatant) => {
+      const init = combatant.actor.data.data.resources.lair.initiative
+
+      return previousInit >= init && init > currentInit;
     }
 
-    const correctDirection = (combatant) => {
-      return (previousInit - combatant.actor.data.data.resources.lair.initiative) >= 0;
+    const excludesLair = (combatant) => {
+      const init = combatant.actor.data.data.resources.lair.initiative
+
+      return init > currentInit || init <= previousInit;
     }
 
-    const triggeredLairInits = allLairCombatants.filter( combatant => correctDirection(combatant) && lairCloser(combatant));
+    const hasHp = (combatant) => {
+      return getProperty(combatant.actor, 'data.data.attributes.hp.value') ?? 0 > 0;
+    }
+
+    const filterCondition = inside ? containsLair : excludesLair;
+
+    //const triggeredLairInits = allLairCombatants.filter( combatant => correctDirection(combatant) && lairCloser(combatant) && hasHp(combatant) );
+    const triggeredLairInits = allLairCombatants.filter( combatant => filterCondition(combatant) && hasHp(combatant) );
 
     /* send list of combantants to the action dialog subclass */
     if (triggeredLairInits.length > 0) {

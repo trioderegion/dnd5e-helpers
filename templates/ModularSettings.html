@@ -1,0 +1,86 @@
+{{#*inline "settingPartial"}}
+<div class="form-group">
+    <label>{{this.name}}</label>
+    <div class="form-fields">
+
+        {{#if this.isCheckbox}}
+        <input type="checkbox" name="{{this.path}}" data-dtype="Boolean" {{checked this.value}}/>
+
+        {{else if this.isSelect}}
+        <select name="{{this.path}}" data-dtype="{{this.type}}">
+            {{#select this.value}}
+            {{#each this.choices as |name k|}}
+            <option value="{{k}}">{{localize name}}</option>
+            {{/each}}
+            {{/select}}
+        </select>
+
+        {{else if this.isRange}}
+        <input type="range" name="{{this.path}}" data-dtype="Number" value="{{ this.value }}"
+               min="{{ this.range.min }}" max="{{ this.range.max }}" step="{{ this.range.step }}"/>
+        <span class="range-value">{{this.value}}</span>
+
+        {{else if this.filePicker}}
+        {{filePicker target=this.id type=this.filePickerType}}
+        <input type="text" name="{{this.path}}" value="{{this.value}}" data-dtype="{{this.type}}"/>
+
+        {{else}}
+        <input type="text" name="{{this.path}}" value="{{this.value}}" data-dtype="{{this.type}}"/>
+        {{/if}}
+    </div>
+
+    <p class="notes">{{this.hint}}</p>
+</div>
+{{/inline}}
+
+{{#*inline "menuPartial" }}
+<div class="form-group submenu">
+    <!-- <label>{{ localize this.name }}</label> -->
+    <button type="button" data-key="{{ this.name }}">
+        {{#if this.icon}}<i class="{{ this.icon }}"></i>{{/if}}
+        <label>{{ localize this.label }}</label>
+    </button>
+    <!-- {{#if this.hint}}<p class="notes">{{ localize this.hint }}</p>{{/if}} -->
+</div>
+{{/inline}}
+<form class="flexcol" autocomplete="off">
+
+    <!-- Navigation Tabs -->
+    <nav class="sheet-tabs tabs" data-group="sections">
+        {{#each data.tabs as |data tab|}} 
+          <a class="item" data-tab="{{tab}}"><i class="{{data.faIcon}}"></i> {{localize data.tabLabel}} </a>
+        {{/each}} 
+    </nav>
+
+    <!-- Main Content Section -->
+    <section id="config-tabs" class="content">
+      {{#each data.tabs as |data tab|}}
+      <div class="tab" data-tab="{{tab}}" data-group="sections">
+            <div class="settings-list">
+              {{#each data.settings}}
+                {{> settingPartial}} 
+              {{/each}}
+              {{#each data.menus}}
+                {{> menuPartial}}
+              {{/each}}
+            </div>
+        </div>
+      {{/each}}
+    </section>
+
+    <!-- Settings Footer -->
+    <footer class="sheet-footer flexrow">
+        {{#if data.hasParent}}
+        <button type="button" name="return" key="{{data.parentMenu}}">
+            <i class="fa fa-step-backward"></i> {{localize 'DND5EH.ConfigApp.return'}}
+        </button>
+        {{/if}}
+        <button type="submit" name="submit">
+            <i class="far fa-save"></i> {{localize 'SETTINGS.Save'}}
+        </button>
+        <button type="button" name="reset">
+            <i class="fas fa-undo"></i> {{localize 'SETTINGS.Reset'}}
+        </button>
+    </footer>
+</form>
+

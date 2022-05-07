@@ -33,11 +33,22 @@ export class UndeadFortitude {
       undeadFortDC: {
         scope: "world", config, group: "npc-features", default: 5, type: Number,
       },
+    
+    
+    
     };
 
-    MODULE.applySettings(settingsData);
+    MODULE.registerSubMenu(NAME, settingsData, {tab: 'npc-features'});
 
+  CONFIG.DND5E.characterFlags.helpersUndeadFortitude = {
+      hint: "DND5EH.flagsUndeadFortitudeHint",
+      name: "DND5EH.flagsUndeadFortitude",
+      section: "Feats",
+      default:false,
+      type: Boolean
+    };    
   }
+  
 
   static defaults() {
     MODULE[NAME] = {
@@ -57,12 +68,15 @@ export class UndeadFortitude {
     /* bail if not enabled */
     if(!MODULE.setting('undeadFortEnable') > 0) return;
 
-    /* bail if this actor does not have undead fortitude feature */
-    if(!actor.items.getName(MODULE.setting("undeadFortName"))) return;
+    /* bail if HP isnt being modified */
+    if( getProperty(update, "data.attributes.hp.value") == undefined ) return;
+
+    /* Bail if the actor does not have undead fortitude and the flag is not set to true (shakes fist at double negatives)*/
+    if(!actor.items.getName(MODULE.setting("undeadFortName"))&&!actor.getFlag("dnd5e","helpersUndeadFortitude")) return;
 
     /* collect the needed information and pass it along to the handler */ 
     const originalHp = actor.data.data.attributes.hp.value;
-    const finalHp = getProperty(update, "data.attributes.hp.value") ?? actorHp;
+    const finalHp = getProperty(update, "data.attributes.hp.value") ?? originalHp;
     const hpDelta = originalHp - finalHp;
 
     const data = {
@@ -102,28 +116,43 @@ export class UndeadFortitude {
     queueUpdate( async () => {
       const saveInfo = await UndeadFortitude._getUndeadFortSave(data, mode === 2 ? true : false ); 
       const speaker = ChatMessage.getSpeaker({actor: data.actor, token: data.actor.token});
-      const whisper = game.users.entities.filter(u => u.isGM).map(u => u._id)
+      const whisper = game.users.filter(u => u.isGM).map(u => u.id)
       let content = '';
 
       /* assume the actor fails its save automatically (i.e. rollSave == false) */
       let hasSaved = false;
+      let messageName=data.actor.token?.name??data.actor.name// Take the token name or if that fails like for linked tokens fall abck to the actor name
 
       if (saveInfo.rollSave) {
         /* but roll the save if we need to and check */
         const result = (await data.actor.rollAbilitySave('con', {flavor: `${MODULE.setting('undeadFortName')} - DC ${saveInfo.saveDc}`, rollMode: 'gmroll'})).total;
-        hasSaved = result >= saveInfo.saveDc;
 
-        if (hasSaved) {
-          /* they saved, report and restore to 1 HP */
-          content = MODULE.format("DND5EH.UndeadFort_surivalmessage", { tokenName: data.actor.token.name, total: result });
-          await data.actor.update({'data.attributes.hp.value': 1});
+        /* check for unexpected roll outputs (like BetterRolls) and simply output information
+         * note: result == null _should_ account for result === undefined as well.
+         */
+
+       
+        if (result == null) {
+          logger.debug(`${NAME} | Could not parse result of constitution save. Echoing needed DC instead.`);
+          
+          content = MODULE.format('DND5EH.UndeadFort_failsafe', {tokenName: messageName, dc: saveInfo.saveDc});
         } else {
-          /* rolled and failed, but not instantly via damage type */
-          content = MODULE.format("DND5EH.UndeadFort_deathmessage", { tokenName: data.actor.token.name, total: result });
+
+          /* Otherwise, the roll result we got was valid and usable, so do the calculations ourselves */
+          hasSaved = result >= saveInfo.saveDc;
+
+          if (hasSaved) {
+            /* they saved, report and restore to 1 HP */
+            content = MODULE.format("DND5EH.UndeadFort_surivalmessage", { tokenName: messageName, total: result });
+            await data.actor.update({'data.attributes.hp.value': 1});
+          } else {
+            /* rolled and failed, but not instantly via damage type */
+            content = MODULE.format("DND5EH.UndeadFort_deathmessage", { tokenName: messageName, total: result });
+          }
         }
       } else {
         /* this is an auto-fail due to damage type, do not update remain at 0 */
-        content = MODULE.format("DND5EH.UndeadFort_insantdeathmessage", { tokenName: data.actor.token.name});
+        content = MODULE.format("DND5EH.UndeadFort_insantdeathmessage", { tokenName: messageName});
 
       } 
 

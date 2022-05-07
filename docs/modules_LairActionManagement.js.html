@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+
+    <!-- Adding meta -->
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      modules/LairActionManagement.js
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="1864653" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="ActionDialog.html">ActionDialog</a></li><li class="accordion collapsed child" id=220186><div class="accordion-heading child"><a href="ActionManagement.html">ActionManagement</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ActionManagement.html#._patchToken">_patchToken</a></li><li data-type='method'><a href="ActionManagement.html#._shouldAddEffect">_shouldAddEffect</a></li><li data-type='method'><a href="ActionManagement.html#._updateCombat">_updateCombat</a></li></ul></li><li class="accordion collapsed child" id=6583341><div class="accordion-heading child"><a href="DnDWildMagic.html">DnDWildMagic</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="DnDWildMagic.html#.slotExpended">slotExpended</a></li></ul></li><li class="accordion collapsed child" id=7487237><div class="accordion-heading child"><a href="HelpersSettingsConfig.html">HelpersSettingsConfig</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="HelpersSettingsConfig.html#_onClickSubmenu">_onClickSubmenu</a></li><li data-type='method'><a href="HelpersSettingsConfig.html#activateListeners">activateListeners</a></li><li data-type='method'><a href="HelpersSettingsConfig.html#getData">getData</a></li></ul></li><li class="accordion-list" id=""><a href="LairActionDialog.html">LairActionDialog</a></li><li class="accordion collapsed child" id=6694962><div class="accordion-heading child"><a href="LairActionManagement.html">LairActionManagement</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="LairActionManagement.html#._createCombatant">_createCombatant</a></li><li data-type='method'><a href="LairActionManagement.html#._updateCombat">_updateCombat</a></li></ul></li><li class="accordion-list" id=""><a href="LegendaryActionDialog.html">LegendaryActionDialog</a></li><li class="accordion collapsed child" id=4177289><div class="accordion-heading child"><a href="LegendaryActionManagement.html">LegendaryActionManagement</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="LegendaryActionManagement.html#._createCombatant">_createCombatant</a></li><li data-type='method'><a href="LegendaryActionManagement.html#.hooks">hooks</a></li><li data-type='method'><a href="LegendaryActionManagement.html#.register">register</a></li><li data-type='method'><a href="LegendaryActionManagement.html#.settings">settings</a></li></ul></li><li class="accordion-list" id=""><a href="UpdateQueue.html">UpdateQueue</a></li><li class="accordion collapsed child" id=1472236><div class="accordion-heading child"><a href="WildMagicAPI.html">WildMagicAPI</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="WildMagicAPI.html#generateChatData">generateChatData</a></li><li data-type='method'><a href="WildMagicAPI.html#isTidesCharged">isTidesCharged</a></li><li data-type='method'><a href="WildMagicAPI.html#registerHandler">registerHandler</a></li><li data-type='method'><a href="WildMagicAPI.html#surge">surge</a></li><li data-type='method'><a href="WildMagicAPI.html#tidesRechargeUpdate">tidesRechargeUpdate</a></li><li data-type='method'><a href="WildMagicAPI.html#unregisterHandler">unregisterHandler</a></li></ul></li><li class="accordion-list" id=""><a href="WildMagicSurge.html">WildMagicSurge</a></li></ul> </div><div class="accordion collapsed" id="243369" > <h3 class="accordion-heading">Namespaces<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=9215153><div class="accordion-heading child"><a href="WildMagicAPI.templates.html">templates</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="WildMagicAPI.templates.html#.handler">handler</a></li><li data-type='method'><a href="WildMagicAPI.templates.html#.preCheck">preCheck</a></li></ul></li></ul> </div><div class="accordion collapsed" id="9665905" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#queueUpdate">queueUpdate</a></li></ul> </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        modules/LairActionManagement.js
+      </h1>
+      
+
+      
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { MODULE } from '../module.js';
+import { logger } from '../logger.js';
+import { ActionDialog } from '../apps/action-dialog.js'
+import { queueUpdate } from './update-queue.js'
+
+const NAME = "LairActionManagement";
+
+/** @todo need to support an array of actors, not just a single one */
+class LairActionDialog extends ActionDialog {
+
+  /** @override */
+  constructor(combatants) {
+
+    /* Localize title */
+    const title = MODULE.format("DND5E.LairActionLabel");
+
+    /* construct an action dialog using only legendary actions */
+    super(combatants, {lair: true, title, id: 'lairact-action-dialog'});
+  }
+
+}
+
+
+/**
+ * LegendaryActionManagement
+ *  This Module strictly manages Legendary action economy per the dnd5e rules.
+ */
+export class LairActionManagement{
+
+  static register(){
+    this.settings();
+    this.hooks();
+  }
+
+  static settings(){
+    const config = false;
+    const settingsData = {
+      lairActionHelper : {
+        scope : "world", config, group: "npc-features", default: 0, type: Boolean,
+      }
+    };
+
+    MODULE.applySettings(settingsData);
+  }
+
+  static hooks() {
+    Hooks.on('createCombatant', LairActionManagement._createCombatant);
+
+    Hooks.on('updateCombat', LairActionManagement._updateCombat);
+  }
+
+  /**
+   * Check Combatant for Lair Actions, store information on the combat.
+   *  actorid, [itemid], 
+   * 
+   * @param {Combatant} combatant 
+   */
+  static _createCombatant(combatant) {
+
+    /* do not run if not the first GM or the feature is not enabled */
+    if (!MODULE.isFirstGM() || !MODULE.setting('lairActionHelper')) return;
+
+    const usesLair = getProperty(combatant, "actor.data.data.resources.lair.value")
+    const hasLairAction = !!combatant.actor?.items.find((i) => i.data?.data?.activation?.type === "lair")
+
+    /* flag this combatant as a lair actor for quick filtering */
+    if (usesLair &amp;&amp; hasLairAction){
+      queueUpdate( async () => await combatant.setFlag(MODULE.data.name, 'hasLair', true) )
+    }
+
+  }
+
+  /**
+   * 
+   * @param {*} combat 
+   * @param {*} changed 
+   */
+  static _updateCombat(combat, changed) {
+
+    /* do not run if not the first GM or the feature is not enabled */
+    if (!MODULE.isFirstGM() || !MODULE.setting('lairActionHelper')) return;
+
+    /* only trigger lair actions on a legit turn change */
+    if (!MODULE.isTurnChange(combat, changed)) return;
+
+    const allLairCombatants = combat.combatants.filter( combatant => combatant.getFlag(MODULE.data.name, 'hasLair') );
+
+    
+    const previousId = combat.previous?.combatantId;
+    const currentId = combat.current?.combatantId;
+    
+    let previousInit = combat.combatants.get(previousId).initiative;
+    const currentInit = combat.combatants.get(currentId).initiative;
+
+    /* check if we have wrapped around and simulate its previous initiative */
+
+    /* lair init should be inside this range or outside? */
+    const inside = previousInit - currentInit > 0; 
+
+    const containsLair = (combatant) => {
+      const init = combatant.actor.data.data.resources.lair.initiative
+
+      return previousInit >= init &amp;&amp; init > currentInit;
+    }
+
+    const excludesLair = (combatant) => {
+      const init = combatant.actor.data.data.resources.lair.initiative
+
+      return init > currentInit || init &lt;= previousInit;
+    }
+
+    const hasHp = (combatant) => {
+      return getProperty(combatant.actor, 'data.data.attributes.hp.value') ?? 0 > 0;
+    }
+
+    const filterCondition = inside ? containsLair : excludesLair;
+
+    //const triggeredLairInits = allLairCombatants.filter( combatant => correctDirection(combatant) &amp;&amp; lairCloser(combatant) &amp;&amp; hasHp(combatant) );
+    const triggeredLairInits = allLairCombatants.filter( combatant => filterCondition(combatant) &amp;&amp; hasHp(combatant) );
+
+    /* send list of combantants to the action dialog subclass */
+    if (triggeredLairInits.length > 0) {
+      LairActionManagement.showLairActions(triggeredLairInits);
+    }
+
+  }
+
+  /** @private */
+  /*
+   * Generates the action dialog for legendary actions 
+   * @param {Array of Object} combatants
+   */
+  static showLairActions(combatants) {
+    new LairActionDialog(combatants).render(true);
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"ActionDialog","link":"<a href=\"ActionDialog.html\">ActionDialog</a>"},{"title":"ActionManagement","link":"<a href=\"ActionManagement.html\">ActionManagement</a>"},{"title":"ActionManagement._patchToken","link":"<a href=\"ActionManagement.html#._patchToken\">ActionManagement &rtrif; _patchToken</a>"},{"title":"ActionManagement._shouldAddEffect","link":"<a href=\"ActionManagement.html#._shouldAddEffect\">ActionManagement &rtrif; _shouldAddEffect</a>"},{"title":"ActionManagement._updateCombat","link":"<a href=\"ActionManagement.html#._updateCombat\">ActionManagement &rtrif; _updateCombat</a>"},{"title":"DnDWildMagic","link":"<a href=\"DnDWildMagic.html\">DnDWildMagic</a>"},{"title":"DnDWildMagic.slotExpended","link":"<a href=\"DnDWildMagic.html#.slotExpended\">DnDWildMagic &rtrif; slotExpended</a>"},{"title":"HelpersSettingsConfig","link":"<a href=\"HelpersSettingsConfig.html\">HelpersSettingsConfig</a>"},{"title":"HelpersSettingsConfig#_onClickSubmenu","link":"<a href=\"HelpersSettingsConfig.html#_onClickSubmenu\">HelpersSettingsConfig &rtrif; _onClickSubmenu</a>"},{"title":"HelpersSettingsConfig#activateListeners","link":"<a href=\"HelpersSettingsConfig.html#activateListeners\">HelpersSettingsConfig &rtrif; activateListeners</a>"},{"title":"HelpersSettingsConfig#getData","link":"<a href=\"HelpersSettingsConfig.html#getData\">HelpersSettingsConfig &rtrif; getData</a>"},{"title":"LairActionDialog","link":"<a href=\"LairActionDialog.html\">LairActionDialog</a>"},{"title":"LairActionManagement","link":"<a href=\"LairActionManagement.html\">LairActionManagement</a>"},{"title":"LairActionManagement._createCombatant","link":"<a href=\"LairActionManagement.html#._createCombatant\">LairActionManagement &rtrif; _createCombatant</a>"},{"title":"LairActionManagement._updateCombat","link":"<a href=\"LairActionManagement.html#._updateCombat\">LairActionManagement &rtrif; _updateCombat</a>"},{"title":"LegendaryActionDialog","link":"<a href=\"LegendaryActionDialog.html\">LegendaryActionDialog</a>"},{"title":"LegendaryActionManagement","link":"<a href=\"LegendaryActionManagement.html\">LegendaryActionManagement</a>"},{"title":"LegendaryActionManagement._createCombatant","link":"<a href=\"LegendaryActionManagement.html#._createCombatant\">LegendaryActionManagement &rtrif; _createCombatant</a>"},{"title":"LegendaryActionManagement.hooks","link":"<a href=\"LegendaryActionManagement.html#.hooks\">LegendaryActionManagement &rtrif; hooks</a>"},{"title":"LegendaryActionManagement.register","link":"<a href=\"LegendaryActionManagement.html#.register\">LegendaryActionManagement &rtrif; register</a>"},{"title":"LegendaryActionManagement.settings","link":"<a href=\"LegendaryActionManagement.html#.settings\">LegendaryActionManagement &rtrif; settings</a>"},{"title":"UpdateQueue","link":"<a href=\"UpdateQueue.html\">UpdateQueue</a>"},{"title":"WildMagicAPI","link":"<a href=\"WildMagicAPI.html\">WildMagicAPI</a>"},{"title":"WildMagicAPI#generateChatData","link":"<a href=\"WildMagicAPI.html#generateChatData\">WildMagicAPI &rtrif; generateChatData</a>"},{"title":"WildMagicAPI#isTidesCharged","link":"<a href=\"WildMagicAPI.html#isTidesCharged\">WildMagicAPI &rtrif; isTidesCharged</a>"},{"title":"WildMagicAPI#registerHandler","link":"<a href=\"WildMagicAPI.html#registerHandler\">WildMagicAPI &rtrif; registerHandler</a>"},{"title":"WildMagicAPI#surge","link":"<a href=\"WildMagicAPI.html#surge\">WildMagicAPI &rtrif; surge</a>"},{"title":"WildMagicAPI#tidesRechargeUpdate","link":"<a href=\"WildMagicAPI.html#tidesRechargeUpdate\">WildMagicAPI &rtrif; tidesRechargeUpdate</a>"},{"title":"WildMagicAPI#unregisterHandler","link":"<a href=\"WildMagicAPI.html#unregisterHandler\">WildMagicAPI &rtrif; unregisterHandler</a>"},{"title":"WildMagicSurge","link":"<a href=\"WildMagicSurge.html\">WildMagicSurge</a>"},{"title":"templates","link":"<a href=\"WildMagicAPI.templates.html\">templates</a>"},{"title":"WildMagicAPI.templates.handler","link":"<a href=\"WildMagicAPI.templates.html#.handler\">WildMagicAPI &rtrif; templates</a>"},{"title":"WildMagicAPI.templates.preCheck","link":"<a href=\"WildMagicAPI.templates.html#.preCheck\">WildMagicAPI &rtrif; templates</a>"},{"title":"queueUpdate","link":"<a href=\"global.html#queueUpdate\">queueUpdate</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+
+    
+
+
+  </body>
+
+</html>

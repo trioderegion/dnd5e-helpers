@@ -2,3 +2,6 @@
 *.swo
 *.orig
 *.code-workspace
+*.lock
+.idea/*
+node_modules/*

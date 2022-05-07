@@ -13,14 +13,20 @@ export class OpenWounds {
     static settings() {
         const config = false;
         const settingsData = {
+            OpenWound0HP: {
+                scope: "world", config, group: "system", default: false, type: Boolean,
+            },
+            OpenWound0HPGW: {
+                scope: "world", config, group: "system", default: false, type: Boolean,
+            },
             OpenWoundsFeatureName: {
-                scope: "world", config, group: "combat", default: "Open Wound", type: String,
+                scope: "world", config, group: "system", default: "Open Wound", type: String,
             },
             OpenWoundPcOnlyName: {
                 scope: "world", config, group: "combat", default: false, type: Boolean
             },
             OpenWoundTableName: {
-                scope: "world", config, group: "combat", default: "", type: String,
+                scope: "world", config, group: "system", default: "", type: String,
             },
             OpenWoundDeathSave: {
                 scope: "world", config, group: "combat", default: 0, type: Number,
@@ -28,18 +34,12 @@ export class OpenWounds {
             OpenWoundCrit: {
                 scope: "world", config, group: "combat", default: false, type: Boolean,
             },
-            OpenWound0HP: {
-                scope: "world", config, group: "combat", default: false, type: Boolean,
-            },
-            OpenWound0HPGW: {
-                scope: "world", config, group: "combat", default: false, type: Boolean,
-            },
             OpenWoundItemSetting: {
-                scope: "world", config, group: "combat", default: false, type: Boolean,
+                scope: "world", config, group: "system", default: false, type: Boolean,
             },
         };
 
-        MODULE.applySettings(settingsData);
+        MODULE.registerSubMenu(NAME, settingsData, {tab: 'combat'});
     }
 
     static hooks() {
@@ -51,7 +51,7 @@ export class OpenWounds {
 
     static _preUpdateActor(actor, update) {
         let hp = getProperty(update, "data.attributes.hp.value");
-        if ((MODULE.setting('OpenWound0HP')) && (hp === 0)) {
+        if ((MODULE.setting('OpenWound0HP')) && (hp <= 0)) {
             OpenWounds.OpenWounds(actor, MODULE.localize("DND5EH.OpenWound0HP_reason"))
         }
     }

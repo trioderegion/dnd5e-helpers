@@ -10,7 +10,7 @@ import { MODULE } from '../module.js';
  */
 export class ActionDialog extends Dialog {
   /** @override */
-  constructor(combatants, options = { action : true, bonus : true, reaction : true, legendary : true, lair : true, special : true }){
+  constructor(combatants, options = { action : true, bonus : true, reaction : true, legendary : true, lair : true, special : true, id: ActionDialog.DEFAULT_ID }){
     /*
       Build Options
     */
@@ -23,24 +23,20 @@ export class ActionDialog extends Dialog {
     this.data = {};
     this.data.title = options?.title ?? "Action Dialog";
     this.data.buttons = { 
-      close: { label: MODULE.format("Close"), callback: () => {}}
+      close: { label: MODULE.format("Close"), callback: ActionDialog.storePosition}
     };
     this.data.default = "close";
-    this.data.combatants = combatants.map((combatant) => {return {
-      id : combatant.id,
-      img : combatant.actor.img,
-      name : combatant.actor.name,
-      economy : this.getCombatantItemData(combatant),
-      items : {
-        action : this.options?.action ? this.getCombatantItemData(combatant, "action") : undefined,
-        bonus : this.options?.bonus ? this.getCombatantItemData(combatant, "bonus") : undefined,
-        reaction : this.options?.reaction ? this.getCombatantItemData(combatant, "reaction"): undefined,
-        legendary : this.options?.legendary ? this.getCombatantItemData(combatant, "legendary") : undefined,
-        lair : this.options?.lair ? this.getCombatantItemData(combatant, "lair") : undefined,
-        special : this.options?.special ? this.getCombatantItemData(combatant, "special") : undefined,
-      }
-    }
-    });
+    this.data.combatants = combatants;
+    mergeObject(this.position, ActionDialog._lastPosition.get(this.options.id) ?? {});
+  }
+
+  static DEFAULT_ID = 'dnd5e-helpers-action-dialog';
+  static _lastPosition = new Map(); 
+
+  static storePosition(html) {
+    const id = html.attr('id');
+    const position = html.position();
+    ActionDialog._lastPosition.set(id, {top: position.top, left: position.left});
   }
 
   /** @inheritdoc */
@@ -48,15 +44,37 @@ export class ActionDialog extends Dialog {
     return foundry.utils.mergeObject(super.defaultOptions, {
       template : `modules/${MODULE.data.name}/templates/ActionDialog.html`,
       classes: ["dnd5ehelpers","action-dialog"], 
-      resizable: true,
+      resizable: false,
+      id: ActionDialog.DEFAULT_ID,
       jQuery : true,
-      width : "auto",
-      close: () => {ui.notify}
+      height: "100%",
+      close: ActionDialog.storePosition,
+      popOutModuleDisable: true,
     });
   }
 
   get title() {
     return this.data.title;
+  }
+
+  _generateCombatantData() {
+    return this.data.combatants.map((combatant) => {
+      return {
+        id : combatant.id,
+        combatId: combatant.combat.id,
+        img : combatant.img,
+        name : combatant.name,
+        items : {
+          action : this.options?.action ? this.getCombatantItemData(combatant, "action") : undefined,
+          bonus : this.options?.bonus ? this.getCombatantItemData(combatant, "bonus") : undefined,
+          reaction : this.options?.reaction ? this.getCombatantItemData(combatant, "reaction"): undefined,
+          legendary : this.options?.legendary ? this.getCombatantItemData(combatant, "legendary") : undefined,
+          lair : this.options?.lair ? this.getCombatantItemData(combatant, "lair") : undefined,
+          special : this.options?.special ? this.getCombatantItemData(combatant, "special") : undefined,
+        }
+      }
+    });
+
   }
 
   getCombatantItemData(combatant, type){
@@ -67,16 +85,17 @@ export class ActionDialog extends Dialog {
         let data = {
           name : item.name, 
           id : item.id,
-          activation : getProperty(item,'data.data.activation'), 
+          activation : mergeObject(getProperty(item,'data.data.activation'), {canUse: true}),
           description : getProperty(item ,'data.data.description.value'), 
           img : item.img, 
           uuid : item.uuid,
         }
 
-        /* special case data */
+        /* special case data -- legendary actions REQUIRE available resources */
         switch(type){
           case 'legendary':
             mergeObject(data.activation, { available : getProperty(combatant.actor, 'data.data.resources.legact.value') } ); 
+            data.activation.canUse = data.activation.available >= data.activation.cost;
             break;
         }
 
@@ -84,21 +103,22 @@ export class ActionDialog extends Dialog {
       });
   }
 
-  getCombatantEconomyData(combatant){
-    return {
-      action : 1,
-      bonus : 1,
-      reaction : 1,
-      legendary : combatant.actor.data.data.resources?.legact,
-      lair : combatant.actor.data.data.resources?.lair
-    }
-  }
-
   getData(options) {
     let data = super.getData(options);  
-    data.combatants = this.data.combatants;
+    data.combatants = this._generateCombatantData();
     return data;
   }
+
+  update(){
+    return this.render(true);
+  }
+
+  setPosition(options = {}) {
+    options.height = '100%'
+    const position = super.setPosition(options);
+    return position;
+  }
+
 
   /*
     Overwrite
@@ -109,15 +129,11 @@ export class ActionDialog extends Dialog {
     /* register img and item clicks for each combatant */
     this.data.combatants.forEach( (combatant) => {
       html.find(`#${combatant.id}`).on('click', this._onImgClick);
-      for(const item of Object.values(combatant.items).reduce((a,v) => a.concat(v?.map(e => e.id) ?? []), [])){
-        html.find(`#${item}`).on('click', this._onButtonClick.bind(this));
-      }
     });
+
+    html.find('.item').on('click', this._onButtonClick.bind(this));
   }
 
-  update(combat){
-
-  }
 
   _onImgClick(event){
     logger.debug("_onImgClick | DATA | ", { event });
@@ -132,14 +148,19 @@ export class ActionDialog extends Dialog {
   }
 
   async _onButtonClick(event){
-    const itemUUID = event.currentTarget.value;
+    const itemUUID = event.currentTarget.id;
     const item = await fromUuid(itemUUID);
 
     if(!item || !(item instanceof Item)) return;
 
-    const promise = item.roll();
+    await item.roll();
     logger.debug("onButtonClick | DATA | ", { event, itemUUID, item });
-    this.close();
-    return promise;
+
+    /* close the dialog if only one combatant can do a thing here */
+    if (this.data.combatants.length == 1) {
+      return this.close();
+    } else {
+      return this.update();
+    }
   }
 }

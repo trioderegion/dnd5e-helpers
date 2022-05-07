@@ -12,7 +12,7 @@
           {{#each this}}
             <div class="hover-group">
               <div class="desc">{{{this.description}}}</div>
-              <button type="button" id="{{this.id}}" value="{{this.uuid}}">
+              <button type="button" class="item" id="{{this.uuid}}" {{#unless this.activation.canUse}}disabled{{/unless}}>
                 <label>{{this.name}}</label>
                 <label>
                   {{#if this.activation.cost}}

@@ -47,8 +47,8 @@ export class Shape {
   }
 
   checkIntersection(s){
-    let r = this.options !== {} ? this.options.cover : 3;
-    return this.segments.reduce((a,v) => a || s.checkIntersection(v), false) ? r : 0;
+    let r = mergeObject({cover: 3, limited: false}, this.options ?? {});
+    return this.segments.reduce((a,v) => a || s.checkIntersection(v), false) ? r : {cover: 0, limited: r.limited};
   } 
 
   static buildRectangle({x, y, w, h} = {}, p = 0, o){

@@ -24,7 +24,6 @@ import { UndeadFortitude } from './modules/UndeadFortitude.js'
  * Sub Apps
  */
 import { ActionDialog } from './apps/action-dialog.js';
-import { AD } from './apps/action-dialog-app.js';
 
 const SUB_MODULES = {
   MODULE,
@@ -45,7 +44,6 @@ const SUB_MODULES = {
 
 const SUB_APPS = {
   ActionDialog,
-  AD,
 }
 
 /*
@@ -58,6 +56,7 @@ MODULE.build();
 */
 Hooks.on(`setup`, () => {
   Object.values(SUB_MODULES).forEach(cl => cl.register());
+  Hooks.callAll('helpersReady', {MODULE, logger});
 
   //GlobalTesting
   //Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);

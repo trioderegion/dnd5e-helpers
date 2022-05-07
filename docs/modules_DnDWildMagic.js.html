@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+
+    <!-- Adding meta -->
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      modules/DnDWildMagic.js
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="1864653" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="ActionDialog.html">ActionDialog</a></li><li class="accordion collapsed child" id=220186><div class="accordion-heading child"><a href="ActionManagement.html">ActionManagement</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ActionManagement.html#._patchToken">_patchToken</a></li><li data-type='method'><a href="ActionManagement.html#._shouldAddEffect">_shouldAddEffect</a></li><li data-type='method'><a href="ActionManagement.html#._updateCombat">_updateCombat</a></li></ul></li><li class="accordion collapsed child" id=6583341><div class="accordion-heading child"><a href="DnDWildMagic.html">DnDWildMagic</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="DnDWildMagic.html#.slotExpended">slotExpended</a></li></ul></li><li class="accordion collapsed child" id=7487237><div class="accordion-heading child"><a href="HelpersSettingsConfig.html">HelpersSettingsConfig</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="HelpersSettingsConfig.html#_onClickSubmenu">_onClickSubmenu</a></li><li data-type='method'><a href="HelpersSettingsConfig.html#activateListeners">activateListeners</a></li><li data-type='method'><a href="HelpersSettingsConfig.html#getData">getData</a></li></ul></li><li class="accordion-list" id=""><a href="LairActionDialog.html">LairActionDialog</a></li><li class="accordion collapsed child" id=6694962><div class="accordion-heading child"><a href="LairActionManagement.html">LairActionManagement</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="LairActionManagement.html#._createCombatant">_createCombatant</a></li><li data-type='method'><a href="LairActionManagement.html#._updateCombat">_updateCombat</a></li></ul></li><li class="accordion-list" id=""><a href="LegendaryActionDialog.html">LegendaryActionDialog</a></li><li class="accordion collapsed child" id=4177289><div class="accordion-heading child"><a href="LegendaryActionManagement.html">LegendaryActionManagement</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="LegendaryActionManagement.html#._createCombatant">_createCombatant</a></li><li data-type='method'><a href="LegendaryActionManagement.html#.hooks">hooks</a></li><li data-type='method'><a href="LegendaryActionManagement.html#.register">register</a></li><li data-type='method'><a href="LegendaryActionManagement.html#.settings">settings</a></li></ul></li><li class="accordion-list" id=""><a href="UpdateQueue.html">UpdateQueue</a></li><li class="accordion collapsed child" id=1472236><div class="accordion-heading child"><a href="WildMagicAPI.html">WildMagicAPI</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="WildMagicAPI.html#generateChatData">generateChatData</a></li><li data-type='method'><a href="WildMagicAPI.html#isTidesCharged">isTidesCharged</a></li><li data-type='method'><a href="WildMagicAPI.html#registerHandler">registerHandler</a></li><li data-type='method'><a href="WildMagicAPI.html#surge">surge</a></li><li data-type='method'><a href="WildMagicAPI.html#tidesRechargeUpdate">tidesRechargeUpdate</a></li><li data-type='method'><a href="WildMagicAPI.html#unregisterHandler">unregisterHandler</a></li></ul></li><li class="accordion-list" id=""><a href="WildMagicSurge.html">WildMagicSurge</a></li></ul> </div><div class="accordion collapsed" id="243369" > <h3 class="accordion-heading">Namespaces<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=9215153><div class="accordion-heading child"><a href="WildMagicAPI.templates.html">templates</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="WildMagicAPI.templates.html#.handler">handler</a></li><li data-type='method'><a href="WildMagicAPI.templates.html#.preCheck">preCheck</a></li></ul></li></ul> </div><div class="accordion collapsed" id="9665905" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#queueUpdate">queueUpdate</a></li></ul> </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        modules/DnDWildMagic.js
+      </h1>
+      
+
+      
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { MODULE } from "../module.js";
+import { logger } from "../logger.js";
+
+const NAME = "DnDWildMagic";
+
+/**
+ * Acts as the primary API class for the wild magic system and interacting with it.
+ * Exposes system functions from the DnDWildMagic class.
+ * @class
+ */
+class WildMagicAPI {
+  
+  initialize() {
+
+    /* clear any handlers present */
+    this._handlers.clear()
+    this._preCheck.clear()
+
+    /* call for surge handlers */
+    Hooks.callAll('wmsRegister');
+
+    /* Add surge handlers to special traits options */
+    DnDWildMagic._setTraitsOptions(Array.from(this._handlers.keys())); 
+  }
+
+  constructor() {
+    this._handlers = new Map();
+    this._preCheck = new Map();
+  }
+
+  getHandler(label){
+    return this._handlers.get(label);
+  }
+
+  getPreCheck(label){
+    return this._preCheck.get(label);
+  }
+
+  /**
+   * @namespace templates
+   * @memberof WildMagicAPI
+   * @type {Object} 
+   */
+  get templates() {
+    return {
+
+      /**
+       * Core `roll &lt;= target` handler. Has no side effects and can be used to build upon.
+       * Checks for surge given the roll and targets, produces chat message data, retrieves the
+       * table configured in Helpers, and produces the update data for recharging Tides if enabled
+       * in the Helpers options.
+       * @memberof WildMagicAPI.templates
+       * @method handler
+       * @async
+       *
+       * @param {Actor5e} actor - actor for the surge
+       * @param {Object} surgeData 
+       * @param {number} surgeData.spellLevel - Spell level triggering this surge check
+       * @param {string|Roll} targetRoll - Either a die expression or a Roll object (evaluated or not)
+       * representing the target number that the surge roll will be compared against.
+       * @param {string|Roll} surgeRoll - Either a die expression or a Roll object (evaluated or not)
+       * representing the surge check.
+       *
+       * @returns {Promise} surge results, table selection, resulting chat data for this surge.
+       *
+       */
+      handler: DnDWildMagic.commonSurgeHandler,
+
+      /**
+       * Core "was slot used?" pre check for surging. Checks if the actor update is a reduction
+       * in spell slot counts. Each preCheck function will return data for its paired handler to
+       * consume in order to execute the needed rolls to determine if a surge actually occurs.
+       * @memberof WildMagicAPI.templates
+       * @method preCheck
+       *
+       * @param {Actor5e} actor - The actor at its current state, before any updates have been applied
+       * @param {Object} updates - The incoming updates that _may_ trigger a surge check. In this case,
+       * the reduction of any spell slot count will trigger a surge check.
+       *
+       * @returns {Object|boolean} a non-false return indicates that this update triggers a surge check.
+       * Additionally, the data returned will be used by the surge handler in order to execute the needed
+       * checks. `{spellLevel: number}` is returned by this handler and is intended for use with the default
+       * handler.
+       * @see {@link WildMagic.templates.handler}
+       */
+      preCheck: DnDWildMagic.slotExpended,
+    }
+  }
+
+  /**
+   * Registers the provided handler with the wild magic system. If done during the 
+   * 'wmsRegister' hook, will additionally add this to the actor special traits
+   * list. If done afterwords, can be invoked by directly calling 'surge'.
+   * @see {@link DnDWildMagic.surge}
+   *
+   * @param {string} label - Unique identifier for this handler. Also used as the
+   * displayed handler name in the special traits menu
+   * @param {function} handler - signature: `async function handler(actor, surgeData)`.
+   * Given surgeData produced by the preCheck function, determines if a surge occurs
+   * (typically by rolling under a target number).
+   * @param {function} [preCheck = WildMagic.slotExpended] - signature 
+   * `function preCheck(actor, update)`. Given an actor pre-update and the update to
+   * be applied, returns an object containing information for its paired handler OR 
+   * false if a surge cannot occur (ex. the update was not expending a spell slot).
+   *
+   * @returns {boolean} indicates successful addition
+   */
+  registerHandler(label, handler, preCheck = DnDWildMagic.slotExpended) {
+    if( this._handlers.has(label) ){
+      logger.warn(`Rejecting duplicate surge handler: ${label}`);
+      return false;
+    }
+
+    this._handlers.set(label, handler);
+    this._preCheck.set(label, preCheck);
+    return true;
+  }
+
+  /**
+   * Unregisters a given handler and preCheck pair based on the handler's key (label)
+   * @param {string} label - name of handler and preCheck pair to remove
+   * @returns {boolean} indicates successful removal of handler
+   */
+  unregisterHandler(label) {
+   if( !this._handlers.has(label) ){
+      logger.warn(`Cannot locate existing handler to remove: ${label}`);
+      return false;
+    }
+    
+    this._handlers.delete(label);
+    this._preCheck.delete(label);
+    return true;
+  }
+
+  /**
+   * Force a surge to occur for the desired actor
+   * @param {Actor5e} actor - which character will surge
+   * @param {Object} [surgeOptions] - optional information to customize this actor's surge process and results
+   * @param {Object} surgeOptions.data - information needed by this actor's surge handler. Often {spellLevel: N}.
+   * @param {string|function} surgeOptions.handler - Either the handler's key (string) or a custom handler function.
+   * @see {@link DnDWildMagic.registerHandler} for details on the handler function signature.
+   *
+   * @returns {Promise} Resulting information returned by the handler function used to carry out any needed operations resulting from this type of surge.
+   */
+  surge(actor, {data = {}, handler = actor.getFlag('dnd5e', 'wildMagic')} = {} ) {
+    return DnDWildMagic._runHandler(handler, actor, data)
+  }
+
+  /** 
+   * Helper function for creating the chat message data for a given surge result
+   * @parm {Object} info - needed surge information to construct the feedback chat message
+   * @param {Roll} info.surgeRoll - Roll object representing the test roll for surging
+   * @param {Roll} info.targetRoll - Roll object representing the upper bound for a successful surge
+   * @param {boolean} [info.surgeOccured = false] - whether a surge occured or not
+   * @param {number} [info.spellLevel = 0] - spell level that triggered this surge
+   * @param {string} [info.extraText = ''] - Additional string placed between spell level and "spell" in output. Ex. 'as a level 9&lt;extraText> spell is cast'
+   *
+   * @returns {Object} - ChatMessage data needed to construct the surge results.
+   */
+  async generateChatData(info){
+
+    const data = {
+      action : info.surgeOccured ? MODULE.localize("DND5EH.WildMagicConsoleSurgesSurge") : MODULE.localize("DND5EH.WildMagicConsoleSurgesCalm"),
+      spellLevel: info.spellLevel ?? 0,
+      resultText : `[[/r ${info.surgeRoll.formula}cs&lt;=${info.targetRoll.formula} #${info.surgeRoll.formula}cs&lt;=${info.targetRoll.formula}]]{${info.surgeRoll.total} &lt;= ${info.targetRoll.total}}`,
+      extraText: info.extraText ?? '',
+    }
+
+    const rollHtml = $(await info.surgeRoll.render());
+
+    rollHtml.find(".dice-total")
+      .toggleClass('critical', info.surgeOccured)
+      .text(info.surgeRoll.total);
+
+    rollHtml.find('.dice-formula').text(`${info.surgeRoll.formula}cs&lt;=${info.targetRoll.formula}`);
+
+    const whisper = info.whisper ?? (MODULE.setting("wmWhisper") ? ChatMessage.getWhisperRecipients("GM") : []);
+    const speaker = info.speaker ?? ChatMessage.getSpeaker({ alias : MODULE.localize("DND5EH.WildMagicChatSpeakerName")});
+    const content = info.content ?? await renderTemplate(`modules/${MODULE.data.name}/templates/WildMagicSurgeChat.html`, {
+      mainMessage: game.i18n.format("DND5EH.WildMagicConsoleSurgesMessage", { ...data }),
+      roll: rollHtml.prop("outerHTML")
+    });
+
+    return {
+      content,
+      speaker,
+      whisper,
+    };
+  }
+
+  /**
+   * Determines if the actor has a charged use of Tides remaining. In the event of both
+   * a resource and feature item being used to track charges, this will indicate true (charged)
+   * if *either* the resource or item has uses left.
+   *
+   * @param {Actor5e} actor - actor to query for charged tides
+   *
+   * @returns {boolean} indicates if tides is charged (true) or not (false)
+   */
+  isTidesCharged(actor){
+    let item = DnDWildMagic._getTides(actor);
+    const itemCharge =  item?.data?.data?.uses?.value != 0;
+
+    let resource = DnDWildMagic._getTidesResource(actor);
+    const resourceCharge = !!resource.value 
+
+    return itemCharge || resourceCharge
+  }
+
+  /**
+   * Generates the needed actor and item updates for recharging the configured Tides feature/resource
+   *
+   * @param {Actor5e} actor - actor for which to generate the recharge update information.
+   *
+   * @returns {Object} updates - resulting update information
+   * @returns {Object} updates.actor - actor update data
+   * @returns {Object[]} updates.item - array of item update data
+   */
+  tidesRechargeUpdate(actor) {
+    let updates = {actor: {}, item: []};
+    const item = DnDWildMagic._getTides(actor);
+
+    if(item)
+      updates.item.push({_id:item.id, "data.uses.value" : item.data.data.uses.max });
+
+    const resource = DnDWildMagic._getTidesResource(actor);
+    if(resource)
+      updates.actor = { [`data.resources.${resource.key}.value`] : resource.max }
+    return updates;
+  }
+}
+
+/**
+ * Core wild magic operations, initialization, and helper functions
+ * @class
+ */
+export class DnDWildMagic {
+  static register(){
+    logger.info("Registering Wild Magic Surge");
+    DnDWildMagic.defaults();
+    DnDWildMagic.settings();
+    DnDWildMagic.globals();
+    DnDWildMagic.hooks();
+  }
+
+  static defaults(){
+    MODULE[NAME] = { 
+      table : "Wild-Magic-Surge-Table",
+      feature : "Tides of Chaos",
+    };
+  }
+
+  static settings(){
+    const config = false;
+
+    /* {blindroll : CHAT.RollBlind} */
+    let rollModes = Object.entries(CONST.DICE_ROLL_MODES).reduce( (acc, [key, value]) => {
+          acc[value] = MODULE.localize(`CHAT.Roll${key.toLowerCase().capitalize()}`);         
+          return acc
+        },{})
+    rollModes['default'] = MODULE.localize('Default');
+
+    const settingsData = {
+      wmOptions : {
+        scope: "world", config, group: "pc-features", default: 0, type: Number,
+        choices: {
+          0: MODULE.localize("option.default.disabled"),
+          1: MODULE.localize("option.default.enabled"),
+        },
+        onchange : (/*...args*/) => {
+          //logger.info("Settings Change!", args);
+        }
+      },
+      wmTableName : {
+        scope: "world", config, group: "pc-features", default: MODULE[NAME].table, type: String,
+      },
+      wmToCFeatureName : {
+        scope: "world", config, group: "pc-features", default: MODULE[NAME].feature, type: String,
+      },
+      wmToCRecharge : {
+        scope: "world", config, group: "pc-features", default: false, type: Boolean,
+      },
+      wmWhisper : {
+        scope: "world", config, group: "pc-features", default: false, type: Boolean,
+      },
+      wmRollMode : {
+        scope: "world", config, group: "pc-features", default: 'default', type: String,
+        choices: rollModes 
+        
+      }
+    };
+
+    MODULE.registerSubMenu(NAME, settingsData, {tab: 'pc-features'});
+  }
+
+  static hooks(){
+    /* surge monitoring hooks */
+    Hooks.on("preUpdateActor", DnDWildMagic._preUpdateActor);
+    Hooks.on("updateActor", DnDWildMagic._updateActor);
+
+    /* set up our stock handers when requested */
+    Hooks.on('wmsRegister', DnDWildMagic._registerStockHandlers);
+
+    /* initialize and call for surge handlers when everything is loaded */
+    Hooks.on('ready', () => globalThis.WildMagic.initialize());
+  }
+
+  static globals(){
+    globalThis.WildMagic = new WildMagicAPI();
+  }
+
+  static _updateActor(actor, _, options, user){
+    if(!options.wmsHandler || user !== game.user.id) return;
+    DnDWildMagic._runHandler(options.wmsHandler, actor, options.wmsData);
+  }
+
+  static async _runHandler(handler, actor, surgeData){
+
+    /* run the handler to produce the results */
+    let handlerResult;
+    if (typeof handler == 'string') {
+      /* we were handed a handler ID, grab the function */
+      handler = globalThis.WildMagic.getHandler(handler);
+    }
+
+    try {
+      handlerResult = await handler(actor, surgeData)
+    } catch (e) {
+      logger.error(e);
+      return false;
+    }
+
+    /* do various things with result */
+    if(handlerResult.chatData) {
+      await ChatMessage.create(handlerResult.chatData);
+    }
+
+    if(handlerResult.table?.uuid){
+      await DnDWildMagic._rollTable(handlerResult.table.uuid, handlerResult.table.rollMode)
+    }
+
+    /* run actor updates */
+    if(handlerResult.actorUpdates) {
+      await actor.update(handlerResult.actorUpdates);
+    }
+
+    /* run item updates */
+    if(handlerResult.itemUpdates) {
+      await actor.updateEmbeddedDocuments('Item',handlerResult.itemUpdates);
+    }
+
+    /* run effect updates */
+    if(handlerResult.effectUpdates) {
+      await actor.updateEmbeddedDocuments('ActiveEffect',handlerResult.effectUpdates);
+    }
+
+    return handlerResult;
+  }
+
+  static _preUpdateActor(actor, update, options){
+
+    let specialTrait = actor.getFlag('dnd5e', 'wildMagic');
+
+    /* Forceful Migration step TODO provide migration API */
+    if (typeof specialTrait != 'string') {
+      specialTrait = ''; 
+    }
+
+    const enabled = MODULE.setting('wmOptions') !== 0;
+    logger.debug(`_preUpdateActor | Logic (e/s) | `, specialTrait);
+    if(specialTrait == '' || !enabled) return;
+
+    /* otherwise, call preCheck to deny the surge or prep data needed for it */
+    const preCheck = globalThis.WildMagic.getPreCheck(specialTrait);
+    if (!preCheck) return;
+
+    let data;
+    try{
+      data = preCheck(actor, update);
+    } catch (e) {
+      logger.error(e)
+      return
+    }
+
+    if (!!data) {
+      options.wmsData = data;
+      options.wmsHandler = specialTrait;
+    }
+
+  }
+
+  static async _rollTable(uuid, rollMode = MODULE.setting('wmRollMode')) {
+
+    rollMode = rollMode == 'default' ? game.settings.get("core", "rollMode") : rollMode;
+    const table = await fromUuid(uuid);
+
+    logger.debug("_rollTable | ", {rollMode, name: table?.name, table});
+    
+    if(table){
+      return await table.draw({ rollMode });
+    }
+
+    return logger.error(`Failed to get Table [${uuid}]`);
+  }
+
+  static _getTides(actor){
+    const name = MODULE.setting("wmToCFeatureName") ?? MODULE[NAME].feature;
+    const item = actor.items.getName(name);
+
+    logger.debug("_getTides | ", {name, item});
+
+    if(item) return item;
+  }
+
+  static _getTidesResource(actor){
+    const name = MODULE.setting("wmToCFeatureName") ?? MODULE[NAME].feature;
+    return Object.entries(actor.data.data.resources).reduce((acc, [key, obj]) => {
+      if(obj.label === name)
+        return { key, ...obj};
+      return acc;
+    }, false);
+  }
+
+  static _setTraitsOptions(handlerKeys) {
+
+    /* create key:value pair for display */
+    let choices = {};
+    handlerKeys.forEach( key => choices[key] = key );
+
+    CONFIG.DND5E.characterFlags.wildMagic = {
+      hint: "DND5EH.flagsWildMagicHint",
+      name: "DND5EH.flagsWildMagic",
+      section: "Feats",
+      type: String,
+      choices
+    }
+  }
+
+  /**
+   * Standard surge "pre-check" function which determines if this particular actor update
+   * represents the use of a spell slot. This is the default pre-check handler used if one 
+   * is not supplied by the caller of DnDWildMagic.registerHandler
+   * @see {@link DnDWildMagic.registerHandler}
+   *
+   * @param {Actor5e} actor - actor under update (pre-update state)
+   * @param {Object} update - update to be applied to the actor
+   *
+   * @returns {boolean|Object} - false if no slot was used, or an Object containing `spellLevel` if the surge occured and from which slot level.
+   */
+  static slotExpended(actor, update) {
+
+    /** Exit if hook is not the product of a spell change */
+    const spells = !!getProperty(update, "data.spells");
+    if( !spells ) return false;
+
+    /** Find the spell level just cast */
+    const spellLvlNames = ["spell0", "spell1", "spell2", "spell3", "spell4", "spell5", "spell6", "spell7", "spell8", "spell9"];
+    let lvl = spellLvlNames.findIndex(name => { return getProperty(update, "data.spells." + name) });
+
+    const preCastSlotCount = getProperty(actor.data.data.spells, spellLvlNames[lvl] + ".value");
+    const postCastSlotCount = getProperty(update, "data.spells." + spellLvlNames[lvl] + ".value");
+    const wasCast = (preCastSlotCount - postCastSlotCount) > 0;
+
+    logger.debug(`Slot Expended check | `, { actor, lvl, wasCast , FeatureName : MODULE.setting("wmToCFeatureName") ?? MODULE[NAME].feature });
+
+    if (wasCast &amp;&amp; lvl > 0) {
+      return {
+        spellLevel: lvl,
+      }
+    }
+    
+    return false;
+  }
+
+  static _registerStockHandlers() {
+    /* default handler */
+    globalThis.WildMagic.registerHandler('', ()=>false, ()=>false);
+  }
+
+  static async commonSurgeHandler(actor, surgeData, targetRoll = '1', surgeRoll = '1d20' ) {
+
+    const convertEval = async (roll) => {
+
+      if(typeof roll == 'string') {
+        roll = new Roll(roll);
+      }
+
+      if( roll.total == undefined ) {
+        await roll.evaluate({async: true});
+      }
+
+      return roll;
+    }
+
+    surgeRoll = await convertEval(surgeRoll); 
+    targetRoll = await convertEval(targetRoll); 
+
+    let results = {
+      table: null,
+    }
+
+    let surgeOccured = false;
+    if (surgeRoll.total &lt;= targetRoll.total) {
+      
+      surgeOccured = true;
+
+      /* should I recharge tides for this surge? */
+      const rechargeTides = MODULE.setting('wmToCRecharge');
+
+      if(rechargeTides &amp;&amp; !WildMagic.isTidesCharged(actor)){
+
+        /* get the actor and/or item update information for
+         * recharging tides
+         */
+        const updates = WildMagic.tidesRechargeUpdate(actor);
+
+        results.actorUpdates = updates.actor;
+        results.itemUpdates = updates.item;
+      }
+
+      let table;
+      const tableName = MODULE.setting('wmTableName');
+      if(tableName) {
+        try {
+          table = game.tables.getName(tableName) ?? await fromUuid(tableName);
+        }catch(err){
+          // nope
+        }
+      }
+
+      results.table = {
+        uuid: table?.uuid
+      }
+    }
+
+    results.chatData = await WildMagic.generateChatData({
+      surgeRoll,
+      targetRoll,
+      surgeOccured,
+      spellLevel: surgeData.spellLevel,
+    })
+
+    return results;
+  }
+
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"ActionDialog","link":"<a href=\"ActionDialog.html\">ActionDialog</a>"},{"title":"ActionManagement","link":"<a href=\"ActionManagement.html\">ActionManagement</a>"},{"title":"ActionManagement._patchToken","link":"<a href=\"ActionManagement.html#._patchToken\">ActionManagement &rtrif; _patchToken</a>"},{"title":"ActionManagement._shouldAddEffect","link":"<a href=\"ActionManagement.html#._shouldAddEffect\">ActionManagement &rtrif; _shouldAddEffect</a>"},{"title":"ActionManagement._updateCombat","link":"<a href=\"ActionManagement.html#._updateCombat\">ActionManagement &rtrif; _updateCombat</a>"},{"title":"DnDWildMagic","link":"<a href=\"DnDWildMagic.html\">DnDWildMagic</a>"},{"title":"DnDWildMagic.slotExpended","link":"<a href=\"DnDWildMagic.html#.slotExpended\">DnDWildMagic &rtrif; slotExpended</a>"},{"title":"HelpersSettingsConfig","link":"<a href=\"HelpersSettingsConfig.html\">HelpersSettingsConfig</a>"},{"title":"HelpersSettingsConfig#_onClickSubmenu","link":"<a href=\"HelpersSettingsConfig.html#_onClickSubmenu\">HelpersSettingsConfig &rtrif; _onClickSubmenu</a>"},{"title":"HelpersSettingsConfig#activateListeners","link":"<a href=\"HelpersSettingsConfig.html#activateListeners\">HelpersSettingsConfig &rtrif; activateListeners</a>"},{"title":"HelpersSettingsConfig#getData","link":"<a href=\"HelpersSettingsConfig.html#getData\">HelpersSettingsConfig &rtrif; getData</a>"},{"title":"LairActionDialog","link":"<a href=\"LairActionDialog.html\">LairActionDialog</a>"},{"title":"LairActionManagement","link":"<a href=\"LairActionManagement.html\">LairActionManagement</a>"},{"title":"LairActionManagement._createCombatant","link":"<a href=\"LairActionManagement.html#._createCombatant\">LairActionManagement &rtrif; _createCombatant</a>"},{"title":"LairActionManagement._updateCombat","link":"<a href=\"LairActionManagement.html#._updateCombat\">LairActionManagement &rtrif; _updateCombat</a>"},{"title":"LegendaryActionDialog","link":"<a href=\"LegendaryActionDialog.html\">LegendaryActionDialog</a>"},{"title":"LegendaryActionManagement","link":"<a href=\"LegendaryActionManagement.html\">LegendaryActionManagement</a>"},{"title":"LegendaryActionManagement._createCombatant","link":"<a href=\"LegendaryActionManagement.html#._createCombatant\">LegendaryActionManagement &rtrif; _createCombatant</a>"},{"title":"LegendaryActionManagement.hooks","link":"<a href=\"LegendaryActionManagement.html#.hooks\">LegendaryActionManagement &rtrif; hooks</a>"},{"title":"LegendaryActionManagement.register","link":"<a href=\"LegendaryActionManagement.html#.register\">LegendaryActionManagement &rtrif; register</a>"},{"title":"LegendaryActionManagement.settings","link":"<a href=\"LegendaryActionManagement.html#.settings\">LegendaryActionManagement &rtrif; settings</a>"},{"title":"UpdateQueue","link":"<a href=\"UpdateQueue.html\">UpdateQueue</a>"},{"title":"WildMagicAPI","link":"<a href=\"WildMagicAPI.html\">WildMagicAPI</a>"},{"title":"WildMagicAPI#generateChatData","link":"<a href=\"WildMagicAPI.html#generateChatData\">WildMagicAPI &rtrif; generateChatData</a>"},{"title":"WildMagicAPI#isTidesCharged","link":"<a href=\"WildMagicAPI.html#isTidesCharged\">WildMagicAPI &rtrif; isTidesCharged</a>"},{"title":"WildMagicAPI#registerHandler","link":"<a href=\"WildMagicAPI.html#registerHandler\">WildMagicAPI &rtrif; registerHandler</a>"},{"title":"WildMagicAPI#surge","link":"<a href=\"WildMagicAPI.html#surge\">WildMagicAPI &rtrif; surge</a>"},{"title":"WildMagicAPI#tidesRechargeUpdate","link":"<a href=\"WildMagicAPI.html#tidesRechargeUpdate\">WildMagicAPI &rtrif; tidesRechargeUpdate</a>"},{"title":"WildMagicAPI#unregisterHandler","link":"<a href=\"WildMagicAPI.html#unregisterHandler\">WildMagicAPI &rtrif; unregisterHandler</a>"},{"title":"WildMagicSurge","link":"<a href=\"WildMagicSurge.html\">WildMagicSurge</a>"},{"title":"templates","link":"<a href=\"WildMagicAPI.templates.html\">templates</a>"},{"title":"WildMagicAPI.templates.handler","link":"<a href=\"WildMagicAPI.templates.html#.handler\">WildMagicAPI &rtrif; templates</a>"},{"title":"WildMagicAPI.templates.preCheck","link":"<a href=\"WildMagicAPI.templates.html#.preCheck\">WildMagicAPI &rtrif; templates</a>"},{"title":"queueUpdate","link":"<a href=\"global.html#queueUpdate\">queueUpdate</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+
+    
+
+
+  </body>
+
+</html>
