@@ -428,8 +428,8 @@ export class DnDWildMagic {
     handlerKeys.forEach( key => choices[key] = key );
 
     CONFIG.DND5E.characterFlags.wildMagic = {
-      hint: "DND5EH.flagsWildMagicHint",
-      name: "DND5EH.flagsWildMagic",
+      hint: MODULE.localize("DND5EH.flagsWildMagicHint"),
+      name: MODULE.localize("DND5EH.flagsWildMagic"),
       section: "Feats",
       type: String,
       choices
@@ -492,17 +492,19 @@ export class DnDWildMagic {
       return roll;
     }
 
-    surgeRoll = await convertEval(surgeRoll); 
-    targetRoll = await convertEval(targetRoll); 
+    const rolledSurge = await convertEval(surgeRoll); 
+    const rolledTarget = await convertEval(targetRoll); 
 
-    let results = {
-      table: null,
+    const results = {
+      table: undefined,
+      surge: false,
+      actorUpdates: {},
+      itemUpdates: [],
     }
 
-    let surgeOccured = false;
-    if (surgeRoll.total <= targetRoll.total) {
+    if (rolledSurge.total <= rolledTarget.total) {
       
-      surgeOccured = true;
+      results.surge = true;
 
       /* should I recharge tides for this surge? */
       const rechargeTides = MODULE.setting('wmToCRecharge');
@@ -534,9 +536,9 @@ export class DnDWildMagic {
     }
 
     results.chatData = await WildMagic.generateChatData({
-      surgeRoll,
-      targetRoll,
-      surgeOccured,
+      surgeRoll: rolledSurge,
+      targetRoll: rolledTarget,
+      surgeOccured: results.surge,
       spellLevel: surgeData.spellLevel,
     })
 

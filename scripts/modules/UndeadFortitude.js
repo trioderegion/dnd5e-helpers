@@ -41,8 +41,8 @@ export class UndeadFortitude {
     MODULE.registerSubMenu(NAME, settingsData, {tab: 'npc-features'});
 
   CONFIG.DND5E.characterFlags.helpersUndeadFortitude = {
-      hint: "DND5EH.flagsUndeadFortitudeHint",
-      name: "DND5EH.flagsUndeadFortitude",
+      hint: MODULE.localize("DND5EH.flagsUndeadFortitudeHint"),
+      name: MODULE.localize("DND5EH.flagsUndeadFortitude"),
       section: "Feats",
       default:false,
       type: Boolean
@@ -66,7 +66,7 @@ export class UndeadFortitude {
   static _preUpdateActor(actor, update, options/*, userId*/) {
     
     /* bail if not enabled */
-    if(!MODULE.setting('undeadFortEnable') > 0) return;
+    if(!(MODULE.setting('undeadFortEnable') > 0)) return;
 
     /* bail if HP isnt being modified */
     if( getProperty(update, "data.attributes.hp.value") == undefined ) return;
