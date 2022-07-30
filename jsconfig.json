@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "target": "ES6",
+    "checkJs": true,
+    "allowJs": true,
+    "noEmit": true,
+    "types": ["@league-of-foundry-developers/foundry-vtt-types"],
+    "moduleResolution": "node",
+    "strictNullChecks": true  
+  },
+  "include": ["./scripts/**/*", "./global.d.ts", "./types.d.ts"]
+}

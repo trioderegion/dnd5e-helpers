@@ -47,8 +47,9 @@ class WildMagicSurge {
   static async buildupHandler(actor, surgeData) {
     const targetRoll = actor.getFlag(MODULE.data.name, 'wildMagicBuildupThreshold') ?? 1;
     
-    let surgeResult = await WildMagic.templates.handler(actor, surgeData, `${targetRoll}`);
-    actor.setFlag(MODULE.data.name, 'wildMagicBuildupThreshold', surgeResult.table ? 1 : targetRoll + 1);
+    const surgeResult = await WildMagic.templates.handler(actor, surgeData, `${targetRoll}`);
+    surgeResult.actorUpdates[`flags.${MODULE.data.name}.wildMagicBuildupThreshold`] = surgeResult.surge ? 1 : targetRoll + 1;
+    //await actor.setFlag(MODULE.data.name, 'wildMagicBuildupThreshold', surgeResult.surgeOccured ? 1 : targetRoll + 1);
 
     return surgeResult;
   }

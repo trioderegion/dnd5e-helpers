@@ -12,6 +12,9 @@
     "DND5EH.Default_SocketSend": "socket send with {socketData}",
     "DND5EH.Default_roll" : "Roll",
 
+    "setting.debug.name": "Extended debug output",
+    "setting.debug.hint": "Logs additional debugging information to the console.",
+
     "setting.effectIconScale.name": "Status Effect Scale",
     "setting.effectIconScale.hint": "Multiplier applied to the default icon size of 20px",
 
@@ -95,7 +98,7 @@
     "option.wmOptions.standard": "Standard (PHB)",
     "option.wmOptions.more": "More Surges",
     "option.wmOptions.volatile": "Volatile Surges",
-    "option.wmOptions.buildup": "Surges build up",
+    "option.wmOptions.buildup": "Accumulating Surges",
 
     "setting.wmRollMode.name": "Table Roll Mode",
     "setting.wmRollMode.hint": "Default uses the client's current roll mode.",
