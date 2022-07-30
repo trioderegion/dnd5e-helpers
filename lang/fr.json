@@ -95,6 +95,7 @@
     "option.wmOptions.standard": "Activé - Standard (MdJ)",
     "option.wmOptions.more": "Activé - Plus",
     "option.wmOptions.volatile": "Activé - Volatile",
+    "option.wmOptions.buildup": "Activé - Accumulation",
 
     "setting.wmRollMode.name": "Table Roll Mode",
     "setting.wmRollMode.hint": "Default uses the client's current roll mode.",

@@ -1,3 +1,5 @@
+import {MODULE} from "../module.js"
+
 /**
  * Implements stock surge rules, and two homebrew variants. "More Surges" will surge if the
  * d20 is less than or equal to the spell level cast. "Volatile Surges" will add a d4 to the
@@ -19,6 +21,7 @@ class WildMagicSurge {
       /* use our modified inputs for the homebrew variants */
       WildMagic.registerHandler(game.i18n.localize("option.wmOptions.more"), WildMagicSurge.moreHandler);
       WildMagic.registerHandler(game.i18n.localize("option.wmOptions.volatile"), WildMagicSurge.volatileHandler);
+      WildMagic.registerHandler(game.i18n.localize("option.wmOptions.buildup"), WildMagicSurge.buildupHandler);
     });
   }
 
@@ -38,6 +41,16 @@ class WildMagicSurge {
 
 
     return WildMagic.templates.handler(actor, surgeData, targetRoll);
+  }
+  
+  /* surges on 1d20 <= (number of spells since the last surge + 1) */
+  static async buildupHandler(actor, surgeData) {
+    const targetRoll = actor.getFlag(MODULE.data.name, 'wildMagicBuildupThreshold') ?? 1;
+    
+    let surgeResult = await WildMagic.templates.handler(actor, surgeData, `${targetRoll}`);
+    actor.setFlag(MODULE.data.name, 'wildMagicBuildupThreshold', surgeResult.table ? 1 : targetRoll + 1);
+
+    return surgeResult;
   }
 }
 
