@@ -95,6 +95,7 @@
     "option.wmOptions.standard": "Standard (PHB)",
     "option.wmOptions.more": "More Surges",
     "option.wmOptions.volatile": "Volatile Surges",
+    "option.wmOptions.buildup": "Surges build up",
 
     "setting.wmRollMode.name": "Table Roll Mode",
     "setting.wmRollMode.hint": "Default uses the client's current roll mode.",
