@@ -1,0 +1,4 @@
+[submodule "scripts/lib/honeywrap"]
+	path = scripts/lib/honeywrap
+	url = https://github.com/trioderegion/honeywrap.git
+	branch = v9

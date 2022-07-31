@@ -8,7 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repo w/Submodules
+        uses: actions/checkout@v3
+        with: 
+        submodules: recursive
       
       # Substitute the Manifest and Download URLs in the module.json
       # for a FULL RELEASE
