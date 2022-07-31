@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Checkout Repo w/Submodules
         uses: actions/checkout@v3
-        with: 
-        submodules: recursive
+        with:
+          submodules: recursive
       
       # Substitute the Manifest and Download URLs in the module.json
       # for a FULL RELEASE
