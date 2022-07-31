@@ -3,9 +3,10 @@
     "title": "DnD5e Helpers",
     "description": "Little helpers for little tasks.",
     "system": [
-        "dnd5e"
+        "dnd5e",
+        "sw5e"
     ],
-    "version": "4.1.!1",
+    "version": "4.2.+1",
     "author": "honeybadger, Kandashi, kekilla",
     "authors": [
         {
@@ -22,7 +23,8 @@
         }
     ],
     "esmodules": [
-        "/scripts/helpers.js"
+        "/scripts/helpers.js",
+        "/scripts/plugins/wild-magic-surge.js"
     ],
     "languages": [
         {
@@ -63,7 +65,7 @@
     "socket": true,
     "url": "https://github.com/trioderegion/dnd5e-helpers",
     "manifest": "https://raw.githubusercontent.com/trioderegion/dnd5e-helpers/dnd5e-helpers-next/module.json",
-    "download": "https://github.com/trioderegion/dnd5e-helpers/releases/download/4.1.!1/module.zip",
+    "download": "https://github.com/trioderegion/dnd5e-helpers/releases/download/4.2.+1/module.zip",
     "minimumCoreVersion": "9",
     "compatibleCoreVersion": "9"
 }
