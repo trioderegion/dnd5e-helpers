@@ -442,7 +442,7 @@ export class CoverCalculator{
       /* sight vs sense is a 0.9 vs 0.8 issue -- prefer 0.9, but fall back to 0.8 */
       const definedCover = this.document.getFlag(MODULE.data.name, data.flag);
 
-      if (definedCover) return definedCover;
+      if (definedCover != undefined) return definedCover;
 
       /* otherwise, make an intelligent guess as to the default state based on the wall itself */
       /* sight vs sense is a 0.9 vs 0.8 issue -- prefer 0.9, but fall back to 0.8 */
