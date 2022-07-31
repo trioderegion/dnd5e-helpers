@@ -1,16 +1,22 @@
 import { logger } from './logger.js';
 import { HelpersSettingsConfig } from './apps/config-app.js';
+import { HoneyWrap } from './lib/honeywrap/shim.js'
 
 const NAME = "dnd5e-helpers";
 const PATH = `/modules/${NAME}`;
 const TITLE = "DnD5e Helpers";
 
 
+/**
+ * @class
+ * @property {Function} patch
+ */
 export class MODULE{
   static async register(){
     logger.info("Initializing Module");
     MODULE.settings();
     MODULE.globals();
+    HoneyWrap.register(MODULE, MODULE.data.name);
   }
 
   static async build(){
@@ -23,6 +29,9 @@ export class MODULE{
     game.dnd5e.helpers = {};
   }
 
+  /**
+   * @returns any
+   */
   static setting(key){
     return game.settings.get(MODULE.data.name, key);
   }

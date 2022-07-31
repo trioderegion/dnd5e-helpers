@@ -51,6 +51,7 @@ export class ActionManagement{
         choices : {
           0 : MODULE.localize("option.default.disabled"),
           1 : MODULE.localize("option.default.enabled"),
+          2 : MODULE.localize("option.globalShowMgmt"),
         },
         onChange : async (v) =>{
           /**
@@ -74,13 +75,19 @@ export class ActionManagement{
           2 : MODULE.localize("option.default.enabledHover"),
         }
       },
-      /** @todo localize */
+      reflowEffects : {
+        scope : "client", type : Boolean, group : "system", default : true, config,
+        onChange : () => {
+          canvas?.tokens.placeables.forEach( token => token.drawEffects() );
+        }
+      },
       effectIconScale : {
         scope : "client", type : Number, group : "system", default : 1, config,
         onChange : () => {
           canvas?.tokens.placeables.forEach( token => token.drawEffects() );
         }
-      }
+      },
+     
       /**
        * @todo add new setting to handle container location
        * @todo add new setting for click handler (and dialog availability)
@@ -114,10 +121,32 @@ export class ActionManagement{
   }
 
   /**
+   * Helpers
+   */
+  static async #clearActionMgmt(tokenId, sceneId) {
+
+    /* this retrieves a token DOCUMENT */
+    const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
+    const token = tokenDoc?.object;
+    if (!token) return;
+
+    if(MODULE.isFirstGM()) {
+      /* reset its flags to 0 to update status effect icons */
+      await token.resetActionFlag();
+      //await token.removeActionFlag();
+      await token.updateActionMarkers(); 
+    }
+
+    await token.removeActionContainer();
+
+  }
+
+  /**
    * Hook Functions
    */
   static async _updateCombat(combat, changed, /*options, userid*/){
-    if(MODULE.setting('actionMgmtEnable') == 0) return;
+    const mode = MODULE.setting('actionMgmtEnable');
+    if( mode == 0 ) return;
 
     logger.debug("_updateCombat | DATA | ", { 
       isFirstTurn : MODULE.isFirstTurn(combat,changed),
@@ -128,26 +157,36 @@ export class ActionManagement{
       changed,
     });
 
-    if(MODULE.isFirstTurn(combat, changed) && MODULE.isFirstGM())
-      for(let combatant of combat.combatants){
-        const token = combatant.token.object;
+    const firstGM = MODULE.isFirstGM();
+    if(MODULE.isFirstTurn(combat, changed) && firstGM) {
+      const tokens = mode == 1 ? combat.combatants.map( c => c.token?.object ) : combat.scene.tokens.map( t => t.object );
+
+      for(const token of tokens){
         await token.resetActionFlag();
-        await token.renderActionContainer(combatant.token.object._controlled && MODULE.setting('actionMgmtDisplay') == 1 );
+        await token.renderActionContainer(token._controlled && (MODULE.setting('actionMgmtDisplay') > 0) );
         await token.updateActionMarkers();
       }
-    
-    if(MODULE.isTurnChange(combat, changed) && MODULE.isFirstOwner(combat.combatant.token.actor)){
+    } else if(MODULE.isTurnChange(combat, changed) && firstGM){
       await combat.combatant.token.object.resetActionFlag();
     }
   }
 
   static _deleteCombat(combat, /* options, userId */){
-      const mode = MODULE.setting('actionMgmtEnable');
-      if(mode == 0) return;
+    const mode = MODULE.setting('actionMgmtEnable');
+    if(mode == 0) return;
 
+    /* if we are showing the container globally and
+     * there are no more active combats on this scene,
+     * wipe all containers */
+    if(mode == 2 && !game.combats.find( c => (c.scene.id === combat.scene.id && c.id !== combat.id) )){
+      combat.scene.tokens.forEach( t => queueUpdate( () => ActionManagement.#clearActionMgmt(t.id, t.parent.id) ));
+    } else {
+      /*otherwise, just clear the containers of the combatant tokens */
       for(const combatant of combat.combatants){
         ActionManagement._deleteCombatant(combatant);
       }
+    }
+
   }
 
   static _deleteCombatant(combatant/*, options, userId */){
@@ -161,19 +200,7 @@ export class ActionManagement{
     const sceneId = combatant.parent.data.scene
 
     queueUpdate(async () => {
-      /* this retrieves a token DOCUMENT */
-      const tokenDoc = game.scenes.get(sceneId).tokens.get(tokenId);
-      const token = tokenDoc?.object;
-
-      if(/*token?.hasActionFlag() &&*/ token.isOwner) {
-        /* reset its flags to 0 to update status effect icons */
-          await token.resetActionFlag();
-          await token.updateActionMarkers(); 
-          await token.removeActionFlag();
-      }
-
-      await token.removeActionContainer();
-
+      await ActionManagement.#clearActionMgmt(tokenId, sceneId); 
     });
   }
 
@@ -183,7 +210,7 @@ export class ActionManagement{
 
     const display = MODULE.setting('actionMgmtDisplay');
 
-    if(token.inCombat){
+    if(token.inCombat || (mode == 2 && game.combats.find( c => c.scene?.id === token.document.parent.id))){
 
       queueUpdate( async () => {
         if(token.hasActionContainer()) token.toggleActionContainer(display === 0 || !state ? false : true);
@@ -196,20 +223,27 @@ export class ActionManagement{
 
   /* this is where all clients should be updating their rendering, based on flags
    * set by the owner */
-  static _updateToken(tokenDocument, update, /* options, id */){
+  static _updateToken(tokenDocument, update, options, id){
     const mode = MODULE.setting('actionMgmtEnable');
-    if(mode == 0 || !tokenDocument.inCombat) return;
+
+    /* if we are disabled, or adding only to tokens in combat bail */
+    if(mode == 0 || (mode == 1 && !tokenDocument.inCombat)) return;
 
     const display = MODULE.setting('actionMgmtDisplay');
 
+    let actionTaken = false;
     if("width" in update || "height" in update || "scale" in update){
       ActionManagement._renderActionContainer(tokenDocument.object, display === 0 || !tokenDocument.object._controlled ? false : true );
+      actionTaken ||= true;
     }
 
-    if("tint" in update || "img" in update || !!getProperty(update, `flags.${MODULE.data.name}`))
-      tokenDocument.object.updateActionMarkers();
+    if("tint" in update || "img" in update || !!getProperty(update, `flags.${MODULE.data.name}`)) {
+      const selfIssued = (options.helpersAction == 'iterateActionFlag' && game.userId == id)
+      tokenDocument.object.updateActionMarkers(!selfIssued);
+      actionTaken ||= selfIssued;
+    }
       
-    logger.debug("_updateToken | Data | ", {
+    logger.debug(`_updateToken | Data (${actionTaken ? '' : 'No'} Action Taken) | `, {
       tokenDocument, mode: display, update, container : tokenDocument.object.getActionContainer(),
     });
   }
@@ -260,7 +294,7 @@ export class ActionManagement{
     });
 
     type = ActionManagement._checkForReaction(type, token.combatant);
-    token.object.iterateActionFlag(type, cost);
+    await token.object.iterateActionFlag(type, cost);
   }
 
   static _checkForReaction(actionType, combatant){
@@ -276,15 +310,18 @@ export class ActionManagement{
   }
 
   static async _hoverToken(token, state){
+
+    const mode = MODULE.setting('actionMgmtEnable')
     /* users can hover anything, but only 
      * should display on owned tokens 
      */
-    if(!token.isOwner || !MODULE.setting('actionMgmtEnable')) return;
+    if(!token.isOwner || mode == 0) return;
     const display = MODULE.setting('actionMgmtDisplay');
 
-    /* main hover option must be enabled, and we must be in combat
+    /* main hover option must be enabled, and we must be in combat if only
+     * showing in combat
      */
-    if(display == 2 && token.inCombat){
+    if(display == 2 && (token.inCombat || (mode == 2 && game.combats.find( c => c.scene?.id === token.document.parent.id)))){
       if(!state) {
         setTimeout(function() {
           token.renderActionContainer(state);
@@ -302,6 +339,10 @@ export class ActionManagement{
    * Patching Functions
    */
   static _patchToken(){
+    /*************
+     * ADDITIONS
+     *************/
+
     Token.prototype.hasActionContainer = function(){
       return !!this.children?.find(i => i[NAME]);
     }
@@ -315,7 +356,7 @@ export class ActionManagement{
       return this.children?.find(i => i[NAME]);
     }
 
-    Token.prototype.updateActionMarkers = function(){
+    Token.prototype.updateActionMarkers = function(renderOnly = false){
       const flag = this.getActionFlag();
       const container = this.getActionContainer();
 
@@ -331,8 +372,8 @@ export class ActionManagement{
           element.alpha = 1;
         }
 
-        /* update any needed status icons for this change (requires ownership) */
-        if(this.isOwner) {
+        if (!renderOnly) {
+          /* update any needed status icons for this change (requires ownership) */
           if (ActionManagement._shouldAddEffect(type)) {
             queueUpdate( async () => {
               await this.toggleEffect( MODULE[NAME].img[type] , {active: flag[type] > 0 ? true : false} );
@@ -350,11 +391,11 @@ export class ActionManagement{
       return !!this.getActionFlag();
     }
 
-    /** @return {Promise<TokenDocument>} */
+    /** @return {Promise<TokenDocument>|undefined} */
     Token.prototype.iterateActionFlag = function(type, value){
 
       /* dont mess with flags if I am not in combat */
-      if (!this.combatant) return false;
+      if (!this.combatant && (MODULE.setting('actionMgmtEnable') < 2)) return false;
 
       let flag = this.getActionFlag() ?? duplicate(MODULE[NAME].default);
       if(value === undefined) flag[type] += 1;
@@ -364,7 +405,7 @@ export class ActionManagement{
         type, flag, token : this, scope : MODULE.data.name, key : MODULE[NAME].flagKey,
       });
 
-      return this.document.setFlag(MODULE.data.name, MODULE[NAME].flagKey, flag);
+      return this.document.update({[`flags.${MODULE.data.name}.${MODULE[NAME].flagKey}`]: flag}, {helpersAction: 'iterateActionFlag'});
       
     }
 
@@ -374,7 +415,7 @@ export class ActionManagement{
       });
 
       /* force an update on reset */
-      return await this.document.update({[`flags.${MODULE.data.name}.${MODULE[NAME].flagKey}`]: MODULE[NAME].default}, {diff: false})
+      return await this.document.update({[`flags.${MODULE.data.name}.${MODULE[NAME].flagKey}`]: MODULE[NAME].default}, {helpersAction: 'iterateActionFlag'})
     }
 
     Token.prototype.removeActionContainer = function(){
@@ -382,7 +423,7 @@ export class ActionManagement{
     }
 
     Token.prototype.removeActionFlag = async function(){
-      if(!!this.getActionFlag()) return this.document.update({[`flags.${MODULE.data.name}.-=${MODULE[NAME].flagKey}`] : null });
+      if(!!this.getActionFlag()) return this.document.update({[`flags.${MODULE.data.name}.-=${MODULE[NAME].flagKey}`] : null }, {helpersAction: 'iterateActionFlag'});
     }
 
     Token.prototype.renderActionContainer = function(state){
@@ -407,27 +448,10 @@ export class ActionManagement{
       return false;
     }
 
-    //from foundry.js:38015 as of v9.238
-    Token.prototype._drawEffect = async function (src, index, bg, w, tint) {
-      let tex = await loadTexture(src);
-      let icon = this.hud.effects.addChild(new PIXI.Sprite(tex));
-      
-      //BEGIN D5H
-      const scale = MODULE.setting('effectIconScale');
-      icon.width = icon.height = w * scale;
-      /* if the action hud is visible, offset the start offset
-       * of the icons */
-      const actionHeight = this.getActionContainer()?.visible ? this.getActionContainer().getLocalBounds().bottom : 0;
-
-      const numColumns = Math.floor(this.data.width/scale * 5);
-      icon.x = (index % numColumns) * icon.width;
-      
-      icon.y = actionHeight + Math.floor(index/numColumns) * icon.height;
-      //END D5H
-
-      if ( tint ) icon.tint = tint;
-      bg.drawRoundedRect(icon.x + 1, icon.y + 1, icon.width - 2, icon.height - 2, 2);
-    }
+    /*************
+     * WRAPPERS
+     *************/
+    MODULE.patch('Token.prototype', {_drawEffect: {value: ActionManagement.drawEffect, mode: 'MIXED'}});
   }
 
   /**
@@ -479,15 +503,16 @@ export class ActionManagement{
         s.actionType = k;
         s.tint = 13421772;
         s.alpha = actions[k] === 0 ? 1 : 0.2;
-        s.on("mousedown", async (event) => {
+        s.on("mousedown", (event) => {
+          event.stopPropagation();
           const actions = token.getActionFlag() ?? (duplicate(MODULE[NAME].default));
           const container = token.getActionContainer();
-          if(container.visible) {
-            await token.iterateActionFlag(k, actions[k] > 0 ? 0 : 1);
-          }
           logger.debug("_MouseDown | DATA |", { 
             event, token, container, actions
           });
+          if(container.visible) {
+            token.iterateActionFlag(k, actions[k] > 0 ? 0 : 1);
+          }
         });
       }else{
         s.zIndex = -1000;
@@ -506,5 +531,34 @@ export class ActionManagement{
 
     /* return Container*/
     return container;
+  }
+
+  static async drawEffect(wrapped, ...args ) {
+    const [src, index, bg, w, tint] = args;
+
+    if(MODULE.setting('reflowEffects')) { 
+      //from foundry.js:38015 as of v9.238
+      let tex = await loadTexture(src);
+      let icon = this.hud.effects.addChild(new PIXI.Sprite(tex));
+
+      //BEGIN D5H
+      /** @type number */
+      const scale = MODULE.setting('effectIconScale');
+      icon.width = icon.height = w * scale;
+      /* if the action hud is visible, offset the start offset
+       * of the icons */
+      const actionHeight = this.getActionContainer()?.visible ? this.getActionContainer().getLocalBounds().bottom : 0;
+
+      const numColumns = Math.floor(this.data.width/scale * 5);
+      icon.x = (index % numColumns) * icon.width;
+
+      icon.y = actionHeight + Math.floor(index/numColumns) * icon.height;
+      //END D5H
+
+      if ( tint ) icon.tint = tint;
+      bg.drawRoundedRect(icon.x + 1, icon.y + 1, icon.width - 2, icon.height - 2, 2);
+    } else {
+      wrapped(...args)
+    }
   }
 }

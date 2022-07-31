@@ -16,7 +16,9 @@
     "setting.debug.hint": "Logs additional debugging information to the console.",
 
     "setting.effectIconScale.name": "Status Effect Scale",
-    "setting.effectIconScale.hint": "Multiplier applied to the default icon size of 20px",
+    "setting.effectIconScale.hint": "Requires 'Reflow Effects.' Multiplier applied to the default icon size of 20px",
+    "setting.reflowEffects.name": "Reflow Effects",
+    "setting.reflowEffects.hint": "Changes token status icons to a horizontal layout to better accommodate Action Management HUD.",
 
     "DND5EH.ConfigApp.title": "DnD5e Helpers Configuration",
     "DND5EH.ConfigApp.return": "Back",
@@ -130,7 +132,8 @@
     "setting.wmWhisper.hint":"Whispers all rolls and table results to the GM",
 
     "setting.actionMgmtEnable.name": "Enable Combat Action Management",
-    "setting.actionMgmtEnable.hint": "Enables action tracking during combat. Displaying usage of actions, bonus actions, and reactions.",
+    "setting.actionMgmtEnable.hint": "Enables action tracking during combat. Displaying usage of actions, bonus actions, and reactions. Enabling for all tokens allows manual management while any combat exists on current scene.",
+    "option.globalShowMgmt": "Enabled (All Tokens)",
     "setting.actionsAsStatus.name": "Display Used Actions as Status Effect",
     "setting.actionsAsStatus.hint": "Displaying used actions in this way allows non-owners to see which actions an actor has used this round.",
     "option.actionsAsStatus.onlyReaction": "Only Reactions",
