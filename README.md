@@ -1,9 +1,11 @@
 # DnD5e Helpers
 
-Little helpers for little 5e tasks.
+Little helpers for little 5e tasks.  Compatible with Foundry versions v9 or earlier only.
 
 ### Compatibility Notes
 - v3.0.4 (legacy 0.8.x generation): Requires dnd5e system version 1.5.5 or greater.
+- v4.x (legacy v9 generation): Requires dnd5e system version 1.6.0 or greater.
+- v5.x (v10+ generation): **NOT PLANNED FOR DEVELOPMENT**
 
 ## Current Features
 
