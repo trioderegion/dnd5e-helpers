@@ -306,7 +306,10 @@ export class DnDWildMagic {
   }
 
   static globals(){
-    globalThis.WildMagic = new WildMagicAPI();
+    game.dnd5e.helpers.WildMagicAPI = new WildMagicAPI();
+
+    /** @deprecated */
+    globalThis.WildMagic = game.dnd5e.helpers.WildMagicAPI;
   }
 
   static _updateActor(actor, _, options, user){

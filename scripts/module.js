@@ -10,24 +10,37 @@ const TITLE = "DnD5e Helpers";
 /**
  * @class
  * @property {Function} patch
+ * @property {Object} data
  */
 export class MODULE{
   static async register(){
     logger.info("Initializing Module");
     MODULE.settings();
-    MODULE.globals();
     HoneyWrap.register(MODULE, MODULE.data.name);
+    MODULE.api();
   }
 
-  static async build(){
-    MODULE.data = {
+  static get data() {
+    return {
       name : NAME, path : PATH, title : TITLE
     };
+
   }
 
-  static globals() {
-    game.dnd5e.helpers = {};
+  static api(){
+
+    /** @type HPI */
+    const publicApi = game.modules.get('dnd5e-helpers').api;
+
+    /** @deprecated */
+    game.dnd5e.helpers = publicApi;
+    
+    publicApi.add('util','isFirstGM',MODULE.isFirstGM);
+    publicApi.add('util','isFirstOwner',MODULE.isFirstOwner);
+    publicApi.add('util','wait',MODULE.wait);
+    publicApi.add('util','waitFor',MODULE.waitFor);
   }
+
 
   /**
    * @returns any
@@ -36,10 +49,16 @@ export class MODULE{
     return game.settings.get(MODULE.data.name, key);
   }
 
-  static localize(...args){
-    return game.i18n.localize(...args);
+  /**
+   * @param {string} arg
+   */
+  static localize(arg){
+    return game.i18n.localize(arg);
   }
 
+  /**
+   * @param {[String, Record<String,unknown>?]} args
+   */
   static format(...args){
     return game.i18n.format(...args);
   }
@@ -73,6 +92,10 @@ export class MODULE{
     return game.users.find(u => u.isGM && u.active);
   }
 
+  /**
+   * test doc
+   * @returns boolean
+   */
   static isFirstGM(){
     return game.user.id === MODULE.firstGM()?.id;
   }
